@@ -1,5 +1,12 @@
+import "@mantine/core/styles.css";
 import type { Metadata } from "next";
 import "./globals.css";
+
+import { MantineProvider, ColorSchemeScript, DEFAULT_THEME } from "@mantine/core";
+
+// Components
+import Footer from "./components/footer/Footer";
+import Navbar from "./components/navbar/Navbar";
 
 export const metadata: Metadata = {
   title: "MIRÓ",
@@ -13,7 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <ColorSchemeScript />
+      </head>
+      <body>
+        <MantineProvider >
+          <Navbar />
+          {children}
+          <Footer />
+        </MantineProvider>
+      </body>
     </html>
   );
 }
