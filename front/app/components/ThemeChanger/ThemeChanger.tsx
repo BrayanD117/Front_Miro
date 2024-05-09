@@ -14,7 +14,7 @@ export default function ThemeChanger() {
       p={5}
       size={'lg'}
       aria-label="Toggle color scheme"
-      color='yellow'
+      color='blue'
     >
       <IconSun className={cx(classes.icon, classes.light)} stroke={1.5} />
       <IconMoon className={cx(classes.icon, classes.dark)} stroke={1.5} />

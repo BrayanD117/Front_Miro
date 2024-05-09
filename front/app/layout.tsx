@@ -2,7 +2,7 @@ import "@mantine/core/styles.css";
 import type { Metadata } from "next";
 import "./globals.css";
 
-import { MantineProvider, ColorSchemeScript, DEFAULT_THEME } from "@mantine/core";
+import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
 // Components
 import Footer from "./components/footer/Footer";
