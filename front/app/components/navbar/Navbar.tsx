@@ -5,7 +5,7 @@ import { Container, Group, Burger, Text, Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
-import {signIn, useSession} from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 // Components
 import ThemeChanger from "../ThemeChanger/ThemeChanger";
@@ -19,9 +19,8 @@ const links = [
 ];
 
 export default function Navbar() {
-
-  // const {data: session} = useSession();
-  // console.log(session)
+  const { data: session } = useSession();
+  console.log(session);
 
   const [opened, { toggle }] = useDisclosure(false);
   const [active, setActive] = useState(links[0].link);
@@ -39,25 +38,35 @@ export default function Navbar() {
       <header className={classes.header}>
         <Container size="md" className={classes.inner}>
           <Group>
-            <Text
-              component="a"
-              href="/"
-              fw={700}
-              size="xl"
-            >
+            <Text component="a" href="/" fw={700} size="xl">
               MIRÓ
             </Text>
           </Group>
-          <Group gap={8} visibleFrom="xs">
-            {items}
-            <ThemeChanger />
-            <Avatar color="blue" radius="xl" />
-          </Group>
-          <Group>
-            <Button onClick={() => signIn()}>
-              Sign In
-            </Button>
-          </Group>
+          {session?.user ? (
+            <>
+              <Group gap={8} visibleFrom="xs">
+                {items}
+                <ThemeChanger />
+                <Avatar
+                  component="a"
+                  src={session.user.image}
+                  color="blue"
+                  radius="xl"
+                />
+                <Button
+                  onClick={async () => {
+                    await signOut(
+                      { callbackUrl: "/"}
+                    );
+                  }}
+                >Sign Out</Button>
+              </Group>
+            </>
+          ) : (
+            <Group>
+              <Button onClick={() => signIn()}>Sign In</Button>
+            </Group>
+          )}
           <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
         </Container>
       </header>

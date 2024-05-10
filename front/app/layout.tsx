@@ -1,8 +1,7 @@
 import "@mantine/core/styles.css";
 import type { Metadata } from "next";
 import "./globals.css";
-
-import {SessionProvider} from "next-auth/react";
+import { Providers } from "./Providers";
 
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
@@ -26,11 +25,13 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider >
-          <Navbar />
-          {children}
-          <Footer />
-        </MantineProvider>
+        <Providers>
+          <MantineProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </MantineProvider>
+        </Providers>
       </body>
     </html>
   );
