@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Group, Burger, Text, Button } from "@mantine/core";
+import { Container, Group, Burger, Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
@@ -18,6 +18,8 @@ const links = [
   { link: "/about", label: "Cambiar Rol" },
 ];
 
+const titles = [{ link: "/", label: "MIRÓ" }];
+
 export default function Navbar() {
   const { data: session } = useSession();
   console.log(session);
@@ -33,15 +35,19 @@ export default function Navbar() {
     </Link>
   ));
 
+  const titleButton = titles.map((link) => (
+    <Link href={link.link} key={link.label} passHref>
+      <Button variant="transparent" size="xl" style={{ fontWeight: 500 }}>
+        {link.label}
+      </Button>
+    </Link>
+  ));
+
   return (
     <>
       <header className={classes.header}>
         <Container size="md" className={classes.inner}>
-          <Group>
-            <Text component="a" href="/" fw={700} size="xl">
-              MIRÓ
-            </Text>
-          </Group>
+          <Group>{titleButton}</Group>
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
@@ -54,17 +60,21 @@ export default function Navbar() {
                   radius="xl"
                 />
                 <Button
+                  variant="light"
                   onClick={async () => {
-                    await signOut(
-                      { callbackUrl: "/"}
-                    );
+                    await signOut({ callbackUrl: "/" });
                   }}
-                >Sign Out</Button>
+                >
+                  Sign Out
+                </Button>
               </Group>
             </>
           ) : (
             <Group>
-              <Button onClick={() => signIn()}>Sign In</Button>
+              <ThemeChanger />
+              <Button variant="light" onClick={() => signIn()}>
+                Sign In
+              </Button>
             </Group>
           )}
           <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
