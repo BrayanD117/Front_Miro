@@ -1,11 +1,29 @@
 import styles from "./page.module.css";
-
-import React from 'react'
+import { BackgroundImage, Center, Container, Text, Title } from "@mantine/core";
 
 const HomePage = () => {
   return (
-    <div>HomePage</div>
-  )
-}
+    <>
+      <Container size="xl">
+        <BackgroundImage
+          src="/assets/panoramica.png"
+          radius="md"
+        >
+          <Center p="md">
+            <Title order={1} c="black" mt={40} fw={700} ta="center">
+              Bienvenidos a MIRÓ
+            </Title>
+          </Center>
+          <Center p="xs">
+            <Title order={4} c="white" mt={20} mb={40} fw={700} ta="center">
+              El mecanismo de información y reporte oficial de la Universidad de Ibagué.
+            </Title>
+          </Center>
+        </BackgroundImage>
+        <h1>HomePage</h1>
+      </Container>
+    </>
+  );
+};
 
-export default HomePage
+export default HomePage;
