@@ -10,7 +10,7 @@ const HomePage = () => {
           radius="md"
         >
           <Center p="md">
-            <Title order={1} c="black" mt={40} fw={700} ta="center">
+            <Title order={1} c="white" mt={40} fw={700} ta="center">
               Bienvenidos a MIRÓ
             </Title>
           </Center>

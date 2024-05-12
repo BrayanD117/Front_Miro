@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Group, Burger, Button } from "@mantine/core";
+import { Container, Group, Burger, Button, Menu, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
@@ -12,10 +12,11 @@ import ThemeChanger from "../ThemeChanger/ThemeChanger";
 
 // Styles
 import classes from "./Navbar.module.css";
+import { IconDoorExit, IconSettings } from "@tabler/icons-react";
 
 const links = [
   { link: "/dashboard", label: "Inicio" },
-  { link: "/about", label: "Cambiar Rol" },
+  { link: "/", label: "Cambiar Rol" },
 ];
 
 const titles = [{ link: "/", label: "MIRÓ" }];
@@ -53,27 +54,49 @@ export default function Navbar() {
               <Group gap={8} visibleFrom="xs">
                 {items}
                 <ThemeChanger />
-                <Avatar
-                  component="a"
-                  src={session.user.image}
-                  color="blue"
-                  radius="xl"
-                />
-                <Button
-                  variant="light"
-                  onClick={async () => {
-                    await signOut({ callbackUrl: "/" });
-                  }}
-                >
-                  Sign Out
-                </Button>
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <Avatar
+                      component="a"
+                      src={session.user.image}
+                      color="blue"
+                      radius="xl"
+                      className={classes.avatarClickable}
+                    />
+                  </Menu.Target>
+                  {/* Menu Dropdown */}
+                  <Menu.Dropdown>
+                    <Menu.Divider />
+
+                    <Menu.Label>Zona Peligrosa</Menu.Label>
+
+                    <Menu.Item
+                      color="red"
+                      leftSection={
+                        <IconDoorExit
+                          style={{ width: rem(14), height: rem(14) }}
+                        />
+                      }
+                    >
+                      <Button
+                        variant="transparent"
+                        color="red"
+                        onClick={async () => {
+                          await signOut({ callbackUrl: "/" });
+                        }}
+                      >
+                        Cerrar Sesión
+                      </Button>
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Group>
             </>
           ) : (
             <Group>
               <ThemeChanger />
               <Button variant="light" onClick={() => signIn()}>
-                Sign In
+                Iniciar Sesión
               </Button>
             </Group>
           )}
