@@ -10,6 +10,10 @@ import {
   rem,
   Modal,
   Text,
+  Drawer,
+  Flex,
+  Stack,
+  Divider,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
@@ -18,10 +22,11 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 // Components
 import ThemeChanger from "../ThemeChanger/ThemeChanger";
+import ThemeChangerMobile from "../ThemeChanger/ThemeChangerMobile";
 
 // Styles
 import classes from "./Navbar.module.css";
-import { IconDoorExit, } from "@tabler/icons-react";
+import { IconDoorExit } from "@tabler/icons-react";
 
 const links = [
   { link: "/dashboard", label: "Inicio" },
@@ -46,9 +51,22 @@ export default function Navbar() {
     </Link>
   ));
 
+  const itemsDrawer = links.map((link) => (
+    <Link href={link.link} key={link.label} passHref>
+    <Button
+      fullWidth
+      variant="light"
+      size="sm"
+      style={{ fontWeight: 500, marginBottom: "8px", textDecoration: 'none' }}
+    >
+      {link.label}
+    </Button>
+  </Link>
+  ));
+
   const titleButton = titles.map((link) => (
     <Link href={link.link} key={link.label} passHref>
-      <Button variant="transparent" size="xl" style={{ fontWeight: 500 }}>
+      <Button variant="transparent" size="sm" style={{ fontWeight: 500 }}>
         {link.label}
       </Button>
     </Link>
@@ -58,6 +76,7 @@ export default function Navbar() {
     <>
       <header className={classes.header}>
         <Container size="md" className={classes.inner}>
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group>{titleButton}</Group>
           {session?.user ? (
             <>
@@ -103,7 +122,36 @@ export default function Navbar() {
               </Button>
             </Group>
           )}
-          <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
+
+          <Drawer
+            opened={opened}
+            onClose={() => toggle()}
+            title="Menú"
+            padding="md"
+            size="md"
+          >
+            <Stack align="stretch" justify="center" gap="md">
+              {itemsDrawer}
+              <ThemeChangerMobile />
+              {session?.user && (
+                <>
+                <Divider/>
+                <Button
+                  mt={8}
+                  fullWidth
+                  color="red"
+                  variant="light"
+                  onClick={() => {
+                    setModalOpened(true);
+                    toggle();
+                  }}
+                >
+                  Cerrar Sesión
+                </Button>
+                </>
+              )}
+            </Stack>
+          </Drawer>
         </Container>
       </header>
 
