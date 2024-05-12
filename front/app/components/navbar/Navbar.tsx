@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Group, Burger, Button, Menu, rem } from "@mantine/core";
+import {
+  Container,
+  Group,
+  Burger,
+  Button,
+  Menu,
+  rem,
+  Modal,
+  Text,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
@@ -12,7 +21,7 @@ import ThemeChanger from "../ThemeChanger/ThemeChanger";
 
 // Styles
 import classes from "./Navbar.module.css";
-import { IconDoorExit, IconSettings } from "@tabler/icons-react";
+import { IconDoorExit, } from "@tabler/icons-react";
 
 const links = [
   { link: "/dashboard", label: "Inicio" },
@@ -26,6 +35,7 @@ export default function Navbar() {
   console.log(session);
 
   const [opened, { toggle }] = useDisclosure(false);
+  const [modalOpened, setModalOpened] = useState(false);
   const [active, setActive] = useState(links[0].link);
 
   const items = links.map((link) => (
@@ -69,7 +79,6 @@ export default function Navbar() {
                     <Menu.Divider />
 
                     <Menu.Label>Zona Peligrosa</Menu.Label>
-
                     <Menu.Item
                       color="red"
                       leftSection={
@@ -77,16 +86,10 @@ export default function Navbar() {
                           style={{ width: rem(14), height: rem(14) }}
                         />
                       }
+                      variant="transparent"
+                      onClick={() => setModalOpened(true)}
                     >
-                      <Button
-                        variant="transparent"
-                        color="red"
-                        onClick={async () => {
-                          await signOut({ callbackUrl: "/" });
-                        }}
-                      >
-                        Cerrar Sesión
-                      </Button>
+                      Cerrar Sesión
                     </Menu.Item>
                   </Menu.Dropdown>
                 </Menu>
@@ -103,6 +106,31 @@ export default function Navbar() {
           <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
         </Container>
       </header>
+
+      <Modal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        title="Cerrar Sesión"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+      >
+        <Text>¿Estás seguro de que deseas cerrar sesión?</Text>
+        <Group mt="md">
+          <Button variant="default" onClick={() => setModalOpened(false)}>
+            Cancelar
+          </Button>
+          <Button
+            color="red"
+            onClick={async () => {
+              await signOut({ callbackUrl: "/" });
+            }}
+          >
+            Cerrar Sesión
+          </Button>
+        </Group>
+      </Modal>
     </>
   );
 }
