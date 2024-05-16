@@ -38,7 +38,6 @@ const titles = [{ link: "/", label: "MIRÓ" }];
 
 export default function Navbar() {
   const { data: session } = useSession();
-  console.log(session);
 
   const [opened, { toggle }] = useDisclosure(false);
   const [modalOpened, setModalOpened] = useState(false);

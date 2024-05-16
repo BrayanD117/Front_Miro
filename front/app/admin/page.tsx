@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Checkbox, Container, Table } from "@mantine/core";
+import { Center, Checkbox, Container, Pagination, Table } from "@mantine/core";
 import axios from "axios";
 
 interface User {
@@ -16,26 +16,35 @@ interface User {
 const AdminPage = () => {
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [users, setUsers] = useState<User[]>([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchUsers = async (page: number) => {
             try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/all`);
-                setUsers(response.data);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/allPagination`, {
+                    params: { page, limit: 10 }
+                });
+                console.log(response.data);
+                if (response.data) {
+                    setUsers(response.data.users || []);
+                    setTotalPages(response.data.pages || 1);
+                }
             } catch (error) {
                 console.error('Error fetching users:', error);
+                setUsers([]);
             }
         };
 
-        fetchUsers();
-    }, []);
+        fetchUsers(page);
+    }, [page]);
 
-    const rows = users.map((user, index) => (
+    const rows =  users && users.map((user, index) => (
         <Table.Tr
             key={user._id}
             style={{ backgroundColor: selectedRows.includes(index) ? 'var(--mantine-color-blue-light)' : undefined }}
         >
-            <Table.Td>
+            <Table.Th>
                 <Checkbox
                     aria-label="Select row"
                     checked={selectedRows.includes(index)}
@@ -47,17 +56,17 @@ const AdminPage = () => {
                         )
                     }
                 />
-            </Table.Td>
-            <Table.Td>{user.id}</Table.Td>
-            <Table.Td>{user.full_name}</Table.Td>
-            <Table.Td>{user.position}</Table.Td>
-            <Table.Td>{user.email}</Table.Td>
-            <Table.Td>{user.roles.join(', ')}</Table.Td>
+            </Table.Th>
+            <Table.Th>{user.id}</Table.Th>
+            <Table.Th>{user.full_name}</Table.Th>
+            <Table.Th>{user.position}</Table.Th>
+            <Table.Th>{user.email}</Table.Th>
+            <Table.Th>{user.roles.join(', ')}</Table.Th>
         </Table.Tr>
     ));
 
     return (
-        <Container>
+        <Container size="xl">
             <Table striped withTableBorder>
                 <Table.Thead>
                     <Table.Tr>
@@ -71,6 +80,16 @@ const AdminPage = () => {
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>
             </Table>
+            <Center>
+            <Pagination
+                mt={15}
+                value={page}
+                onChange={setPage}
+                total={totalPages}
+                siblings={1}
+                boundaries={3}
+            />
+            </Center>
         </Container>
     );
 };
