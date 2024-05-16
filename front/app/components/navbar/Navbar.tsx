@@ -31,6 +31,7 @@ import { IconDoorExit } from "@tabler/icons-react";
 const links = [
   { link: "/dashboard", label: "Inicio" },
   { link: "/", label: "Cambiar Rol" },
+  { link: "/admin", label: "Admin" },
 ];
 
 const titles = [{ link: "/", label: "MIRÓ" }];
