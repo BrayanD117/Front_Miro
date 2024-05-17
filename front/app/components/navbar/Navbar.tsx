@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Group,
@@ -11,9 +11,9 @@ import {
   Modal,
   Text,
   Drawer,
-  Flex,
   Stack,
   Divider,
+  Select,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
@@ -27,10 +27,10 @@ import ThemeChangerMobile from "../ThemeChanger/ThemeChangerMobile";
 // Styles
 import classes from "./Navbar.module.css";
 import { IconDoorExit } from "@tabler/icons-react";
+import axios from "axios";
 
 const links = [
   { link: "/dashboard", label: "Inicio" },
-  { link: "/", label: "Cambiar Rol" },
   { link: "/admin", label: "Admin" },
 ];
 
@@ -38,10 +38,14 @@ const titles = [{ link: "/", label: "MIRÓ" }];
 
 export default function Navbar() {
   const { data: session } = useSession();
+  // console.log("Session:", session);
 
   const [opened, { toggle }] = useDisclosure(false);
   const [modalOpened, setModalOpened] = useState(false);
+  const [changeRoleModalOpened, setChangeRoleModalOpened] = useState(false);
   const [active, setActive] = useState(links[0].link);
+  const [availableRoles, setAvailableRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("");
 
   const items = links.map((link) => (
     <Link href={link.link} key={link.label} passHref>
@@ -72,6 +76,34 @@ export default function Navbar() {
     </Link>
   ));
 
+  useEffect(() => {
+    if (changeRoleModalOpened && session?.user?.email) {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
+        params: { email: session.user.email }
+      })
+        .then(response => {
+          setAvailableRoles(response.data.roles);
+        })
+        .catch(error => {
+          console.error("Error fetching roles:", error);
+        });
+    }
+  }, [changeRoleModalOpened, session]);
+
+  const handleRoleChange = async () => {
+    if (!session?.user?.email) return;
+    try {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/updateRole`, {
+        email: session.user.email,
+        roles: [selectedRole]
+      });
+      console.log('Role updated:', response.data);
+      setChangeRoleModalOpened(false);
+    } catch (error) {
+      console.error("Error updating role:", error);
+    }
+  };
+
   return (
     <>
       <header className={classes.header}>
@@ -82,6 +114,14 @@ export default function Navbar() {
             <>
               <Group gap={8} visibleFrom="xs">
                 {items}
+                <Button
+                  variant="light"
+                  size="sm"
+                  style={{ fontWeight: 500 }}
+                  onClick={() => setChangeRoleModalOpened(true)}
+                >
+                  Cambiar rol
+                </Button>
                 <ThemeChanger />
                 <Menu shadow="md" width={200}>
                   <Menu.Target>
@@ -176,6 +216,34 @@ export default function Navbar() {
             }}
           >
             Cerrar Sesión
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* Roles modal */}
+
+      <Modal
+        opened={changeRoleModalOpened}
+        onClose={() => setChangeRoleModalOpened(false)}
+        title="Cambiar Rol"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+      >
+        <Select
+          label="Selecciona un nuevo rol"
+          placeholder="Elige un rol"
+          data={availableRoles}
+          value={selectedRole}
+          onChange={(value) => setSelectedRole(value || "")}
+        />
+        <Group mt="md">
+          <Button variant="default" onClick={() => setChangeRoleModalOpened(false)}>
+            Cancelar
+          </Button>
+          <Button color="blue" onClick={handleRoleChange}>
+            Cambiar Rol
           </Button>
         </Group>
       </Modal>
