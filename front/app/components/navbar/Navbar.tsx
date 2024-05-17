@@ -29,25 +29,94 @@ import classes from "./Navbar.module.css";
 import { IconDoorExit } from "@tabler/icons-react";
 import axios from "axios";
 
-const links = [
-  { link: "/dashboard", label: "Inicio" },
-  { link: "/admin", label: "Admin" },
-];
+type LinkItem = {
+  link: string;
+  label: string;
+};
+
+type Roles = "usuario" | "admin" | "responsable" | "productor";
+
+const linksByRole: Record<Roles, LinkItem[]> = {
+  usuario: [{ link: "/dashboard", label: "Inicio" }],
+  admin: [
+    { link: "/dashboard", label: "Inicio" },
+    { link: "/admin", label: "Admin" },
+  ],
+  responsable: [
+    { link: "/dashboard", label: "Inicio" },
+    { link: "/responsable", label: "Responsable" },
+  ],
+  productor: [
+    { link: "/dashboard", label: "Inicio" },
+    { link: "/productor", label: "Productor" },
+  ],
+};
 
 const titles = [{ link: "/", label: "MIRÓ" }];
 
 export default function Navbar() {
   const { data: session } = useSession();
-  // console.log("Session:", session);
-
   const [opened, { toggle }] = useDisclosure(false);
   const [modalOpened, setModalOpened] = useState(false);
   const [changeRoleModalOpened, setChangeRoleModalOpened] = useState(false);
-  const [active, setActive] = useState(links[0].link);
-  const [availableRoles, setAvailableRoles] = useState([]);
-  const [selectedRole, setSelectedRole] = useState("");
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [userRole, setUserRole] = useState<Roles>("usuario");
 
-  const items = links.map((link) => (
+  useEffect(() => {
+    if (session?.user?.email) {
+      axios
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
+          params: { email: session.user.email },
+        })
+        .then((response) => {
+          setAvailableRoles(response.data.roles);
+          if (response.data.activeRole) {
+            setUserRole(response.data.activeRole.toLowerCase() as Roles);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching roles:", error);
+        });
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (changeRoleModalOpened && session?.user?.email) {
+      axios
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
+          params: { email: session.user.email },
+        })
+        .then((response) => {
+          setAvailableRoles(response.data.roles);
+        })
+        .catch((error) => {
+          console.error("Error fetching roles:", error);
+        });
+    }
+  }, [changeRoleModalOpened]);
+
+  const handleRoleChange = async () => {
+    if (!session?.user?.email) return;
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/updateActiveRole`,
+        {
+          email: session.user.email,
+          activeRole: selectedRole,
+        }
+      );
+      console.log("Active role updated:", response.data);
+      setUserRole(selectedRole.toLowerCase() as Roles);
+      setChangeRoleModalOpened(false);
+    } catch (error) {
+      console.error("Error updating active role:", error);
+    }
+  };
+
+  const links = linksByRole[userRole] || linksByRole.usuario;
+
+  const items = links.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
       <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
         {link.label}
@@ -55,54 +124,26 @@ export default function Navbar() {
     </Link>
   ));
 
-  const itemsDrawer = links.map((link) => (
+  const itemsDrawer = links.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
-    <Button
-      fullWidth
-      variant="light"
-      size="sm"
-      style={{ fontWeight: 500, marginBottom: "8px", textDecoration: 'none' }}
-    >
-      {link.label}
-    </Button>
-  </Link>
+      <Button
+        fullWidth
+        variant="light"
+        size="sm"
+        style={{ fontWeight: 500, marginBottom: "8px", textDecoration: "none" }}
+      >
+        {link.label}
+      </Button>
+    </Link>
   ));
 
-  const titleButton = titles.map((link) => (
+  const titleButton = titles.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
       <Button variant="transparent" size="sm" style={{ fontWeight: 500 }}>
         {link.label}
       </Button>
     </Link>
   ));
-
-  useEffect(() => {
-    if (changeRoleModalOpened && session?.user?.email) {
-      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
-        params: { email: session.user.email }
-      })
-        .then(response => {
-          setAvailableRoles(response.data.roles);
-        })
-        .catch(error => {
-          console.error("Error fetching roles:", error);
-        });
-    }
-  }, [changeRoleModalOpened, session]);
-
-  const handleRoleChange = async () => {
-    if (!session?.user?.email) return;
-    try {
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/updateRole`, {
-        email: session.user.email,
-        roles: [selectedRole]
-      });
-      console.log('Role updated:', response.data);
-      setChangeRoleModalOpened(false);
-    } catch (error) {
-      console.error("Error updating role:", error);
-    }
-  };
 
   return (
     <>
@@ -175,19 +216,19 @@ export default function Navbar() {
               <ThemeChangerMobile />
               {session?.user && (
                 <>
-                <Divider/>
-                <Button
-                  mt={8}
-                  fullWidth
-                  color="red"
-                  variant="light"
-                  onClick={() => {
-                    setModalOpened(true);
-                    toggle();
-                  }}
-                >
-                  Cerrar Sesión
-                </Button>
+                  <Divider />
+                  <Button
+                    mt={8}
+                    fullWidth
+                    color="red"
+                    variant="light"
+                    onClick={() => {
+                      setModalOpened(true);
+                      toggle();
+                    }}
+                  >
+                    Cerrar Sesión
+                  </Button>
                 </>
               )}
             </Stack>
