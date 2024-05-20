@@ -19,6 +19,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { showNotification } from "@mantine/notifications"; 
 
 // Components
 import ThemeChanger from "../ThemeChanger/ThemeChanger";
@@ -109,8 +110,20 @@ export default function Navbar() {
       console.log("Active role updated:", response.data);
       setUserRole(selectedRole.toLowerCase() as Roles);
       setChangeRoleModalOpened(false);
+      showNotification({
+        title: "Rol actualizado",
+        message: `Tu nuevo rol es ${selectedRole}`,
+        autoClose: 5000,
+        color: "teal",
+      });
     } catch (error) {
       console.error("Error updating active role:", error);
+      showNotification({
+        title: "Error",
+        message: "No se pudo actualizar el rol",
+        autoClose: 5000,
+        color: "red",
+      });
     }
   };
 
