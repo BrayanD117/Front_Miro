@@ -163,7 +163,7 @@ const AdminDimensionsPage = () => {
   return (
     <Container size="xl">
       <Button onClick={() => setOpened(true)}>Crear Nueva Dimensión</Button>
-      <Table mt="md">
+      <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Nombre</Table.Th>
