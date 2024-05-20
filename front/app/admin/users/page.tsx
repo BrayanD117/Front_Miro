@@ -86,7 +86,7 @@ const AdminUsersPage = () => {
 
   const rows = users.map((user) => (
     <Table.Tr key={user._id}>
-      <Table.Td>{user.id}</Table.Td>
+      <Table.Td>{user.identification}</Table.Td>
       <Table.Td>{user.full_name}</Table.Td>
       <Table.Td>{user.position}</Table.Td>
       <Table.Td>{user.email}</Table.Td>
