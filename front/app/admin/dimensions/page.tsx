@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, MultiSelect } from "@mantine/core";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
@@ -147,8 +148,14 @@ const AdminDimensionsPage = () => {
       <Table.Td>{dimension.name}</Table.Td>
       <Table.Td>{dimension.responsibles.join(", ")}</Table.Td>
       <Table.Td>
-        <Button variant="outline" onClick={() => handleEdit(dimension)}>Editar</Button>
-        <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>Eliminar</Button>
+        <Group gap={5}>
+        <Button variant="outline" onClick={() => handleEdit(dimension)}>
+            <IconEdit size={16} />
+        </Button>
+        <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
+            <IconTrash size={16} />
+        </Button>
+        </Group>
       </Table.Td>
     </Table.Tr>
   ));
@@ -178,6 +185,10 @@ const AdminDimensionsPage = () => {
       </Center>
       <Modal
         opened={opened}
+        overlayProps={{
+            backgroundOpacity: 0.55,
+            blur: 3,
+          }}
         onClose={() => setOpened(false)}
         title={selectedDimension ? "Editar Dimensión" : "Crear Nueva Dimensión"}
       >
