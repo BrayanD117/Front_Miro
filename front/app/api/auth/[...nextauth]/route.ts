@@ -11,6 +11,14 @@ const handler = NextAuth({
   pages: {
     signIn: '/signIn',
   },
+  session: {
+    maxAge:  3600 * 8,
+  },
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      return '/dashboard';
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
