@@ -8,7 +8,7 @@ import { IconEdit } from "@tabler/icons-react";
 
 interface User {
   _id: string;
-  id: number;
+  identification: number;
   full_name: string;
   position: string;
   email: string;
