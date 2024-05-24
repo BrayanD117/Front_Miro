@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Modal, Button, Select } from "@mantine/core";
+import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
+import { IconEdit, IconClipboardList, IconFileText } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
+  const router = useRouter(); 
   const [opened, setOpened] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
@@ -78,9 +81,126 @@ const DashboardPage = () => {
     }
   };
 
+  const renderCards = () => {
+    switch (userRole) {
+      case "Administrador":
+        return (
+          <Grid>
+            <Grid.Col span={4}>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
+                  <Image src="https://via.placeholder.com/150" height={160} alt="Usuarios" />
+                </Card.Section>
+                <Group mt="md" mb="xs">
+                  <Text w={500}>Gestionar Usuarios</Text>
+                  <IconEdit size={24} />
+                </Group>
+                <Text size="sm" color="dimmed">
+                  Administra los roles y permisos de los usuarios.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/users')}>
+                  Ir a Gestión de Usuarios
+                </Button>
+              </Card>
+            </Grid.Col>
+            <Grid.Col span={4}>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
+                  <Image src="https://via.placeholder.com/150" height={160} alt="Dimensiones" />
+                </Card.Section>
+                <Group mt="md" mb="xs">
+                  <Text w={500}>Gestionar Dimensiones</Text>
+                  <IconClipboardList size={24} />
+                </Group>
+                <Text size="sm" color="dimmed">
+                  Administra las dimensiones y sus responsables.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dimensions')}>
+                  Ir a Gestión de Dimensiones
+                </Button>
+              </Card>
+            </Grid.Col>
+          </Grid>
+        );
+      case "Responsable":
+        return (
+          <Grid>
+            <Grid.Col span={6}>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
+                  <Image src="https://via.placeholder.com/150" height={160} alt="Gestión de Información" />
+                </Card.Section>
+                <Group mt="md" mb="xs">
+                  <Text w={500}>Gestionar Información</Text>
+                  <IconFileText size={24} />
+                </Group>
+                <Text size="sm" color="dimmed">
+                  Gestiona la información enviada por los productores.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsable/informacion')}>
+                  Ir a Gestión de Información
+                </Button>
+              </Card>
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
+                  <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+                </Card.Section>
+                <Group mt="md" mb="xs">
+                  <Text w={500}>Crear Plantillas</Text>
+                  <IconClipboardList size={24} />
+                </Group>
+                <Text size="sm" color="dimmed">
+                  Crea y gestiona las plantillas que llenarán los usuarios.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsable/plantillas')}>
+                  Ir a Gestión de Plantillas
+                </Button>
+              </Card>
+            </Grid.Col>
+          </Grid>
+        );
+      case "Productor":
+        return (
+          <Grid>
+            <Grid.Col span={12}>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
+                  <Image src="https://via.placeholder.com/150" height={160} alt="Enviar Información" />
+                </Card.Section>
+                <Group mt="md" mb="xs">
+                  <Text w={500}>Enviar Información</Text>
+                  <IconFileText size={24} />
+                </Group>
+                <Text size="sm" color="dimmed">
+                  Envía información a los responsables para su gestión.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/productor/enviar')}>
+                  Ir a Enviar Información
+                </Button>
+              </Card>
+            </Grid.Col>
+          </Grid>
+        );
+      case "Usuario":
+      default:
+        return (
+          <Container>
+            <Text>Bienvenido al sistema. Por favor selecciona una acción desde el menú.</Text>
+          </Container>
+        );
+    }
+  };
+
   return (
     <>
-      <h1>DashboardPage</h1>
+    <Container >
+      <Center>
+        <Title mb="xl">Dashboard</Title>
+        </Center>
+        {renderCards()}
+    </Container>
       <Modal
         opened={opened}
         onClose={() => {}}

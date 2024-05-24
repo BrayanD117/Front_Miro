@@ -71,7 +71,6 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
-          console.log('Roles received from backend:', response.data.roles); 
           setAvailableRoles(response.data.roles);
           if (response.data.activeRole) {
             setUserRole(response.data.activeRole as Roles);
