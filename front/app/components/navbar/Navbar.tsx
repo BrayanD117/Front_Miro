@@ -40,18 +40,9 @@ type Roles = "Usuario" | "Administrador" | "Responsable" | "Productor";
 
 const linksByRole: Record<Roles, LinkItem[]> = {
   Usuario: [{ link: "/dashboard", label: "Inicio" }],
-  Administrador: [
-    { link: "/dashboard", label: "Inicio" },
-    { link: "/admin", label: "Admin" },
-  ],
-  Responsable: [
-    { link: "/dashboard", label: "Inicio" },
-    { link: "/responsable", label: "Responsable" },
-  ],
-  Productor: [
-    { link: "/dashboard", label: "Inicio" },
-    { link: "/productor", label: "Productor" },
-  ],
+  Administrador: [{ link: "/dashboard", label: "Inicio" }],
+  Responsable: [{ link: "/dashboard", label: "Inicio" }],
+  Productor: [{ link: "/dashboard", label: "Inicio" }],
 };
 
 const titles = [{ link: "/", label: "MIRÓ" }];
