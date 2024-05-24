@@ -20,6 +20,7 @@ import { Avatar } from "@mantine/core";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications"; 
+import { useRole } from "@/app/context/RoleContext";
 
 // Components
 import ThemeChanger from "../ThemeChanger/ThemeChanger";
@@ -62,7 +63,7 @@ export default function Navbar() {
   const [changeRoleModalOpened, setChangeRoleModalOpened] = useState(false);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
-  const [userRole, setUserRole] = useState<Roles>("Usuario");
+  const { userRole, setUserRole } = useRole();
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -128,7 +129,7 @@ export default function Navbar() {
     }
   };
 
-  const links = linksByRole[userRole] || linksByRole.Usuario;
+  const links = linksByRole[userRole as Roles] || linksByRole.Usuario;
 
   const items = links.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>

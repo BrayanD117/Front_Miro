@@ -6,6 +6,8 @@ import { showNotification } from "@mantine/notifications";
 import axios from "axios";
 import { IconEdit, IconClipboardList, IconFileText } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useRole } from "../context/RoleContext";
+
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
@@ -13,7 +15,7 @@ const DashboardPage = () => {
   const [opened, setOpened] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const { userRole, setUserRole } = useRole(); 
   const [notificationShown, setNotificationShown] = useState(false);
 
   useEffect(() => {
@@ -195,12 +197,12 @@ const DashboardPage = () => {
 
   return (
     <>
-    <Container >
-      <Center>
-        <Title mb="xl">Dashboard</Title>
+      <Container>
+        <Center>
+          <Title mb="xl">Dashboard</Title>
         </Center>
         {renderCards()}
-    </Container>
+      </Container>
       <Modal
         opened={opened}
         onClose={() => {}}

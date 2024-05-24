@@ -1,11 +1,13 @@
 import "@mantine/core/styles.css";
-import '@mantine/notifications/styles.css';
+import "@mantine/notifications/styles.css";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./Providers";
-import { Notifications } from '@mantine/notifications';
+import { Notifications } from "@mantine/notifications";
 
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
+
+import { RoleProvider } from "./context/RoleContext";
 
 // Components
 import Footer from "./components/footer/Footer";
@@ -29,10 +31,12 @@ export default function RootLayout({
       <body>
         <Providers>
           <MantineProvider>
-          <Notifications />
-            <Navbar />
-            {children}
-            <Footer />
+            <RoleProvider>
+              <Notifications />
+              <Navbar />
+              {children}
+              <Footer />
+            </RoleProvider>
           </MantineProvider>
         </Providers>
       </body>
