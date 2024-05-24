@@ -61,7 +61,7 @@ const AdminUsersPage = () => {
     if (selectedUser) {
       try {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/updateRole`, {
-          id: selectedUser._id,
+          email: selectedUser.email,
           roles,
         });
         showNotification({
@@ -135,17 +135,17 @@ const AdminUsersPage = () => {
         onClose={() => setModalOpened(false)}
         title="Editar Roles del Usuario"
       >
-        <MultiSelect
-          label="Roles"
-          placeholder="Selecciona roles"
-          data={["Usuario", "Admin", "Responsable", "Productor"]}
-          value={roles}
-          onChange={setRoles}
-        />
-        <Group mt="md">
+        <Group mb="md">
           <Button onClick={handleSave}>Guardar</Button>
           <Button variant="outline" onClick={() => setModalOpened(false)}>Cancelar</Button>
         </Group>
+        <MultiSelect
+          label="Roles"
+          placeholder="Selecciona roles"
+          data={["Usuario", "Administrador", "Responsable", "Productor"]}
+          value={roles}
+          onChange={setRoles}
+        />
       </Modal>
     </Container>
   );

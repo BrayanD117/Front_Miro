@@ -35,19 +35,19 @@ type LinkItem = {
   label: string;
 };
 
-type Roles = "usuario" | "admin" | "responsable" | "productor";
+type Roles = "Usuario" | "Administrador" | "Responsable" | "Productor";
 
 const linksByRole: Record<Roles, LinkItem[]> = {
-  usuario: [{ link: "/dashboard", label: "Inicio" }],
-  admin: [
+  Usuario: [{ link: "/dashboard", label: "Inicio" }],
+  Administrador: [
     { link: "/dashboard", label: "Inicio" },
     { link: "/admin", label: "Admin" },
   ],
-  responsable: [
+  Responsable: [
     { link: "/dashboard", label: "Inicio" },
     { link: "/responsable", label: "Responsable" },
   ],
-  productor: [
+  Productor: [
     { link: "/dashboard", label: "Inicio" },
     { link: "/productor", label: "Productor" },
   ],
@@ -62,7 +62,7 @@ export default function Navbar() {
   const [changeRoleModalOpened, setChangeRoleModalOpened] = useState(false);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
-  const [userRole, setUserRole] = useState<Roles>("usuario");
+  const [userRole, setUserRole] = useState<Roles>("Usuario");
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -71,9 +71,10 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
+          console.log('Roles received from backend:', response.data.roles); 
           setAvailableRoles(response.data.roles);
           if (response.data.activeRole) {
-            setUserRole(response.data.activeRole.toLowerCase() as Roles);
+            setUserRole(response.data.activeRole as Roles);
           }
         })
         .catch((error) => {
@@ -89,6 +90,7 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
+          console.log('Roles received from backend (role change):', response.data.roles);
           setAvailableRoles(response.data.roles);
         })
         .catch((error) => {
@@ -108,7 +110,7 @@ export default function Navbar() {
         }
       );
       console.log("Active role updated:", response.data);
-      setUserRole(selectedRole.toLowerCase() as Roles);
+      setUserRole(selectedRole as Roles);
       setChangeRoleModalOpened(false);
       showNotification({
         title: "Rol actualizado",
@@ -127,7 +129,7 @@ export default function Navbar() {
     }
   };
 
-  const links = linksByRole[userRole] || linksByRole.usuario;
+  const links = linksByRole[userRole] || linksByRole.Usuario;
 
   const items = links.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
