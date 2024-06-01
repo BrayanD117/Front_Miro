@@ -20,7 +20,6 @@ const HomePage = () => {
             </Title>
           </Center>
         </BackgroundImage>
-        <h1>HomePage</h1>
       </Container>
     </>
   );

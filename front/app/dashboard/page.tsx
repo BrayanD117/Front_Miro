@@ -87,6 +87,10 @@ const DashboardPage = () => {
     switch (userRole) {
       case "Administrador":
         return (
+          <>
+          <Center>
+            <Title mb="sm">Tu rol es Administrador</Title>
+          </Center>
           <Grid>
             <Grid.Col span={4}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -123,9 +127,14 @@ const DashboardPage = () => {
               </Card>
             </Grid.Col>
           </Grid>
+          </>
         );
       case "Responsable":
         return (
+          <>
+          <Center>
+            <Title mb="sm">Tu rol es Responsable</Title>
+          </Center>
           <Grid>
             <Grid.Col span={6}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -162,9 +171,14 @@ const DashboardPage = () => {
               </Card>
             </Grid.Col>
           </Grid>
+          </>
         );
       case "Productor":
         return (
+          <>
+          <Center>
+            <Title mb="sm">Tu rol es Responsable</Title>
+          </Center>
           <Grid>
             <Grid.Col span={12}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -184,12 +198,13 @@ const DashboardPage = () => {
               </Card>
             </Grid.Col>
           </Grid>
+          </>
         );
       case "Usuario":
       default:
         return (
           <Container>
-            <Text>Bienvenido al sistema. Por favor selecciona una acción desde el menú.</Text>
+            <Text>Bienvenido al sistema. Por favor selecciona un rol desde el menú superior.</Text>
           </Container>
         );
     }
@@ -199,7 +214,7 @@ const DashboardPage = () => {
     <>
       <Container>
         <Center>
-          <Title mb="xl">Dashboard</Title>
+          <Title mb="md">Inicio</Title>
         </Center>
         {renderCards()}
       </Container>
