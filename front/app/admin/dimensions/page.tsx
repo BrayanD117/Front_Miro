@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, MultiSelect } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text } from "@mantine/core";
+import { IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
 interface Dimension {
   _id: string;
   name: string;
-  responsibles: string[];
+  responsible: string;
+  producers: string[];
 }
 
 interface User {
@@ -21,23 +22,26 @@ interface User {
 const AdminDimensionsPage = () => {
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [opened, setOpened] = useState(false);
+  const [producersModalOpened, setProducersModalOpened] = useState(false);
   const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
+  const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
   const [name, setName] = useState("");
-  const [responsibles, setResponsibles] = useState<string[]>([]);
-  const [producers, setProducers] = useState("");
-  const [templates, setTemplates] = useState("");
+  const [responsible, setResponsible] = useState<string | null>(null);
+  const [producers, setProducers] = useState<string[]>([]);
   const [responsiblesOptions, setResponsiblesOptions] = useState<{ value: string, label: string }[]>([]);
+  const [producersOptions, setProducersOptions] = useState<{ value: string, label: string }[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
 
-  const fetchDimensions = async (page: number) => {
+  const fetchDimensions = async (page: number, search: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/all`, {
-        params: { page, limit: 10 },
+        params: { page, limit: 10, search },
       });
       if (response.data) {
-        setDimensions(response.data || []);
-        setTotalPages(Math.ceil(response.data.length / 10));
+        setDimensions(response.data.dimensions || []);
+        setTotalPages(response.data.pages || 1);
       }
     } catch (error) {
       console.error("Error fetching dimensions:", error);
@@ -61,29 +65,45 @@ const AdminDimensionsPage = () => {
     }
   };
 
+  const fetchProducers = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/producers`);
+      if (response.data) {
+        setProducersOptions(
+          response.data.map((user: User) => ({
+            value: user.email,
+            label: `${user.full_name} (${user.email})`,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching producers:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchDimensions(page);
+    fetchDimensions(page, search);
     fetchResponsibles();
-  }, [page]);
+    fetchProducers();
+  }, [page, search]);
 
   const handleCreateOrEdit = async () => {
-    if (!name) {
+    if (!name || !responsible) {
       showNotification({
         title: "Error",
-        message: "El nombre es requerido",
+        message: "El nombre y el responsable son requeridos",
         color: "red",
       });
       return;
     }
-
+  
     try {
       const dimensionData = {
         name,
-        responsibles,
-        producers: producers.split(",").map((item) => item.trim()),
-        templates: templates.split(",").map((item) => item.trim()),
+        responsible,
+        producers
       };
-
+  
       if (selectedDimension) {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${selectedDimension._id}`, dimensionData);
         showNotification({
@@ -99,16 +119,15 @@ const AdminDimensionsPage = () => {
           color: "teal",
         });
       }
-
+  
       setOpened(false);
       setName("");
-      setResponsibles([]);
-      setProducers("");
-      setTemplates("");
+      setResponsible(null);
+      setProducers([]);
       setSelectedDimension(null);
-      fetchDimensions(page);
+      fetchDimensions(page, search);
     } catch (error) {
-      console.error("Error creating or updating dimension:", error);
+      console.error("Error creando o actualizando dimensión:", error);
       showNotification({
         title: "Error",
         message: "Hubo un error al crear o actualizar la dimensión",
@@ -116,11 +135,13 @@ const AdminDimensionsPage = () => {
       });
     }
   };
+  
 
   const handleEdit = (dimension: Dimension) => {
     setSelectedDimension(dimension);
     setName(dimension.name);
-    setResponsibles(dimension.responsibles);
+    setResponsible(dimension.responsible);
+    setProducers(dimension.producers);
     setOpened(true);
   };
 
@@ -132,9 +153,9 @@ const AdminDimensionsPage = () => {
         message: "Dimensión eliminada exitosamente",
         color: "teal",
       });
-      fetchDimensions(page);
+      fetchDimensions(page, search);
     } catch (error) {
-      console.error("Error deleting dimension:", error);
+      console.error("Error eliminando dimensión:", error);
       showNotification({
         title: "Error",
         message: "Hubo un error al eliminar la dimensión",
@@ -143,18 +164,34 @@ const AdminDimensionsPage = () => {
     }
   };
 
+  const handleShowProducers = (dimension: Dimension) => {
+    setSelectedProducers(dimension.producers);
+    setProducersModalOpened(true);
+  };
+
   const rows = dimensions.map((dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
-      <Table.Td>{dimension.responsibles.join(", ")}</Table.Td>
+      <Table.Td>{dimension.responsible}</Table.Td>
+      <Table.Td>
+        {dimension.producers.slice(0, 2).join(", ")}
+        {dimension.producers.length > 2 && (
+          <>
+            , ...
+            <Button variant="subtle" onClick={() => handleShowProducers(dimension)}>
+              <IconEye size={16} />
+            </Button>
+          </>
+        )}
+      </Table.Td>
       <Table.Td>
         <Group gap={5}>
-        <Button variant="outline" onClick={() => handleEdit(dimension)}>
+          <Button variant="outline" onClick={() => handleEdit(dimension)}>
             <IconEdit size={16} />
-        </Button>
-        <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
+          </Button>
+          <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
             <IconTrash size={16} />
-        </Button>
+          </Button>
         </Group>
       </Table.Td>
     </Table.Tr>
@@ -162,12 +199,19 @@ const AdminDimensionsPage = () => {
 
   return (
     <Container size="xl">
+      <TextInput
+        placeholder="Buscar en todas las dimensiones"
+        value={search}
+        onChange={(event) => setSearch(event.currentTarget.value)}
+        mb="md"
+      />
       <Button onClick={() => setOpened(true)}>Crear Nueva Dimensión</Button>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Responsables</Table.Th>
+            <Table.Th>Responsable</Table.Th>
+            <Table.Th>Productores</Table.Th>
             <Table.Th>Acciones</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -186,9 +230,9 @@ const AdminDimensionsPage = () => {
       <Modal
         opened={opened}
         overlayProps={{
-            backgroundOpacity: 0.55,
-            blur: 3,
-          }}
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
         onClose={() => setOpened(false)}
         title={selectedDimension ? "Editar Dimensión" : "Crear Nueva Dimensión"}
       >
@@ -198,12 +242,21 @@ const AdminDimensionsPage = () => {
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
         />
-        <MultiSelect
-          label="Responsables"
-          placeholder="Selecciona responsables"
+        <Select
+          label="Responsable"
+          placeholder="Selecciona un responsable"
           data={responsiblesOptions}
-          value={responsibles}
-          onChange={setResponsibles}
+          value={responsible}
+          onChange={(value) => setResponsible(value)}
+          searchable
+          clearable
+        />
+        <MultiSelect
+          label="Productores"
+          placeholder="Selecciona productores"
+          data={producersOptions}
+          value={producers}
+          onChange={setProducers}
           searchable
         />
         <Group mt="md">
@@ -211,6 +264,13 @@ const AdminDimensionsPage = () => {
             {selectedDimension ? "Actualizar" : "Crear"}
           </Button>
         </Group>
+      </Modal>
+      <Modal
+        opened={producersModalOpened}
+        onClose={() => setProducersModalOpened(false)}
+        title="Productores"
+      >
+        <Text>{selectedProducers.join(", ")}</Text>
       </Modal>
     </Container>
   );
