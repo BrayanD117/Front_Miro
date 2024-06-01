@@ -102,7 +102,7 @@ const AdminUsersPage = () => {
   return (
     <Container size="xl">
       <TextInput
-        placeholder="Buscar usuarios por nombre"
+        placeholder="Buscar en toda la tabla"
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
