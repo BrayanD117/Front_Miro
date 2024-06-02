@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect } from "@mantine/core";
+import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit } from "@tabler/icons-react";
@@ -13,6 +13,7 @@ interface User {
   position: string;
   email: string;
   roles: string[];
+  isActive: boolean;
 }
 
 const AdminUsersPage = () => {
@@ -84,6 +85,28 @@ const AdminUsersPage = () => {
     }
   };
 
+  const handleToggleActive = async (userId: string, isActive: boolean) => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/updateStatus`, {
+        userId,
+        isActive
+      });
+      showNotification({
+        title: "Actualizado",
+        message: "Estado del usuario actualizado exitosamente",
+        color: "teal",
+      });
+      fetchUsers(page, search);
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al actualizar el estado del usuario",
+        color: "red",
+      });
+    }
+  };
+
   const rows = users.map((user) => (
     <Table.Tr key={user._id}>
       <Table.Td>{user.identification}</Table.Td>
@@ -95,6 +118,15 @@ const AdminUsersPage = () => {
         <Button variant="outline" onClick={() => handleEdit(user)}>
           <IconEdit size={16} />
         </Button>
+      </Table.Td>
+      <Table.Td>
+        <Switch
+            checked={user.isActive}
+            onChange={(event) => handleToggleActive(user._id, event.currentTarget.checked)}
+            label={user.isActive ? "Activo" : "Inactivo"}
+            color="teal"
+            ml="md"
+          />
       </Table.Td>
     </Table.Tr>
   ));
@@ -116,6 +148,7 @@ const AdminUsersPage = () => {
             <Table.Th>Email</Table.Th>
             <Table.Th>Roles</Table.Th>
             <Table.Th>Acciones</Table.Th>
+            <Table.Th>Estado</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
