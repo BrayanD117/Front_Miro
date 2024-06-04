@@ -96,14 +96,14 @@ const AdminDimensionsPage = () => {
       });
       return;
     }
-  
+
     try {
       const dimensionData = {
         name,
         responsible,
         producers
       };
-  
+
       if (selectedDimension) {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${selectedDimension._id}`, dimensionData);
         showNotification({
@@ -119,7 +119,7 @@ const AdminDimensionsPage = () => {
           color: "teal",
         });
       }
-  
+
       setOpened(false);
       setName("");
       setResponsible(null);
@@ -128,14 +128,22 @@ const AdminDimensionsPage = () => {
       fetchDimensions(page, search);
     } catch (error) {
       console.error("Error creando o actualizando dimensión:", error);
-      showNotification({
-        title: "Error",
-        message: "Hubo un error al crear o actualizar la dimensión",
-        color: "red",
-      });
+
+      if (axios.isAxiosError(error) && error.response && error.response.status === 400) {
+        showNotification({
+          title: "Error",
+          message: "El nombre de la dimensión ya existe",
+          color: "red",
+        });
+      } else {
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al crear o actualizar la dimensión",
+          color: "red",
+        });
+      }
     }
   };
-  
 
   const handleEdit = (dimension: Dimension) => {
     setSelectedDimension(dimension);
