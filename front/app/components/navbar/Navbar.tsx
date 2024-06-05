@@ -19,7 +19,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { showNotification } from "@mantine/notifications"; 
+import { showNotification } from "@mantine/notifications";
 import { useRole } from "@/app/context/RoleContext";
 
 // Components
@@ -171,21 +171,6 @@ export default function Navbar() {
     </Link>
   ));
 
-  const actionItems = links
-    .filter((link) => link.link !== "/dashboard")
-    .map((link: LinkItem) => (
-      <Link href={link.link} key={link.label} passHref>
-        <Button 
-          mt={8}
-          fullWidth
-          color="blue"
-          variant="light"
-        >
-            {link.label}
-        </Button>
-      </Link>
-    ));
-
   return (
     <>
       <header className={classes.header}>
@@ -212,7 +197,13 @@ export default function Navbar() {
                   </Menu.Target>
                   {/* Menu Dropdown */}
                   <Menu.Dropdown>
-                    {actionItems}
+                    {links
+                      .filter((link) => link.link !== "/dashboard")
+                      .map((link: LinkItem) => (
+                        <Menu.Item key={link.label} component="a" href={link.link}>
+                          {link.label}
+                        </Menu.Item>
+                      ))}
                   </Menu.Dropdown>
                 </Menu>
                 <ThemeChanger />
