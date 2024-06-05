@@ -5,6 +5,7 @@ import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, 
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit } from "@tabler/icons-react";
+import styles from './AdminUsersPage.module.css';
 
 interface User {
   _id: string;
@@ -24,6 +25,7 @@ const AdminUsersPage = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchUsers = async (page: number, search: string) => {
     try {
@@ -107,6 +109,28 @@ const AdminUsersPage = () => {
     }
   };
 
+  const handleSyncUsers = async () => {
+    setIsLoading(true);
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/loadData`);
+      showNotification({
+        title: "Sincronizado",
+        message: "Usuarios sincronizados exitosamente",
+        color: "teal",
+      });
+      fetchUsers(page, search);
+    } catch (error) {
+      console.error("Error syncing users:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al sincronizar los usuarios",
+        color: "red",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const rows = users.map((user) => (
     <Table.Tr key={user._id}>
       <Table.Td>{user.identification}</Table.Td>
@@ -121,24 +145,29 @@ const AdminUsersPage = () => {
       </Table.Td>
       <Table.Td>
         <Switch
-            checked={user.isActive}
-            onChange={(event) => handleToggleActive(user._id, event.currentTarget.checked)}
-            label={user.isActive ? "Activo" : "Inactivo"}
-            color="teal"
-            ml="md"
-          />
+          checked={user.isActive}
+          onChange={(event) => handleToggleActive(user._id, event.currentTarget.checked)}
+          label={user.isActive ? "Activo" : "Inactivo"}
+          color="teal"
+          ml="md"
+        />
       </Table.Td>
     </Table.Tr>
   ));
 
   return (
     <Container size="xl">
-      <TextInput
-        placeholder="Buscar en toda la tabla"
-        value={search}
-        onChange={(event) => setSearch(event.currentTarget.value)}
-        mb="md"
-      />
+      <Group className={styles.customGroup} mb="md">
+        <TextInput
+          placeholder="Buscar en toda la tabla"
+          value={search}
+          onChange={(event) => setSearch(event.currentTarget.value)}
+          className={styles.searchInput}
+        />
+        <Button onClick={handleSyncUsers} className={styles.syncButton} loading={isLoading}>
+          Sincronizar Usuarios
+        </Button>
+      </Group>
       <Table striped withTableBorder>
         <Table.Thead>
           <Table.Tr>
