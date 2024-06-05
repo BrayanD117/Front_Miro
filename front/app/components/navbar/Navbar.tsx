@@ -40,10 +40,22 @@ type Roles = "Usuario" | "Administrador" | "Responsable" | "Productor";
 
 const linksByRole: Record<Roles, LinkItem[]> = {
   Usuario: [{ link: "/dashboard", label: "Inicio" }],
-  Administrador: [{ link: "/dashboard", label: "Inicio" }],
-  Responsable: [{ link: "/dashboard", label: "Inicio" }],
-  Productor: [{ link: "/dashboard", label: "Inicio" }],
+  Administrador: [
+    { link: "/dashboard", label: "Inicio" },
+    { link: "/admin/users", label: "Gestionar Usuarios" },
+    { link: "/admin/dimensions", label: "Gestionar Dimensiones" },
+  ],
+  Responsable: [
+    { link: "/dashboard", label: "Inicio" },
+    { link: "/responsible/tasks", label: "Gestionar Tareas" },
+  ],
+  Productor: [
+    { link: "/dashboard", label: "Inicio" },
+    { link: "/producer/productions", label: "Gestionar Producciones" },
+  ],
 };
+
+const home = [{ link: "/dashboard", label: "Inicio" }];
 
 const titles = [{ link: "/", label: "MIRÓ" }];
 
@@ -130,6 +142,14 @@ export default function Navbar() {
     </Link>
   ));
 
+  const homeLink = home.map((link: LinkItem) => (
+    <Link href={link.link} key={link.label} passHref>
+      <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
+        {link.label}
+      </Button>
+    </Link>
+  ));
+
   const itemsDrawer = links.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
       <Button
@@ -151,6 +171,16 @@ export default function Navbar() {
     </Link>
   ));
 
+  const actionItems = links
+    .filter((link) => link.link !== "/dashboard")
+    .map((link: LinkItem) => (
+      <Link href={link.link} key={link.label} passHref>
+        <Menu.Item>
+          {link.label}
+        </Menu.Item>
+      </Link>
+    ));
+
   return (
     <>
       <header className={classes.header}>
@@ -160,7 +190,7 @@ export default function Navbar() {
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
-                {items}
+                {homeLink}
                 <Button
                   variant="light"
                   size="sm"
@@ -169,6 +199,17 @@ export default function Navbar() {
                 >
                   Cambiar rol
                 </Button>
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
+                      Acciones
+                    </Button>
+                  </Menu.Target>
+                  {/* Menu Dropdown */}
+                  <Menu.Dropdown>
+                    {actionItems}
+                  </Menu.Dropdown>
+                </Menu>
                 <ThemeChanger />
                 <Menu shadow="md" width={200}>
                   <Menu.Target>
@@ -183,7 +224,6 @@ export default function Navbar() {
                   {/* Menu Dropdown */}
                   <Menu.Dropdown>
                     <Menu.Divider />
-
                     <Menu.Label>Zona Peligrosa</Menu.Label>
                     <Menu.Item
                       color="red"
