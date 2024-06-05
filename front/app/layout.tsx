@@ -6,12 +6,12 @@ import { Providers } from "./Providers";
 import { Notifications } from "@mantine/notifications";
 
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
-
 import { RoleProvider } from "./context/RoleContext";
 
 // Components
 import Footer from "./components/footer/Footer";
 import Navbar from "./components/navbar/Navbar";
+import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 export const metadata: Metadata = {
   title: "MIRÓ",
@@ -34,7 +34,9 @@ export default function RootLayout({
             <RoleProvider>
               <Notifications />
               <Navbar />
-              {children}
+              <ProtectedRoutes>
+                {children}
+              </ProtectedRoutes>
               <Footer />
             </RoleProvider>
           </MantineProvider>

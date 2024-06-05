@@ -1,0 +1,43 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useRole } from "@/app/context/RoleContext";
+import { showNotification } from "@mantine/notifications";
+import LoadingScreen from "@/app/components/LoadingScreen";
+
+const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
+  const { userRole } = useRole();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isVerifying, setIsVerifying] = useState(true);
+
+  useEffect(() => {
+    const adminRoutes = /^\/admin/;
+    const responsibleRoutes = /^\/responsible/;
+    const producerRoutes = /^\/producer/;
+
+    if (
+      (adminRoutes.test(pathname) && userRole !== "Administrador") ||
+      (responsibleRoutes.test(pathname) && userRole !== "Responsable") ||
+      (producerRoutes.test(pathname) && userRole !== "Productor")
+    ) {
+      showNotification({
+        title: "Acceso denegado",
+        message: "No tienes permiso para acceder a esta página",
+        color: "red",
+      });
+      router.replace("/dashboard");
+    } else {
+      setIsVerifying(false);
+    }
+  }, [userRole, pathname, router]);
+
+  if (isVerifying) {
+    return <LoadingScreen />;
+  }
+
+  return <>{children}</>;
+};
+
+export default ProtectedRoutes;
