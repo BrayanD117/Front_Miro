@@ -47,11 +47,11 @@ const linksByRole: Record<Roles, LinkItem[]> = {
   ],
   Responsable: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/responsible/tasks", label: "Gestionar Tareas" },
+    { link: "/responsible/productions", label: "Gestionar Producciones" },
   ],
   Productor: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/producer/productions", label: "Gestionar Producciones" },
+    { link: "/producer/tasks", label: "Gestionar Tareas" },
   ],
 };
 
@@ -175,9 +175,14 @@ export default function Navbar() {
     .filter((link) => link.link !== "/dashboard")
     .map((link: LinkItem) => (
       <Link href={link.link} key={link.label} passHref>
-        <Menu.Item>
-          {link.label}
-        </Menu.Item>
+        <Button 
+          mt={8}
+          fullWidth
+          color="blue"
+          variant="light"
+        >
+            {link.label}
+        </Button>
       </Link>
     ));
 
