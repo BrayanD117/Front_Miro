@@ -67,6 +67,7 @@ export default function Navbar() {
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const { userRole, setUserRole } = useRole();
+  const [menuOpened, setMenuOpened] = useState(false);
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -171,6 +172,22 @@ export default function Navbar() {
     </Link>
   ));
 
+  const actionItems = links
+    .filter((link) => link.link !== "/dashboard")
+    .map((link: LinkItem) => (
+      <Link href={link.link} key={link.label} passHref>
+        <Button
+          mt={8}
+          fullWidth
+          color="blue"
+          variant="light"
+          onClick={() => setMenuOpened(false)}
+        >
+          {link.label}
+        </Button>
+      </Link>
+    ));
+
   return (
     <>
       <header className={classes.header}>
@@ -189,7 +206,13 @@ export default function Navbar() {
                 >
                   Cambiar rol
                 </Button>
-                <Menu shadow="md" width={200}>
+                <Menu
+                  shadow="md"
+                  width={200}
+                  opened={menuOpened}
+                  onClose={() => setMenuOpened(false)}
+                  onOpen={() => setMenuOpened(true)}
+                >
                   <Menu.Target>
                     <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
                       Acciones
@@ -197,13 +220,7 @@ export default function Navbar() {
                   </Menu.Target>
                   {/* Menu Dropdown */}
                   <Menu.Dropdown>
-                    {links
-                      .filter((link) => link.link !== "/dashboard")
-                      .map((link: LinkItem) => (
-                        <Menu.Item key={link.label} component="a" href={link.link}>
-                          {link.label}
-                        </Menu.Item>
-                      ))}
+                    {actionItems}
                   </Menu.Dropdown>
                 </Menu>
                 <ThemeChanger />
