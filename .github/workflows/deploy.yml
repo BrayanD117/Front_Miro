@@ -26,6 +26,11 @@ jobs:
     - name: Build the project
       run: |
         cd front
+        echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
+        echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
+        echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
         npm run build
 
     - name: Deploy to Server
@@ -40,3 +45,6 @@ jobs:
 
     - name: Restart PM2
       run: ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} 'cd ~/MIRO/Front_Miro/front && pm2 restart Front_Miro'
+
+    - name: Post Checkout repository
+      run: echo "Deployment complete"
