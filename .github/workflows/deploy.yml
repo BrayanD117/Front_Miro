@@ -1,4 +1,4 @@
-name: Deploy Next.js App
+name: Deploy Frontend MIRÓ
 
 on:
   push:
@@ -16,13 +16,17 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '20.12.2'
+        node-version: '20'
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        cd front
+        npm install
 
     - name: Build the project
-      run: npm run build
+      run: |
+        cd front
+        npm run build
 
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@v2.1.5
