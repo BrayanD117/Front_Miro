@@ -120,11 +120,7 @@ const AdminDimensionsPage = () => {
         });
       }
 
-      setOpened(false);
-      setName("");
-      setResponsible(null);
-      setProducers([]);
-      setSelectedDimension(null);
+      handleModalClose();
       fetchDimensions(page, search);
     } catch (error) {
       console.error("Error creando o actualizando dimensión:", error);
@@ -177,6 +173,14 @@ const AdminDimensionsPage = () => {
     setProducersModalOpened(true);
   };
 
+  const handleModalClose = () => {
+    setOpened(false);
+    setName("");
+    setResponsible(null);
+    setProducers([]);
+    setSelectedDimension(null);
+  };
+
   const rows = dimensions.map((dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
@@ -213,7 +217,12 @@ const AdminDimensionsPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <Button onClick={() => setOpened(true)}>Crear Nueva Dimensión</Button>
+      <Group>
+        <Button onClick={() => {
+          setSelectedDimension(null);
+          setOpened(true);
+        }}>Crear Nueva Dimensión</Button>
+      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
@@ -241,9 +250,17 @@ const AdminDimensionsPage = () => {
           backgroundOpacity: 0.55,
           blur: 3,
         }}
-        onClose={() => setOpened(false)}
+        onClose={handleModalClose}
         title={selectedDimension ? "Editar Dimensión" : "Crear Nueva Dimensión"}
       >
+        <Group mb="md" grow>
+          <Button onClick={handleCreateOrEdit}>
+            {selectedDimension ? "Actualizar" : "Crear"}
+          </Button>
+          <Button onClick={handleModalClose} variant="outline">
+            Cancelar
+          </Button>
+        </Group>
         <TextInput
           label="Nombre"
           placeholder="Nombre de la dimensión"
@@ -267,11 +284,7 @@ const AdminDimensionsPage = () => {
           onChange={setProducers}
           searchable
         />
-        <Group mt="md">
-          <Button onClick={handleCreateOrEdit}>
-            {selectedDimension ? "Actualizar" : "Crear"}
-          </Button>
-        </Group>
+        
       </Modal>
       <Modal
         opened={producersModalOpened}
