@@ -17,6 +17,7 @@ interface User {
   _id: string;
   full_name: string;
   email: string;
+  roles: string[];
 }
 
 interface Dependency {
@@ -93,7 +94,7 @@ const AdminDimensionsPage = () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${dep_code}/users`);
       if (response.data) {
         const uniqueProducers = response.data.reduce((acc: any, user: User) => {
-          if (!acc.some((existing: any) => existing.value === user.email)) {
+          if (user.roles.includes("Productor") && !acc.some((existing: any) => existing.value === user.email)) {
             acc.push({ value: user.email, label: `${user.full_name} (${user.email})` });
           }
           return acc;
