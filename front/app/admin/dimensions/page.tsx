@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text } from "@mantine/core";
+import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text, Checkbox } from "@mantine/core";
 import { IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -38,6 +38,7 @@ const AdminDimensionsPage = () => {
   const [producersOptions, setProducersOptions] = useState<{ value: string, label: string }[]>([]);
   const [dependenciesOptions, setDependenciesOptions] = useState<{ value: string, label: string }[]>([]);
   const [selectedDependency, setSelectedDependency] = useState<string | null>(null);
+  const [selectAll, setSelectAll] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
@@ -204,6 +205,18 @@ const AdminDimensionsPage = () => {
     setResponsible(null);
     setProducers([]);
     setSelectedDimension(null);
+    setSelectedDependency(null);
+    setProducersOptions([]);
+    setSelectAll(false);
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setProducers([]);
+    } else {
+      setProducers(producersOptions.map((producer) => producer.value));
+    }
+    setSelectAll(!selectAll);
   };
 
   const rows = dimensions.map((dimension) => (
@@ -315,6 +328,13 @@ const AdminDimensionsPage = () => {
           searchable
           clearable
         />
+        <Checkbox
+          label="Seleccionar todos los productores"
+          checked={selectAll}
+          onChange={handleSelectAll}
+          mb="md"
+          mt="md"
+        />
         <MultiSelect
           label="Productores"
           placeholder="Selecciona productores"
@@ -323,7 +343,6 @@ const AdminDimensionsPage = () => {
           onChange={setProducers}
           searchable
         />
-        
       </Modal>
       <Modal
         opened={producersModalOpened}
