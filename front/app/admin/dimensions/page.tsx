@@ -19,6 +19,11 @@ interface User {
   email: string;
 }
 
+interface Dependency {
+  dep_code: string;
+  name: string;
+}
+
 const AdminDimensionsPage = () => {
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [opened, setOpened] = useState(false);
@@ -30,6 +35,8 @@ const AdminDimensionsPage = () => {
   const [producers, setProducers] = useState<string[]>([]);
   const [responsiblesOptions, setResponsiblesOptions] = useState<{ value: string, label: string }[]>([]);
   const [producersOptions, setProducersOptions] = useState<{ value: string, label: string }[]>([]);
+  const [dependenciesOptions, setDependenciesOptions] = useState<{ value: string, label: string }[]>([]);
+  const [selectedDependency, setSelectedDependency] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
@@ -65,16 +72,33 @@ const AdminDimensionsPage = () => {
     }
   };
 
-  const fetchProducers = async () => {
+  const fetchDependencies = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/producers`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies`);
       if (response.data) {
-        setProducersOptions(
-          response.data.map((user: User) => ({
-            value: user.email,
-            label: `${user.full_name} (${user.email})`,
+        setDependenciesOptions(
+          response.data.map((dependency: Dependency) => ({
+            value: dependency.dep_code,
+            label: dependency.name,
           }))
         );
+      }
+    } catch (error) {
+      console.error("Error fetching dependencies:", error);
+    }
+  };
+
+  const fetchProducersByDependency = async (dep_code: string) => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${dep_code}/users`);
+      if (response.data) {
+        const uniqueProducers = response.data.reduce((acc: any, user: User) => {
+          if (!acc.some((existing: any) => existing.value === user.email)) {
+            acc.push({ value: user.email, label: `${user.full_name} (${user.email})` });
+          }
+          return acc;
+        }, []);
+        setProducersOptions(uniqueProducers);
       }
     } catch (error) {
       console.error("Error fetching producers:", error);
@@ -84,7 +108,7 @@ const AdminDimensionsPage = () => {
   useEffect(() => {
     fetchDimensions(page, search);
     fetchResponsibles();
-    fetchProducers();
+    fetchDependencies();
   }, [page, search]);
 
   const handleCreateOrEdit = async () => {
@@ -273,6 +297,20 @@ const AdminDimensionsPage = () => {
           data={responsiblesOptions}
           value={responsible}
           onChange={(value) => setResponsible(value)}
+          searchable
+          clearable
+        />
+        <Select
+          label="Dependencia"
+          placeholder="Selecciona una dependencia"
+          data={dependenciesOptions}
+          value={selectedDependency}
+          onChange={(value) => {
+            setSelectedDependency(value);
+            if (value) {
+              fetchProducersByDependency(value);
+            }
+          }}
           searchable
           clearable
         />
