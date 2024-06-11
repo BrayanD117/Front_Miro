@@ -7,6 +7,7 @@ import { Notifications } from "@mantine/notifications";
 
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { RoleProvider } from "./context/RoleContext";
+import { AppInitializer } from "./context/AppInitializer";
 
 // Components
 import Footer from "./components/footer/Footer";
@@ -32,12 +33,14 @@ export default function RootLayout({
         <Providers>
           <MantineProvider>
             <RoleProvider>
+              <AppInitializer>
               <Notifications />
               <Navbar />
               <ProtectedRoutes>
                 {children}
               </ProtectedRoutes>
               <Footer />
+              </AppInitializer>
             </RoleProvider>
           </MantineProvider>
         </Providers>

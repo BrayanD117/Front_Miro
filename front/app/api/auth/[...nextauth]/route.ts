@@ -1,10 +1,11 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoClient } from "mongodb";
+import { NextAuthOptions } from "next-auth";
 
 const client = new MongoClient(process.env.MONGODB_URI as string);
 
-const handler = NextAuth({
+const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -15,7 +16,7 @@ const handler = NextAuth({
     signIn: '/signIn',
   },
   session: {
-    maxAge:  3600 * 8,
+    maxAge: 3600 * 8,
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -34,7 +35,18 @@ const handler = NextAuth({
     async redirect({ url, baseUrl }) {
       return '/dashboard';
     },
+    async session({ session, token }) {
+      if (session.user?.email) {
+        const user = await client.db().collection('users').findOne({ email: session.user.email });
+        if (user) {
+          session.user.role = user.activeRole;
+        }
+      }
+      return session;
+    },
   },
-});
+};
+
+const handler = NextAuth(options);
 
 export { handler as GET, handler as POST };

@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 
 type RoleContextType = {
   userRole: string;
@@ -13,7 +13,15 @@ type RoleProviderProps = {
 };
 
 export const RoleProvider = ({ children }: RoleProviderProps) => {
-  const [userRole, setUserRole] = useState<string>("Usuario");
+  const [userRole, setUserRole] = useState<string>(() => {
+    // Get the role from localStorage if it exists, otherwise default to "Usuario"
+    return localStorage.getItem('userRole') || 'Usuario';
+  });
+
+  useEffect(() => {
+    // Save the role to localStorage whenever it changes
+    localStorage.setItem('userRole', userRole);
+  }, [userRole]);
 
   return (
     <RoleContext.Provider value={{ userRole, setUserRole }}>
