@@ -44,6 +44,7 @@ const linksByRole: Record<Roles, LinkItem[]> = {
     { link: "/dashboard", label: "Inicio" },
     { link: "/admin/users", label: "Gestionar Usuarios" },
     { link: "/admin/dimensions", label: "Gestionar Dimensiones" },
+    { link: "/admin/dependencies", label: "Gestionar Dependencias" },
   ],
   Responsable: [
     { link: "/dashboard", label: "Inicio" },
