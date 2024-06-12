@@ -4,10 +4,9 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconEdit, IconClipboardList, IconFileText } from "@tabler/icons-react";
+import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
-
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
@@ -126,6 +125,23 @@ const DashboardPage = () => {
                 </Button>
               </Card>
             </Grid.Col>
+            <Grid.Col span={4}>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
+                  <Image src="https://via.placeholder.com/150" height={160} alt="Dependencias" />
+                </Card.Section>
+                <Group mt="md" mb="xs">
+                  <Text w={500}>Gestionar Dependencias</Text>
+                  <IconBuildingCommunity size={24} />
+                </Group>
+                <Text size="sm" color="dimmed">
+                  Administra las dependencias y sus responsables.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dependencies')}>
+                  Ir a Gestión de Dependencias
+                </Button>
+              </Card>
+            </Grid.Col>
           </Grid>
           </>
         );
@@ -177,7 +193,7 @@ const DashboardPage = () => {
         return (
           <>
           <Center>
-            <Title mb="sm">Tu rol es Responsable</Title>
+            <Title mb="sm">Tu rol es Productor</Title>
           </Center>
           <Grid>
             <Grid.Col span={12}>
