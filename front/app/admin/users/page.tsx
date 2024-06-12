@@ -56,7 +56,7 @@ const AdminUsersPage = () => {
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
-    setRoles(user.roles);
+    setRoles(user.roles.filter(role => role !== "Productor"  && role !== "Usuario"));
     setModalOpened(true);
   };
 
@@ -204,7 +204,7 @@ const AdminUsersPage = () => {
         <MultiSelect
           label="Roles"
           placeholder="Selecciona roles"
-          data={["Usuario", "Administrador", "Responsable", "Productor"]}
+          data={["Usuario", "Administrador", "Responsable"]}
           value={roles}
           onChange={setRoles}
         />
