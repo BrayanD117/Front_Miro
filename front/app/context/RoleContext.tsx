@@ -14,11 +14,16 @@ type RoleProviderProps = {
 
 export const RoleProvider = ({ children }: RoleProviderProps) => {
   const [userRole, setUserRole] = useState<string>(() => {
-    return localStorage.getItem('userRole') || 'Usuario';
+    if (typeof window !== "undefined") {
+      return localStorage.getItem('userRole') || 'Usuario';
+    }
+    return 'Usuario';
   });
 
   useEffect(() => {
-    localStorage.setItem('userRole', userRole);
+    if (typeof window !== "undefined") {
+      localStorage.setItem('userRole', userRole);
+    }
   }, [userRole]);
 
   return (

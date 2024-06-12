@@ -8,7 +8,7 @@ export const AppInitializer = ({ children }: { children: React.ReactNode }) => {
   const { setUserRole } = useRole();
 
   useEffect(() => {
-    if (session?.user?.role) {
+    if (typeof window !== "undefined" && session?.user?.role) {
       setUserRole(session.user.role);
     }
   }, [session, setUserRole]);
