@@ -42,7 +42,7 @@ const AdminPeriodsPage = () => {
         params: { page, limit: 10, search },
       });
       if (response.data) {
-        setPeriods(response.data || []);
+        setPeriods(response.data.periods || []);
         setTotalPages(response.data.pages || 1);
       }
     } catch (error) {
@@ -53,7 +53,15 @@ const AdminPeriodsPage = () => {
 
   useEffect(() => {
     fetchPeriods(page, search);
-  }, [page, search]);
+  }, [page]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchPeriods(page, search);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleEdit = (period: Period) => {
     setSelectedPeriod(period);
