@@ -14,6 +14,7 @@ interface Field {
   datatype: string;
   required: boolean;
   validate_with?: string;
+  comment?: string;
 }
 
 interface Template {
@@ -80,7 +81,7 @@ const AdminTemplatesPage = () => {
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: '0073e6' },
+        fgColor: { argb: '0f1f39' },
       };
       cell.border = {
         top: { style: 'thin' },
@@ -89,6 +90,17 @@ const AdminTemplatesPage = () => {
         right: { style: 'thin' },
       };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // Agregar comentarios
+      const field = template.fields[colNumber - 1];
+      if (field.comment) {
+        cell.note = {
+          texts: [
+            { font: { size: 12, color: { argb: 'FF0000' } }, text: field.comment }
+          ],
+          editAs: 'oneCells',
+        };
+      }
     });
 
     worksheet.columns.forEach(column => {
