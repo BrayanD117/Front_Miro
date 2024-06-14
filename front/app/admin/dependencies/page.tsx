@@ -68,7 +68,15 @@ const AdminDependenciesPage = () => {
 
   useEffect(() => {
     fetchDependencies(page, search);
-  }, [page, search]);
+  }, [page]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchDependencies(page, search);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleEdit = (dependency: Dependency) => {
     setSelectedDependency(dependency);

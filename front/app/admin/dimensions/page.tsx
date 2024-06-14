@@ -72,7 +72,15 @@ const AdminDimensionsPage = () => {
   useEffect(() => {
     fetchDimensions(page, search);
     fetchResponsibles();
-  }, [page, search]);
+  }, [page]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchDimensions(page, search);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleCreateOrEdit = async () => {
     if (!name || !responsible) {
