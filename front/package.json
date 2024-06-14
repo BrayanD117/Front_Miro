@@ -19,6 +19,8 @@
     "@tabler/icons-react": "^3.3.0",
     "axios": "^1.6.8",
     "dayjs": "^1.11.11",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "mongodb": "^6.7.0",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
@@ -26,6 +28,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

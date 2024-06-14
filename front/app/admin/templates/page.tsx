@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDownload } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import ExcelJS from "exceljs";
+import { saveAs } from 'file-saver';
 
 interface Field {
   name: string;
@@ -68,6 +70,36 @@ const AdminTemplatesPage = () => {
     }
   };
 
+  const handleDownload = async (template: Template) => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(template.name);
+
+    const headerRow = worksheet.addRow(template.fields.map(field => field.name));
+    headerRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '0073e6' },
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    worksheet.columns.forEach(column => {
+      column.width = 20;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/octet-stream" });
+    saveAs(blob, `${template.file_name}.xlsx`);
+  };
+
   const rows = templates.map((template) => (
     <Table.Tr key={template._id}>
       <Table.Td>{template.name}</Table.Td>
@@ -84,6 +116,9 @@ const AdminTemplatesPage = () => {
           </Button>
           <Button color="red" variant="outline" onClick={() => handleDelete(template._id)}>
             <IconTrash size={16} />
+          </Button>
+          <Button variant="outline" onClick={() => handleDownload(template)}>
+            <IconDownload size={16} />
           </Button>
         </Group>
       </Table.Td>
