@@ -90,8 +90,8 @@ const DashboardPage = () => {
           <Center>
             <Title mb="sm">Tu rol es Administrador</Title>
           </Center>
-          <Grid>
-            <Grid.Col span={4}>
+          <Grid justify="center" align="center">
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Usuarios" />
@@ -108,7 +108,7 @@ const DashboardPage = () => {
                 </Button>
               </Card>
             </Grid.Col>
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Dimensiones" />
@@ -125,7 +125,7 @@ const DashboardPage = () => {
                 </Button>
               </Card>
             </Grid.Col>
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Dependencias" />
@@ -142,7 +142,7 @@ const DashboardPage = () => {
                 </Button>
               </Card>
             </Grid.Col>
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Periodos" />
@@ -154,7 +154,7 @@ const DashboardPage = () => {
                 <Text size="sm" color="dimmed">
                   Administra los periodos de Miró.
                 </Text>
-                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/periods')}>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dependencies')}>
                   Ir a Gestión de Periodos
                 </Button>
               </Card>
@@ -169,7 +169,7 @@ const DashboardPage = () => {
             <Title mb="sm">Tu rol es Responsable</Title>
           </Center>
           <Grid>
-            <Grid.Col span={6}>
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Gestión de Información" />
@@ -186,7 +186,7 @@ const DashboardPage = () => {
                 </Button>
               </Card>
             </Grid.Col>
-            <Grid.Col span={6}>
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
@@ -213,7 +213,7 @@ const DashboardPage = () => {
             <Title mb="sm">Tu rol es Productor</Title>
           </Center>
           <Grid>
-            <Grid.Col span={12}>
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }}>
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Card.Section>
                   <Image src="https://via.placeholder.com/150" height={160} alt="Enviar Información" />
