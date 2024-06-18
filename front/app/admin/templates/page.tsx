@@ -107,18 +107,99 @@ const AdminTemplatesPage = () => {
       column.width = 20;
     });
 
-    // Añadir validación de datos para toda la columna A
-    const maxRows = 1000; // Ajusta este valor según el número de filas que necesites
-    for (let i = 2; i <= maxRows; i++) {
-      worksheet.getCell(`A${i}`).dataValidation = {
-        type: 'whole',
-        operator: 'between',
-        formulae: [1, 999999],
-        showErrorMessage: true,
-        errorTitle: 'Valor no válido',
-        error: 'Por favor, introduce un número entero entre 1 y 999999.'
-      };
-    }
+    // Añadir validaciones en función del datatype
+    template.fields.forEach((field, index) => {
+      const columnLetter = String.fromCharCode(65 + index); // Convertir índice a letra de columna (A, B, C, ...)
+      const maxRows = 1000; // Número máximo de filas a validar
+      for (let i = 2; i <= maxRows; i++) {
+        const cellAddress = `${columnLetter}${i}`;
+        switch (field.datatype) {
+          case 'Entero':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'whole',
+              operator: 'between',
+              formulae: [1, 9999999999999999999999999999999],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un número entero.'
+            };
+            break;
+          case 'Decimal':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'decimal',
+              operator: 'between',
+              formulae: [0.0, 1000000.0],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un número decimal.'
+            };
+            break;
+          case 'Porcentaje':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'decimal',
+              operator: 'between',
+              formulae: [0.0, 100.0],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un número decimal entre 0 y 100.'
+            };
+            break;
+          case 'Texto Corto':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'textLength',
+              operator: 'lessThanOrEqual',
+              formulae: [60],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'El texto debe tener un máximo de 60 caracteres.'
+            };
+            break;
+          case 'Texto Largo':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'textLength',
+              operator: 'lessThanOrEqual',
+              formulae: [255],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'El texto debe tener un máximo de 255 caracteres.'
+            };
+            break;
+          case 'True/False':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'list',
+              allowBlank: true,
+              formulae: ['"Si,No"'],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, selecciona Si o No.'
+            };
+            break;
+          case 'Fecha':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'date',
+              operator: 'between',
+              formulae: ['DATE(1900,1,1)', 'DATE(9999,12,31)'],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce una fecha válida.'
+            };
+            worksheet.getCell(cellAddress).numFmt = 'DD/MM/YYYY';
+            break;
+          case 'Link':
+            worksheet.getCell(cellAddress).dataValidation = {
+              type: 'textLength',
+              operator: 'lessThanOrEqual',
+              formulae: [255],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'El enlace debe ser una URL válida y tener un máximo de 255 caracteres.'
+            };
+            break;
+          default:
+            break;
+        }
+      }
+    });
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
