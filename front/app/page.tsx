@@ -1,6 +1,6 @@
 'use client'
 
-import { Container, Grid, BackgroundImage, Title, Text, Button, Stack, Paper } from "@mantine/core";
+import { Container, Grid, BackgroundImage, Title, Text, Button, Stack, Paper, Box } from "@mantine/core";
 import { useRouter } from "next/navigation";
 
 const HomePage = () => {
@@ -11,14 +11,16 @@ const HomePage = () => {
   };
 
   return (
-    <Container size="xl" p={0} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Grid grow style={{ width: '100%', margin: 0 }}>
+    <Container size={"xl"} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <BackgroundImage
+        src="/assets/panoramica.png"
+        radius={"md"}
+        style={{ width: '100%', height: '30vh', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      />
+      <Grid style={{ width: '100%', margin: 0, marginTop: '20px' }}>
         <Grid.Col span={{ base: 12, md: 6 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <BackgroundImage
-            src="/assets/panoramica.png"
-            style={{ height: '50vh', width: '80%', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Stack align="center" style={{ color: 'white', padding: '20px', textAlign: 'center' }}>
+        <Paper p="xl" shadow="lg" withBorder style={{ width: '90%', maxWidth: '450px', textAlign: 'center' }}>
+            <Stack align="center" style={{ padding: '20px', textAlign: 'center', borderRadius: '10px' }}>
               <Title order={1} fw={700}>
                 Bienvenidos a MIRÓ
               </Title>
@@ -26,10 +28,10 @@ const HomePage = () => {
                 El mecanismo de información y reporte oficial de la Universidad de Ibagué.
               </Title>
             </Stack>
-          </BackgroundImage>
+            </Paper>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Paper p="xl" shadow="lg" withBorder style={{ width: '80%', maxWidth: '400px', textAlign: 'center' }}>
+          <Paper p="xl" shadow="lg" withBorder style={{ width: '90%', maxWidth: '450px', textAlign: 'center' }}>
             <Stack align="center">
               <Title order={2}>
                 ¡Bienvenido!
