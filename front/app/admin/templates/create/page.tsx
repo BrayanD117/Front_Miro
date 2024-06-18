@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox } from "@mantine/core";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { showNotification } from "@mantine/notifications";
 
 interface Field {
@@ -109,11 +109,20 @@ const AdminCreateTemplatePage = () => {
       router.push("/admin/templates");
     } catch (error) {
       console.error("Error guardando plantilla:", error);
-      showNotification({
-        title: "Error",
-        message: "Hubo un error al guardar la plantilla",
-        color: "red",
-      });
+
+      if (axios.isAxiosError(error) && error.response && error.response.data.mensaje) {
+        showNotification({
+          title: "Error",
+          message: error.response.data.mensaje,
+          color: "red",
+        });
+      } else {
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al guardar la plantilla",
+          color: "red",
+        });
+      }
     }
   };
 
