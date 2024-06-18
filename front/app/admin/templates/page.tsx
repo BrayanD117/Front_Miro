@@ -113,9 +113,10 @@ const AdminTemplatesPage = () => {
       const maxRows = 1000; // Número máximo de filas a validar
       for (let i = 2; i <= maxRows; i++) {
         const cellAddress = `${columnLetter}${i}`;
+        const cell = worksheet.getCell(cellAddress);
         switch (field.datatype) {
           case 'Entero':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'whole',
               operator: 'between',
               formulae: [1, 9999999999999999999999999999999],
@@ -125,47 +126,47 @@ const AdminTemplatesPage = () => {
             };
             break;
           case 'Decimal':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'decimal',
               operator: 'between',
-              formulae: [0.0, 1000000.0],
+              formulae: [0.0, 9999999999999999999999999999999],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
               error: 'Por favor, introduce un número decimal.'
             };
             break;
           case 'Porcentaje':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'decimal',
               operator: 'between',
               formulae: [0.0, 100.0],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un número decimal entre 0 y 100.'
+              error: 'Por favor, introduce un número decimal entre 0.0 y 100.0.'
             };
             break;
           case 'Texto Corto':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'textLength',
               operator: 'lessThanOrEqual',
               formulae: [60],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'El texto debe tener un máximo de 60 caracteres.'
+              error: 'Por favor, introduce un texto de hasta 60 caracteres.'
             };
             break;
           case 'Texto Largo':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'textLength',
               operator: 'lessThanOrEqual',
               formulae: [255],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'El texto debe tener un máximo de 255 caracteres.'
+              error: 'Por favor, introduce un texto de hasta 255 caracteres.'
             };
             break;
           case 'True/False':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'list',
               allowBlank: true,
               formulae: ['"Si,No"'],
@@ -175,24 +176,25 @@ const AdminTemplatesPage = () => {
             };
             break;
           case 'Fecha':
-            worksheet.getCell(cellAddress).dataValidation = {
+          case 'Fecha Inicial / Fecha Final':
+            cell.dataValidation = {
               type: 'date',
               operator: 'between',
-              formulae: ['DATE(1900,1,1)', 'DATE(9999,12,31)'],
+              formulae: [new Date(1900, 0, 1), new Date(9999, 11, 31)],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce una fecha válida.'
+              error: 'Por favor, introduce una fecha válida en el formato DD/MM/AAAA.'
             };
-            worksheet.getCell(cellAddress).numFmt = 'DD/MM/YYYY';
+            cell.numFmt = 'DD/MM/YYYY';
             break;
           case 'Link':
-            worksheet.getCell(cellAddress).dataValidation = {
+            cell.dataValidation = {
               type: 'textLength',
-              operator: 'lessThanOrEqual',
-              formulae: [255],
+              operator: 'greaterThan',
+              formulae: [0],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'El enlace debe ser una URL válida y tener un máximo de 255 caracteres.'
+              error: 'Por favor, introduce un enlace válido.'
             };
             break;
           default:
