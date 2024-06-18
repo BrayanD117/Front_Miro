@@ -107,6 +107,19 @@ const AdminTemplatesPage = () => {
       column.width = 20;
     });
 
+    // Añadir validación de datos para toda la columna A
+    const maxRows = 1000; // Ajusta este valor según el número de filas que necesites
+    for (let i = 2; i <= maxRows; i++) {
+      worksheet.getCell(`A${i}`).dataValidation = {
+        type: 'whole',
+        operator: 'between',
+        formulae: [1, 999999],
+        showErrorMessage: true,
+        errorTitle: 'Valor no válido',
+        error: 'Por favor, introduce un número entero entre 1 y 999999.'
+      };
+    }
+
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
     saveAs(blob, `${template.file_name}.xlsx`);
