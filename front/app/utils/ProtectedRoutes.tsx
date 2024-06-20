@@ -16,11 +16,13 @@ const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
     const adminRoutes = /^\/admin/;
     const responsibleRoutes = /^\/responsible/;
     const producerRoutes = /^\/producer/;
+    const templateRoutes = /^\/templates/;
 
     if (
       (adminRoutes.test(pathname) && userRole !== "Administrador") ||
       (responsibleRoutes.test(pathname) && userRole !== "Responsable") ||
-      (producerRoutes.test(pathname) && userRole !== "Productor")
+      (producerRoutes.test(pathname) && userRole !== "Productor") ||
+      (templateRoutes.test(pathname) && !["Administrador", "Responsable"].includes(userRole))
     ) {
       showNotification({
         title: "Acceso denegado",

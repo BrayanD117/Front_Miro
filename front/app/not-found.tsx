@@ -12,12 +12,18 @@ import {
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 import animationData from "../public/lottie/404.json";
+import { useSession } from "next-auth/react";
 
 const NotFound = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const handleReturnHome = () => {
-    router.push("/");
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    } else {
+      router.push("/");
+    }
   };
 
   return (
@@ -42,7 +48,7 @@ const NotFound = () => {
           <Lottie
             animationData={animationData}
             className="flex justify-center items-center"
-            loop={true}
+            loop={false}
           />
         </Grid.Col>
         <Grid.Col
