@@ -42,19 +42,19 @@ const linksByRole: Record<Roles, LinkItem[]> = {
   Usuario: [{ link: "/dashboard", label: "Inicio" }],
   Administrador: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/admin/users", label: "Gestionar Usuarios" },
-    { link: "/admin/dimensions", label: "Gestionar Dimensiones" },
-    { link: "/admin/dependencies", label: "Gestionar Dependencias" },
-    { link: "/admin/periods", label: "Gestionar Periodos" },
-    { link: "/admin/templates", label: "Gestionar Plantillas" },
+    { link: "/admin/users", label: "Usuarios" },
+    { link: "/admin/dimensions", label: "Dimensiones" },
+    { link: "/admin/dependencies", label: "Dependencias" },
+    { link: "/admin/periods", label: "Periodos" },
+    { link: "/admin/templates", label: "Plantillas" },
   ],
   Responsable: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/responsible/productions", label: "Gestionar Producciones" },
+    { link: "/responsible/productions", label: "Producciones" },
   ],
   Productor: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/producer/tasks", label: "Gestionar Tareas" },
+    { link: "/producer/tasks", label: "Tareas" },
   ],
 };
 
@@ -218,7 +218,7 @@ export default function Navbar() {
                 >
                   <Menu.Target>
                     <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
-                      Acciones
+                      Gestionar
                     </Button>
                   </Menu.Target>
                   {/* Menu Dropdown */}
