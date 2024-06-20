@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox } from "@mantine/core";
-import axios, { AxiosError } from "axios";
+import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox, Loader, Center } from "@mantine/core";
+import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
 interface Field {
@@ -34,6 +34,7 @@ const UpdateTemplatePage = () => {
   const [fileDescription, setFileDescription] = useState("");
   const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
   const [active, setActive] = useState(true);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { id } = useParams();
 
@@ -51,7 +52,11 @@ const UpdateTemplatePage = () => {
           }
         } catch (error) {
           console.error("Error fetching template:", error);
+        } finally {
+          setLoading(false);
         }
+      } else {
+        setLoading(false);
       }
     };
     fetchTemplate();
@@ -116,6 +121,14 @@ const UpdateTemplatePage = () => {
       }
     }
   };
+
+  if (loading) {
+    return (
+      <Center style={{ height: "100vh" }}>
+        <Loader size="xl" />
+      </Center>
+    );
+  }
 
   return (
     <Container size="xl">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox } from "@mantine/core";
 import axios, { AxiosError } from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -35,27 +35,6 @@ const CreateTemplatePage = () => {
   const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
   const [active, setActive] = useState(true);
   const router = useRouter();
-  const { id } = useParams();
-
-  useEffect(() => {
-    const fetchTemplate = async () => {
-      if (id) {
-        try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`);
-          if (response.data) {
-            setName(response.data.name);
-            setFileName(response.data.file_name);
-            setFileDescription(response.data.file_description);
-            setFields(response.data.fields);
-            setActive(response.data.active);
-          }
-        } catch (error) {
-          console.error("Error fetching template:", error);
-        }
-      }
-    };
-    fetchTemplate();
-  }, [id]);
 
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
@@ -91,21 +70,12 @@ const CreateTemplatePage = () => {
     };
 
     try {
-      if (id) {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`, templateData);
-        showNotification({
-          title: "Actualizado",
-          message: "Plantilla actualizada exitosamente",
-          color: "teal",
-        });
-      } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/templates/create`, templateData);
-        showNotification({
-          title: "Creado",
-          message: "Plantilla creada exitosamente",
-          color: "teal",
-        });
-      }
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/templates/create`, templateData);
+      showNotification({
+        title: "Creado",
+        message: "Plantilla creada exitosamente",
+        color: "teal",
+      });
       router.push("/admin/templates");
     } catch (error) {
       console.error("Error guardando plantilla:", error);
