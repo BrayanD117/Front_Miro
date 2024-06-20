@@ -218,7 +218,7 @@ const AdminTemplatesPage = () => {
         <Group gap={5}>
           <Button
             variant="outline"
-            onClick={() => router.push(`/admin/templates/edit/${template._id}`)}
+            onClick={() => router.push(`/templates/update/${template._id}`)}
           >
             <IconEdit size={16} />
           </Button>
@@ -242,7 +242,7 @@ const AdminTemplatesPage = () => {
         mb="md"
       />
       <Group>
-        <Button onClick={() => router.push('/admin/templates/create')}>
+        <Button onClick={() => router.push('/templates/create')}>
           Crear Nueva Plantilla
         </Button>
       </Group>

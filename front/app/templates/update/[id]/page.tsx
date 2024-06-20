@@ -28,7 +28,7 @@ const allowedDataTypes = [
   "Link"
 ];
 
-const AdminCreateTemplatePage = () => {
+const UpdateTemplatePage = () => {
   const [name, setName] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileDescription, setFileDescription] = useState("");
@@ -91,21 +91,12 @@ const AdminCreateTemplatePage = () => {
     };
 
     try {
-      if (id) {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`, templateData);
-        showNotification({
-          title: "Actualizado",
-          message: "Plantilla actualizada exitosamente",
-          color: "teal",
-        });
-      } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/templates/create`, templateData);
-        showNotification({
-          title: "Creado",
-          message: "Plantilla creada exitosamente",
-          color: "teal",
-        });
-      }
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`, templateData);
+      showNotification({
+        title: "Actualizado",
+        message: "Plantilla actualizada exitosamente",
+        color: "teal",
+      });
       router.push("/admin/templates");
     } catch (error) {
       console.error("Error guardando plantilla:", error);
@@ -207,4 +198,4 @@ const AdminCreateTemplatePage = () => {
   );
 };
 
-export default AdminCreateTemplatePage;
+export default UpdateTemplatePage;
