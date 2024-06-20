@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox, Loader, Center } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox, Loader, Center, Table } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
@@ -159,48 +159,70 @@ const UpdateTemplatePage = () => {
         onChange={(event) => setActive(event.currentTarget.checked)}
         mb="md"
       />
-      <Stack>
-        {fields.map((field, index) => (
-          <Group key={index} grow>
-            <TextInput
-              label="Nombre Campo"
-              placeholder="Nombre del campo"
-              value={field.name}
-              onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
-            />
-            <Select
-              label="Tipo de Campo"
-              placeholder="Seleccionar"
-              data={allowedDataTypes}
-              value={field.datatype}
-              onChange={(value) => handleFieldChange(index, "datatype", value)}
-            />
-            <Checkbox
-              label="¿Obligatorio?"
-              checked={field.required}
-              onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
-            />
-            <TextInput
-              label="Validar con Base de Datos"
-              placeholder="Validar con"
-              value={field.validate_with}
-              onChange={(event) => handleFieldChange(index, "validate_with", event.currentTarget.value)}
-            />
-            <TextInput
-              label="Comentario del Campo / Pista"
-              placeholder="Comentario"
-              value={field.comment}
-              onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
-            />
-            <Button color="red" onClick={() => removeField(index)}>
-              Eliminar
-            </Button>
-          </Group>
-        ))}
-        <Button mt="md" onClick={addField}>
+      <Table stickyHeader withTableBorder>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Nombre Campo</Table.Th>
+            <Table.Th>Tipo de Campo</Table.Th>
+            <Table.Th>¿Obligatorio?</Table.Th>
+            <Table.Th>Validar con Base de Datos</Table.Th>
+            <Table.Th>Comentario del Campo / Pista</Table.Th>
+            <Table.Th>Acciones</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {fields.map((field, index) => (
+            <Table.Tr key={index}>
+              <Table.Td>
+                <TextInput
+                  placeholder="Nombre del campo"
+                  value={field.name}
+                  onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <Select
+                  placeholder="Seleccionar"
+                  data={allowedDataTypes}
+                  value={field.datatype}
+                  onChange={(value) => handleFieldChange(index, "datatype", value)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <Checkbox
+                  label=""
+                  checked={field.required}
+                  onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <TextInput
+                  placeholder="Validar con"
+                  value={field.validate_with}
+                  onChange={(event) => handleFieldChange(index, "validate_with", event.currentTarget.value)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <TextInput
+                  placeholder="Comentario"
+                  value={field.comment}
+                  onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <Button color="red" onClick={() => removeField(index)}>
+                  Eliminar
+                </Button>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+      <Group mt="md">
+        <Button onClick={addField}>
           Añadir Campo
         </Button>
-      </Stack>
+      </Group>
       <Group mt="md">
         <Button onClick={handleSave}>Guardar</Button>
         <Button variant="outline" onClick={() => router.push("/admin/templates")}>

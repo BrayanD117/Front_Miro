@@ -154,7 +154,7 @@ const DashboardPage = () => {
                 <Text size="sm" color="dimmed">
                   Administra los periodos de Miró.
                 </Text>
-                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dependencies')}>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/periods')}>
                   Ir a Gestión de Periodos
                 </Button>
               </Card>
