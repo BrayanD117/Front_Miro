@@ -50,7 +50,15 @@ const AdminTemplatesPage = () => {
 
   useEffect(() => {
     fetchTemplates(page, search);
-  }, [page, search]);
+  }, [page]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchTemplates(page, search);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleDelete = async (id: string) => {
     try {
