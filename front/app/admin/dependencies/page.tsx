@@ -55,10 +55,12 @@ const AdminDependenciesPage = () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/${dep_code}/members`);
       if (response.data) {
-        const memberOptions = response.data.map((member: any) => ({
-          value: member.email,
-          label: `${member.full_name} (${member.email})`,
-        }));
+        const memberOptions = response.data
+          .filter((member: any) => member.email && member.email.includes('@') && member.email.split('@')[0].length > 0)
+          .map((member: any) => ({
+            value: member.email,
+            label: `${member.full_name} (${member.email})`,
+          }));
         setMembers(memberOptions);
       }
     } catch (error) {
@@ -84,6 +86,7 @@ const AdminDependenciesPage = () => {
     setName(dependency.name);
     setResponsible(dependency.responsible);
     setDepFather(dependency.dep_father);
+    setSelectedProducers(dependency.members); // Load current members
     fetchMembers(dependency.dep_code);
     setOpened(true);
   };
@@ -162,7 +165,7 @@ const AdminDependenciesPage = () => {
           onChange={(event) => setSearch(event.currentTarget.value)}
           className={styles.searchInput}
         />
-        <Button onClick={() => fetchDependencies(page, search)}  className={styles.syncButton} loading={isLoading}>
+        <Button onClick={() => fetchDependencies(page, search)} className={styles.syncButton} loading={isLoading}>
           Sincronizar Dependencias
         </Button>
       </Group>
