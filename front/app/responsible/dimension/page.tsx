@@ -23,20 +23,38 @@ const ResponsibleDimensionPage = () => {
   const [dimension, setDimension] = useState<Dimension | null>(null);
   const [allDependencies, setAllDependencies] = useState<Dependency[]>([]);
   const [producers, setProducers] = useState<string[]>([]);
+  const [producerNames, setProducerNames] = useState<{ [key: string]: string }>({});
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { data: session } = useSession();
 
   useEffect(() => {
+    const storedProducers = JSON.parse(localStorage.getItem('producers') || '[]');
+    const storedProducerNames = JSON.parse(localStorage.getItem('producerNames') || '{}');
+    const storedPage = parseInt(localStorage.getItem('page') || '1');
+    setProducers(storedProducers);
+    setProducerNames(storedProducerNames);
+    setPage(storedPage);
+  }, []);
+
+  useEffect(() => {
     const fetchDimension = async () => {
-      if (session?.user?.email) {
+      if (!dimension && session?.user?.email) {
         try {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`, {
             params: { email: session.user.email },
           });
-          setDimension(response.data[0]);
-          setProducers(response.data[0].producers);
+          const dimensionData = response.data[0];
+          setDimension(dimensionData);
+          setProducers(dimensionData.producers);
+
+          const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
+            dep_codes: dimensionData.producers,
+          });
+          const newProducerNames = { ...producerNames, ...producerResponse.data };
+          setProducerNames(newProducerNames);
+          localStorage.setItem('producerNames', JSON.stringify(newProducerNames));
         } catch (error) {
           console.error("Error fetching dimension:", error);
         }
@@ -44,7 +62,7 @@ const ResponsibleDimensionPage = () => {
     };
 
     fetchDimension();
-  }, [session]);
+  }, [session, dimension, producerNames]);
 
   useEffect(() => {
     const fetchDependencies = async () => {
@@ -65,6 +83,12 @@ const ResponsibleDimensionPage = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [page, search]);
+
+  useEffect(() => {
+    localStorage.setItem('producers', JSON.stringify(producers));
+    localStorage.setItem('producerNames', JSON.stringify(producerNames));
+    localStorage.setItem('page', page.toString());
+  }, [producers, producerNames, page]);
 
   const handleSave = async () => {
     if (dimension) {
@@ -89,27 +113,39 @@ const ResponsibleDimensionPage = () => {
     }
   };
 
-  const handleProducerToggle = (dep_code: string) => {
+  const handleProducerToggle = async (dep_code: string) => {
+    let updatedProducers;
     if (producers.includes(dep_code)) {
-      setProducers(producers.filter((producer) => producer !== dep_code));
+      updatedProducers = producers.filter((producer) => producer !== dep_code);
     } else {
-      setProducers([...producers, dep_code]);
+      updatedProducers = [...producers, dep_code];
+    }
+    setProducers(updatedProducers);
+
+    if (!producerNames[dep_code]) {
+      try {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
+          dep_codes: [dep_code],
+        });
+        const newProducerNames = { ...producerNames, ...response.data };
+        setProducerNames(newProducerNames);
+        localStorage.setItem('producerNames', JSON.stringify(newProducerNames));
+      } catch (error) {
+        console.error("Error fetching producer name:", error);
+      }
     }
   };
 
-  const selectedProducerRows = producers.map((dep_code) => {
-    const dependency = allDependencies.find((dep) => dep.dep_code === dep_code);
-    return (
-      <Table.Tr key={dep_code}>
-        <Table.Td>{dependency?.name || dep_code}</Table.Td>
-        <Table.Td>
-          <Button color="red" variant="outline" onClick={() => handleProducerToggle(dep_code)}>
-            <IconTrash size={16} />
-          </Button>
-        </Table.Td>
-      </Table.Tr>
-    );
-  });
+  const selectedProducerRows = producers.map((dep_code) => (
+    <Table.Tr key={dep_code}>
+      <Table.Td>{producerNames[dep_code] || dep_code}</Table.Td>
+      <Table.Td>
+        <Button color="red" variant="outline" onClick={() => handleProducerToggle(dep_code)}>
+          <IconTrash size={16} />
+        </Button>
+      </Table.Td>
+    </Table.Tr>
+  ));
 
   const allDependenciesRows = allDependencies.map((dep) => (
     <Table.Tr key={dep.dep_code}>
@@ -135,6 +171,12 @@ const ResponsibleDimensionPage = () => {
         />
         <TextInput
           label="Responsable"
+          value={session?.user?.name || ""}
+          readOnly
+          mb="md"
+        />
+        <TextInput
+          label="Correo del Responsable"
           value={dimension?.responsible || ""}
           readOnly
           mb="md"
