@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination } from "@mantine/core";
+import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -148,7 +148,7 @@ const ResponsibleDimensionPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <ScrollArea>
+      <ScrollArea style={{ height: 300 }}>
         <Table striped withTableBorder>
           <Table.Thead>
             <Table.Tr>
@@ -159,7 +159,9 @@ const ResponsibleDimensionPage = () => {
           <Table.Tbody>{allDependenciesRows}</Table.Tbody>
         </Table>
       </ScrollArea>
-      <Pagination page={page} onChange={setPage} total={totalPages} mt="md" />
+      <Center mt="md">
+        <Pagination value={page} onChange={setPage} total={totalPages} />
+      </Center>
       <Divider my="sm" />
       <Title order={4} mb="md">Productores Seleccionados</Title>
       <Table striped withTableBorder>
