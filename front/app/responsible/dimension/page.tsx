@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center } from "@mantine/core";
+import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -190,17 +190,24 @@ const ResponsibleDimensionPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <ScrollArea style={{ height: 300 }}>
-        <Table striped withTableBorder>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Seleccionar</Table.Th>
-              <Table.Th>Nombre del Productor</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>{allDependenciesRows}</Table.Tbody>
-        </Table>
-      </ScrollArea>
+      <Tooltip 
+        label="Desplázate para ver más dependencias" 
+        transitionProps={{ transition: 'scale-x', duration: 300 }}
+        position="right" 
+        withArrow
+        >
+        <ScrollArea style={{ height: 300 }}>
+          <Table striped withTableBorder>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Seleccionar</Table.Th>
+                <Table.Th>Nombre del Productor</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>{allDependenciesRows}</Table.Tbody>
+          </Table>
+        </ScrollArea>
+      </Tooltip>
       <Center mt="md">
         <Pagination value={page} onChange={setPage} total={totalPages} />
       </Center>
