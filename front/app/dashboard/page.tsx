@@ -250,6 +250,23 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsable-reports">
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card.Section>
+              <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+            </Card.Section>
+            <Group mt="md" mb="xs">
+              <Text w={500}>Generar Reportes</Text>
+              <IconClipboardList size={24} />
+            </Group>
+            <Text size="sm" color="dimmed">
+              Genera reportes de la dimensión de la que eres responsable.
+            </Text>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/report')}>
+              Ir a Generar Reportes
+            </Button>
+          </Card>
+        </Grid.Col>,
         );
         break;
       case "Productor":
