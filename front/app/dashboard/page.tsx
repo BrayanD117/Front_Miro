@@ -222,13 +222,13 @@ const DashboardPage = () => {
                 <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
               </Card.Section>
               <Group mt="md" mb="xs">
-                <Text w={500}>Crear Plantillas</Text>
+                <Text w={500}>Gestionar Plantillas</Text>
                 <IconClipboardList size={24} />
               </Group>
               <Text size="sm" color="dimmed">
                 Crea y gestiona las plantillas que llenarán los usuarios.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/create')}>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/templates')}>
                 Ir a Gestión de Plantillas
               </Button>
             </Card>

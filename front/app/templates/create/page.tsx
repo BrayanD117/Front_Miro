@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox, Table, Center } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select } from "@mantine/core";
 import axios, { AxiosError } from "axios";
 import { showNotification } from "@mantine/notifications";
+import { useSession } from "next-auth/react";
 
 interface Field {
   name: string;
@@ -35,6 +36,7 @@ const CreateTemplatePage = () => {
   const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
   const [active, setActive] = useState(true);
   const router = useRouter();
+  const { data: session } = useSession();
 
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
@@ -61,12 +63,22 @@ const CreateTemplatePage = () => {
       return;
     }
 
+    if (!session?.user?.email) {
+      showNotification({
+        title: "Error",
+        message: "Usuario no autenticado",
+        color: "red",
+      });
+      return;
+    }
+
     const templateData = {
       name,
       file_name: fileName,
       file_description: fileDescription,
       fields,
       active,
+      email: session.user.email,
     };
 
     try {
@@ -76,7 +88,7 @@ const CreateTemplatePage = () => {
         message: "Plantilla creada exitosamente",
         color: "teal",
       });
-      router.push("/admin/templates");
+      router.back();
     } catch (error) {
       console.error("Error guardando plantilla:", error);
 
@@ -191,7 +203,7 @@ const CreateTemplatePage = () => {
       </Group>
       <Group mt="md">
         <Button onClick={handleSave}>Guardar</Button>
-        <Button variant="outline" onClick={() => router.push("/admin/templates")}>
+        <Button variant="outline" onClick={() => router.back()}>
           Cancelar
         </Button>
       </Group>
