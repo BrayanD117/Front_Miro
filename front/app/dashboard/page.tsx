@@ -10,11 +10,11 @@ import { useRole } from "../context/RoleContext";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
-  const router = useRouter(); 
+  const router = useRouter();
   const [opened, setOpened] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
-  const { userRole, setUserRole } = useRole(); 
+  const { userRole, setUserRole } = useRole();
   const [notificationShown, setNotificationShown] = useState(false);
   const [isResponsible, setIsResponsible] = useState(false);
 
@@ -228,11 +228,28 @@ const DashboardPage = () => {
               <Text size="sm" color="dimmed">
                 Crea y gestiona las plantillas que llenarán los usuarios.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsable/plantillas')}>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/create')}>
                 Ir a Gestión de Plantillas
               </Button>
             </Card>
-          </Grid.Col>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsable-dimensions">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Card.Section>
+                <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+              </Card.Section>
+              <Group mt="md" mb="xs">
+                <Text w={500}>Gestionar Mi Dimensión</Text>
+                <IconClipboardList size={24} />
+              </Group>
+              <Text size="sm" color="dimmed">
+                Gestiona la dimensión de la que eres responsable.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/dimension')}>
+                Ir a Gestión de Mi Dimensión
+              </Button>
+            </Card>
+          </Grid.Col>,
         );
         break;
       case "Productor":
