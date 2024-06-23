@@ -112,7 +112,7 @@ const AdminUsersPage = () => {
   const handleSyncUsers = async () => {
     setIsLoading(true);
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/loadData`);
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/updateAll`);
       showNotification({
         title: "Sincronizado",
         message: "Usuarios sincronizados exitosamente",

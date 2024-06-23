@@ -80,6 +80,28 @@ const AdminDependenciesPage = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
 
+  const handleSyncDependencies = async () => {
+    setIsLoading(true);
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/updateAll`);
+      showNotification({
+        title: "Sincronizado",
+        message: "Dependencias sincronizadas exitosamente",
+        color: "teal",
+      });
+      fetchDependencies(page, search);
+    } catch (error) {
+      console.error("Error syncing dependencies:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al sincronizar las dependencias",
+        color: "red",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleEdit = (dependency: Dependency) => {
     setSelectedDependency(dependency);
     setDepCode(dependency.dep_code);
@@ -165,7 +187,7 @@ const AdminDependenciesPage = () => {
           onChange={(event) => setSearch(event.currentTarget.value)}
           className={styles.searchInput}
         />
-        <Button onClick={() => fetchDependencies(page, search)} className={styles.syncButton} loading={isLoading}>
+        <Button onClick={handleSyncDependencies} className={styles.syncButton} loading={isLoading}>
           Sincronizar Dependencias
         </Button>
       </Group>
