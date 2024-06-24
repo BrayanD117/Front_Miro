@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -23,16 +24,6 @@ jobs:
         cd front
         npm install
 
-    - name: Install GlobalProtect VPN
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openconnect
-        echo "${{ secrets.GLOBALPROTECT_CONFIG }}" > vpn-config.pwg
-        sudo openconnect --script /etc/vpnc/vpnc-script -u ${{ secrets.GLOBALPROTECT_USER }} --passwd-on-stdin < ${GITHUB_WORKSPACE}/vpn-config.pwg &
-      env:
-        GLOBALPROTECT_USER: ${{ secrets.GLOBALPROTECT_USER }}
-        GLOBALPROTECT_CONFIG: ${{ secrets.GLOBALPROTECT_CONFIG }}
-
     - name: Build the project
       run: |
         cd front
@@ -43,14 +34,22 @@ jobs:
         echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
         npm run build
 
+    - name: Connect to VPN
+      run: |
+        sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }}
+      env:
+        VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+
+    - name: Verify VPN connection
+      run: ip a
+
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@v2.1.5
-      env:
+      with:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        ARGS: "-avz --delete"
-        SOURCE: "front/.next"
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        SOURCE: "front/.next"
         TARGET: "~/MIRO/Front_Miro/front/.next"
 
     - name: Restart PM2
