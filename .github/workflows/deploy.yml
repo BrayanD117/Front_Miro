@@ -37,10 +37,15 @@ jobs:
     - name: Install OpenConnect
       run: sudo apt-get install -y openconnect
 
+    - name: Ping VPN server
+      run: ping -c 4 ${{ secrets.VPN_HOST }}
+
     - name: Connect to VPN
       run: |
-        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }}
-      
+        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }} -v
+      env:
+        VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+
     - name: Verify VPN connection
       run: ip a
 
