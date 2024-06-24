@@ -62,9 +62,17 @@ jobs:
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" rsync -avz --delete front/.next ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }}:~/MIRO/Front_Miro/front/.next
 
+    - name: Verify deployment
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'ls -la ~/MIRO/Front_Miro/front/.next'
+
     - name: Restart PM2
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'cd ~/MIRO/Front_Miro/front && pm2 restart Front_Miro'
+
+    - name: Verify PM2 status
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'pm2 status Front_Miro'
 
     - name: Post Checkout repository
       run: echo "Deployment complete"
