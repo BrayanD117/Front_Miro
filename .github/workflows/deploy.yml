@@ -34,20 +34,15 @@ jobs:
         echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
         npm run build
 
-    - name: Install OpenConnect and Netcat
-      run: sudo apt-get install -y openconnect netcat
-
-    - name: Ping VPN server
-      run: ping -c 4 ${{ secrets.VPN_HOST }}
-
-    - name: Check VPN server with Netcat
-      run: nc -zv ${{ secrets.VPN_HOST }} 443
+    - name: Install OpenConnect
+      run: sudo apt-get install -y openconnect
 
     - name: Connect to VPN
       run: |
-        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }} -v
+        sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${ secrets.VPN_HOST }}
       env:
         VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+        VPN_HOST: ${{ secrets.VPN_HOST }}
 
     - name: Verify VPN connection
       run: ip a
