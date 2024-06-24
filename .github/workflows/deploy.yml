@@ -58,6 +58,10 @@ jobs:
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
 
+    - name: Install rsync on remote server
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'sudo apt-get update && sudo apt-get install -y rsync'
+
     - name: Deploy to Server
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" rsync -avz --delete front/.next ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }}:~/MIRO/Front_Miro/front/.next
