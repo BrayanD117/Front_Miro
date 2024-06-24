@@ -14,26 +14,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: |
-        cd front
-        npm install
-
-    - name: Build the project
-      run: |
-        cd front
-        echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
-        echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
-        echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
-        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-        npm run build
-
     - name: Install OpenConnect
       run: sudo apt-get install -y openconnect
 
@@ -58,21 +38,31 @@ jobs:
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
 
-    - name: Deploy to Server
+    - name: Clone repository on remote server
       run: |
-        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" rsync -avz --delete front/.next ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }}:~/MIRO/Front_Miro/front/.next
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+          cd ~/MIRO/Front_Miro || exit;
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/BrayanD117/Front_Miro.git
+          else
+            git pull
+          fi'
 
-    - name: Verify deployment
+    - name: Build project on remote server
       run: |
-        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'ls -la ~/MIRO/Front_Miro/front/.next'
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+          cd ~/MIRO/Front_Miro/front;
+          npm install;
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env;
+          echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env;
+          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env;
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env;
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env;
+          npm run build'
 
     - name: Restart PM2
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'cd ~/MIRO/Front_Miro/front && pm2 restart Front_Miro'
-
-    - name: Verify PM2 status
-      run: |
-        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'pm2 status Front_Miro'
 
     - name: Post Checkout repository
       run: echo "Deployment complete"
