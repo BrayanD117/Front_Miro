@@ -23,6 +23,16 @@ jobs:
         cd front
         npm install
 
+    - name: Install GlobalProtect VPN
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openconnect
+        echo "${{ secrets.GLOBALPROTECT_CONFIG }}" > vpn-config.pwg
+        sudo openconnect --script /etc/vpnc/vpnc-script -u ${{ secrets.GLOBALPROTECT_USER }} --passwd-on-stdin < ${GITHUB_WORKSPACE}/vpn-config.pwg &
+      env:
+        GLOBALPROTECT_USER: ${{ secrets.GLOBALPROTECT_USER }}
+        GLOBALPROTECT_CONFIG: ${{ secrets.GLOBALPROTECT_CONFIG }}
+
     - name: Build the project
       run: |
         cd front
