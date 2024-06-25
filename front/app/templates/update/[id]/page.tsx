@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox, Loader, Center, Table } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
+import { useSession } from "next-auth/react";
 
 interface Field {
   name: string;
@@ -34,9 +35,13 @@ const UpdateTemplatePage = () => {
   const [fileDescription, setFileDescription] = useState("");
   const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
   const [active, setActive] = useState(true);
+  const [dimension, setDimension] = useState<string | null>(null);
+  const [dimensions, setDimensions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { id } = useParams();
+  const { data: session } = useSession();
+  const userRole = localStorage.getItem('userRole');
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -49,6 +54,7 @@ const UpdateTemplatePage = () => {
             setFileDescription(response.data.file_description);
             setFields(response.data.fields);
             setActive(response.data.active);
+            setDimension(response.data.dimension);
           }
         } catch (error) {
           console.error("Error fetching template:", error);
@@ -59,8 +65,36 @@ const UpdateTemplatePage = () => {
         setLoading(false);
       }
     };
+
+    const fetchDimensions = async () => {
+      const userEmail = session?.user?.email || localStorage.getItem('userEmail');
+      try {
+        if (userRole === 'Administrador') {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions`);
+          setDimensions(response.data.map((dim: any) => dim.name));
+        } else if (userRole === 'Responsable') {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`, {
+            params: { email: userEmail }
+          });
+          const userDimensions = response.data.map((dim: any) => dim.name);
+          setDimensions(userDimensions);
+          if (userDimensions.length > 0) {
+            setDimension(userDimensions[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching dimensions:", error);
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al obtener las dimensiones",
+          color: "red",
+        });
+      }
+    };
+
     fetchTemplate();
-  }, [id]);
+    fetchDimensions();
+  }, [id, session, userRole]);
 
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
@@ -78,7 +112,7 @@ const UpdateTemplatePage = () => {
   };
 
   const handleSave = async () => {
-    if (!name || !fileName || !fileDescription || fields.length === 0) {
+    if (!name || !fileName || !fileDescription || fields.length === 0 || !dimension) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -93,6 +127,7 @@ const UpdateTemplatePage = () => {
       file_description: fileDescription,
       fields,
       active,
+      dimension,
     };
 
     try {
@@ -102,7 +137,7 @@ const UpdateTemplatePage = () => {
         message: "Plantilla actualizada exitosamente",
         color: "teal",
       });
-      router.push("/admin/templates");
+      router.back();
     } catch (error) {
       console.error("Error guardando plantilla:", error);
 
@@ -153,6 +188,24 @@ const UpdateTemplatePage = () => {
         onChange={(event) => setFileDescription(event.currentTarget.value)}
         mb="md"
       />
+      {userRole === 'Administrador' && (
+        <Select
+          label="Dimensión"
+          placeholder="Seleccionar dimensión"
+          data={dimensions}
+          value={dimension}
+          onChange={(value) => setDimension(value || null)}
+          mb="md"
+        />
+      )}
+      {userRole === 'Responsable' && (
+        <TextInput
+          label="Dimensión"
+          value={dimension || ""}
+          readOnly
+          mb="md"
+        />
+      )}
       <Switch
         label="Activo"
         checked={active}
@@ -225,7 +278,7 @@ const UpdateTemplatePage = () => {
       </Group>
       <Group mt="md">
         <Button onClick={handleSave}>Guardar</Button>
-        <Button variant="outline" onClick={() => router.push("/admin/templates")}>
+        <Button variant="outline" onClick={() => router.back()}>
           Cancelar
         </Button>
       </Group>
