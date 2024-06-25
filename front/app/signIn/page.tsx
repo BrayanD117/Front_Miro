@@ -9,9 +9,20 @@ import {
   Flex,
 } from "@mantine/core";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const SignInPage = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status]);
+
   return (
     <Container size={500} my={40}>
       <Paper radius="md" p="xl" withBorder shadow="xs">

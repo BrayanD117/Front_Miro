@@ -2,9 +2,18 @@
 
 import { Container, Grid, BackgroundImage, Title, Text, Button, Stack, Paper, Box } from "@mantine/core";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 const HomePage = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status]);
 
   const handleLogin = () => {
     router.push('/signIn');
