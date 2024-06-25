@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip } from "@mantine/core";
+import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid, GridCol } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -161,7 +161,9 @@ const ResponsibleDimensionPage = () => {
 
   return (
     <Container size="xl">
-      <Title order={2} mb="md">Gestionar Dimensión</Title>
+      <Title order={2} mb="md">
+        Gestionar Dimensión
+      </Title>
       <Box mb="lg">
         <TextInput
           label="Nombre de la Dimensión"
@@ -183,48 +185,56 @@ const ResponsibleDimensionPage = () => {
         />
       </Box>
       <Divider my="sm" />
-      <Title order={4} mb="md">Agregar Productores</Title>
-      <TextInput
-        placeholder="Buscar dependencias"
-        value={search}
-        onChange={(event) => setSearch(event.currentTarget.value)}
-        mb="md"
-      />
-      <Tooltip 
-        label="Desplázate para ver más dependencias" 
-        transitionProps={{ transition: 'scale-x', duration: 300 }}
-        position="right" 
-        withArrow
-        >
-        <ScrollArea style={{ height: 300 }}>
+      <Grid>
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Title order={4} mb="md">
+            Agregar Productores
+          </Title>
+          <TextInput
+            placeholder="Buscar dependencias"
+            value={search}
+            onChange={(event) => setSearch(event.currentTarget.value)}
+            mb="md"
+          />
+          <Tooltip 
+            label="Desplázate para ver más dependencias"
+            transitionProps={{ transition: "slide-up", duration: 300 }}
+            withArrow
+          >
+            <ScrollArea style={{ height: 300 }}>
+              <Table striped withTableBorder>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Seleccionar</Table.Th>
+                    <Table.Th>Nombre del Productor</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>{allDependenciesRows}</Table.Tbody>
+              </Table>
+            </ScrollArea>
+          </Tooltip>
+          <Center mt="md">
+            <Pagination value={page} onChange={setPage} total={totalPages} />
+          </Center>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Title order={4} mb="md">
+            Productores Seleccionados
+          </Title>
           <Table striped withTableBorder>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Seleccionar</Table.Th>
                 <Table.Th>Nombre del Productor</Table.Th>
+                <Table.Th>Acciones</Table.Th>
               </Table.Tr>
             </Table.Thead>
-            <Table.Tbody>{allDependenciesRows}</Table.Tbody>
+            <Table.Tbody>{selectedProducerRows}</Table.Tbody>
           </Table>
-        </ScrollArea>
-      </Tooltip>
-      <Center mt="md">
-        <Pagination value={page} onChange={setPage} total={totalPages} />
-      </Center>
-      <Divider my="sm" />
-      <Title order={4} mb="md">Productores Seleccionados</Title>
-      <Table striped withTableBorder>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Nombre del Productor</Table.Th>
-            <Table.Th>Acciones</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{selectedProducerRows}</Table.Tbody>
-      </Table>
-      <Group mt="md">
-        <Button onClick={handleSave}>Guardar</Button>
-      </Group>
+          <Group mt="md">
+            <Button onClick={handleSave}>Guardar</Button>
+          </Group>
+        </Grid.Col>
+      </Grid>
     </Container>
   );
 };
