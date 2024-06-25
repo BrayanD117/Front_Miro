@@ -147,7 +147,7 @@ const DashboardPage = () => {
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-dependencies">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Dependencias" />
+                <Image src="https://via.placeholder.com/150" height={160} alt="Admin Dependencias" />
               </Card.Section>
               <Group mt="md" mb="xs">
                 <Text w={500}>Gestionar Dependencias</Text>
@@ -164,7 +164,7 @@ const DashboardPage = () => {
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-templates">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
-              <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+              <Image src="https://via.placeholder.com/150" height={160} alt="Admin Plantillas" />
             </Card.Section>
             <Group mt="md" mb="xs">
               <Text w={500}>Gestionar Plantillas</Text>
@@ -181,7 +181,7 @@ const DashboardPage = () => {
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Periodos" />
+                <Image src="https://via.placeholder.com/150" height={160} alt="Admin Periodos" />
               </Card.Section>
               <Group mt="md" mb="xs">
                 <Text w={500}>Gestionar Periodos</Text>
@@ -199,10 +199,10 @@ const DashboardPage = () => {
         break;
       case "Responsable":
         cards.push(
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsable-information">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-information">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Gestión de Información" />
+                <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Información" />
               </Card.Section>
               <Group mt="md" mb="xs">
                 <Text w={500}>Gestionar Información</Text>
@@ -216,10 +216,10 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsable-templates">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+                <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Plantillas" />
               </Card.Section>
               <Group mt="md" mb="xs">
                 <Text w={500}>Gestionar Plantillas</Text>
@@ -233,10 +233,10 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsable-dimensions">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-dimensions">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+                <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Dimension" />
               </Card.Section>
               <Group mt="md" mb="xs">
                 <Text w={500}>Gestionar Mi Dimensión</Text>
@@ -250,10 +250,10 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsable-reports">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
-              <Image src="https://via.placeholder.com/150" height={160} alt="Plantillas" />
+              <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Reportes" />
             </Card.Section>
             <Group mt="md" mb="xs">
               <Text w={500}>Generar Reportes</Text>
@@ -271,10 +271,27 @@ const DashboardPage = () => {
         break;
       case "Productor":
         cards.push(
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="productor-send-info">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-my-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Enviar Información" />
+                <Image src="https://via.placeholder.com/150" height={160} alt="Productor Mis Plantillas" />
+              </Card.Section>
+              <Group mt="md" mb="xs">
+                <Text w={500}>Mis Plantillas</Text>
+                <IconFileText size={24} />
+              </Group>
+              <Text size="sm" color="dimmed">
+                Gestiona las plantillas que te asignaron y tienes disponibles.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/templates')}>
+                Ir a Mis Plantillas
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-send-info">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Card.Section>
+                <Image src="https://via.placeholder.com/150" height={160} alt="Productor Enviar Información" />
               </Card.Section>
               <Group mt="md" mb="xs">
                 <Text w={500}>Enviar Información</Text>
@@ -283,7 +300,7 @@ const DashboardPage = () => {
               <Text size="sm" color="dimmed">
                 Envía información a los responsables para su gestión.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/productor/enviar')}>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/submit')}>
                 Ir a Enviar Información
               </Button>
             </Card>
