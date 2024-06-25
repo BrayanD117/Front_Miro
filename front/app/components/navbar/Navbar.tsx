@@ -62,7 +62,6 @@ const linksByRole: Record<Roles, LinkItem[]> = {
 
 const home = [{ link: "/dashboard", label: "Inicio" }];
 
-const titles = [{ link: "/", label: "MIRÓ" }];
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -73,6 +72,8 @@ export default function Navbar() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const { userRole, setUserRole } = useRole();
   const [menuOpened, setMenuOpened] = useState(false);
+
+  const titles = session?[{ link: "/dashboard", label: "MIRÓ" }]:[{ link: "/", label: "MIRÓ" }];
 
   useEffect(() => {
     if (session?.user?.email) {
