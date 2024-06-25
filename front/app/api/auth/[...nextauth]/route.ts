@@ -1,9 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { MongoClient } from "mongodb";
 import { NextAuthOptions } from "next-auth";
-
-const client = new MongoClient(process.env.MONGODB_URI as string);
+import axios from 'axios';
 
 const options: NextAuthOptions = {
   providers: [
@@ -20,27 +18,38 @@ const options: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      await client.connect();
-      const db = client.db();
-      const usersCollection = db.collection('users');
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+          params: { email: user.email }
+        });
+        const existingUser = response.data;
 
-      const existingUser = await usersCollection.findOne({ email: user.email });
+        if (existingUser && existingUser.isActive === false) {
+          return false; // No permitir el acceso si el usuario está inactivo
+        }
 
-      if (existingUser && existingUser.isActive === false) {
-        return false; // No permitir el acceso si el usuario está inactivo
+        return true;
+      } catch (error) {
+        console.error("Error checking user:", error);
+        return false;
       }
-
-      return true;
     },
     async redirect({ url, baseUrl }) {
       return '/dashboard';
     },
     async session({ session, token }) {
-      if (session.user?.email) {
-        const user = await client.db().collection('users').findOne({ email: session.user.email });
-        if (user) {
-          session.user.role = user.activeRole;
+      try {
+        if (session.user?.email) {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+            params: { email: session.user.email }
+          });
+          const user = response.data;
+          if (user) {
+            session.user.role = user.activeRole;
+          }
         }
+      } catch (error) {
+        console.error("Error fetching user roles:", error);
       }
       return session;
     },
