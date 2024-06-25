@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select } from "@mantine/core";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
 
@@ -35,8 +35,43 @@ const CreateTemplatePage = () => {
   const [fileDescription, setFileDescription] = useState("");
   const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
   const [active, setActive] = useState(true);
+  const [dimension, setDimension] = useState<string | null>(null);
+  const [dimensions, setDimensions] = useState<string[]>([]);
   const router = useRouter();
   const { data: session } = useSession();
+
+  useEffect(() => {
+    const fetchDimensions = async () => {
+      const userRole = localStorage.getItem('userRole');
+      const userEmail = session?.user?.email || localStorage.getItem('userEmail');
+      try {
+        if (userRole === 'Administrador') {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions`);
+          setDimensions(response.data.map((dim: any) => dim.name));
+        } else if (userRole === 'Responsable') {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`, {
+            params: { email: userEmail }
+          });
+          const userDimensions = response.data.map((dim: any) => dim.name);
+          setDimensions(userDimensions);
+          if (userDimensions.length > 0) {
+            setDimension(userDimensions[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching dimensions:", error);
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al obtener las dimensiones",
+          color: "red",
+        });
+      }
+    };
+
+    if (session) {
+      fetchDimensions();
+    }
+  }, [session]);
 
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
@@ -54,7 +89,7 @@ const CreateTemplatePage = () => {
   };
 
   const handleSave = async () => {
-    if (!name || !fileName || !fileDescription || fields.length === 0) {
+    if (!name || !fileName || !fileDescription || fields.length === 0 || !dimension) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -63,7 +98,9 @@ const CreateTemplatePage = () => {
       return;
     }
 
-    if (!session?.user?.email) {
+    const userEmail = session?.user?.email || localStorage.getItem('userEmail');
+
+    if (!userEmail) {
       showNotification({
         title: "Error",
         message: "Usuario no autenticado",
@@ -78,7 +115,8 @@ const CreateTemplatePage = () => {
       file_description: fileDescription,
       fields,
       active,
-      email: session.user.email,
+      email: userEmail,
+      dimension,
     };
 
     try {
@@ -108,6 +146,8 @@ const CreateTemplatePage = () => {
     }
   };
 
+  const userRole = localStorage.getItem('userRole');
+
   return (
     <Container size="xl">
       <TextInput
@@ -131,6 +171,24 @@ const CreateTemplatePage = () => {
         onChange={(event) => setFileDescription(event.currentTarget.value)}
         mb="md"
       />
+      {userRole === 'Administrador' && (
+        <Select
+          label="Dimensión"
+          placeholder="Seleccionar dimensión"
+          data={dimensions}
+          value={dimension}
+          onChange={(value) => setDimension(value || null)}
+          mb="md"
+        />
+      )}
+      {userRole === 'Responsable' && (
+        <TextInput
+          label="Dimensión"
+          value={dimension || ""}
+          readOnly
+          mb="md"
+        />
+      )}
       <Switch
         label="Activo"
         checked={active}
@@ -163,7 +221,7 @@ const CreateTemplatePage = () => {
                   placeholder="Seleccionar"
                   data={allowedDataTypes}
                   value={field.datatype}
-                  onChange={(value) => handleFieldChange(index, "datatype", value)}
+                  onChange={(value) => handleFieldChange(index, "datatype", value || "")}
                 />
               </Table.Td>
               <Table.Td>
