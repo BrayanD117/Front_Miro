@@ -329,7 +329,7 @@ const DashboardPage = () => {
               <IconBuildingCommunity size={24} />
             </Group>
             <Text size="sm" color="dimmed">
-              Administra tu dependencia y sus miembros.
+              Administra tu dependencia.
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency')}>
               Ir a Gestión de Dependencia
