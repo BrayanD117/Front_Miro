@@ -52,6 +52,7 @@ const ResponsibleTemplatePage = () => {
   const [producers, setProducers] = useState<Producer[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
+  const [publicationName, setPublicationName] = useState<string>('');
 
   const fetchTemplates = async (page: number, search: string) => {
     if (!session?.user?.email) return;
@@ -258,27 +259,36 @@ const ResponsibleTemplatePage = () => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    console.log("selectedTemplate", selectedTemplate);
     console.log("Submitting form with data:", {
-      name: 'NombreDeLaPublicacion',
-      template_id: selectedTemplate?._id,
-      period_id: selectedPeriod,
-      producers_dep_code: selectedProducers,
-      dimension_id: selectedTemplate?.dimension_id,
-      user_email: session?.user?.email,
+      // name: publicationName,
+      // template_id: selectedTemplate?._id,
+      // period_id: selectedPeriod,
+      // producers_dep_code: selectedProducers,
+      // user_email: session?.user?.email,
     });
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/publish`, {
-        name: 'NombreDeLaPublicacion',
+        name: publicationName,
         template_id: selectedTemplate?._id,
         period_id: selectedPeriod,
         producers_dep_code: selectedProducers,
-        dimension_id: selectedTemplate?.dimension_id,
         user_email: session?.user?.email,
       });
       console.log('Template successfully published');
+      showNotification({
+        title: "Publicación Exitosa",
+        message: "La plantilla ha sido publicada exitosamente",
+        color: "teal",
+      });
       close();
     } catch (error) {
       console.error('Error publishing template:', error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al publicar la plantilla",
+        color: "red",
+      });
     }
   };
 
@@ -363,6 +373,7 @@ const ResponsibleTemplatePage = () => {
         }}
       >
         <form onSubmit={handleSubmit}>
+          <TextInput label="Nombre de la Publicación" placeholder="Ingrese el nombre de la publicación" value={publicationName} onChange={(e) => setPublicationName(e.currentTarget.value)} />
           <TextInput label="Nombre de la Plantilla" value={selectedTemplate?.name || ''} disabled />
           <Select
             label="Período"
