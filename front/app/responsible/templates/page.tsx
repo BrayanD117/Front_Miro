@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Group } from "@mantine/core";
+import { useEffect, useState, FormEvent } from "react";
+import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconDownload } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDownload, IconUser } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
+import { useDisclosure } from '@mantine/hooks';
 
 interface Field {
   name: string;
@@ -25,6 +26,17 @@ interface Template {
   file_description: string;
   fields: Field[];
   active: boolean;
+  dimension_id: string;
+}
+
+interface Period {
+  _id: string;
+  name: string;
+}
+
+interface Producer {
+  dep_code: string;
+  name: string;
 }
 
 const ResponsibleTemplatePage = () => {
@@ -34,10 +46,16 @@ const ResponsibleTemplatePage = () => {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [modalOpen, { open, close }] = useDisclosure(false);
+  const [periods, setPeriods] = useState<Period[]>([]);
+  const [producers, setProducers] = useState<Producer[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('');
+  const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
 
   const fetchTemplates = async (page: number, search: string) => {
     if (!session?.user?.email) return;
-    
+
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/creator`, {
         params: { page, limit: 10, search, email: session.user.email },
@@ -63,6 +81,26 @@ const ResponsibleTemplatePage = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const email = session?.user?.email;
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/feedOptions`, {
+          params: { email },
+        });
+        console.log("Periods Data:", data.periods);
+        console.log("Producers Data:", data.producers);
+        setPeriods(data.periods);
+        setProducers(data.producers);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    if (modalOpen && selectedTemplate) {
+      fetchData();
+    }
+  }, [modalOpen, session, selectedTemplate]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -103,7 +141,6 @@ const ResponsibleTemplatePage = () => {
       };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-      // Agregar comentarios
       const field = template.fields[colNumber - 1];
       if (field.comment) {
         cell.note = {
@@ -119,10 +156,9 @@ const ResponsibleTemplatePage = () => {
       column.width = 20;
     });
 
-    // Añadir validaciones en función del datatype
     template.fields.forEach((field, index) => {
-      const columnLetter = String.fromCharCode(65 + index); // Convertir índice a letra de columna (A, B, C, ...)
-      const maxRows = 1000; // Número máximo de filas a validar
+      const columnLetter = String.fromCharCode(65 + index);
+      const maxRows = 1000;
       for (let i = 2; i <= maxRows; i++) {
         const cellAddress = `${columnLetter}${i}`;
         const cell = worksheet.getCell(cellAddress);
@@ -220,6 +256,32 @@ const ResponsibleTemplatePage = () => {
     saveAs(blob, `${template.file_name}.xlsx`);
   };
 
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    console.log("Submitting form with data:", {
+      name: 'NombreDeLaPublicacion',
+      template_id: selectedTemplate?._id,
+      period_id: selectedPeriod,
+      producers_dep_code: selectedProducers,
+      dimension_id: selectedTemplate?.dimension_id,
+      user_email: session?.user?.email,
+    });
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/publish`, {
+        name: 'NombreDeLaPublicacion',
+        template_id: selectedTemplate?._id,
+        period_id: selectedPeriod,
+        producers_dep_code: selectedProducers,
+        dimension_id: selectedTemplate?.dimension_id,
+        user_email: session?.user?.email,
+      });
+      console.log('Template successfully published');
+      close();
+    } catch (error) {
+      console.error('Error publishing template:', error);
+    }
+  };
+
   const rows = templates.map((template) => (
     <Table.Tr key={template._id}>
       <Table.Td>{template.name}</Table.Td>
@@ -241,6 +303,16 @@ const ResponsibleTemplatePage = () => {
             <IconDownload size={16} />
           </Button>
         </Group>
+      </Table.Td>
+      <Table.Td>
+        <Button variant="outline" onClick={() => { 
+          console.log("Template selected:", template);
+          setSelectedTemplate(template); 
+          open(); 
+          console.log("Modal open state:", modalOpen);
+        }}>
+          <IconUser size={16} />
+        </Button>
       </Table.Td>
     </Table.Tr>
   ));
@@ -266,6 +338,7 @@ const ResponsibleTemplatePage = () => {
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
             <Table.Th>Acciones</Table.Th>
+            <Table.Th>Asignar</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -280,6 +353,36 @@ const ResponsibleTemplatePage = () => {
           boundaries={3}
         />
       </Center>
+      <Modal
+        opened={modalOpen}
+        onClose={close}
+        title="Asignar Plantilla"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+      >
+        <form onSubmit={handleSubmit}>
+          <TextInput label="Nombre de la Plantilla" value={selectedTemplate?.name || ''} disabled />
+          <Select
+            label="Período"
+            placeholder="Seleccione un período"
+            data={periods.map(period => ({ value: period._id, label: period.name }))}
+            value={selectedPeriod}
+            onChange={(value) => setSelectedPeriod(value || '')}
+          />
+          <MultiSelect
+            label="Productores"
+            placeholder="Seleccione productores"
+            data={producers.map(producer => ({ value: producer.dep_code, label: producer.name }))}
+            value={selectedProducers}
+            onChange={setSelectedProducers}
+          />
+          <Group mt="md">
+            <Button type="submit">Asignar</Button>
+          </Group>
+        </form>
+      </Modal>
     </Container>
   );
 };
