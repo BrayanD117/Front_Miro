@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Group } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconDownload } from "@tabler/icons-react";
+import { IconDownload, IconUpload } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
+import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
+import { useDisclosure } from '@mantine/hooks';
 
 interface Field {
   name: string;
@@ -44,6 +46,7 @@ const ProducerTemplatesPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [uploadModalOpen, { open: openUploadModal, close: closeUploadModal }] = useDisclosure(false);
 
   const fetchTemplates = async (page: number, search: string) => {
     try {
@@ -214,6 +217,11 @@ const ProducerTemplatesPage = () => {
           <IconDownload size={16} />
         </Button>
       </Table.Td>
+      <Table.Td>
+        <Button variant="outline" onClick={openUploadModal}>
+          <IconUpload size={16} />
+        </Button>
+      </Table.Td>
     </Table.Tr>
   ));
 
@@ -232,7 +240,8 @@ const ProducerTemplatesPage = () => {
             <Table.Th>Nombre del Archivo</Table.Th>
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
-            <Table.Th>Acciones</Table.Th>
+            <Table.Th>Descargar</Table.Th>
+            <Table.Th>Subir Información</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -247,6 +256,21 @@ const ProducerTemplatesPage = () => {
           boundaries={3}
         />
       </Center>
+
+      <Modal
+        opened={uploadModalOpen}
+        onClose={closeUploadModal}
+        title="Subir Información"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        // closeOnClickOutside={false}
+        size="50%"
+        centered
+      >
+        <DropzoneButton />
+      </Modal>
     </Container>
   );
 };
