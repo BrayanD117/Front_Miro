@@ -26,18 +26,29 @@ interface Template {
   active: boolean;
 }
 
+interface PublishedTemplate {
+  _id: string;
+  name: string;
+  published_by: any;
+  template: Template;
+  period: any;
+  producers_dep_code: string[];
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const ProducerTemplatesPage = () => {
   const { data: session } = useSession();
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [completedTemplates, setCompletedTemplates] = useState<Template[]>([]);
+  const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
 
   const fetchTemplates = async (page: number, search: string) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all`, {
-        params: { page, limit: 10, search },
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates`, {
+        params: { page, limit: 10, search, email: session?.user?.email },
       });
       if (response.data) {
         setTemplates(response.data.templates || []);
@@ -49,27 +60,15 @@ const ProducerTemplatesPage = () => {
     }
   };
 
-  const fetchCompletedTemplates = async (page: number, search: string) => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/creator`, {
-        params: { page, limit: 10, search, email: session?.user?.email },
-      });
-      if (response.data) {
-        setCompletedTemplates(response.data.templates || []);
-        setTotalPages(response.data.pages || 1);
-      }
-    } catch (error) {
-      console.error("Error fetching completed templates:", error);
-      setCompletedTemplates([]);
-    }
-  };
-
   useEffect(() => {
-    fetchTemplates(page, search);
-    fetchCompletedTemplates(page, search);
+    if (session?.user?.email) {
+      fetchTemplates(page, search);
+    }
   }, [page, search, session]);
 
-  const handleDownload = async (template: Template) => {
+  const handleDownload = async (publishedTemplate: PublishedTemplate) => {
+    const { template } = publishedTemplate;
+    console.log("Downloading template:", template);
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(template.name);
 
@@ -204,26 +203,17 @@ const ProducerTemplatesPage = () => {
     saveAs(blob, `${template.file_name}.xlsx`);
   };
 
-  const availableTemplatesRows = templates.map((template) => (
-    <Table.Tr key={template._id}>
-      <Table.Td>{template.name}</Table.Td>
-      <Table.Td>{template.file_name}</Table.Td>
-      <Table.Td>{template.file_description}</Table.Td>
-      <Table.Td>{template.active ? "Activo" : "Inactivo"}</Table.Td>
+  const rows = templates.map((publishedTemplate) => (
+    <Table.Tr key={publishedTemplate._id}>
+      <Table.Td>{publishedTemplate.template.name}</Table.Td>
+      <Table.Td>{publishedTemplate.template.file_name}</Table.Td>
+      <Table.Td>{publishedTemplate.template.file_description}</Table.Td>
+      <Table.Td>{publishedTemplate.template.active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
-        <Button variant="outline" onClick={() => handleDownload(template)}>
+        <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
           <IconDownload size={16} />
         </Button>
       </Table.Td>
-    </Table.Tr>
-  ));
-
-  const completedTemplatesRows = completedTemplates.map((template) => (
-    <Table.Tr key={template._id}>
-      <Table.Td>{template.name}</Table.Td>
-      <Table.Td>{template.file_name}</Table.Td>
-      <Table.Td>{template.file_description}</Table.Td>
-      <Table.Td>{template.active ? "Activo" : "Inactivo"}</Table.Td>
     </Table.Tr>
   ));
 
@@ -235,9 +225,6 @@ const ProducerTemplatesPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <Group>
-        <Button onClick={() => fetchTemplates(page, search)}>Buscar Plantillas Disponibles</Button>
-      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
@@ -248,7 +235,7 @@ const ProducerTemplatesPage = () => {
             <Table.Th>Acciones</Table.Th>
           </Table.Tr>
         </Table.Thead>
-        <Table.Tbody>{availableTemplatesRows}</Table.Tbody>
+        <Table.Tbody>{rows}</Table.Tbody>
       </Table>
       <Center>
         <Pagination
@@ -260,26 +247,6 @@ const ProducerTemplatesPage = () => {
           boundaries={3}
         />
       </Center>
-      <Group mt="xl">
-        <TextInput
-          placeholder="Buscar plantillas completadas"
-          value={search}
-          onChange={(event) => setSearch(event.currentTarget.value)}
-          mb="md"
-        />
-        <Button onClick={() => fetchCompletedTemplates(page, search)}>Buscar Plantillas Completadas</Button>
-      </Group>
-      <Table striped withTableBorder mt="md">
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Nombre del Archivo</Table.Th>
-            <Table.Th>Descripción del Archivo</Table.Th>
-            <Table.Th>Estado</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{completedTemplatesRows}</Table.Tbody>
-      </Table>
     </Container>
   );
 };
