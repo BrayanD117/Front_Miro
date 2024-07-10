@@ -190,14 +190,16 @@ const AdminDimensionsPage = () => {
         )}
       </Table.Td>
       <Table.Td>
-        <Group gap={5}>
-          <Button variant="outline" onClick={() => handleEdit(dimension)}>
-            <IconEdit size={16} />
-          </Button>
-          <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
-            <IconTrash size={16} />
-          </Button>
-        </Group>
+        <Center>
+          <Group gap={5}>
+            <Button variant="outline" onClick={() => handleEdit(dimension)}>
+              <IconEdit size={16} />
+            </Button>
+            <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
+              <IconTrash size={16} />
+            </Button>
+          </Group>
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -222,7 +224,7 @@ const AdminDimensionsPage = () => {
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Responsable</Table.Th>
             <Table.Th>Productores</Table.Th>
-            <Table.Th>Acciones</Table.Th>
+            <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>

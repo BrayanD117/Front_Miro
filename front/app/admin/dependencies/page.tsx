@@ -169,11 +169,13 @@ const AdminDependenciesPage = () => {
       <Table.Td>{dependency.responsible}</Table.Td>
       <Table.Td>{dependency.dep_father}</Table.Td>
       <Table.Td>
-        <Group gap={5}>
-          <Button variant="outline" onClick={() => handleEdit(dependency)}>
-            <IconEdit size={16} />
-          </Button>
-        </Group>
+        <Center>
+          <Group gap={5}>
+            <Button variant="outline" onClick={() => handleEdit(dependency)}>
+              <IconEdit size={16} />
+            </Button>
+          </Group>
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -198,7 +200,7 @@ const AdminDependenciesPage = () => {
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Responsable</Table.Th>
             <Table.Th>Dependencia Padre</Table.Th>
-            <Table.Th>Acciones</Table.Th>
+            <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>

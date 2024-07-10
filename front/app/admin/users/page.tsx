@@ -139,18 +139,22 @@ const AdminUsersPage = () => {
       <Table.Td>{user.email}</Table.Td>
       <Table.Td>{user.roles.join(', ')}</Table.Td>
       <Table.Td>
-        <Button variant="outline" onClick={() => handleEdit(user)}>
-          <IconEdit size={16} />
-        </Button>
+        <Center>
+          <Button variant="outline" onClick={() => handleEdit(user)}>
+            <IconEdit size={16} />
+          </Button>
+        </Center>
       </Table.Td>
       <Table.Td>
-        <Switch
-          checked={user.isActive}
-          onChange={(event) => handleToggleActive(user._id, event.currentTarget.checked)}
-          label={user.isActive ? "Activo" : "Inactivo"}
-          color="teal"
-          ml="md"
-        />
+        <Center>
+          <Switch
+            checked={user.isActive}
+            onChange={(event) => handleToggleActive(user._id, event.currentTarget.checked)}
+            label={user.isActive ? "Activo" : "Inactivo"}
+            color="teal"
+            ml="md"
+          />
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -176,8 +180,8 @@ const AdminUsersPage = () => {
             <Table.Th>Posición</Table.Th>
             <Table.Th>Email</Table.Th>
             <Table.Th>Roles</Table.Th>
-            <Table.Th>Acciones</Table.Th>
-            <Table.Th>Estado</Table.Th>
+            <Table.Th><Center>Acciones</Center></Table.Th>
+            <Table.Th><Center>Estado</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>

@@ -299,30 +299,34 @@ const AdminTemplatesPage = () => {
       <Table.Td>{template.file_description}</Table.Td>
       <Table.Td>{template.active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
-        <Group gap={5}>
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/templates/update/${template._id}`)}
-          >
-            <IconEdit size={16} />
-          </Button>
-          <Button color="red" variant="outline" onClick={() => handleDelete(template._id)}>
-            <IconTrash size={16} />
-          </Button>
-          <Button variant="outline" onClick={() => handleDownload(template)}>
-            <IconDownload size={16} />
-          </Button>
-        </Group>
+        <Center>
+          <Group gap={5}>
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/templates/update/${template._id}`)}
+            >
+              <IconEdit size={16} />
+            </Button>
+            <Button color="red" variant="outline" onClick={() => handleDelete(template._id)}>
+              <IconTrash size={16} />
+            </Button>
+            <Button variant="outline" onClick={() => handleDownload(template)}>
+              <IconDownload size={16} />
+            </Button>
+          </Group>
+        </Center>
       </Table.Td>
       <Table.Td>
-        <Button variant="outline" onClick={() => { 
-          console.log("Template selected:", template);
-          setSelectedTemplate(template); 
-          open(); 
-          console.log("Modal open state:", modalOpen);
-        }}>
-          <IconUser size={16} />
-        </Button>
+        <Center>
+          <Button variant="outline" onClick={() => { 
+            console.log("Template selected:", template);
+            setSelectedTemplate(template); 
+            open(); 
+            console.log("Modal open state:", modalOpen);
+          }}>
+            <IconUser size={16} />
+          </Button>
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -347,8 +351,8 @@ const AdminTemplatesPage = () => {
             <Table.Th>Nombre del Archivo</Table.Th>
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
-            <Table.Th>Acciones</Table.Th>
-            <Table.Th>Asignar</Table.Th>
+            <Table.Th><Center>Acciones</Center></Table.Th>
+            <Table.Th><Center>Asignar</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -390,7 +394,7 @@ const AdminTemplatesPage = () => {
             onChange={setSelectedProducers}
           />
           <Group mt="md">
-            <Button type="submit">Asignar</Button>
+              <Button type="submit">Asignar</Button>
           </Group>
         </form>
       </Modal>

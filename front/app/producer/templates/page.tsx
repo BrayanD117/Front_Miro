@@ -213,14 +213,18 @@ const ProducerTemplatesPage = () => {
       <Table.Td>{publishedTemplate.template.file_description}</Table.Td>
       <Table.Td>{publishedTemplate.template.active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
-        <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
-          <IconDownload size={16} />
-        </Button>
+        <Center>
+          <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
+            <IconDownload size={16} />
+          </Button>
+        </Center>
       </Table.Td>
       <Table.Td>
-        <Button variant="outline" onClick={openUploadModal}>
-          <IconUpload size={16} />
-        </Button>
+        <Center>
+          <Button variant="outline" color="green" onClick={openUploadModal}>
+            <IconUpload size={16} />
+          </Button>
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -240,8 +244,8 @@ const ProducerTemplatesPage = () => {
             <Table.Th>Nombre del Archivo</Table.Th>
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
-            <Table.Th>Descargar</Table.Th>
-            <Table.Th>Subir Información</Table.Th>
+            <Table.Th><Center>Descargar</Center></Table.Th>
+            <Table.Th><Center>Subir Información</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -265,7 +269,6 @@ const ProducerTemplatesPage = () => {
           backgroundOpacity: 0.55,
           blur: 3,
         }}
-        // closeOnClickOutside={false}
         size="50%"
         centered
       >

@@ -169,14 +169,16 @@ const AdminPeriodsPage = () => {
       <Table.Td>{new Date(period.upload_end_date).toLocaleDateString()}</Table.Td>
       <Table.Td>{period.is_active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
-        <Group gap={5}>
-          <Button variant="outline" onClick={() => handleEdit(period)}>
-            <IconEdit size={16} />
-          </Button>
-          <Button color="red" variant="outline" onClick={() => handleDelete(period._id)}>
-            <IconTrash size={16} />
-          </Button>
-        </Group>
+        <Center>
+          <Group gap={5}>
+            <Button variant="outline" onClick={() => handleEdit(period)}>
+              <IconEdit size={16} />
+            </Button>
+            <Button color="red" variant="outline" onClick={() => handleDelete(period._id)}>
+              <IconTrash size={16} />
+            </Button>
+          </Group>
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -206,7 +208,7 @@ const AdminPeriodsPage = () => {
             <Table.Th>Inicio de Subida</Table.Th>
             <Table.Th>Fin de Subida</Table.Th>
             <Table.Th>Estado</Table.Th>
-            <Table.Th>Acciones</Table.Th>
+            <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
