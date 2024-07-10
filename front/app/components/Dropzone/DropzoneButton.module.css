@@ -4,8 +4,12 @@
   }
   
   .dropzone {
-    border-width: rem(1px);
-    padding-bottom: rem(50px);
+    border-width: 1px;
+    padding: 1rem;
+    border-radius: var(--mantine-radius-md);
+    padding-bottom: 50px;
+    border-style: dashed;
+    background-color: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-5))
   }
   
   .icon {
@@ -14,7 +18,7 @@
   
   .control {
     position: absolute;
-    width: rem(250px);
-    left: calc(50% - rem(125px));
-    bottom: rem(-20px);
+    width: 250px;
+    left: calc(50% - 125px);
+    bottom: -20px;
   }

@@ -46,7 +46,7 @@ export function DropzoneButton() {
             <Dropzone.Idle>Subir Plantilla</Dropzone.Idle>
           </Text>
           <Text ta="center" fz="sm" mt="xs" c="dimmed">
-            Arrastra y suelta los archivos aquí para subirlos. Solo podemos aceptar archivos en formato <i>.xlsx</i>, <i>.xls</i>, o <i>.csv</i> que pesen menos de 30MB.
+            Arrastra y suelta los archivos aquí para subirlos. Solo se aceptan archivos en formato <i>.xlsx</i>, <i>.xls</i>, o <i>.csv</i> que pesen menos de 30MB.
           </Text>
         </div>
       </Dropzone>
