@@ -29,6 +29,11 @@ const allowedDataTypes = [
   "Link"
 ];
 
+interface Dimension {
+  _id: string;
+  name: string;
+}
+
 const UpdateTemplatePage = () => {
   const [name, setName] = useState("");
   const [fileName, setFileName] = useState("");
@@ -36,7 +41,7 @@ const UpdateTemplatePage = () => {
   const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
-  const [dimensions, setDimensions] = useState<string[]>([]);
+  const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { id } = useParams();
@@ -71,15 +76,15 @@ const UpdateTemplatePage = () => {
       try {
         if (userRole === 'Administrador') {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions`);
-          setDimensions(response.data.map((dim: any) => dim.name));
+          setDimensions(response.data);
         } else if (userRole === 'Responsable') {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`, {
             params: { email: userEmail }
           });
-          const userDimensions = response.data.map((dim: any) => dim.name);
+          const userDimensions = response.data;
           setDimensions(userDimensions);
           if (userDimensions.length > 0) {
-            setDimension(userDimensions[0]);
+            setDimension(userDimensions[0]._id);
           }
         }
       } catch (error) {
@@ -192,7 +197,7 @@ const UpdateTemplatePage = () => {
         <Select
           label="Dimensión"
           placeholder="Seleccionar dimensión"
-          data={dimensions}
+          data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
           value={dimension}
           onChange={(value) => setDimension(value || null)}
           mb="md"
@@ -201,7 +206,7 @@ const UpdateTemplatePage = () => {
       {userRole === 'Responsable' && (
         <TextInput
           label="Dimensión"
-          value={dimension || ""}
+          value={dimensions.find(dim => dim._id === dimension)?.name || ""}
           readOnly
           mb="md"
         />
