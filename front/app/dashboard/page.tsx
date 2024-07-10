@@ -177,7 +177,7 @@ const DashboardPage = () => {
               Ir a Gestión de Plantillas
             </Button>
           </Card>
-        </Grid.Col>,
+          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section>
@@ -192,6 +192,23 @@ const DashboardPage = () => {
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/periods')}>
                 Ir a Gestión de Periodos
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-validations">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Card.Section>
+                <Image src="https://via.placeholder.com/150" height={160} alt="Admin validaciones" />
+              </Card.Section>
+              <Group mt="md" mb="xs">
+                <Text w={500}>Gestionar Validaciones</Text>
+                <IconBuildingCommunity size={24} />
+              </Group>
+              <Text size="sm" color="dimmed">
+                Administra las validaciones de Miró.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/validations')}>
+                Ir a Gestión de Validaciones
               </Button>
             </Card>
           </Grid.Col>,
