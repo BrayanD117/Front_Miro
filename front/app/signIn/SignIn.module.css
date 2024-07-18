@@ -1,0 +1,8 @@
+.gradientButton {
+    transition: background-color 0.01s ease-in-out, opacity 0.01s ease-in-out;
+  }
+  
+  .gradientButton:hover {
+    opacity: 0.9;
+  }
+  

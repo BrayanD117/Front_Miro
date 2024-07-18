@@ -16,6 +16,7 @@ import { IconBrandGoogleFilled, IconArrowLeft } from "@tabler/icons-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useColorScheme } from '@mantine/hooks';
+import classes from '../../app/signIn/SignIn.module.css';
 
 const SignInPage = () => {
   const { data: session, status } = useSession();
@@ -46,6 +47,7 @@ const SignInPage = () => {
               backgroundColor: paperBackground,
               backdropFilter: 'blur(10px)',
               color: colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.dark[9],
+              transition: 'background-color 0.3s ease-in-out',
             }}
           >
             <Title ta="center" mb={20}>
@@ -57,10 +59,13 @@ const SignInPage = () => {
             <Group mb={20}>
               <Button
                 onClick={() => router.push('/')}
-                variant="outline"
+                fullWidth
                 leftSection={<IconArrowLeft size={20} />}
+                radius="md"
+                size="md"
+                mt={10}
               >
-                Volver al Home
+                Volver al Inicio
               </Button>
             </Group>
             <Button
@@ -70,6 +75,9 @@ const SignInPage = () => {
               radius="md"
               size="md"
               mt={14}
+              variant="gradient"
+              gradient={{ from: 'indigo', to: 'blue', deg: 85 }}
+              className={classes.gradientButton}
             >
               Iniciar sesión con Google
             </Button>
