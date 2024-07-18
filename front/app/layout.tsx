@@ -5,26 +5,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./Providers";
 import { Notifications } from "@mantine/notifications";
-
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { RoleProvider } from "./context/RoleContext";
 import { AppInitializer } from "./context/AppInitializer";
-
-// Components
-import Footer from "./components/footer/Footer";
-import Navbar from "./components/navbar/Navbar";
-import ProtectedRoutes from "./utils/ProtectedRoutes";
+import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: "MIRÓ",
   description: "Miró",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <head>
@@ -35,12 +30,8 @@ export default function RootLayout({
           <MantineProvider>
             <RoleProvider>
               <AppInitializer>
-              <Notifications />
-              <Navbar />
-              <ProtectedRoutes>
-                {children}
-              </ProtectedRoutes>
-              <Footer />
+                <Notifications />
+                <ClientLayout>{children}</ClientLayout>
               </AppInitializer>
             </RoleProvider>
           </MantineProvider>
