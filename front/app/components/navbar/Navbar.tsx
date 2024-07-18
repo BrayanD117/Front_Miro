@@ -197,7 +197,7 @@ export default function Navbar() {
   return (
     <>
       <header className={classes.header}>
-        <Container size="md" className={classes.inner}>
+        <Container size="xl" className={classes.inner}>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group>{titleButton}</Group>
           {session?.user ? (
