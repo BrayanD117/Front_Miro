@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity } from "@tabler/icons-react";
+import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity, IconUserFilled, IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheckFilled, IconZoomCheck, IconUser, IconUserHexagon } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -112,14 +112,11 @@ const DashboardPage = () => {
         cards.push(
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-users">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Usuarios" />
-              </Card.Section>
+              <Center><IconUserHexagon size={80}></IconUserHexagon></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Usuarios</Text>
-                <IconEdit size={24} />
+                  <Text ta={"center"} w={500}>Gestionar Usuarios</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Administra los roles y permisos de los usuarios.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/users')}>
@@ -129,14 +126,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-dimensions">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Dimensiones" />
-              </Card.Section>
+              <Center><IconHexagon3d size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Dimensiones</Text>
-                <IconClipboardList size={24} />
+                <Text ta={"center"} w={500}>Gestionar Dimensiones</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Administra las dimensiones y sus responsables.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dimensions')}>
@@ -146,14 +140,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-dependencies">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Admin Dependencias" />
-              </Card.Section>
+              <Center><IconBuilding size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Dependencias</Text>
-                <IconBuildingCommunity size={24} />
+                <Text ta={"center"} w={500}>Gestionar Dependencias</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Administra las dependencias y sus responsables.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dependencies')}>
@@ -163,14 +154,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-templates">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section>
-              <Image src="https://via.placeholder.com/150" height={160} alt="Admin Plantillas" />
-            </Card.Section>
+            <Center><IconFileAnalytics size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text w={500}>Gestionar Plantillas</Text>
-              <IconBuildingCommunity size={24} />
+              <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
             </Group>
-            <Text size="sm" color="dimmed">
+            <Text ta={"center"} size="sm" color="dimmed">
               Administra los Plantillas.
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/templates')}>
@@ -180,14 +168,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Admin Periodos" />
-              </Card.Section>
+              <Center><IconCalendarMonth size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Periodos</Text>
-                <IconBuildingCommunity size={24} />
+                <Text ta={"center"} w={500}>Gestionar Periodos</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Administra los periodos de Miró.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/periods')}>
@@ -197,14 +182,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-validations">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Admin validaciones" />
-              </Card.Section>
+              <Center><IconZoomCheck size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Validaciones</Text>
-                <IconBuildingCommunity size={24} />
+                <Text ta={"center"} w={500}>Gestionar Validaciones</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Administra las validaciones de Miró.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/validations')}>
