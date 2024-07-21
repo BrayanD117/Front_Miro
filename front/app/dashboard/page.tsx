@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center } from "@mantine/core";
+import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity, IconUserFilled, IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheckFilled, IconZoomCheck, IconUser, IconUserHexagon } from "@tabler/icons-react";
+import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity, IconUserFilled, IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheckFilled, IconZoomCheck, IconUser, IconUserHexagon, IconInfoCircle, IconReport } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -200,14 +200,11 @@ const DashboardPage = () => {
         cards.push(
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-information">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Información" />
-              </Card.Section>
+              <Center><IconInfoCircle size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Información</Text>
-                <IconFileText size={24} />
+                <Text ta={"center"} w={500}>Gestionar Información</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona la información enviada por los productores.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsable/informacion')}>
@@ -217,14 +214,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Plantillas" />
-              </Card.Section>
+              <Center><IconFileAnalytics size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Plantillas</Text>
-                <IconClipboardList size={24} />
+                <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Crea y gestiona las plantillas que llenarán los usuarios.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/templates')}>
@@ -234,14 +228,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-dimensions">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Dimension" />
-              </Card.Section>
+              <Center><IconHexagon3d size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Gestionar Mi Dimensión</Text>
-                <IconClipboardList size={24} />
+                <Text ta={"center"} w={500}>Gestionar Mi Dimensión</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona la dimensión de la que eres responsable.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/dimension')}>
@@ -251,14 +242,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section>
-              <Image src="https://via.placeholder.com/150" height={160} alt="Responsable Reportes" />
-            </Card.Section>
+            <Center><IconReport size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text w={500}>Generar Reportes</Text>
-              <IconClipboardList size={24} />
+              <Text ta={"center"} w={500}>Generar Reportes</Text>
             </Group>
-            <Text size="sm" color="dimmed">
+            <Text ta={"center"} size="sm" color="dimmed">
               Genera reportes de la dimensión de la que eres responsable.
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/report')}>
@@ -345,7 +333,7 @@ const DashboardPage = () => {
     <>
       <Container>
         <Center>
-          <Title mb="md">Inicio</Title>
+          <Title mt="md" mb="md">Inicio</Title>
         </Center>
         <Grid justify="center" align="center">
           {renderCards()}
