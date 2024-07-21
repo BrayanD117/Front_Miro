@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity, IconUserFilled, IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheckFilled, IconZoomCheck, IconUser, IconUserHexagon, IconInfoCircle, IconReport } from "@tabler/icons-react";
+import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity, IconUserFilled, IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheckFilled, IconZoomCheck, IconUser, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -260,14 +260,11 @@ const DashboardPage = () => {
         cards.push(
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-my-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Productor Mis Plantillas" />
-              </Card.Section>
+              <Center><IconFileAnalytics size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Mis Plantillas</Text>
-                <IconFileText size={24} />
+                <Text ta={"center"} w={500}>Mis Plantillas</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona las plantillas que te asignaron y tienes disponibles.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/templates')}>
@@ -277,14 +274,11 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-send-info">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image src="https://via.placeholder.com/150" height={160} alt="Productor Enviar Información" />
-              </Card.Section>
+              <Center><IconFileUpload size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text w={500}>Enviar Información</Text>
-                <IconFileText size={24} />
+                <Text ta={"center"} w={500}>Enviar Información</Text>
               </Group>
-              <Text size="sm" color="dimmed">
+              <Text ta={"center"} size="sm" color="dimmed">
                 Envía información a los responsables para su gestión.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/submit')}>
@@ -308,14 +302,11 @@ const DashboardPage = () => {
       cards.push(
         <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="administer-dependency">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section>
-              <Image src="https://via.placeholder.com/150" height={160} alt="Dependencia" />
-            </Card.Section>
+            <Center><IconUserStar size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text w={500}>Administrar mi Dependencia</Text>
-              <IconBuildingCommunity size={24} />
+              <Text ta={"center"} w={500}>Administrar mi Dependencia</Text>
             </Group>
-            <Text size="sm" color="dimmed">
+            <Text ta={"center"} size="sm" color="dimmed">
               Administra tu dependencia.
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency')}>
