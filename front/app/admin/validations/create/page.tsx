@@ -155,7 +155,6 @@ const AdminValidationCreatePage = () => {
                           <Group mb="xs">
                             <TextInput
                               value={column.values[rowIndex]}
-                              readOnly
                             />
                             <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, rowIndex)}>
                               <IconTrash size={20} />
@@ -169,9 +168,6 @@ const AdminValidationCreatePage = () => {
                                 value={newValues[colIndex]}
                                 onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
                               />
-                              <Button onClick={() => handleAddValue(colIndex)}>
-                                Agregar Valor
-                              </Button>
                             </Group>
                           </Table.Td>
                         )}
