@@ -22,7 +22,7 @@ const HomePage = () => {
   return (
     <Container size={"xl"} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <BackgroundImage
-        src="/assets/panoramica.png"
+        src="/assets/canchaVertical.webp"
         radius={"md"}
         style={{ width: '100%', height: '40vh', backgroundSize: 'cover', backgroundPosition: 'center' }}
       />
@@ -68,7 +68,7 @@ const HomePage = () => {
             <Center><Text>NIT: 890704382-1</Text></Center>
             <Center><Text>Carrera 22 Calle 67, Barrio Ambalá.</Text></Center>
             <Center><Text>Ibagué - Tolima - Colombia</Text></Center>
-            <Center><Text>Teléfono: +57 (8) 270 88 88</Text></Center>
+            <Center><Text>Teléfono: +57 (608) 270 88 88</Text></Center>
           </Paper>
         </Grid.Col>
       </Grid>
