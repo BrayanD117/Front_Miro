@@ -55,7 +55,9 @@ const AdminValidationsPage = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/validators/delete`, { data: { id } });
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/validators/delete`, {
+        data: { id } 
+      });
       showNotification({
         title: "Eliminado",
         message: "Validación eliminada exitosamente",

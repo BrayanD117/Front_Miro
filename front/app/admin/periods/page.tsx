@@ -201,12 +201,12 @@ const AdminPeriodsPage = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Fecha de Inicio</Table.Th>
-            <Table.Th>Fecha de Fin</Table.Th>
-            <Table.Th>Inicio de Recolección</Table.Th>
-            <Table.Th>Fin de Recolección</Table.Th>
-            <Table.Th>Inicio de Subida</Table.Th>
-            <Table.Th>Fin de Subida</Table.Th>
+            <Table.Th>Inicio Periodo</Table.Th>
+            <Table.Th>Fin Periodo</Table.Th>
+            <Table.Th>Inicio Productor</Table.Th>
+            <Table.Th>Fin Productor</Table.Th>
+            <Table.Th>Inicio Responsable</Table.Th>
+            <Table.Th>Fin Responsable</Table.Th>
             <Table.Th>Estado</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>

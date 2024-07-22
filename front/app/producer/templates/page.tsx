@@ -241,9 +241,9 @@ const ProducerTemplatesPage = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Nombre del Archivo</Table.Th>
             <Table.Th>Descripción del Archivo</Table.Th>
-            <Table.Th>Estado</Table.Th>
+            <Table.Th>Dimensión</Table.Th>
+            <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
             <Table.Th><Center>Subir Información</Center></Table.Th>
           </Table.Tr>
