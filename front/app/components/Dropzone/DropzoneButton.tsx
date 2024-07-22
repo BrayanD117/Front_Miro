@@ -1,19 +1,58 @@
 import { useRef } from 'react';
-import { Text, Group, Button, rem, useMantineTheme, Container } from '@mantine/core';
+import { Text, Group, Button, rem, useMantineTheme } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
+import ExcelJS from 'exceljs';
 import classes from './DropzoneButton.module.css';
 
 export function DropzoneButton() {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
 
+  const handleFileDrop = async (files: File[]) => {
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const buffer = event.target?.result as ArrayBuffer;
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+
+      const jsonResult: Record<string, any[]> = {};
+
+      workbook.eachSheet((sheet) => {
+        const sheetName = sheet.name;
+        const sheetData: any[] = [];
+        let headers: string[] = [];
+
+        sheet.eachRow((row, rowNumber) => {
+          const rowValues = row.values as (string | number | boolean | Date | null)[];
+          if (rowNumber === 1) {
+            headers = rowValues.slice(1) as string[];
+          } else {
+            const rowData: Record<string, any> = {};
+            rowValues.slice(1).forEach((value, index) => {
+              if (headers[index]) {
+                rowData[headers[index]] = value;
+              }
+            });
+            sheetData.push(rowData);
+          }
+        });
+
+        jsonResult[sheetName] = sheetData;
+      });
+
+      console.log(jsonResult);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
-    
     <div className={classes.wrapper}>
       <Dropzone
         openRef={openRef}
-        onDrop={() => {}}
+        onDrop={handleFileDrop}
         className={classes.dropzone}
         radius="md"
         accept={[MIME_TYPES.xlsx, MIME_TYPES.xls, MIME_TYPES.csv]}
