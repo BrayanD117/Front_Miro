@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -35,13 +35,15 @@ const AdminValidationCreatePage = () => {
   const [newValues, setNewValues] = useState<string[]>(Array(columns.length).fill(""));
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentColumnIndex, setCurrentColumnIndex] = useState<number | null>(null);
-  const [scrollable, setScrollable] = useState<boolean>(false);
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   const handleAddColumn = () => {
-    setColumns([...columns, { name: "", is_validator: false, type: "", values: [] }]);
+    const newColumns = [...columns, { name: "", is_validator: false, type: "", values: [] }];
+    setColumns(newColumns);
     setNewValues([...newValues, ""]);
+    setShowTooltip(newColumns.length > 4);
   };
 
   const handleRemoveColumn = (index: number) => {
@@ -51,6 +53,7 @@ const AdminValidationCreatePage = () => {
     const newValuesArray = newValues.slice();
     newValuesArray.splice(index, 1);
     setNewValues(newValuesArray);
+    setShowTooltip(newColumns.length > 4);
   };
 
   const handleChangeColumn = (index: number, field: string, value: string | boolean) => {
@@ -83,12 +86,6 @@ const AdminValidationCreatePage = () => {
   const handleOpenModal = (index: number) => {
     setCurrentColumnIndex(index);
     setModalOpen(true);
-  };
-
-  const handleScroll = () => {
-    if (scrollAreaRef.current) {
-      setScrollable(scrollAreaRef.current.scrollWidth > scrollAreaRef.current.clientWidth);
-    }
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -136,11 +133,11 @@ const AdminValidationCreatePage = () => {
             label="Desplázate horizontalmente para ver todas las columnas"
             position="bottom"
             withArrow
+            opened={showTooltip}
             transitionProps={{ transition: "slide-up", duration: 300 }}
           >
             <ScrollArea
               style={{ maxWidth: '100%', overflowX: 'auto' }}
-              onScroll={handleScroll}
               viewportRef={scrollAreaRef}
             >
               <Group wrap="nowrap" align="start">
@@ -178,16 +175,16 @@ const AdminValidationCreatePage = () => {
                           </Button>
                         </Group>
                       ))}
-                      <Group mb="xs">
+                      <Group justify="center" grow mb="xs">
                         <TextInput
                           placeholder="Ingrese un valor"
                           value={newValues[colIndex]}
                           onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
                         />
-                        <Button onClick={() => handleAddValue(colIndex)}>
-                          Agregar Valor
-                        </Button>
                       </Group>
+                      <Button mb="md" onClick={() => handleAddValue(colIndex)}>
+                        <IconPlus size={20} />
+                      </Button>
                     </Stack>
                   </Box>
                 ))}
