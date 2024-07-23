@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useRef, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -16,6 +16,7 @@ import {
   Box,
   ScrollArea,
   Stack,
+  Tooltip,
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
@@ -34,6 +35,8 @@ const AdminValidationCreatePage = () => {
   const [newValues, setNewValues] = useState<string[]>(Array(columns.length).fill(""));
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentColumnIndex, setCurrentColumnIndex] = useState<number | null>(null);
+  const [scrollable, setScrollable] = useState<boolean>(false);
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   const handleAddColumn = () => {
@@ -82,6 +85,12 @@ const AdminValidationCreatePage = () => {
     setModalOpen(true);
   };
 
+  const handleScroll = () => {
+    if (scrollAreaRef.current) {
+      setScrollable(scrollAreaRef.current.scrollWidth > scrollAreaRef.current.clientWidth);
+    }
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
@@ -123,58 +132,69 @@ const AdminValidationCreatePage = () => {
               Agregar Columna
             </Button>
           </Center>
-          <ScrollArea style={{ maxWidth: '100%', overflowX: 'auto' }}>
-            <Group wrap="nowrap" align="start">
-              {columns.map((column, colIndex) => (
-                <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
-                  <Stack gap="xs">
-                    <TextInput
-                      placeholder="Nombre de la columna"
-                      value={column.name}
-                      onChange={(event) => handleChangeColumn(colIndex, 'name', event.currentTarget.value)}
-                      required
-                    />
-                    <Center>
-                      <Group>
-                        <Button onClick={() => handleOpenModal(colIndex)}>
-                          <IconSettings size={20} />
-                        </Button>
-                        <Button color="red" variant="outline" onClick={() => handleRemoveColumn(colIndex)}>
-                          <IconTrash size={20} />
-                        </Button>
-                      </Group>
-                    </Center>
-                    {column.values.map((value, valIndex) => (
-                      <Group grow key={valIndex} mb="xs">
-                        <TextInput
-                          value={value}
-                          onChange={(event) => {
-                            const newColumns = columns.slice();
-                            newColumns[colIndex].values[valIndex] = event.currentTarget.value;
-                            setColumns(newColumns);
-                          }}
-                        />
-                        <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, valIndex)}>
-                          <IconTrash size={20} />
-                        </Button>
-                      </Group>
-                    ))}
-                    <Group mb="xs">
+          <Tooltip
+            label="Desplázate horizontalmente para ver todas las columnas"
+            position="bottom"
+            withArrow
+            transitionProps={{ transition: "slide-up", duration: 300 }}
+          >
+            <ScrollArea
+              style={{ maxWidth: '100%', overflowX: 'auto' }}
+              onScroll={handleScroll}
+              viewportRef={scrollAreaRef}
+            >
+              <Group wrap="nowrap" align="start">
+                {columns.map((column, colIndex) => (
+                  <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
+                    <Stack gap="xs">
                       <TextInput
-                        placeholder="Ingrese un valor"
-                        value={newValues[colIndex]}
-                        onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
+                        placeholder="Nombre de la columna"
+                        value={column.name}
+                        onChange={(event) => handleChangeColumn(colIndex, 'name', event.currentTarget.value)}
+                        required
                       />
-                      <Button onClick={() => handleAddValue(colIndex)}>
-                        Agregar Valor
-                      </Button>
-                    </Group>
-                  </Stack>
-                </Box>
-              ))}
-            </Group>
-          </ScrollArea>
-          <Center mt="md">
+                      <Center>
+                        <Group>
+                          <Button onClick={() => handleOpenModal(colIndex)}>
+                            <IconSettings size={20} />
+                          </Button>
+                          <Button color="red" variant="outline" onClick={() => handleRemoveColumn(colIndex)}>
+                            <IconTrash size={20} />
+                          </Button>
+                        </Group>
+                      </Center>
+                      {column.values.map((value, valIndex) => (
+                        <Group grow key={valIndex} mb="xs">
+                          <TextInput
+                            value={value}
+                            onChange={(event) => {
+                              const newColumns = columns.slice();
+                              newColumns[colIndex].values[valIndex] = event.currentTarget.value;
+                              setColumns(newColumns);
+                            }}
+                          />
+                          <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, valIndex)}>
+                            <IconTrash size={20} />
+                          </Button>
+                        </Group>
+                      ))}
+                      <Group mb="xs">
+                        <TextInput
+                          placeholder="Ingrese un valor"
+                          value={newValues[colIndex]}
+                          onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
+                        />
+                        <Button onClick={() => handleAddValue(colIndex)}>
+                          Agregar Valor
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Box>
+                ))}
+              </Group>
+            </ScrollArea>
+          </Tooltip>
+          <Center mt={45}>
             <Button type="submit">Crear Validación</Button>
           </Center>
         </form>
