@@ -11,10 +11,11 @@ import {
   Paper,
   Center,
   Checkbox,
-  Table,
-  ScrollArea,
   Modal,
   Select,
+  Box,
+  ScrollArea,
+  Stack,
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
@@ -117,72 +118,62 @@ const AdminValidationCreatePage = () => {
             required
             mb="md"
           />
-          <ScrollArea style={{ maxWidth: '100%', overflowX: columns.length > 3 ? 'auto' : 'hidden' }}>
-            <Table highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  {columns.map((column, colIndex) => (
-                    <Table.Th key={colIndex}>
-                      <TextInput
-                        placeholder="Nombre de la columna"
-                        value={column.name}
-                        onChange={(event) => handleChangeColumn(colIndex, 'name', event.currentTarget.value)}
-                        required
-                      />
-                      <Center>
-                        <Group mt="xs">
-                          <Button onClick={() => handleOpenModal(colIndex)}>
-                            <IconSettings size={20} />
-                          </Button>
-                          <Button color="red" variant="outline" onClick={() => handleRemoveColumn(colIndex)}>
-                            <IconTrash size={20} />
-                          </Button>
-                        </Group>
-                      </Center>
-                      <Button onClick={() => handleAddValue(colIndex)} leftSection={<IconPlus size={20} />} fullWidth mt="xs">
-                        Agregar Valor
-                      </Button>
-                    </Table.Th>
-                  ))}
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {[...Array(Math.max(...columns.map(column => column.values.length), 0))].map((_, rowIndex) => (
-                  <Table.Tr key={rowIndex}>
-                    {columns.map((column, colIndex) => (
-                      <Table.Td key={colIndex}>
-                        {column.values[rowIndex] ? (
-                          <Group mb="xs">
-                            <TextInput
-                              value={column.values[rowIndex]}
-                            />
-                            <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, rowIndex)}>
-                              <IconTrash size={20} />
-                            </Button>
-                          </Group>
-                        ) : (
-                          <Table.Td>
-                            <Group mb="xs">
-                              <TextInput
-                                placeholder="Ingrese un valor"
-                                value={newValues[colIndex]}
-                                onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
-                              />
-                            </Group>
-                          </Table.Td>
-                        )}
-                      </Table.Td>
-                    ))}
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </ScrollArea>
-          <Center mt="md">
+          <Center mb="md" mt="md">
             <Button onClick={handleAddColumn} leftSection={<IconPlus size={20} />}>
               Agregar Columna
             </Button>
           </Center>
+          <ScrollArea style={{ maxWidth: '100%', overflowX: 'auto' }}>
+            <Group wrap="nowrap" align="start">
+              {columns.map((column, colIndex) => (
+                <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
+                  <Stack gap="xs">
+                    <TextInput
+                      placeholder="Nombre de la columna"
+                      value={column.name}
+                      onChange={(event) => handleChangeColumn(colIndex, 'name', event.currentTarget.value)}
+                      required
+                    />
+                    <Center>
+                      <Group>
+                        <Button onClick={() => handleOpenModal(colIndex)}>
+                          <IconSettings size={20} />
+                        </Button>
+                        <Button color="red" variant="outline" onClick={() => handleRemoveColumn(colIndex)}>
+                          <IconTrash size={20} />
+                        </Button>
+                      </Group>
+                    </Center>
+                    {column.values.map((value, valIndex) => (
+                      <Group key={valIndex} mb="xs">
+                        <TextInput
+                          value={value}
+                          onChange={(event) => {
+                            const newColumns = columns.slice();
+                            newColumns[colIndex].values[valIndex] = event.currentTarget.value;
+                            setColumns(newColumns);
+                          }}
+                        />
+                        <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, valIndex)}>
+                          <IconTrash size={20} />
+                        </Button>
+                      </Group>
+                    ))}
+                    <Group mb="xs">
+                      <TextInput
+                        placeholder="Ingrese un valor"
+                        value={newValues[colIndex]}
+                        onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
+                      />
+                      <Button onClick={() => handleAddValue(colIndex)}>
+                        Agregar Valor
+                      </Button>
+                    </Group>
+                  </Stack>
+                </Box>
+              ))}
+            </Group>
+          </ScrollArea>
           <Center mt="md">
             <Button type="submit">Crear Validación</Button>
           </Center>
