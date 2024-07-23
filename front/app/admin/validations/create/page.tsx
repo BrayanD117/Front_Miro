@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, FormEvent } from "react";
+import { useState, useRef, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -36,6 +36,8 @@ const AdminValidationCreatePage = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentColumnIndex, setCurrentColumnIndex] = useState<number | null>(null);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
+  const [tooltipContent, setTooltipContent] = useState<string>("");
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
@@ -90,6 +92,10 @@ const AdminValidationCreatePage = () => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    if (!isFormValid) {
+      setShowTooltip(true);
+      return;
+    }
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/validators/create`, {
         name,
@@ -110,6 +116,42 @@ const AdminValidationCreatePage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const validateForm = () => {
+      if (!name) {
+        setTooltipContent("El nombre de la validación es obligatorio.");
+        setIsFormValid(false);
+        return;
+      }
+      if (columns.length === 0) {
+        setTooltipContent("Debe agregar al menos una columna.");
+        setIsFormValid(false);
+        return;
+      }
+      for (const column of columns) {
+        if (!column.name) {
+          setTooltipContent("Todos los nombres de las columnas son obligatorios.");
+          setIsFormValid(false);
+          return;
+        }
+        if (!column.type) {
+          setTooltipContent("Debe seleccionar un tipo para todas las columnas.");
+          setIsFormValid(false);
+          return;
+        }
+        if (column.values.length === 0) {
+          setTooltipContent("Cada columna debe tener al menos un valor.");
+          setIsFormValid(false);
+          return;
+        }
+      }
+      setTooltipContent("Correcto");
+      setIsFormValid(true);
+    };
+
+    validateForm();
+  }, [name, columns]);
 
   return (
     <Container size="md">
@@ -192,7 +234,16 @@ const AdminValidationCreatePage = () => {
             </ScrollArea>
           </Tooltip>
           <Center mt={45}>
-            <Button type="submit">Crear Validación</Button>
+            <Tooltip
+              label={tooltipContent}
+              position="top"
+              withArrow
+              transitionProps={{ transition: "slide-up", duration: 300 }}
+            >
+              <div>
+                <Button type="submit" disabled={!isFormValid}>Crear Validación</Button>
+              </div>
+            </Tooltip>
           </Center>
         </form>
       </Paper>
