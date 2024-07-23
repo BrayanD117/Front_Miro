@@ -145,7 +145,7 @@ const AdminValidationCreatePage = () => {
                       </Group>
                     </Center>
                     {column.values.map((value, valIndex) => (
-                      <Group key={valIndex} mb="xs">
+                      <Group grow key={valIndex} mb="xs">
                         <TextInput
                           value={value}
                           onChange={(event) => {
