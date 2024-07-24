@@ -21,6 +21,7 @@ import {
 import { showNotification } from "@mantine/notifications";
 import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
 import axios from "axios";
+import styles from './AdminValidationCreatePage.module.css'; // Importar el módulo CSS
 
 interface Column {
   name: string;
@@ -193,10 +194,15 @@ const AdminValidationCreatePage = () => {
               viewportRef={scrollAreaRef}
             >
               <Group wrap="nowrap" align="start">
-              
                 {columns.map((column, colIndex) => (
-                  <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
-                    <Stack mb="md" gap="xs">
+                  <Box
+                    mb="md"
+                    m={5}
+                    key={colIndex}
+                    className={column.is_validator ? styles.validatorColumn : ""}
+                    style={{ minWidth: 200, maxWidth: 250 }}
+                  >
+                    <Stack p="xs" gap="xs">
                       <TextInput
                         placeholder="Nombre de la columna"
                         value={column.name}
@@ -205,7 +211,7 @@ const AdminValidationCreatePage = () => {
                       />
                       <Center>
                         <Group>
-                          <Button onClick={() => handleOpenModal(colIndex)}>
+                          <Button variant="outline" onClick={() => handleOpenModal(colIndex)}>
                             <IconSettings size={20} />
                           </Button>
                           <Button color="red" variant="outline" onClick={() => handleRemoveColumn(colIndex)}>
@@ -229,7 +235,7 @@ const AdminValidationCreatePage = () => {
                     </Stack>
                   </Box>
                 ))}
-                <Box mt={92} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Box mt={108} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   {columns.length > 0 && columns[0].values.map((_, valIndex) => (
                     <Center mb={20} key={valIndex}>
                       <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
