@@ -3,6 +3,7 @@ import { Text, Group, Button, rem, useMantineTheme } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import ExcelJS from 'exceljs';
+import axios from 'axios';
 import classes from './DropzoneButton.module.css';
 
 export function DropzoneButton() {
@@ -17,11 +18,9 @@ export function DropzoneButton() {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(buffer);
 
-      const jsonResult: Record<string, any[]> = {};
+      const data: Record<string, any>[] = [];
 
       workbook.eachSheet((sheet) => {
-        const sheetName = sheet.name;
-        const sheetData: any[] = [];
         let headers: string[] = [];
 
         sheet.eachRow((row, rowNumber) => {
@@ -35,14 +34,24 @@ export function DropzoneButton() {
                 rowData[headers[index]] = value;
               }
             });
-            sheetData.push(rowData);
+            data.push(rowData);
           }
         });
-
-        jsonResult[sheetName] = sheetData;
       });
 
-      console.log(jsonResult);
+      console.log(data);
+
+      // Aquí envías la data al endpoint del backend
+      try {
+        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
+          email: '2220201021@estudiantesunibague.edu.co',
+          pubTem_id: '668eb6e7b7a8bf441a3cd5e5',
+          data: data,
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error enviando los datos al servidor:', error);
+      }
     };
 
     reader.readAsArrayBuffer(file);

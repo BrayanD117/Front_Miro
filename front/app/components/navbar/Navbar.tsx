@@ -14,6 +14,7 @@ import {
   Stack,
   Divider,
   Select,
+  Badge,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Avatar } from "@mantine/core";
@@ -100,7 +101,7 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
-          console.log('Roles received from backend (role change):', response.data.roles);
+          // console.log('Roles received from backend (role change):', response.data.roles);
           setAvailableRoles(response.data.roles);
         })
         .catch((error) => {
@@ -119,7 +120,7 @@ export default function Navbar() {
           activeRole: selectedRole,
         }
       );
-      console.log("Active role updated:", response.data);
+      // console.log("Active role updated:", response.data);
       setUserRole(selectedRole as Roles);
       setChangeRoleModalOpened(false);
       showNotification({
@@ -200,9 +201,13 @@ export default function Navbar() {
         <Container size="xl" className={classes.inner}>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group>{titleButton}</Group>
+
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
+                <Badge m={20} variant="light">
+                  {userRole}
+                </Badge>
                 {homeLink}
                 <Button
                   variant="light"
@@ -220,14 +225,16 @@ export default function Navbar() {
                   onOpen={() => setMenuOpened(true)}
                 >
                   <Menu.Target>
-                    <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
+                    <Button
+                      variant="light"
+                      size="sm"
+                      style={{ fontWeight: 500 }}
+                    >
                       Gestionar
                     </Button>
                   </Menu.Target>
                   {/* Menu Dropdown */}
-                  <Menu.Dropdown>
-                    {actionItems}
-                  </Menu.Dropdown>
+                  <Menu.Dropdown>{actionItems}</Menu.Dropdown>
                 </Menu>
                 <ThemeChanger />
                 <Menu shadow="md" width={200}>
@@ -345,7 +352,10 @@ export default function Navbar() {
           onChange={(value) => setSelectedRole(value || "")}
         />
         <Group mt="md">
-          <Button variant="default" onClick={() => setChangeRoleModalOpened(false)}>
+          <Button
+            variant="default"
+            onClick={() => setChangeRoleModalOpened(false)}
+          >
             Cancelar
           </Button>
           <Button color="blue" onClick={handleRoleChange}>

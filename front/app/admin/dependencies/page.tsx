@@ -108,7 +108,7 @@ const AdminDependenciesPage = () => {
     setName(dependency.name);
     setResponsible(dependency.responsible);
     setDepFather(dependency.dep_father);
-    setSelectedProducers(dependency.members); // Load current members
+    setSelectedProducers(dependency.members);
     fetchMembers(dependency.dep_code);
     setOpened(true);
   };
@@ -167,7 +167,7 @@ const AdminDependenciesPage = () => {
       <Table.Td>{dependency.dep_code}</Table.Td>
       <Table.Td>{dependency.name}</Table.Td>
       <Table.Td>{dependency.responsible}</Table.Td>
-      <Table.Td>{dependency.dep_father}</Table.Td>
+      {/* <Table.Td>{dependency.dep_father}</Table.Td> */}
       <Table.Td>
         <Center>
           <Group gap={5}>
@@ -199,7 +199,7 @@ const AdminDependenciesPage = () => {
             <Table.Th>Código</Table.Th>
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Responsable</Table.Th>
-            <Table.Th>Dependencia Padre</Table.Th>
+            {/* <Table.Th>Dependencia Padre</Table.Th> */}
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
