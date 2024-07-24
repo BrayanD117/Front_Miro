@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, Text } from "@mantine/core";
-import { IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
+import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, Text, List } from "@mantine/core";
+import { IconEdit, IconTrash, IconEye, IconBulb } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
@@ -21,12 +21,13 @@ interface User {
 }
 
 interface Dependency {
-  dep_code: string;
+  code: string;
   name: string;
 }
 
 const AdminDimensionsPage = () => {
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [opened, setOpened] = useState(false);
   const [producersModalOpened, setProducersModalOpened] = useState(false);
   const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
@@ -44,7 +45,12 @@ const AdminDimensionsPage = () => {
         params: { page, limit: 10, search },
       });
       if (response.data) {
-        setDimensions(response.data.dimensions || []);
+        const dimensions = response.data.dimensions || [];
+        const producerCodes = dimensions.flatMap((dimension: { producers: any; }) => dimension.producers);
+        const dependenciesResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, { codes: producerCodes });
+        const dependencies = dependenciesResponse.data;
+        setDependencies(dependencies);
+        setDimensions(dimensions);
         setTotalPages(response.data.pages || 1);
       }
     } catch (error) {
@@ -162,7 +168,8 @@ const AdminDimensionsPage = () => {
   };
 
   const handleShowProducers = (dimension: Dimension) => {
-    setSelectedProducers(dimension.producers);
+    const producerNames = dimension.producers.map(code => dependencies.find(dep => dep.code === code)?.name || code);
+    setSelectedProducers(producerNames);
     setProducersModalOpened(true);
   };
 
@@ -174,12 +181,12 @@ const AdminDimensionsPage = () => {
     setSelectedProducers([]);
   };
 
-  const rows = dimensions.map((dimension) => (
+  const rows = dimensions.map((dimension: Dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
       <Table.Td>{dimension.responsible}</Table.Td>
       <Table.Td>
-        {dimension.producers.slice(0, 2).join(", ")}
+        {dimension.producers.slice(0, 1).map(code => dependencies.find(dep => dep.code === code)?.name || code).join(", ")}
         {dimension.producers.length > 2 && (
           <>
             , ...
@@ -277,7 +284,16 @@ const AdminDimensionsPage = () => {
         onClose={() => setProducersModalOpened(false)}
         title="Productores"
       >
-        <Text>{selectedProducers.join(", ")}</Text>
+        <List withPadding>
+          {selectedProducers.map((producer, index) => (
+            <List.Item key={index}>{producer}</List.Item>
+          ))}
+        </List>
+          <Text c="dimmed" size="xs" ta={"center"} mt="md" >
+            <IconBulb color="#797979" size={20}></IconBulb>
+            <br/>
+            Recuerda que los productores se asignan en la gestión de dependencias
+          </Text>
       </Modal>
     </Container>
   );
