@@ -21,7 +21,7 @@ import {
 import { showNotification } from "@mantine/notifications";
 import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
 import axios from "axios";
-import styles from './AdminValidationCreatePage.module.css'; // Importar el módulo CSS
+import styles from './AdminValidationCreatePage.module.css';
 
 interface Column {
   name: string;
@@ -140,6 +140,7 @@ const AdminValidationCreatePage = () => {
         setIsFormValid(false);
         return;
       }
+      let hasValidator = false;
       for (const column of columns) {
         if (!column.name) {
           setTooltipContent("Todos los nombres de las columnas son obligatorios.");
@@ -156,6 +157,21 @@ const AdminValidationCreatePage = () => {
           setIsFormValid(false);
           return;
         }
+        if (column.is_validator) {
+          hasValidator = true;
+        }
+        for (const value of column.values) {
+          if (!value) {
+            setTooltipContent("Todos los valores de las columnas deben estar llenos.");
+            setIsFormValid(false);
+            return;
+          }
+        }
+      }
+      if (!hasValidator) {
+        setTooltipContent("Debe marcar al menos una columna como validadora.");
+        setIsFormValid(false);
+        return;
       }
       setTooltipContent("Correcto");
       setIsFormValid(true);
