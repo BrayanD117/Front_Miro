@@ -45,6 +45,14 @@ const AdminValidationCreatePage = () => {
     const newColumns = [...columns, { name: "", is_validator: false, type: "", values: [] }];
     setColumns(newColumns);
     setNewValues([...newValues, ""]);
+
+    // Add empty values to all columns to keep rows synchronized
+    newColumns.forEach(column => {
+      while (column.values.length < newColumns[0].values.length) {
+        column.values.push("");
+      }
+    });
+
     setShowTooltip(newColumns.length > 4);
   };
 
@@ -70,18 +78,20 @@ const AdminValidationCreatePage = () => {
     setNewValues(newValuesArray);
   };
 
-  const handleAddValue = (index: number) => {
-    const newColumns = columns.slice();
-    newColumns[index].values.push(newValues[index]);
+  const handleAddValue = () => {
+    const newColumns = columns.map(column => ({
+      ...column,
+      values: [...column.values, ""],
+    }));
     setColumns(newColumns);
-    const newValuesArray = newValues.slice();
-    newValuesArray[index] = "";
-    setNewValues(newValuesArray);
+    setNewValues(Array(newColumns.length).fill(""));
   };
 
-  const handleRemoveValue = (colIndex: number, valIndex: number) => {
-    const newColumns = columns.slice();
-    newColumns[colIndex].values.splice(valIndex, 1);
+  const handleRemoveValue = (valIndex: number) => {
+    const newColumns = columns.map(column => ({
+      ...column,
+      values: column.values.filter((_, i) => i !== valIndex),
+    }));
     setColumns(newColumns);
   };
 
@@ -185,7 +195,7 @@ const AdminValidationCreatePage = () => {
               <Group wrap="nowrap" align="start">
                 {columns.map((column, colIndex) => (
                   <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
-                    <Stack gap="xs">
+                    <Stack mb="md" gap="xs">
                       <TextInput
                         placeholder="Nombre de la columna"
                         value={column.name}
@@ -212,21 +222,11 @@ const AdminValidationCreatePage = () => {
                               setColumns(newColumns);
                             }}
                           />
-                          <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, valIndex)}>
+                          <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
                             <IconTrash size={20} />
                           </Button>
                         </Group>
                       ))}
-                      <Group justify="center" grow mb="xs">
-                        <TextInput
-                          placeholder="Ingrese un valor"
-                          value={newValues[colIndex]}
-                          onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
-                        />
-                      </Group>
-                      <Button mb="md" onClick={() => handleAddValue(colIndex)}>
-                        <IconPlus size={20} />
-                      </Button>
                     </Stack>
                   </Box>
                 ))}
@@ -234,11 +234,16 @@ const AdminValidationCreatePage = () => {
             </ScrollArea>
           </Tooltip>
           <Center mt={45}>
+            <Button onClick={handleAddValue} leftSection={<IconPlus size={20} />}>
+              Agregar Fila
+            </Button>
+          </Center>
+          <Center mt="md">
             <Tooltip
               label={tooltipContent}
-              position="top"
+              position="right"
               withArrow
-              transitionProps={{ transition: "slide-up", duration: 300 }}
+              transitionProps={{ transition: "fade-left", duration: 300 }}
             >
               <div>
                 <Button type="submit" disabled={!isFormValid}>Crear Validación</Button>
