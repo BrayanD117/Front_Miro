@@ -42,6 +42,7 @@ const CreateTemplatePage = () => {
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
+  const [validatorOptions, setValidatorOptions] = useState<string[]>([]);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -73,8 +74,23 @@ const CreateTemplatePage = () => {
       }
     };
 
+    const fetchValidatorOptions = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/options`);
+        setValidatorOptions(response.data.options);
+      } catch (error) {
+        console.error("Error fetching validator options:", error);
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al obtener las opciones de validación",
+          color: "red",
+        });
+      }
+    };
+
     if (session) {
       fetchDimensions();
+      fetchValidatorOptions();
     }
   }, [session]);
 
@@ -237,10 +253,14 @@ const CreateTemplatePage = () => {
                 />
               </Table.Td>
               <Table.Td>
-                <TextInput
+              <Select
                   placeholder="Validar con"
+                  data={validatorOptions.map(option => ({ value: option, label: option }))}
                   value={field.validate_with}
-                  onChange={(event) => handleFieldChange(index, "validate_with", event.currentTarget.value)}
+                  onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
+                  maxDropdownHeight={200}
+                  searchable
+                  nothingFoundMessage="La validación no existe"
                 />
               </Table.Td>
               <Table.Td>
