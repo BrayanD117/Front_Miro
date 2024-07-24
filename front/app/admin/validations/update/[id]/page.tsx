@@ -21,6 +21,7 @@ import {
 import { showNotification } from "@mantine/notifications";
 import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
 import axios from "axios";
+import styles from './AdminValidationUpdatePage.module.css';
 
 interface Column {
   name: string;
@@ -95,18 +96,20 @@ const AdminValidationUpdatePage = () => {
     setNewValues(newValuesArray);
   };
 
-  const handleAddValue = (index: number) => {
-    const newColumns = columns.slice();
-    newColumns[index].values.push(newValues[index]);
+  const handleAddValue = () => {
+    const newColumns = columns.map(column => ({
+      ...column,
+      values: [...column.values, ""],
+    }));
     setColumns(newColumns);
-    const newValuesArray = newValues.slice();
-    newValuesArray[index] = "";
-    setNewValues(newValuesArray);
+    setNewValues(Array(newColumns.length).fill(""));
   };
 
-  const handleRemoveValue = (colIndex: number, valIndex: number) => {
-    const newColumns = columns.slice();
-    newColumns[colIndex].values.splice(valIndex, 1);
+  const handleRemoveValue = (valIndex: number) => {
+    const newColumns = columns.map(column => ({
+      ...column,
+      values: column.values.filter((_, i) => i !== valIndex),
+    }));
     setColumns(newColumns);
   };
 
@@ -123,6 +126,7 @@ const AdminValidationUpdatePage = () => {
     }
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/validators/update`, {
+        id,
         name,
         columns,
       });
@@ -171,7 +175,7 @@ const AdminValidationUpdatePage = () => {
           return;
         }
       }
-      setTooltipContent("");
+      setTooltipContent("Correcto");
       setIsFormValid(true);
     };
 
@@ -180,7 +184,7 @@ const AdminValidationUpdatePage = () => {
 
   return (
     <Container size="md">
-      <Title order={2} my="lg">Actualizar Validación</Title>
+      <Title ta={"center"} order={2} my="lg">Actualizar Validación</Title>
       <Paper radius="md" p="xl" withBorder shadow="xs">
         <form onSubmit={handleSubmit}>
           <TextInput
@@ -209,8 +213,14 @@ const AdminValidationUpdatePage = () => {
             >
               <Group wrap="nowrap" align="start">
                 {columns.map((column, colIndex) => (
-                  <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
-                    <Stack gap="xs">
+                  <Box
+                    mb="md"
+                    m={5}
+                    key={colIndex}
+                    className={column.is_validator ? styles.validatorColumn : ""}
+                    style={{ minWidth: 200, maxWidth: 250 }}
+                  >
+                    <Stack p="xs" gap="xs">
                       <TextInput
                         placeholder="Nombre de la columna"
                         value={column.name}
@@ -219,7 +229,7 @@ const AdminValidationUpdatePage = () => {
                       />
                       <Center>
                         <Group>
-                          <Button onClick={() => handleOpenModal(colIndex)}>
+                          <Button variant="outline" onClick={() => handleOpenModal(colIndex)}>
                             <IconSettings size={20} />
                           </Button>
                           <Button color="red" variant="outline" onClick={() => handleRemoveColumn(colIndex)}>
@@ -231,39 +241,41 @@ const AdminValidationUpdatePage = () => {
                         <Group grow key={valIndex} mb="xs">
                           <TextInput
                             value={value}
+                            placeholder="Ingresa un valor"
                             onChange={(event) => {
                               const newColumns = columns.slice();
                               newColumns[colIndex].values[valIndex] = event.currentTarget.value;
                               setColumns(newColumns);
                             }}
                           />
-                          <Button color="red" variant="outline" onClick={() => handleRemoveValue(colIndex, valIndex)}>
-                            <IconTrash size={20} />
-                          </Button>
                         </Group>
                       ))}
-                      <Group justify="center" grow mb="xs">
-                        <TextInput
-                          placeholder="Ingrese un valor"
-                          value={newValues[colIndex]}
-                          onChange={(event) => handleChangeValue(colIndex, event.currentTarget.value)}
-                        />
-                      </Group>
-                      <Button mb="md" onClick={() => handleAddValue(colIndex)}>
-                        <IconPlus size={20} />
-                      </Button>
                     </Stack>
                   </Box>
                 ))}
+                <Box mt={107} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {columns.length > 0 && columns[0].values.map((_, valIndex) => (
+                    <Center mb={20} key={valIndex}>
+                      <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
+                        <IconTrash size={20} />
+                      </Button>
+                    </Center>
+                  ))}
+                </Box>
               </Group>
             </ScrollArea>
           </Tooltip>
           <Center mt={45}>
+            <Button onClick={handleAddValue} leftSection={<IconPlus size={20} />}>
+              Agregar Fila
+            </Button>
+          </Center>
+          <Center mt="md">
             <Tooltip
               label={tooltipContent}
-              position="top"
+              position="right"
               withArrow
-              transitionProps={{ transition: "slide-up", duration: 300 }}
+              transitionProps={{ transition: "fade-left", duration: 300 }}
             >
               <div>
                 <Button type="submit" disabled={!isFormValid}>

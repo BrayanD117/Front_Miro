@@ -166,7 +166,7 @@ const AdminValidationCreatePage = () => {
 
   return (
     <Container size="md">
-      <Title order={2} my="lg">Crear Nueva Validación</Title>
+      <Title ta={"center"} order={2} my="lg">Crear Nueva Validación</Title>
       <Paper radius="md" p="xl" withBorder shadow="xs">
         <form onSubmit={handleSubmit}>
           <TextInput
@@ -235,7 +235,7 @@ const AdminValidationCreatePage = () => {
                     </Stack>
                   </Box>
                 ))}
-                <Box mt={108} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Box mt={107} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   {columns.length > 0 && columns[0].values.map((_, valIndex) => (
                     <Center mb={20} key={valIndex}>
                       <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
