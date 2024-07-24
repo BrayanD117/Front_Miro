@@ -193,6 +193,15 @@ const AdminValidationCreatePage = () => {
               viewportRef={scrollAreaRef}
             >
               <Group wrap="nowrap" align="start">
+              <Box mt={92} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {columns.length > 0 && columns[0].values.map((_, valIndex) => (
+                    <Center mb={20} key={valIndex}>
+                      <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
+                        <IconTrash size={20} />
+                      </Button>
+                    </Center>
+                  ))}
+                </Box>
                 {columns.map((column, colIndex) => (
                   <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
                     <Stack mb="md" gap="xs">
@@ -216,20 +225,19 @@ const AdminValidationCreatePage = () => {
                         <Group grow key={valIndex} mb="xs">
                           <TextInput
                             value={value}
+                            placeholder="Ingresa un valor"
                             onChange={(event) => {
                               const newColumns = columns.slice();
                               newColumns[colIndex].values[valIndex] = event.currentTarget.value;
                               setColumns(newColumns);
                             }}
                           />
-                          <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
-                            <IconTrash size={20} />
-                          </Button>
                         </Group>
                       ))}
                     </Stack>
                   </Box>
                 ))}
+                
               </Group>
             </ScrollArea>
           </Tooltip>
