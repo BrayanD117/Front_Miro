@@ -71,6 +71,13 @@ const AdminValidationUpdatePage = () => {
     const newColumns = [...columns, { name: "", is_validator: false, type: "", values: [] }];
     setColumns(newColumns);
     setNewValues([...newValues, ""]);
+
+    newColumns.forEach(column => {
+      while (column.values.length < newColumns[0].values.length) {
+        column.values.push("");
+      }
+    });
+
     setShowTooltip(newColumns.length > 4);
   };
 
@@ -158,6 +165,7 @@ const AdminValidationUpdatePage = () => {
         setIsFormValid(false);
         return;
       }
+      let hasValidator = false;
       for (const column of columns) {
         if (!column.name) {
           setTooltipContent("Todos los nombres de las columnas son obligatorios.");
@@ -174,6 +182,21 @@ const AdminValidationUpdatePage = () => {
           setIsFormValid(false);
           return;
         }
+        if (column.is_validator) {
+          hasValidator = true;
+        }
+        for (const value of column.values) {
+          if (!value) {
+            setTooltipContent("Todos los valores de las columnas deben estar llenos.");
+            setIsFormValid(false);
+            return;
+          }
+        }
+      }
+      if (!hasValidator) {
+        setTooltipContent("Debe marcar al menos una columna como validadora.");
+        setIsFormValid(false);
+        return;
       }
       setTooltipContent("Correcto");
       setIsFormValid(true);
