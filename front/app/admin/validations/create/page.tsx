@@ -287,12 +287,12 @@ const AdminValidationCreatePage = () => {
         onClose={() => setModalOpen(false)}
         title="Configuración de Columna"
       >
-        {currentColumnIndex !== null && (
+        {currentColumnIndex !== null && columns[currentColumnIndex] && (
           <>
             <Select
               label="Tipo"
               placeholder="Seleccione el tipo"
-              value={columns[currentColumnIndex].type}
+              value={columns[currentColumnIndex].type || ""}
               onChange={(value) => handleChangeColumn(currentColumnIndex, 'type', value || '')}
               data={[
                 { value: 'Texto', label: 'Texto' },
