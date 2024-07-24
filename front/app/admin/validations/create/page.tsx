@@ -193,15 +193,7 @@ const AdminValidationCreatePage = () => {
               viewportRef={scrollAreaRef}
             >
               <Group wrap="nowrap" align="start">
-              <Box mt={92} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  {columns.length > 0 && columns[0].values.map((_, valIndex) => (
-                    <Center mb={20} key={valIndex}>
-                      <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
-                        <IconTrash size={20} />
-                      </Button>
-                    </Center>
-                  ))}
-                </Box>
+              
                 {columns.map((column, colIndex) => (
                   <Box key={colIndex} style={{ minWidth: 200, maxWidth: 250 }}>
                     <Stack mb="md" gap="xs">
@@ -237,7 +229,15 @@ const AdminValidationCreatePage = () => {
                     </Stack>
                   </Box>
                 ))}
-                
+                <Box mt={92} style={{ minWidth: 50, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {columns.length > 0 && columns[0].values.map((_, valIndex) => (
+                    <Center mb={20} key={valIndex}>
+                      <Button color="red" variant="outline" onClick={() => handleRemoveValue(valIndex)}>
+                        <IconTrash size={20} />
+                      </Button>
+                    </Center>
+                  ))}
+                </Box>
               </Group>
             </ScrollArea>
           </Tooltip>
