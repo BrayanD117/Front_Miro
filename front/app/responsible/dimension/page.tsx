@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid, GridCol } from "@mantine/core";
+import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid, List } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -50,9 +50,12 @@ const ResponsibleDimensionPage = () => {
           setProducers(dimensionData.producers);
 
           const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
-            dep_codes: dimensionData.producers,
+            codes: dimensionData.producers,
           });
-          const newProducerNames = { ...producerNames, ...producerResponse.data };
+          const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
+            acc[dep.code] = dep.name;
+            return acc;
+          }, {});
           setProducerNames(newProducerNames);
           localStorage.setItem('producerNames', JSON.stringify(newProducerNames));
         } catch (error) {
@@ -62,7 +65,7 @@ const ResponsibleDimensionPage = () => {
     };
 
     fetchDimension();
-  }, [session, dimension, producerNames]);
+  }, [session, dimension]);
 
   useEffect(() => {
     const fetchDependencies = async () => {
@@ -125,9 +128,12 @@ const ResponsibleDimensionPage = () => {
     if (!producerNames[dep_code]) {
       try {
         const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
-          dep_codes: [dep_code],
+          codes: [dep_code],
         });
-        const newProducerNames = { ...producerNames, ...response.data };
+        const newProducerNames = { ...producerNames, ...response.data.reduce((acc: any, dep: any) => {
+          acc[dep.code] = dep.name;
+          return acc;
+        }, {}) };
         setProducerNames(newProducerNames);
         localStorage.setItem('producerNames', JSON.stringify(newProducerNames));
       } catch (error) {
