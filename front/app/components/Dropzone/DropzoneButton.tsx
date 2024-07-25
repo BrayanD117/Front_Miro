@@ -45,10 +45,15 @@ export function DropzoneButton({ pubTemId }: DropzoneButtonProps) {
         });
       });
 
+      console.log("Datos extraídos del archivo:", data);
+
       try {
         if (!session?.user?.email) {
           throw new Error('Usuario no autenticado');
         }
+
+        console.log("Email del usuario:", session.user.email);
+        console.log("ID de la plantilla publicada:", pubTemId);
 
         const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
           email: session.user.email,
@@ -62,6 +67,12 @@ export function DropzoneButton({ pubTemId }: DropzoneButtonProps) {
 
         if (axios.isAxiosError(error)) {
           console.error('Detalles del error:', error.response?.data);
+
+          if (error.response?.data.details) {
+            const errorDetails = JSON.stringify(error.response.data.details);
+            const errorUrl = `/logs?errors=${encodeURIComponent(errorDetails)}`;
+            window.open(errorUrl, '_blank');
+          }
         }
       }
     };
