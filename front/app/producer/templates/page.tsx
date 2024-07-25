@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconDownload, IconUpload } from "@tabler/icons-react";
@@ -214,11 +214,7 @@ const ProducerTemplatesPage = () => {
 
   const rows = templates.map((publishedTemplate) => {
     const userHasUploaded = publishedTemplate.loaded_data?.some(
-      (data) => {
-        console.log('data.email:', data.send_by.email);
-        console.log('session?.user?.email:', session?.user?.email);
-        return data.send_by.email === session?.user?.email;
-      }
+      (data) => data.send_by.email === session?.user?.email
     );
 
     return (
@@ -236,14 +232,23 @@ const ProducerTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Button
-              variant="outline"
-              color="green"
-              onClick={() => handleUploadClick(publishedTemplate._id)}
-              disabled={userHasUploaded}
+            <Tooltip
+              label="Ya enviaste esta plantilla"
+              position="top"
+              withArrow
+              disabled={!userHasUploaded}
             >
-              <IconUpload size={16} />
-            </Button>
+              <div>
+                <Button
+                  variant="outline"
+                  color="green"
+                  onClick={() => handleUploadClick(publishedTemplate._id)}
+                  disabled={userHasUploaded}
+                >
+                  <IconUpload size={16} />
+                </Button>
+              </div>
+            </Tooltip>
           </Center>
         </Table.Td>
       </Table.Tr>
@@ -252,6 +257,7 @@ const ProducerTemplatesPage = () => {
 
   return (
     <Container size="xl">
+      <Title ta="center" mb={"md"}>Plantillas disponibles</Title>
       <TextInput
         placeholder="Buscar plantillas"
         value={search}
