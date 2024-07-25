@@ -260,6 +260,7 @@ const CreateTemplatePage = () => {
                   onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
                   maxDropdownHeight={200}
                   searchable
+                  clearable
                   nothingFoundMessage="La validación no existe"
                 />
               </Table.Td>

@@ -41,11 +41,10 @@ export function DropzoneButton() {
 
       console.log(data);
 
-      // Aquí envías la data al endpoint del backend
       try {
         const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
           email: '2220201021@estudiantesunibague.edu.co',
-          pubTem_id: '668eb6e7b7a8bf441a3cd5e5',
+          pubTem_id: '66a278a445404aa87aef126b',
           data: data,
         });
         console.log(response.data);

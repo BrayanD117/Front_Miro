@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Modal, Button, Select, Container, Grid, Card, Text, Group, Image, Title, Center} from "@mantine/core";
+import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconEdit, IconClipboardList, IconFileText, IconBuildingCommunity, IconUserFilled, IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheckFilled, IconZoomCheck, IconUser, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -276,13 +276,13 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconFileUpload size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Enviar Información</Text>
+                <Text ta={"center"} w={500}>Plantillas enviadas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Envía información a los responsables para su gestión.
+                Gestiona la información de tus plantillas cargadas.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/submit')}>
-                Ir a Enviar Información
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dashboard')}>
+                Ir a Plantillas Enviadas
               </Button>
             </Card>
           </Grid.Col>
