@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   Container,
   TextInput,
-  Button,
+  Button, 
   Group,
   Title,
   Paper,
@@ -27,13 +27,13 @@ interface Column {
   name: string;
   is_validator: boolean;
   type: string;
-  values: string[];
+  values: (string | number)[];
 }
 
 const AdminValidationCreatePage = () => {
   const [name, setName] = useState<string>("");
   const [columns, setColumns] = useState<Column[]>([]);
-  const [newValues, setNewValues] = useState<string[]>(Array(columns.length).fill(""));
+  const [newValues, setNewValues] = useState<(string | number)[]>(Array(columns.length).fill(""));
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentColumnIndex, setCurrentColumnIndex] = useState<number | null>(null);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const AdminValidationCreatePage = () => {
     setColumns(newColumns);
   };
 
-  const handleChangeValue = (index: number, value: string) => {
+  const handleChangeValue = (index: number, value: string | number) => {
     const newValuesArray = newValues.slice();
     newValuesArray[index] = value;
     setNewValues(newValuesArray);
@@ -106,10 +106,16 @@ const AdminValidationCreatePage = () => {
       setShowTooltip(true);
       return;
     }
+    
+    const columnsToSave = columns.map(column => ({
+      ...column,
+      values: column.values.map(value => column.type === 'Número' ? Number(value) : String(value))
+    }));
+
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/validators/create`, {
         name,
-        columns,
+        columns: columnsToSave,
       });
       showNotification({
         title: "Validación creada",
@@ -237,11 +243,12 @@ const AdminValidationCreatePage = () => {
                       {column.values.map((value, valIndex) => (
                         <Group grow key={valIndex} mb="xs">
                           <TextInput
-                            value={value}
+                            value={String(value)}
                             placeholder="Ingresa un valor"
                             onChange={(event) => {
                               const newColumns = columns.slice();
-                              newColumns[colIndex].values[valIndex] = event.currentTarget.value;
+                              const newValue = column.type === 'Número' ? Number(event.currentTarget.value) : event.currentTarget.value;
+                              newColumns[colIndex].values[valIndex] = newValue;
                               setColumns(newColumns);
                             }}
                           />

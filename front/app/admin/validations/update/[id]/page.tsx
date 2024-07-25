@@ -27,7 +27,7 @@ interface Column {
   name: string;
   is_validator: boolean;
   type: string;
-  values: string[];
+  values: (string | number)[];
 }
 
 const AdminValidationUpdatePage = () => {
@@ -37,7 +37,7 @@ const AdminValidationUpdatePage = () => {
 
   const [name, setName] = useState<string>("");
   const [columns, setColumns] = useState<Column[]>([]);
-  const [newValues, setNewValues] = useState<string[]>([]);
+  const [newValues, setNewValues] = useState<(string | number)[]>([]);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentColumnIndex, setCurrentColumnIndex] = useState<number | null>(null);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
@@ -97,7 +97,7 @@ const AdminValidationUpdatePage = () => {
     setColumns(newColumns);
   };
 
-  const handleChangeValue = (index: number, value: string) => {
+  const handleChangeValue = (index: number, value: string | number) => {
     const newValuesArray = newValues.slice();
     newValuesArray[index] = value;
     setNewValues(newValuesArray);
@@ -131,11 +131,18 @@ const AdminValidationUpdatePage = () => {
       setShowTooltip(true);
       return;
     }
+
+    // Convert values to their respective types before saving
+    const columnsToSave = columns.map(column => ({
+      ...column,
+      values: column.values.map(value => column.type === 'Número' ? Number(value) : String(value))
+    }));
+
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/validators/update`, {
         id,
         name,
-        columns,
+        columns: columnsToSave,
       });
       showNotification({
         title: "Validación actualizada",
@@ -263,11 +270,12 @@ const AdminValidationUpdatePage = () => {
                       {column.values.map((value, valIndex) => (
                         <Group grow key={valIndex} mb="xs">
                           <TextInput
-                            value={value}
+                            value={String(value)}
                             placeholder="Ingresa un valor"
                             onChange={(event) => {
                               const newColumns = columns.slice();
-                              newColumns[colIndex].values[valIndex] = event.currentTarget.value;
+                              const newValue = column.type === 'Número' ? Number(event.currentTarget.value) : event.currentTarget.value;
+                              newColumns[colIndex].values[valIndex] = newValue;
                               setColumns(newColumns);
                             }}
                           />
