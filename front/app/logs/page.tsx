@@ -1,7 +1,7 @@
 "use client"
 
 import { Container, Table, Title, Text } from '@mantine/core';
-import { useSearchParams } from 'next/navigation';
+import { IconBulb } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
 interface ErrorDetail {
@@ -15,16 +15,16 @@ interface ColumnError {
 }
 
 const ErrorLogsPage = () => {
-  const searchParams = useSearchParams();
   const [columnErrors, setColumnErrors] = useState<ColumnError[]>([]);
 
   useEffect(() => {
-    const errors = searchParams.get('errors');
+    const errors = localStorage.getItem('errorDetails');
     if (errors) {
       setColumnErrors(JSON.parse(errors));
       console.log("Errores recibidos:", errors);
+      localStorage.removeItem('errorDetails');
     }
-  }, [searchParams]);
+  }, []);
 
   return (
     <Container size="xl">
@@ -50,7 +50,14 @@ const ErrorLogsPage = () => {
         </Table.Tbody>
       </Table>
       {columnErrors.length === 0 && (
-        <Text c="dimmed" ta="center" mt="md">No se encontraron errores.</Text>
+        <>
+          <Text c="dimmed" ta="center" mt="md">No se encontraron errores.</Text>
+          <Text c="dimmed" size="xs" ta="center" mt="md" >
+            <IconBulb color="#797979" size={20}></IconBulb>
+            <br/>
+            Si quieres ver los errores de una carga anterior, vuelve a subir el archivo.
+          </Text>
+        </>
       )}
     </Container>
   );
