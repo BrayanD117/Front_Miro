@@ -38,6 +38,7 @@ interface PublishedTemplate {
   completed: boolean;
   createdAt: string;
   updatedAt: string;
+  loaded_data: any[];
 }
 
 const ProducerTemplatesPage = () => {
@@ -72,7 +73,6 @@ const ProducerTemplatesPage = () => {
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
     const { template } = publishedTemplate;
-    console.log("Downloading template:", template);
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(template.name);
 
@@ -212,28 +212,43 @@ const ProducerTemplatesPage = () => {
     openUploadModal();
   };
 
-  const rows = templates.map((publishedTemplate) => (
-    <Table.Tr key={publishedTemplate._id}>
-      <Table.Td>{publishedTemplate.template.name}</Table.Td>
-      <Table.Td>{publishedTemplate.template.file_name}</Table.Td>
-      <Table.Td>{publishedTemplate.template.file_description}</Table.Td>
-      <Table.Td>{publishedTemplate.template.active ? "Activo" : "Inactivo"}</Table.Td>
-      <Table.Td>
-        <Center>
-          <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
-            <IconDownload size={16} />
-          </Button>
-        </Center>
-      </Table.Td>
-      <Table.Td>
-        <Center>
-          <Button variant="outline" color="green" onClick={() => handleUploadClick(publishedTemplate._id)}>
-            <IconUpload size={16} />
-          </Button>
-        </Center>
-      </Table.Td>
-    </Table.Tr>
-  ));
+  const rows = templates.map((publishedTemplate) => {
+    const userHasUploaded = publishedTemplate.loaded_data?.some(
+      (data) => {
+        console.log('data.email:', data.send_by.email);
+        console.log('session?.user?.email:', session?.user?.email);
+        return data.send_by.email === session?.user?.email;
+      }
+    );
+
+    return (
+      <Table.Tr key={publishedTemplate._id}>
+        <Table.Td>{publishedTemplate.template.name}</Table.Td>
+        <Table.Td>{publishedTemplate.template.file_name}</Table.Td>
+        <Table.Td>{publishedTemplate.template.file_description}</Table.Td>
+        <Table.Td>{publishedTemplate.template.active ? "Activo" : "Inactivo"}</Table.Td>
+        <Table.Td>
+          <Center>
+            <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
+              <IconDownload size={16} />
+            </Button>
+          </Center>
+        </Table.Td>
+        <Table.Td>
+          <Center>
+            <Button
+              variant="outline"
+              color="green"
+              onClick={() => handleUploadClick(publishedTemplate._id)}
+              disabled={userHasUploaded}
+            >
+              <IconUpload size={16} />
+            </Button>
+          </Center>
+        </Table.Td>
+      </Table.Tr>
+    );
+  });
 
   return (
     <Container size="xl">
