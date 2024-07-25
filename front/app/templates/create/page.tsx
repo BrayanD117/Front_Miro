@@ -34,6 +34,11 @@ interface Dimension {
   name: string;
 }
 
+interface ValidatorOption {
+  name: string;
+  type: string;
+}
+
 const CreateTemplatePage = () => {
   const [name, setName] = useState("");
   const [fileName, setFileName] = useState("");
@@ -42,7 +47,7 @@ const CreateTemplatePage = () => {
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
-  const [validatorOptions, setValidatorOptions] = useState<string[]>([]);
+  const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>([]);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -98,6 +103,22 @@ const CreateTemplatePage = () => {
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
     updatedFields[index] = { ...updatedFields[index], [field]: value };
+
+    if (field === 'validate_with') {
+      const selectedOption = validatorOptions.find(option => option.name === value);
+      console.log(selectedOption);
+
+      if (selectedOption) {
+        if (selectedOption.type === 'Número') {
+          updatedFields[index].datatype = 'Entero';
+        } else if (selectedOption.type === 'Texto') {
+          updatedFields[index].datatype = 'Texto Largo';
+        }
+      } else {
+        updatedFields[index].datatype = "";
+      }
+    }
+
     setFields(updatedFields);
   };
 
@@ -244,6 +265,7 @@ const CreateTemplatePage = () => {
                   data={allowedDataTypes}
                   value={field.datatype}
                   onChange={(value) => handleFieldChange(index, "datatype", value || "")}
+                  readOnly={!!field.validate_with}
                 />
               </Table.Td>
               <Table.Td>
@@ -254,9 +276,9 @@ const CreateTemplatePage = () => {
                 />
               </Table.Td>
               <Table.Td>
-              <Select
+                <Select
                   placeholder="Validar con"
-                  data={validatorOptions.map(option => ({ value: option, label: option }))}
+                  data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
                   value={field.validate_with}
                   onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
                   maxDropdownHeight={200}
