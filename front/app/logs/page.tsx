@@ -21,14 +21,14 @@ const ErrorLogsPage = () => {
     const errors = localStorage.getItem('errorDetails');
     if (errors) {
       setColumnErrors(JSON.parse(errors));
-      console.log("Errores recibidos:", errors);
       localStorage.removeItem('errorDetails');
     }
   }, []);
 
   return (
     <Container size="xl">
-      <Title ta="center" order={1} mb="md">Errores Encontrados</Title>
+      <Title ta="center" order={1} mb="md">¡Ups!</Title>
+      <Title ta="center" order={3} mb="md">Parece que hubo algo mal al cargar la plantilla :(</Title>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
