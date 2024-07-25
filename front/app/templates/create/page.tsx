@@ -83,7 +83,6 @@ const CreateTemplatePage = () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/options`);
         setValidatorOptions(response.data.options);
-        console.log("Opciones de validación:", response.data);
       } catch (error) {
         console.error("Error fetching validator options:", error);
         showNotification({

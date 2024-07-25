@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Stack, Text, Select, Checkbox, Loader, Center, Table } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -34,6 +34,11 @@ interface Dimension {
   name: string;
 }
 
+interface ValidatorOption {
+  name: string;
+  type: string;
+}
+
 const UpdateTemplatePage = () => {
   const [name, setName] = useState("");
   const [fileName, setFileName] = useState("");
@@ -42,7 +47,7 @@ const UpdateTemplatePage = () => {
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
-  const [validatorOptions, setValidatorOptions] = useState<string[]>([]);
+  const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { id } = useParams();
@@ -120,6 +125,22 @@ const UpdateTemplatePage = () => {
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
     updatedFields[index] = { ...updatedFields[index], [field]: value };
+
+    if (field === 'validate_with') {
+      const selectedOption = validatorOptions.find(option => option.name === value);
+      console.log(selectedOption);
+
+      if (selectedOption) {
+        if (selectedOption.type === 'Número') {
+          updatedFields[index].datatype = 'Entero';
+        } else if (selectedOption.type === 'Texto') {
+          updatedFields[index].datatype = 'Texto Largo';
+        }
+      } else {
+        updatedFields[index].datatype = "";
+      }
+    }
+
     setFields(updatedFields);
   };
 
@@ -259,7 +280,8 @@ const UpdateTemplatePage = () => {
                   placeholder="Seleccionar"
                   data={allowedDataTypes}
                   value={field.datatype}
-                  onChange={(value) => handleFieldChange(index, "datatype", value)}
+                  onChange={(value) => handleFieldChange(index, "datatype", value || "")}
+                  readOnly={!!field.validate_with}
                 />
               </Table.Td>
               <Table.Td>
@@ -272,10 +294,12 @@ const UpdateTemplatePage = () => {
               <Table.Td>
                 <Select
                   placeholder="Validar con"
-                  data={validatorOptions.map(option => ({ value: option, label: option }))}
+                  data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
                   value={field.validate_with}
                   onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
+                  maxDropdownHeight={200}
                   searchable
+                  clearable
                   nothingFoundMessage="La validación no existe"
                 />
               </Table.Td>
