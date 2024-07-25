@@ -47,7 +47,6 @@ const AdminValidationCreatePage = () => {
     setColumns(newColumns);
     setNewValues([...newValues, ""]);
 
-    // Add empty values to all columns to keep rows synchronized
     newColumns.forEach(column => {
       while (column.values.length < newColumns[0].values.length) {
         column.values.push("");

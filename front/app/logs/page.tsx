@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 interface ErrorDetail {
   register: number;
   message: string;
+  value: any;
 }
 
 interface ColumnError {
@@ -35,6 +36,7 @@ const ErrorLogsPage = () => {
             <Table.Th>Columna</Table.Th>
             <Table.Th>Fila</Table.Th>
             <Table.Th>Error</Table.Th>
+            {/* <Table.Th>Valor actual</Table.Th> */}
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -44,6 +46,7 @@ const ErrorLogsPage = () => {
                 <Table.Td>{columnError.column}</Table.Td>
                 <Table.Td>{detail.register + 1}</Table.Td>
                 <Table.Td>{detail.message}</Table.Td>
+                {/* <Table.Td>{detail.value}</Table.Td> */}
               </Table.Tr>
             ))
           )}
