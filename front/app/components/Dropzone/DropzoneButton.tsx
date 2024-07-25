@@ -4,11 +4,17 @@ import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import ExcelJS from 'exceljs';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 import classes from './DropzoneButton.module.css';
 
-export function DropzoneButton() {
+interface DropzoneButtonProps {
+  pubTemId: string;
+}
+
+export function DropzoneButton({ pubTemId }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
+  const { data: session } = useSession();
 
   const handleFileDrop = async (files: File[]) => {
     const file = files[0];
@@ -39,17 +45,24 @@ export function DropzoneButton() {
         });
       });
 
-      console.log(data);
-
       try {
+        if (!session?.user?.email) {
+          throw new Error('Usuario no autenticado');
+        }
+
         const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
-          email: '2220201021@estudiantesunibague.edu.co',
-          pubTem_id: '66a278a445404aa87aef126b',
+          email: session.user.email,
+          pubTem_id: pubTemId,
           data: data,
         });
-        console.log(response.data);
+
+        console.log("Respuesta del servidor:", response.data);
       } catch (error) {
         console.error('Error enviando los datos al servidor:', error);
+
+        if (axios.isAxiosError(error)) {
+          console.error('Detalles del error:', error.response?.data);
+        }
       }
     };
 
@@ -63,7 +76,7 @@ export function DropzoneButton() {
         onDrop={handleFileDrop}
         className={classes.dropzone}
         radius="md"
-        accept={[MIME_TYPES.xlsx, MIME_TYPES.xls, MIME_TYPES.csv]}
+        accept={[MIME_TYPES.xlsx, MIME_TYPES.xls]}
         maxSize={30 * 1024 ** 2}
       >
         <div style={{ pointerEvents: 'none' }}>

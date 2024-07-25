@@ -46,6 +46,7 @@ const ProducerTemplatesPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [uploadModalOpen, { open: openUploadModal, close: closeUploadModal }] = useDisclosure(false);
 
   const fetchTemplates = async (page: number, search: string) => {
@@ -206,6 +207,11 @@ const ProducerTemplatesPage = () => {
     saveAs(blob, `${template.file_name}.xlsx`);
   };
 
+  const handleUploadClick = (publishedTemplateId: string) => {
+    setSelectedTemplateId(publishedTemplateId);
+    openUploadModal();
+  };
+
   const rows = templates.map((publishedTemplate) => (
     <Table.Tr key={publishedTemplate._id}>
       <Table.Td>{publishedTemplate.template.name}</Table.Td>
@@ -221,7 +227,7 @@ const ProducerTemplatesPage = () => {
       </Table.Td>
       <Table.Td>
         <Center>
-          <Button variant="outline" color="green" onClick={openUploadModal}>
+          <Button variant="outline" color="green" onClick={() => handleUploadClick(publishedTemplate._id)}>
             <IconUpload size={16} />
           </Button>
         </Center>
@@ -272,7 +278,7 @@ const ProducerTemplatesPage = () => {
         size="50%"
         centered
       >
-        <DropzoneButton />
+        {selectedTemplateId && <DropzoneButton pubTemId={selectedTemplateId} />}
       </Modal>
     </Container>
   );
