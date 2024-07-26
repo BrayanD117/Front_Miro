@@ -264,7 +264,7 @@ const CreateTemplatePage = () => {
               <Table.Td>
                 <Select
                   placeholder="Seleccionar"
-                  data={allowedDataTypes}
+                  data={allowedDataTypes.map((datatype) => ({ value: datatype, label: datatype }))}
                   value={field.datatype}
                   onChange={(value) => handleFieldChange(index, "datatype", value || "")}
                   readOnly={!!field.validate_with}
