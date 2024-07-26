@@ -10,6 +10,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import { useDisclosure } from '@mantine/hooks';
+import { format, setGlobalDateI18n } from 'fecha';
 
 interface Field {
   name: string;
@@ -23,6 +24,7 @@ interface Template {
   _id: string;
   name: string;
   file_name: string;
+  dimension: any;
   file_description: string;
   fields: Field[];
   active: boolean;
@@ -158,10 +160,10 @@ const ProducerTemplatesPage = () => {
             cell.dataValidation = {
               type: 'textLength',
               operator: 'lessThanOrEqual',
-              formulae: [255],
+              formulae: [500],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un texto de hasta 255 caracteres.'
+              error: 'Por favor, introduce un texto de hasta 500 caracteres.'
             };
             break;
           case 'True/False':
@@ -212,6 +214,22 @@ const ProducerTemplatesPage = () => {
     openUploadModal();
   };
 
+  const spanishLocale: {
+    dayNames: [string, string, string, string, string, string, string];
+    dayNamesShort: [string, string, string, string, string, string, string];
+    monthNames: [string, string, string, string, string, string, string, string, string, string, string, string];
+    monthNamesShort: [string, string, string, string, string, string, string, string, string, string, string, string];
+    amPm: [string, string];
+} = {
+    dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    amPm: ['AM', 'PM']
+};
+
+  setGlobalDateI18n(spanishLocale)
+  
   const rows = templates.map((publishedTemplate) => {
     const userHasUploaded = publishedTemplate.loaded_data?.some(
       (data) => data.send_by.email === session?.user?.email
@@ -219,10 +237,10 @@ const ProducerTemplatesPage = () => {
 
     return (
       <Table.Tr key={publishedTemplate._id}>
+        <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.file_name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.file_description}</Table.Td>
-        <Table.Td>{publishedTemplate.template.active ? "Activo" : "Inactivo"}</Table.Td>
+        <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
+        <Table.Td>{format(new Date(publishedTemplate.period.collect_end_date), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
@@ -267,8 +285,8 @@ const ProducerTemplatesPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
+            <Table.Th>Periodo</Table.Th>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>

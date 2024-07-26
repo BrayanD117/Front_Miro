@@ -206,10 +206,10 @@ const AdminTemplatesPage = () => {
             cell.dataValidation = {
               type: 'textLength',
               operator: 'lessThanOrEqual',
-              formulae: [255],
+              formulae: [500],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un texto de hasta 255 caracteres.'
+              error: 'Por favor, introduce un texto de hasta 500 caracteres.'
             };
             break;
           case 'True/False':
