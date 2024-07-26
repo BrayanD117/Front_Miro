@@ -217,7 +217,10 @@ const CreateTemplatePage = () => {
         <Select
           label="Dimensión"
           placeholder="Seleccionar dimensión"
-          data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
+          data={dimensions
+            .filter((dim) => dim._id && dim.name)
+            .map((dim) => ({ value: dim._id, label: dim.name }))
+          }
           value={dimension}
           onChange={(value) => setDimension(value || null)}
           mb="md"
