@@ -213,7 +213,7 @@ const CreateTemplatePage = () => {
         onChange={(event) => setFileDescription(event.currentTarget.value)}
         mb="md"
       />
-      {/* {userRole === 'Administrador' && (
+      {userRole === 'Administrador' && (
         <Select
           label="Dimensión"
           placeholder="Seleccionar dimensión"
@@ -222,7 +222,7 @@ const CreateTemplatePage = () => {
           onChange={(value) => setDimension(value || null)}
           mb="md"
         />
-      )} */}
+      )}
       {userRole === 'Responsable' && (
         <TextInput
           label="Dimensión"
@@ -243,7 +243,7 @@ const CreateTemplatePage = () => {
             <Table.Th>Nombre Campo</Table.Th>
             <Table.Th>Tipo de Campo</Table.Th>
             <Table.Th>¿Obligatorio?</Table.Th>
-            <Table.Th>Validar con Base de Datos</Table.Th>
+            {/* <Table.Th>Validar con Base de Datos</Table.Th> */}
             <Table.Th>Comentario del Campo / Pista</Table.Th>
             <Table.Th>Acciones</Table.Th>
           </Table.Tr>
@@ -274,7 +274,7 @@ const CreateTemplatePage = () => {
                   onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
                 />
               </Table.Td>
-              <Table.Td>
+              {/* <Table.Td>
                 <Select
                   placeholder="Validar con"
                   data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
@@ -285,7 +285,7 @@ const CreateTemplatePage = () => {
                   clearable
                   nothingFoundMessage="La validación no existe"
                 />
-              </Table.Td>
+              </Table.Td> */}
               <Table.Td>
                 <TextInput
                   placeholder="Comentario"
