@@ -213,7 +213,7 @@ const CreateTemplatePage = () => {
         onChange={(event) => setFileDescription(event.currentTarget.value)}
         mb="md"
       />
-      {userRole === 'Administrador' && (
+      {/* {userRole === 'Administrador' && (
         <Select
           label="Dimensión"
           placeholder="Seleccionar dimensión"
@@ -222,7 +222,7 @@ const CreateTemplatePage = () => {
           onChange={(value) => setDimension(value || null)}
           mb="md"
         />
-      )}
+      )} */}
       {userRole === 'Responsable' && (
         <TextInput
           label="Dimensión"
