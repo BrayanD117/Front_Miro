@@ -43,26 +43,36 @@ const CreateTemplatePage = () => {
   const [name, setName] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileDescription, setFileDescription] = useState("");
-  const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
+  const [fields, setFields] = useState<Field[]>([
+    { name: "", datatype: "", required: true, validate_with: "", comment: "" },
+  ]);
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
-  const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>([]);
+  const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>(
+    []
+  );
   const router = useRouter();
   const { data: session } = useSession();
 
   useEffect(() => {
     const fetchDimensions = async () => {
-      const userRole = localStorage.getItem('userRole');
-      const userEmail = session?.user?.email || localStorage.getItem('userEmail');
+      const userRole = localStorage.getItem("userRole");
+      const userEmail =
+        session?.user?.email || localStorage.getItem("userEmail");
       try {
-        if (userRole === 'Administrador') {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions`);
+        if (userRole === "Administrador") {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/dimensions`
+          );
           setDimensions(response.data);
-        } else if (userRole === 'Responsable') {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`, {
-            params: { email: userEmail }
-          });
+        } else if (userRole === "Responsable") {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`,
+            {
+              params: { email: userEmail },
+            }
+          );
           const userDimensions = response.data;
           setDimensions(userDimensions);
           if (userDimensions.length > 0) {
@@ -81,8 +91,9 @@ const CreateTemplatePage = () => {
 
     const fetchValidatorOptions = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/options`);
-        console.log('Validator options:', response.data.options);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/validators/options`
+        );
         setValidatorOptions(response.data.options);
       } catch (error) {
         console.error("Error fetching validator options:", error);
@@ -104,15 +115,16 @@ const CreateTemplatePage = () => {
     const updatedFields = [...fields];
     updatedFields[index] = { ...updatedFields[index], [field]: value };
 
-    if (field === 'validate_with') {
-      const selectedOption = validatorOptions.find(option => option.name === value);
-      console.log('Selected option:', selectedOption);
+    if (field === "validate_with") {
+      const selectedOption = validatorOptions.find(
+        (option) => option.name === value
+      );
 
       if (selectedOption) {
-        if (selectedOption.type === 'Número') {
-          updatedFields[index].datatype = 'Entero';
-        } else if (selectedOption.type === 'Texto') {
-          updatedFields[index].datatype = 'Texto Largo';
+        if (selectedOption.type === "Número") {
+          updatedFields[index].datatype = "Entero";
+        } else if (selectedOption.type === "Texto") {
+          updatedFields[index].datatype = "Texto Largo";
         }
       } else {
         updatedFields[index].datatype = "";
@@ -123,7 +135,16 @@ const CreateTemplatePage = () => {
   };
 
   const addField = () => {
-    setFields([...fields, { name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
+    setFields([
+      ...fields,
+      {
+        name: "",
+        datatype: "",
+        required: true,
+        validate_with: "",
+        comment: "",
+      },
+    ]);
   };
 
   const removeField = (index: number) => {
@@ -132,7 +153,13 @@ const CreateTemplatePage = () => {
   };
 
   const handleSave = async () => {
-    if (!name || !fileName || !fileDescription || fields.length === 0 || !dimension) {
+    if (
+      !name ||
+      !fileName ||
+      !fileDescription ||
+      fields.length === 0 ||
+      !dimension
+    ) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -141,7 +168,7 @@ const CreateTemplatePage = () => {
       return;
     }
 
-    const userEmail = session?.user?.email || localStorage.getItem('userEmail');
+    const userEmail = session?.user?.email || localStorage.getItem("userEmail");
 
     if (!userEmail) {
       showNotification({
@@ -163,7 +190,10 @@ const CreateTemplatePage = () => {
     };
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/templates/create`, templateData);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/templates/create`,
+        templateData
+      );
       showNotification({
         title: "Creado",
         message: "Plantilla creada exitosamente",
@@ -173,7 +203,11 @@ const CreateTemplatePage = () => {
     } catch (error) {
       console.error("Error guardando plantilla:", error);
 
-      if (axios.isAxiosError(error) && error.response && error.response.data.mensaje) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response &&
+        error.response.data.mensaje
+      ) {
         showNotification({
           title: "Error",
           message: error.response.data.mensaje,
@@ -189,7 +223,7 @@ const CreateTemplatePage = () => {
     }
   };
 
-  const userRole = localStorage.getItem('userRole');
+  const userRole = localStorage.getItem("userRole");
 
   return (
     <Container size="xl">
@@ -214,7 +248,7 @@ const CreateTemplatePage = () => {
         onChange={(event) => setFileDescription(event.currentTarget.value)}
         mb="md"
       />
-      {userRole === 'Administrador' && (
+      {userRole === "Administrador" && (
         <Select
           label="Dimensión"
           placeholder="Seleccionar dimensión"
@@ -224,10 +258,10 @@ const CreateTemplatePage = () => {
           mb="md"
         />
       )}
-      {userRole === 'Responsable' && (
+      {userRole === "Responsable" && (
         <TextInput
           label="Dimensión"
-          value={dimensions.find(dim => dim._id === dimension)?.name || ""}
+          value={dimensions.find((dim) => dim._id === dimension)?.name || ""}
           readOnly
           mb="md"
         />
@@ -251,22 +285,32 @@ const CreateTemplatePage = () => {
         </Table.Thead>
         <Table.Tbody>
           {fields.map((field, index) => {
-            console.log('Validator options for field:', validatorOptions);
             return (
               <Table.Tr key={index}>
                 <Table.Td>
                   <TextInput
                     placeholder="Nombre del campo"
                     value={field.name}
-                    onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
+                    onChange={(event) =>
+                      handleFieldChange(
+                        index,
+                        "name",
+                        event.currentTarget.value
+                      )
+                    }
                   />
                 </Table.Td>
                 <Table.Td>
                   <Select
                     placeholder="Seleccionar"
-                    data={allowedDataTypes.map((type) => ({ value: type, label: type }))}
+                    data={allowedDataTypes.map((type) => ({
+                      value: type,
+                      label: type,
+                    }))}
                     value={field.datatype}
-                    onChange={(value) => handleFieldChange(index, "datatype", value || "")}
+                    onChange={(value) =>
+                      handleFieldChange(index, "datatype", value || "")
+                    }
                     readOnly={!!field.validate_with}
                   />
                 </Table.Td>
@@ -274,15 +318,26 @@ const CreateTemplatePage = () => {
                   <Checkbox
                     label=""
                     checked={field.required}
-                    onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
+                    onChange={(event) =>
+                      handleFieldChange(
+                        index,
+                        "required",
+                        event.currentTarget.checked
+                      )
+                    }
                   />
                 </Table.Td>
                 <Table.Td>
                   <Select
                     placeholder="Validar con"
-                    data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
+                    data={validatorOptions.map((option) => ({
+                      value: option.name,
+                      label: option.name,
+                    }))}
                     value={field.validate_with}
-                    onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
+                    onChange={(value) =>
+                      handleFieldChange(index, "validate_with", value || "")
+                    }
                     maxDropdownHeight={200}
                     searchable
                     clearable
@@ -293,7 +348,13 @@ const CreateTemplatePage = () => {
                   <TextInput
                     placeholder="Comentario"
                     value={field.comment}
-                    onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
+                    onChange={(event) =>
+                      handleFieldChange(
+                        index,
+                        "comment",
+                        event.currentTarget.value
+                      )
+                    }
                   />
                 </Table.Td>
                 <Table.Td>
@@ -307,9 +368,7 @@ const CreateTemplatePage = () => {
         </Table.Tbody>
       </Table>
       <Group mt="md">
-        <Button onClick={addField}>
-          Añadir Campo
-        </Button>
+        <Button onClick={addField}>Añadir Campo</Button>
       </Group>
       <Group mt="md">
         <Button onClick={handleSave}>Guardar</Button>
