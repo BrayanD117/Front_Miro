@@ -82,6 +82,7 @@ const CreateTemplatePage = () => {
     const fetchValidatorOptions = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/options`);
+        console.log('Validator options:', response.data.options);
         setValidatorOptions(response.data.options);
       } catch (error) {
         console.error("Error fetching validator options:", error);
@@ -105,7 +106,7 @@ const CreateTemplatePage = () => {
 
     if (field === 'validate_with') {
       const selectedOption = validatorOptions.find(option => option.name === value);
-      console.log(selectedOption);
+      console.log('Selected option:', selectedOption);
 
       if (selectedOption) {
         if (selectedOption.type === 'Número') {
@@ -243,63 +244,66 @@ const CreateTemplatePage = () => {
             <Table.Th>Nombre Campo</Table.Th>
             <Table.Th>Tipo de Campo</Table.Th>
             <Table.Th>¿Obligatorio?</Table.Th>
-            {/* <Table.Th>Validar con Base de Datos</Table.Th> */}
+            <Table.Th>Validar con Base de Datos</Table.Th>
             <Table.Th>Comentario del Campo / Pista</Table.Th>
             <Table.Th>Acciones</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {fields.map((field, index) => (
-            <Table.Tr key={index}>
-              <Table.Td>
-                <TextInput
-                  placeholder="Nombre del campo"
-                  value={field.name}
-                  onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Select
-                  placeholder="Seleccionar"
-                  data={allowedDataTypes.map((type) => ({ value: type, label: type }))}
-                  value={field.datatype}
-                  onChange={(value) => handleFieldChange(index, "datatype", value || "")}
-                  readOnly={!!field.validate_with}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Checkbox
-                  label=""
-                  checked={field.required}
-                  onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
-                />
-              </Table.Td>
-              {/* <Table.Td>
-                <Select
-                  placeholder="Validar con"
-                  data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
-                  value={field.validate_with}
-                  onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
-                  maxDropdownHeight={200}
-                  searchable
-                  clearable
-                  nothingFoundMessage="La validación no existe"
-                />
-              </Table.Td> */}
-              <Table.Td>
-                <TextInput
-                  placeholder="Comentario"
-                  value={field.comment}
-                  onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Button color="red" onClick={() => removeField(index)}>
-                  Eliminar
-                </Button>
-              </Table.Td>
-            </Table.Tr>
-          ))}
+          {fields.map((field, index) => {
+            console.log('Validator options for field:', validatorOptions);
+            return (
+              <Table.Tr key={index}>
+                <Table.Td>
+                  <TextInput
+                    placeholder="Nombre del campo"
+                    value={field.name}
+                    onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Select
+                    placeholder="Seleccionar"
+                    data={allowedDataTypes.map((type) => ({ value: type, label: type }))}
+                    value={field.datatype}
+                    onChange={(value) => handleFieldChange(index, "datatype", value || "")}
+                    readOnly={!!field.validate_with}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Checkbox
+                    label=""
+                    checked={field.required}
+                    onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Select
+                    placeholder="Validar con"
+                    data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
+                    value={field.validate_with}
+                    onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
+                    maxDropdownHeight={200}
+                    searchable
+                    clearable
+                    nothingFoundMessage="La validación no existe"
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <TextInput
+                    placeholder="Comentario"
+                    value={field.comment}
+                    onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <Button color="red" onClick={() => removeField(index)}>
+                    Eliminar
+                  </Button>
+                </Table.Td>
+              </Table.Tr>
+            );
+          })}
         </Table.Tbody>
       </Table>
       <Group mt="md">
