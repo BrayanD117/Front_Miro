@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Switch, Text, Stack } from "@mantine/core";
+import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Switch, Text, Stack, Select } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -24,7 +24,8 @@ const AdminPeriodsPage = () => {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [opened, setOpened] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
-  const [name, setName] = useState("");
+  const [year, setYear] = useState("");
+  const [semester, setSemester] = useState<"A" | "B" | "">("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [collectStartDate, setCollectStartDate] = useState<Date | null>(null);
@@ -65,7 +66,9 @@ const AdminPeriodsPage = () => {
 
   const handleEdit = (period: Period) => {
     setSelectedPeriod(period);
-    setName(period.name);
+    const [year, semester] = period.name.split(" - ");
+    setYear(year);
+    setSemester(semester as "A" | "B");
     setStartDate(new Date(period.start_date));
     setEndDate(new Date(period.end_date));
     setCollectStartDate(new Date(period.collect_start_date));
@@ -77,7 +80,7 @@ const AdminPeriodsPage = () => {
   };
 
   const handleSave = async () => {
-    if (!name || !startDate || !endDate || !collectStartDate || !collectEndDate || !uploadStartDate || !uploadEndDate) {
+    if (!year || !semester || !startDate || !endDate || !collectStartDate || !collectEndDate || !uploadStartDate || !uploadEndDate) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -85,6 +88,8 @@ const AdminPeriodsPage = () => {
       });
       return;
     }
+
+    const name = `${year} - ${semester}`;
 
     try {
       const periodData = {
@@ -147,7 +152,8 @@ const AdminPeriodsPage = () => {
 
   const handleModalClose = () => {
     setOpened(false);
-    setName("");
+    setYear("");
+    setSemester("");
     setStartDate(null);
     setEndDate(null);
     setCollectStartDate(null);
@@ -234,10 +240,22 @@ const AdminPeriodsPage = () => {
         title={selectedPeriod ? "Editar Periodo" : "Crear Nuevo Periodo"}
       >
         <TextInput
-          label="Nombre"
-          placeholder="Nombre del periodo"
-          value={name}
-          onChange={(event) => setName(event.currentTarget.value)}
+          label="Año"
+          placeholder="Ingresa el año"
+          value={year}
+          onChange={(event) => setYear(event.currentTarget.value.replace(/\D/, ""))}
+          inputMode="numeric"
+          mb="md"
+        />
+        <Select
+          label="Semestre"
+          placeholder="Selecciona el semestre"
+          data={[
+            { value: "A", label: "A" },
+            { value: "B", label: "B" },
+          ]}
+          value={semester}
+          onChange={(value) => setSemester(value as "A" | "B")}
           mb="md"
         />
         <Stack mb="md">
