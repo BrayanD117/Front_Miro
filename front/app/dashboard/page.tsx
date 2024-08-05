@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -110,6 +110,20 @@ const DashboardPage = () => {
     switch (userRole) {
       case "Administrador":
         cards.push(
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-published-templates">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center><IconChecklist size={80}></IconChecklist></Center>
+              <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>Plantillas cargadas</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Administra las plantillas cargadas por los productores.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/published')}>
+                Ir a Plantillas Cargadas
+              </Button>
+            </Card>
+          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-users">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconUserHexagon size={80}></IconUserHexagon></Center>
@@ -156,7 +170,7 @@ const DashboardPage = () => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconFileAnalytics size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
+              <Text ta={"center"} w={500}>Crear | Editar Plantillas</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
               Administra los Plantillas.
@@ -198,17 +212,17 @@ const DashboardPage = () => {
         break;
       case "Responsable":
         cards.push(
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-information">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-published-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconInfoCircle size={80}/></Center>
+              <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Información</Text>
+                  <Text ta={"center"} w={500}>Plantillas cargadas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Gestiona la información enviada por los productores.
+                Administra las plantillas cargadas por los productores.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsable/informacion')}>
-                Ir a Gestión de Información
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/published')}>
+                Ir a Plantillas Cargadas
               </Button>
             </Card>
           </Grid.Col>,

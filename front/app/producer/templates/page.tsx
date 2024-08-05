@@ -235,10 +235,12 @@ const ProducerTemplatesPage = () => {
       (data) => data.send_by.email === session?.user?.email
     );
 
+    console.log(rows);
+
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.name}</Table.Td>
+        <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.period.collect_end_date), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>

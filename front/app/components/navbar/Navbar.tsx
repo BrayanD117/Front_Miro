@@ -101,7 +101,6 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
-          // console.log('Roles received from backend (role change):', response.data.roles);
           setAvailableRoles(response.data.roles);
         })
         .catch((error) => {
@@ -349,6 +348,8 @@ export default function Navbar() {
           placeholder="Elige un rol"
           data={availableRoles}
           value={selectedRole}
+          allowDeselect={false}
+          defaultValue={userRole}
           onChange={(value) => setSelectedRole(value || "")}
         />
         <Group mt="md">
