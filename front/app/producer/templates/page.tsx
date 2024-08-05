@@ -10,7 +10,8 @@ import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import { useDisclosure } from '@mantine/hooks';
-import { format, setGlobalDateI18n } from 'fecha';
+import { format } from 'fecha';
+import DateConfig from "@/app/components/DateConfig";
 
 interface Field {
   name: string;
@@ -55,7 +56,7 @@ const ProducerTemplatesPage = () => {
   const fetchTemplates = async (page: number, search: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates`, {
-        params: { page, limit: 10, search, email: session?.user?.email },
+        params: {email: session?.user?.email, page, limit: 10, search, },
       });
       if (response.data) {
         setTemplates(response.data.templates || []);
@@ -213,24 +214,9 @@ const ProducerTemplatesPage = () => {
     setSelectedTemplateId(publishedTemplateId);
     openUploadModal();
   };
-
-  const spanishLocale: {
-    dayNames: [string, string, string, string, string, string, string];
-    dayNamesShort: [string, string, string, string, string, string, string];
-    monthNames: [string, string, string, string, string, string, string, string, string, string, string, string];
-    monthNamesShort: [string, string, string, string, string, string, string, string, string, string, string, string];
-    amPm: [string, string];
-} = {
-    dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
-    dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
-    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-    monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-    amPm: ['AM', 'PM']
-};
-
-  setGlobalDateI18n(spanishLocale)
   
   const rows = templates.map((publishedTemplate) => {
+    console.log("publishedTemplate.loaded_data: ",publishedTemplate);
     const userHasUploaded = publishedTemplate.loaded_data?.some(
       (data) => data.send_by.email === session?.user?.email
     );
@@ -277,6 +263,7 @@ const ProducerTemplatesPage = () => {
 
   return (
     <Container size="xl">
+      <DateConfig />
       <Title ta="center" mb={"md"}>Plantillas disponibles</Title>
       <TextInput
         placeholder="Buscar plantillas"
