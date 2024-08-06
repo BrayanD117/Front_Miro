@@ -77,50 +77,57 @@ const PublishedTemplatesPage = () => {
   }, [page, search, session]);
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
-    const { template } = publishedTemplate;
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(template.name);
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/dimension/mergedData`, {
+        params: { pubTem_id: publishedTemplate._id, email: session?.user?.email },
+      });
 
-    worksheet.getCell('A1').value = 'Periodo';
-    worksheet.getCell('B1').value = publishedTemplate.period.name;
+      const data = response.data.data;
+      console.log("Data: ", data);
+      const { template } = publishedTemplate;
+      console.log("Template: ", template);
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(template.name);
 
-    worksheet.getCell('A2').value = 'Dimensión';
-    worksheet.getCell('B2').value = template.dimension.name;
-
-    const headerRow = worksheet.addRow(template.fields.map(field => field.name));
-    headerRow.eachCell((cell, colNumber) => {
-      cell.font = { bold: true, color: { argb: 'FFFFFF' } };
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0f1f39' },
-      };
-      cell.border = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-
-      const field = template.fields[colNumber - 1];
-      if (field.comment) {
-        cell.note = {
-          texts: [
-            { font: { size: 12, color: { argb: 'FF0000' } }, text: field.comment }
-          ],
-          editAs: 'oneCells',
+      const headerRow = worksheet.addRow(Object.keys(data[0]));
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0f1f39' },
         };
-      }
-    });
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
 
-    worksheet.columns.forEach(column => {
-      column.width = 20;
-    });
+      worksheet.columns.forEach(column => {
+        column.width = 20;
+      });
 
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: "application/octet-stream" });
-    saveAs(blob, `${template.file_name}.xlsx`);
+      // Add the data to the worksheet starting from the second row
+      data.forEach((row: any) => {
+        worksheet.addRow(Object.values(row));
+        console.log("Row: ", row);
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      saveAs(blob, `${template.file_name}.xlsx`);
+
+    } catch (error) {
+      console.error("Error downloading merged data:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al descargar los datos",
+        color: "red",
+      });
+    }
   };
 
   const rows = templates.map((publishedTemplate) => {
