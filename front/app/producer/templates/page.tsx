@@ -56,7 +56,7 @@ const ProducerTemplatesPage = () => {
   const fetchTemplates = async (page: number, search: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates`, {
-        params: {email: session?.user?.email, page, limit: 10, search, },
+        params: { email: session?.user?.email, page, limit: 10, search },
       });
       if (response.data) {
         setTemplates(response.data.templates || []);
@@ -214,14 +214,11 @@ const ProducerTemplatesPage = () => {
     setSelectedTemplateId(publishedTemplateId);
     openUploadModal();
   };
-  
-  const rows = templates.map((publishedTemplate) => {
-    console.log("publishedTemplate.loaded_data: ",publishedTemplate);
-    const userHasUploaded = publishedTemplate.loaded_data?.some(
-      (data) => data.send_by.email === session?.user?.email
-    );
 
-    console.log(rows);
+  const rows = templates.map((publishedTemplate) => {
+    const userHasUploaded = publishedTemplate.loaded_data?.some(
+      (data) => data.send_by?.email === session?.user?.email
+    );
 
     return (
       <Table.Tr key={publishedTemplate._id}>

@@ -21,34 +21,40 @@ const ErrorLogsPage = () => {
   useEffect(() => {
     const errors = localStorage.getItem('errorDetails');
     if (errors) {
-      setColumnErrors(JSON.parse(errors));
+      const parsedErrors = JSON.parse(errors);
+      setColumnErrors(Array.isArray(parsedErrors) ? parsedErrors : []);
       localStorage.removeItem('errorDetails');
     }
   }, []);
 
   return (
     <Container size="xl">
-      <Title ta="center" order={1} mb="md">¡Ups!</Title>
-      <Title ta="center" order={3} mb="md">Parece que hubo algo mal al cargar la plantilla :(</Title>
+      <Title ta="center" order={1} mb="md">¡Advertencia!</Title>
+      <Title ta="center" order={3} mb="md">Parece que hubo algo mal al cargar la plantilla</Title>
+      <Text c="dimmed" size='xs' ta="center" mt="md"><IconBulb color="#797979" size={20}></IconBulb><br/>Revisa la siguiente información.</Text>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Columna</Table.Th>
             <Table.Th>Fila</Table.Th>
             <Table.Th>Error</Table.Th>
-            {/* <Table.Th>Valor actual</Table.Th> */}
+            <Table.Th>Valor erroneo</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {columnErrors.flatMap((columnError, index) =>
-            columnError.errors.map((detail, subIndex) => (
-              <Table.Tr key={`${index}-${subIndex}`}>
-                <Table.Td>{columnError.column}</Table.Td>
-                <Table.Td>{detail.register + 1}</Table.Td>
-                <Table.Td>{detail.message}</Table.Td>
-                {/* <Table.Td>{detail.value}</Table.Td> */}
-              </Table.Tr>
-            ))
+          {columnErrors.length > 0 ? (
+            columnErrors.flatMap((columnError, index) =>
+              columnError.errors.map((detail, subIndex) => (
+                <Table.Tr key={`${index}-${subIndex}`}>
+                  <Table.Td>{columnError.column}</Table.Td>
+                  <Table.Td>{detail.register + 1}</Table.Td>
+                  <Table.Td>{detail.message}</Table.Td>
+                  <Table.Td>{detail.value}</Table.Td>
+                </Table.Tr>
+              ))
+            )
+          ) : (
+            <Text c="dimmed" ta="center" mt="md">No se encontraron errores.</Text>
           )}
         </Table.Tbody>
       </Table>

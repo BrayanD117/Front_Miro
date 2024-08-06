@@ -6,6 +6,7 @@ import ExcelJS from 'exceljs';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import classes from './DropzoneButton.module.css';
+import { showNotification } from '@mantine/notifications';
 
 interface DropzoneButtonProps {
   pubTemId: string;
@@ -64,8 +65,15 @@ export function DropzoneButton({ pubTemId }: DropzoneButtonProps) {
           console.error('Detalles del error:', error.response?.data);
 
           if (error.response?.data.details) {
-            localStorage.setItem('errorDetails', JSON.stringify(error.response.data.details));
+            const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
+            localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
             window.open('/logs', '_blank');
+          } else {
+            showNotification({
+              title: 'Error',
+              message: 'Hubo un error al procesar los datos. Verifica la plantilla y vuelve a intentarlo.',
+              color: 'red',
+            });
           }
         }
       }
