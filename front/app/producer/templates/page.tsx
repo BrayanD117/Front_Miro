@@ -303,7 +303,7 @@ const ProducerTemplatesPage = () => {
         size="50%"
         centered
       >
-        {selectedTemplateId && <DropzoneButton pubTemId={selectedTemplateId} />}
+        {selectedTemplateId && <DropzoneButton pubTemId={selectedTemplateId} onClose={closeUploadModal} />}
       </Modal>
     </Container>
   );

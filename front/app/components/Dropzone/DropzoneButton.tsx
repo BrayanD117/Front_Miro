@@ -12,9 +12,10 @@ import successAnimation from "../../../public/lottie/success.json";
 
 interface DropzoneButtonProps {
   pubTemId: string;
+  onClose: () => void;
 }
 
-export function DropzoneButton({ pubTemId }: DropzoneButtonProps) {
+export function DropzoneButton({ pubTemId, onClose }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
   const { data: session } = useSession();
@@ -64,7 +65,8 @@ export function DropzoneButton({ pubTemId }: DropzoneButtonProps) {
         setShowSuccessAnimation(true);
         setTimeout(() => {
           setShowSuccessAnimation(false);
-        }, 3000);
+          onClose();
+        }, 3000); // Cerrar modal después de 3 segundos
       } catch (error) {
         console.error('Error enviando los datos al servidor:', error);
 
