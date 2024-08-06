@@ -110,6 +110,20 @@ const DashboardPage = () => {
     switch (userRole) {
       case "Administrador":
         cards.push(
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-templates">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center><IconFileAnalytics size={80}/></Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Crear | Editar Plantillas</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Crea, edita o elimina las Plantillas disponibles.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/templates')}>
+                Ir a Gestión de Plantillas
+              </Button>
+            </Card>
+          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-published-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
@@ -124,17 +138,17 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-users">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconUserHexagon size={80}></IconUserHexagon></Center>
+              <Center><IconCalendarMonth size={80}/></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Gestionar Usuarios</Text>
+                <Text ta={"center"} w={500}>Gestionar Periodos</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Administra los roles y permisos de los usuarios.
+                Administra todos los periodos de la plataforma Miró.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/users')}>
-                Ir a Gestión de Usuarios
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/periods')}>
+                Ir a Gestión de Periodos
               </Button>
             </Card>
           </Grid.Col>,
@@ -166,34 +180,6 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-templates">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconFileAnalytics size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Crear | Editar Plantillas</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Administra los Plantillas.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/templates')}>
-              Ir a Gestión de Plantillas
-            </Button>
-          </Card>
-          </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconCalendarMonth size={80}/></Center>
-              <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Periodos</Text>
-              </Group>
-              <Text ta={"center"} size="sm" color="dimmed">
-                Administra los periodos de Miró.
-              </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/periods')}>
-                Ir a Gestión de Periodos
-              </Button>
-            </Card>
-          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-validations">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconZoomCheck size={80}/></Center>
@@ -201,10 +187,24 @@ const DashboardPage = () => {
                 <Text ta={"center"} w={500}>Gestionar Validaciones</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Administra las validaciones de Miró.
+                Administra todas las validaciones para asignarlas en las plantillas.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/validations')}>
                 Ir a Gestión de Validaciones
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-users">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center><IconUserHexagon size={80}></IconUserHexagon></Center>
+              <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>Gestionar Usuarios</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Administra los roles y permisos de los usuarios.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/users')}>
+                Ir a Gestión de Usuarios
               </Button>
             </Card>
           </Grid.Col>,
@@ -212,6 +212,20 @@ const DashboardPage = () => {
         break;
       case "Responsable":
         cards.push(
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-templates">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center><IconFileAnalytics size={80}/></Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Crea y gestiona las plantillas que llenarán los usuarios.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/templates')}>
+                Ir a Gestión de Plantillas
+              </Button>
+            </Card>
+          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-published-templates">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
@@ -226,17 +240,17 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-templates">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconFileAnalytics size={80}/></Center>
+              <Center><IconReport size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
+                <Text ta={"center"} w={500}>Generar Reportes</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Crea y gestiona las plantillas que llenarán los usuarios.
+                Genera reportes de la dimensión de la que eres responsable.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/templates')}>
-                Ir a Gestión de Plantillas
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/report')}>
+                Ir a Generar Reportes
               </Button>
             </Card>
           </Grid.Col>,
@@ -254,20 +268,6 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconReport size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Generar Reportes</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Genera reportes de la dimensión de la que eres responsable.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/report')}>
-              Ir a Generar Reportes
-            </Button>
-          </Card>
-        </Grid.Col>,
         );
         break;
       case "Productor":
@@ -321,7 +321,7 @@ const DashboardPage = () => {
               <Text ta={"center"} w={500}>Administrar mi Dependencia</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
-              Administra tu dependencia.
+              Administra la dependencia de la cual eres responsable.
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency')}>
               Ir a Gestión de Dependencia
