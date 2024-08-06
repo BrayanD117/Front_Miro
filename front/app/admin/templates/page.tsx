@@ -27,6 +27,10 @@ interface Template {
   fields: Field[];
   active: boolean;
   dimension_id: string;
+  created_by: {
+    email: string;
+    full_name: string;
+  };
 }
 
 interface Period {
@@ -59,6 +63,7 @@ const AdminTemplatesPage = () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all`, {
         params: { page, limit: 10, search },
       });
+      console.log(response);
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
@@ -295,7 +300,7 @@ const AdminTemplatesPage = () => {
   const rows = templates.map((template) => (
     <Table.Tr key={template._id}>
       <Table.Td>{template.name}</Table.Td>
-      <Table.Td>{template.file_name}</Table.Td>
+      <Table.Td>{template.created_by.full_name}</Table.Td>
       <Table.Td>{template.file_description}</Table.Td>
       <Table.Td>{template.active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
@@ -348,7 +353,7 @@ const AdminTemplatesPage = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Nombre del Archivo</Table.Th>
+            <Table.Th>Creado Por</Table.Th>
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
