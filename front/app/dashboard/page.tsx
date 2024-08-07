@@ -295,7 +295,7 @@ const DashboardPage = () => {
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona la información de tus plantillas cargadas.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dashboard')}>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/templates/uploaded')}>
                 Ir a Plantillas Enviadas
               </Button>
             </Card>
