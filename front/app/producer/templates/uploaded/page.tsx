@@ -31,6 +31,18 @@ interface Template {
   active: boolean;
 }
 
+interface FilledFieldData {
+  field_name: string;
+  values: any[];
+}
+
+interface ProducerData {
+  dependency: string;
+  send_by: any;
+  loaded_date: Date;
+  filled_data: FilledFieldData[];
+}
+
 interface PublishedTemplate {
   _id: string;
   name: string;
@@ -41,7 +53,7 @@ interface PublishedTemplate {
   completed: boolean;
   createdAt: string;
   updatedAt: string;
-  loaded_data: any[];
+  loaded_data: ProducerData[];
 }
 
 const ProducerUploadedTemplatesPage = () => {
@@ -115,13 +127,14 @@ const ProducerUploadedTemplatesPage = () => {
     );
 
     if (filledData) {
-      filledData.filled_data.forEach((rowData: any[]) => {
-        const row = worksheet.addRow([]);
-        rowData.forEach((value, index) => {
-          const cell = row.getCell(index + 1);
-          cell.value = value;
+      const numRows = filledData.filled_data[0].values.length;
+      for (let i = 0; i < numRows; i++) {
+        const rowValues = template.fields.map(field => {
+          const fieldData = filledData.filled_data.find(data => data.field_name === field.name);
+          return fieldData ? fieldData.values[i] : null;
         });
-      });
+        worksheet.addRow(rowValues);
+      }
     }
 
     const buffer = await workbook.xlsx.writeBuffer();
