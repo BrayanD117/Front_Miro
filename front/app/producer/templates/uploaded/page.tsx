@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconDownload, IconEdit } from "@tabler/icons-react";
+import { IconDownload, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
@@ -157,6 +157,29 @@ const ProducerUploadedTemplatesPage = () => {
     openUploadModal();
   };
 
+  const handleDeleteClick = async (publishedTemplateId: string) => {
+    try {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/delete`, {
+        params: { pubTem_id: publishedTemplateId, email: session?.user?.email },
+      });
+      if (response.data) {
+        showNotification({
+          title: "Información eliminada",
+          message: "La información ha sido eliminada exitosamente",
+          color: "blue",
+        });
+        fetchTemplates(page, search);
+      }
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      showNotification({
+        title: "Error",
+        message: "Ocurrió un error al eliminar la información",
+        color: "red",
+      });
+    }
+  };
+
   const rows = templates.map((publishedTemplate) => {
     return (
       <Table.Tr key={publishedTemplate._id}>
@@ -186,6 +209,13 @@ const ProducerUploadedTemplatesPage = () => {
             </Tooltip>
           </Center>
         </Table.Td>
+        <Table.Td>
+          <Center>
+            <Button variant="outline" color="red" onClick={() => handleDeleteClick(publishedTemplate._id)}>
+              <IconTrash size={16} />
+            </Button>
+          </Center>
+        </Table.Td>
       </Table.Tr>
     );
   });
@@ -209,6 +239,7 @@ const ProducerUploadedTemplatesPage = () => {
             <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
             <Table.Th><Center>Editar Información</Center></Table.Th>
+            <Table.Th><Center>Eliminar Información</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
