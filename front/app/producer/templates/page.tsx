@@ -67,9 +67,10 @@ const ProducerTemplatesPage = () => {
 
   const fetchTemplates = async (page: number, search: string) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`, {
         params: { email: session?.user?.email, page, limit: 10, search },
       });
+      console.log("Templates fetched:", response.data);
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
@@ -132,21 +133,6 @@ const ProducerTemplatesPage = () => {
       column.width = 20;
     });
 
-    const filledData = publishedTemplate.loaded_data.find(
-      (data: any) => data.send_by?.email === session?.user?.email
-    );
-
-    if (filledData) {
-      const numRows = filledData.filled_data[0].values.length;
-      for (let i = 0; i < numRows; i++) {
-        const rowValues = template.fields.map(field => {
-          const fieldData = filledData.filled_data.find((data: FilledFieldData) => data.field_name === field.name);
-          return fieldData ? fieldData.values[i] : null;
-        });
-        worksheet.addRow(rowValues);
-      }
-    }
-
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
     saveAs(blob, `${template.file_name}.xlsx`);
@@ -158,10 +144,6 @@ const ProducerTemplatesPage = () => {
   };
 
   const rows = templates.map((publishedTemplate) => {
-    const userHasUploaded = publishedTemplate.loaded_data?.some(
-      (data: any) => data.send_by?.email === session?.user?.email
-    );
-
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
@@ -177,23 +159,13 @@ const ProducerTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Tooltip
-              label="Ya enviaste esta plantilla"
-              position="top"
-              withArrow
-              disabled={!userHasUploaded}
+            <Button
+              variant="outline"
+              color="green"
+              onClick={() => handleUploadClick(publishedTemplate._id)}
             >
-              <div>
-                <Button
-                  variant="outline"
-                  color="green"
-                  onClick={() => handleUploadClick(publishedTemplate._id)}
-                  disabled={userHasUploaded}
-                >
-                  <IconUpload size={16} />
-                </Button>
-              </div>
-            </Tooltip>
+              <IconUpload size={16} />
+            </Button>
           </Center>
         </Table.Td>
       </Table.Tr>
