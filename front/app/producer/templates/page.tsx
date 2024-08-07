@@ -31,6 +31,18 @@ interface Template {
   active: boolean;
 }
 
+interface FilledFieldData {
+  field_name: string;
+  values: any[];
+}
+
+interface ProducerData {
+  dependency: string;
+  send_by: any;
+  loaded_date: Date;
+  filled_data: FilledFieldData[];
+}
+
 interface PublishedTemplate {
   _id: string;
   name: string;
@@ -41,7 +53,7 @@ interface PublishedTemplate {
   completed: boolean;
   createdAt: string;
   updatedAt: string;
-  loaded_data: any[];
+  loaded_data: ProducerData[];
 }
 
 const ProducerTemplatesPage = () => {
@@ -72,7 +84,17 @@ const ProducerTemplatesPage = () => {
     if (session?.user?.email) {
       fetchTemplates(page, search);
     }
-  }, [page, search, session]);
+  }, [page, session]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (session?.user?.email) {
+        fetchTemplates(page, search);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
     const { template } = publishedTemplate;
@@ -110,100 +132,20 @@ const ProducerTemplatesPage = () => {
       column.width = 20;
     });
 
-    template.fields.forEach((field, index) => {
-      const columnLetter = String.fromCharCode(65 + index);
-      const maxRows = 1000;
-      for (let i = 2; i <= maxRows; i++) {
-        const cellAddress = `${columnLetter}${i}`;
-        const cell = worksheet.getCell(cellAddress);
-        switch (field.datatype) {
-          case 'Entero':
-            cell.dataValidation = {
-              type: 'whole',
-              operator: 'between',
-              formulae: [1, 9999999999999999999999999999999],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un número entero.'
-            };
-            break;
-          case 'Decimal':
-            cell.dataValidation = {
-              type: 'decimal',
-              operator: 'between',
-              formulae: [0.0, 9999999999999999999999999999999],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un número decimal.'
-            };
-            break;
-          case 'Porcentaje':
-            cell.dataValidation = {
-              type: 'decimal',
-              operator: 'between',
-              formulae: [0.0, 100.0],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un número decimal entre 0.0 y 100.0.'
-            };
-            break;
-          case 'Texto Corto':
-            cell.dataValidation = {
-              type: 'textLength',
-              operator: 'lessThanOrEqual',
-              formulae: [60],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un texto de hasta 60 caracteres.'
-            };
-            break;
-          case 'Texto Largo':
-            cell.dataValidation = {
-              type: 'textLength',
-              operator: 'lessThanOrEqual',
-              formulae: [500],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un texto de hasta 500 caracteres.'
-            };
-            break;
-          case 'True/False':
-            cell.dataValidation = {
-              type: 'list',
-              allowBlank: true,
-              formulae: ['"Si,No"'],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, selecciona Si o No.'
-            };
-            break;
-          case 'Fecha':
-          case 'Fecha Inicial / Fecha Final':
-            cell.dataValidation = {
-              type: 'date',
-              operator: 'between',
-              formulae: [new Date(1900, 0, 1), new Date(9999, 11, 31)],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce una fecha válida en el formato DD/MM/AAAA.'
-            };
-            cell.numFmt = 'DD/MM/YYYY';
-            break;
-          case 'Link':
-            cell.dataValidation = {
-              type: 'textLength',
-              operator: 'greaterThan',
-              formulae: [0],
-              showErrorMessage: true,
-              errorTitle: 'Valor no válido',
-              error: 'Por favor, introduce un enlace válido.'
-            };
-            break;
-          default:
-            break;
-        }
+    const filledData = publishedTemplate.loaded_data.find(
+      (data: any) => data.send_by?.email === session?.user?.email
+    );
+
+    if (filledData) {
+      const numRows = filledData.filled_data[0].values.length;
+      for (let i = 0; i < numRows; i++) {
+        const rowValues = template.fields.map(field => {
+          const fieldData = filledData.filled_data.find((data: FilledFieldData) => data.field_name === field.name);
+          return fieldData ? fieldData.values[i] : null;
+        });
+        worksheet.addRow(rowValues);
       }
-    });
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -217,7 +159,7 @@ const ProducerTemplatesPage = () => {
 
   const rows = templates.map((publishedTemplate) => {
     const userHasUploaded = publishedTemplate.loaded_data?.some(
-      (data) => data.send_by?.email === session?.user?.email
+      (data: any) => data.send_by?.email === session?.user?.email
     );
 
     return (

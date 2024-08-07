@@ -84,7 +84,17 @@ const ProducerUploadedTemplatesPage = () => {
     if (session?.user?.email) {
       fetchTemplates(page, search);
     }
-  }, [page, search, session]);
+  }, [page, session]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (session?.user?.email) {
+        fetchTemplates(page, search);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
     const { template } = publishedTemplate;
@@ -123,14 +133,14 @@ const ProducerUploadedTemplatesPage = () => {
     });
 
     const filledData = publishedTemplate.loaded_data.find(
-      (data) => data.send_by?.email === session?.user?.email
+      (data: any) => data.send_by?.email === session?.user?.email
     );
 
     if (filledData) {
       const numRows = filledData.filled_data[0].values.length;
       for (let i = 0; i < numRows; i++) {
         const rowValues = template.fields.map(field => {
-          const fieldData = filledData.filled_data.find(data => data.field_name === field.name);
+          const fieldData = filledData.filled_data.find((data: FilledFieldData) => data.field_name === field.name);
           return fieldData ? fieldData.values[i] : null;
         });
         worksheet.addRow(rowValues);
