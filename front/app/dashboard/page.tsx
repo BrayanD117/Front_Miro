@@ -128,7 +128,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Plantillas cargadas</Text>
+                  <Text ta={"center"} w={500}>Plantillas Cargadas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Administra las plantillas cargadas por los productores.
@@ -276,7 +276,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconFileAnalytics size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Mis Plantillas</Text>
+                <Text ta={"center"} w={500}>Plantillas Pendientes</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona las plantillas que te asignaron y tienes disponibles.
@@ -290,7 +290,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconFileUpload size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Plantillas enviadas</Text>
+                <Text ta={"center"} w={500}>Plantillas Enviadas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona la información de tus plantillas cargadas.

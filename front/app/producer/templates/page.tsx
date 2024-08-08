@@ -81,6 +81,12 @@ const ProducerTemplatesPage = () => {
     }
   };
 
+  const refreshTemplates = () => {
+    if (session?.user?.email) {
+      fetchTemplates(page, search);
+    }
+  };
+
   useEffect(() => {
     if (session?.user?.email) {
       fetchTemplates(page, search);
@@ -217,7 +223,13 @@ const ProducerTemplatesPage = () => {
         size="50%"
         centered
       >
-        {selectedTemplateId && <DropzoneButton pubTemId={selectedTemplateId} onClose={closeUploadModal} />}
+        {selectedTemplateId && (
+          <DropzoneButton 
+            pubTemId={selectedTemplateId} 
+            onClose={closeUploadModal} 
+            onUploadSuccess={refreshTemplates} 
+          />
+        )}
       </Modal>
     </Container>
   );

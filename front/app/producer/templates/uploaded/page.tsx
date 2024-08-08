@@ -238,7 +238,7 @@ const ProducerUploadedTemplatesPage = () => {
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
-            <Table.Th><Center>Editar Información</Center></Table.Th>
+            <Table.Th><Center>Corregir Información</Center></Table.Th>
             <Table.Th><Center>Eliminar Información</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>

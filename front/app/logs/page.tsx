@@ -38,7 +38,7 @@ const ErrorLogsPage = () => {
             <Table.Th>Columna</Table.Th>
             <Table.Th>Fila</Table.Th>
             <Table.Th>Error</Table.Th>
-            <Table.Th>Valor erroneo</Table.Th>
+            <Table.Th>Valor encontrado</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

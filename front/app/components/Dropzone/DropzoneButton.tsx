@@ -13,9 +13,10 @@ import successAnimation from "../../../public/lottie/success.json";
 interface DropzoneButtonProps {
   pubTemId: string;
   onClose: () => void;
+  onUploadSuccess: () => void;
 }
 
-export function DropzoneButton({ pubTemId, onClose }: DropzoneButtonProps) {
+export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
   const { data: session } = useSession();
@@ -65,6 +66,7 @@ export function DropzoneButton({ pubTemId, onClose }: DropzoneButtonProps) {
         setShowSuccessAnimation(true);
         setTimeout(() => {
           setShowSuccessAnimation(false);
+          onUploadSuccess();
           onClose();
         }, 3000); // Cerrar modal después de 3 segundos
       } catch (error) {

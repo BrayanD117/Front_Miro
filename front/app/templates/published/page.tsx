@@ -151,7 +151,7 @@ const PublishedTemplatesPage = () => {
   return (
     <Container size="xl">
       <DateConfig />
-      <Title ta="center" mb={"md"}>Plantillas Publicadas</Title>
+      <Title ta="center" mb={"md"}>Proceso de Cargue de Plantillas</Title>
       <TextInput
         placeholder="Buscar plantillas"
         value={search}
