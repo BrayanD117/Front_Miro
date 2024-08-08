@@ -181,7 +181,7 @@ const ProducerTemplatesPage = () => {
   return (
     <Container size="xl">
       <DateConfig />
-      <Title ta="center" mb={"md"}>Plantillas Disponibles</Title>
+      <Title ta="center" mb={"md"}>Plantillas Pendientes</Title>
       <TextInput
         placeholder="Buscar plantillas"
         value={search}
