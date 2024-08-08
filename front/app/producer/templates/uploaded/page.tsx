@@ -223,7 +223,7 @@ const ProducerUploadedTemplatesPage = () => {
   return (
     <Container size="xl">
       <DateConfig />
-      <Title ta="center" mb={"md"}>Plantillas cargadas</Title>
+      <Title ta="center" mb={"md"}>Plantillas Cargadas</Title>
       <TextInput
         placeholder="Buscar plantillas"
         value={search}

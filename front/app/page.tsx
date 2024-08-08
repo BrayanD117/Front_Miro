@@ -22,7 +22,7 @@ const HomePage = () => {
   return (
     <Container size={"xl"} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <BackgroundImage
-        src="/assets/canchaVertical.webp"
+        src="/assets/panoramica.png"
         radius={"md"}
         style={{ width: '100%', height: '40vh', backgroundSize: 'cover', backgroundPosition: 'center' }}
       />
