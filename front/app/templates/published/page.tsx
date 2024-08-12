@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Title } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconDownload } from "@tabler/icons-react";
@@ -136,7 +136,19 @@ const PublishedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
-        <Table.Td>{format(new Date(publishedTemplate.period.collect_end_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td><Center>{publishedTemplate.loaded_data.length > 0 ? format(new Date(publishedTemplate.loaded_data[publishedTemplate.loaded_data.length - 1].createdAt), 'MMMM D, YYYY') : 'N/A'}</Center></Table.Td>
+        <Table.Td>
+          <Center>
+            <RingProgress
+              size={40}
+              thickness={8}
+              sections={[
+                {value: (publishedTemplate.loaded_data.length/publishedTemplate.producers_dep_code.length)*100, color: 'teal'},
+              ]}
+            />
+          </Center>
+        </Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
@@ -165,6 +177,8 @@ const PublishedTemplatesPage = () => {
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
+            <Table.Th><Center>Última carga</Center></Table.Th>
+            <Table.Th><Center>Progreso</Center></Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>

@@ -13,8 +13,8 @@ interface Period {
   name: string;
   start_date: string;
   end_date: string;
-  productor_start_date: string;
-  productor_end_date: string;
+  producer_start_date: string;
+  producer_end_date: string;
   responsible_start_date: string;
   responsible_end_date: string;
   is_active: boolean;
@@ -71,8 +71,8 @@ const AdminPeriodsPage = () => {
     setSemester(semester as "A" | "B");
     setStartDate(new Date(period.start_date));
     setEndDate(new Date(period.end_date));
-    setProductorStartDate(new Date(period.productor_start_date));
-    setProductorEndDate(new Date(period.productor_end_date));
+    setProductorStartDate(new Date(period.producer_start_date));
+    setProductorEndDate(new Date(period.producer_end_date));
     setResponsibleStartDate(new Date(period.responsible_start_date));
     setResponsibleEndDate(new Date(period.responsible_end_date));
     setIsActive(period.is_active);
@@ -96,8 +96,8 @@ const AdminPeriodsPage = () => {
         name,
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
-        productor_start_date: productorStartDate.toISOString(),
-        productor_end_date: productorEndDate.toISOString(),
+        producer_start_date: productorStartDate.toISOString(),
+        producer_end_date: productorEndDate.toISOString(),
         responsible_start_date: responsibleStartDate.toISOString(),
         responsible_end_date: responsibleEndDate.toISOString(),
         is_active: isActive,
@@ -169,8 +169,8 @@ const AdminPeriodsPage = () => {
       <Table.Td><Center>{period.name}</Center></Table.Td>
       <Table.Td><Center>{new Date(period.start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
       <Table.Td><Center>{new Date(period.end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.productor_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.productor_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.producer_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.producer_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
       <Table.Td><Center>{new Date(period.responsible_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
       <Table.Td><Center>{new Date(period.responsible_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
       <Table.Td><Center>{period.is_active ? "Activo" : "Inactivo"}</Center></Table.Td>
