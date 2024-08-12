@@ -186,7 +186,7 @@ const ProducerUploadedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
-        <Table.Td>{format(new Date(publishedTemplate.period.collect_end_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>

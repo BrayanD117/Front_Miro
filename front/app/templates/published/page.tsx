@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress, Text, Tooltip, List } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconDownload } from "@tabler/icons-react";
@@ -131,20 +131,49 @@ const PublishedTemplatesPage = () => {
   };
 
   const rows = templates.map((publishedTemplate) => {
+    let progress = {
+      value: (publishedTemplate.loaded_data.length/publishedTemplate.producers_dep_code.length)*100,
+      color: 'green',
+      tooltip: (
+        <List size="sm">
+          Ya cargaron:
+          {
+            publishedTemplate.loaded_data.map((data) => {
+              return <List.Item key={data.dependency}>{data.dependency}</List.Item>
+            })
+          }
+        </List>
+      )
+    }
+
+    let missing = {
+      value: 100-progress.value, 
+      color: 'gray',
+      tooltip: (
+        <List size="sm">
+          Pendientes:
+          {publishedTemplate.producers_dep_code.map((dep) => {
+            if (!publishedTemplate.loaded_data.find((data) => data.dependency === dep)) {
+              return <List.Item key={dep}>{dep}</List.Item>
+            }})}
+        </List>
+      )
+    }
+
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
-        <Table.Td><Center>{publishedTemplate.loaded_data.length > 0 ? format(new Date(publishedTemplate.loaded_data[publishedTemplate.loaded_data.length - 1].createdAt), 'MMMM D, YYYY') : 'N/A'}</Center></Table.Td>
+        <Table.Td><Center>{"Fecha"}</Center></Table.Td>
         <Table.Td>
           <Center>
             <RingProgress
-              size={40}
-              thickness={8}
+              size={35}
+              thickness={6}
               sections={[
-                {value: (publishedTemplate.loaded_data.length/publishedTemplate.producers_dep_code.length)*100, color: 'teal'},
+                progress, missing
               ]}
             />
           </Center>
