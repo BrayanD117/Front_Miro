@@ -321,17 +321,19 @@ const ResponsibleTemplatePage = () => {
         </Center>
       </Table.Td>
       <Table.Td>
-        <Button
-          variant="outline"
-          onClick={() => {
-            console.log("Template selected:", template);
-            setSelectedTemplate(template);
-            open();
-            console.log("Modal open state:", modalOpen);
-          }}
-        >
-          <IconUser size={16} />
-        </Button>
+        <Center>
+          <Button
+            variant="outline"
+            onClick={() => {
+              console.log("Template selected:", template);
+              setSelectedTemplate(template);
+              open();
+              console.log("Modal open state:", modalOpen);
+            }}
+          >
+            <IconUser size={16} />
+          </Button>
+        </Center>
       </Table.Td>
     </Table.Tr>
   ));
@@ -382,7 +384,7 @@ const ResponsibleTemplatePage = () => {
         }}
       >
         <form onSubmit={handleSubmit}>
-          <TextInput label="Nombre de la Publicación" placeholder="Ingrese el nombre de la publicación" value={publicationName} onChange={(e) => setPublicationName(e.currentTarget.value)} />
+          <TextInput label="Nombre de la Publicación" placeholder="Ingrese el nombre de la publicación" value={publicationName || selectedTemplate?.name} onChange={(e) => setPublicationName(e.currentTarget.value)} />
           <TextInput label="Nombre de la Plantilla" value={selectedTemplate?.name || ''} disabled />
           <Select
             label="Período"
