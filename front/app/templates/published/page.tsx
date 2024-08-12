@@ -133,7 +133,7 @@ const PublishedTemplatesPage = () => {
   const rows = templates.map((publishedTemplate) => {
     let progress = {
       value: (publishedTemplate.loaded_data.length/publishedTemplate.producers_dep_code.length)*100,
-      color: 'green',
+      color: 'cyan',
       tooltip: (
         <List size="sm">
           Ya cargaron:
@@ -173,7 +173,7 @@ const PublishedTemplatesPage = () => {
               size={35}
               thickness={6}
               sections={[
-                progress, missing
+                missing, progress
               ]}
             />
           </Center>
