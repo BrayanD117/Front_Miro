@@ -13,10 +13,10 @@ interface Period {
   name: string;
   start_date: string;
   end_date: string;
-  collect_start_date: string;
-  collect_end_date: string;
-  upload_start_date: string;
-  upload_end_date: string;
+  productor_start_date: string;
+  productor_end_date: string;
+  responsible_start_date: string;
+  responsible_end_date: string;
   is_active: boolean;
 }
 
@@ -28,10 +28,10 @@ const AdminPeriodsPage = () => {
   const [semester, setSemester] = useState<"A" | "B" | "">("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [collectStartDate, setCollectStartDate] = useState<Date | null>(null);
-  const [collectEndDate, setCollectEndDate] = useState<Date | null>(null);
-  const [uploadStartDate, setUploadStartDate] = useState<Date | null>(null);
-  const [uploadEndDate, setUploadEndDate] = useState<Date | null>(null);
+  const [productorStartDate, setProductorStartDate] = useState<Date | null>(null);
+  const [productorEndDate, setProductorEndDate] = useState<Date | null>(null);
+  const [responsibleStartDate, setResponsibleStartDate] = useState<Date | null>(null);
+  const [responsibleEndDate, setResponsibleEndDate] = useState<Date | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -71,16 +71,16 @@ const AdminPeriodsPage = () => {
     setSemester(semester as "A" | "B");
     setStartDate(new Date(period.start_date));
     setEndDate(new Date(period.end_date));
-    setCollectStartDate(new Date(period.collect_start_date));
-    setCollectEndDate(new Date(period.collect_end_date));
-    setUploadStartDate(new Date(period.upload_start_date));
-    setUploadEndDate(new Date(period.upload_end_date));
+    setProductorStartDate(new Date(period.productor_start_date));
+    setProductorEndDate(new Date(period.productor_end_date));
+    setResponsibleStartDate(new Date(period.responsible_start_date));
+    setResponsibleEndDate(new Date(period.responsible_end_date));
     setIsActive(period.is_active);
     setOpened(true);
   };
 
   const handleSave = async () => {
-    if (!year || !semester || !startDate || !endDate || !collectStartDate || !collectEndDate || !uploadStartDate || !uploadEndDate) {
+    if (!year || !semester || !startDate || !endDate || !productorStartDate || !productorEndDate || !responsibleStartDate || !responsibleEndDate) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -96,10 +96,10 @@ const AdminPeriodsPage = () => {
         name,
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
-        collect_start_date: collectStartDate.toISOString(),
-        collect_end_date: collectEndDate.toISOString(),
-        upload_start_date: uploadStartDate.toISOString(),
-        upload_end_date: uploadEndDate.toISOString(),
+        productor_start_date: productorStartDate.toISOString(),
+        productor_end_date: productorEndDate.toISOString(),
+        responsible_start_date: responsibleStartDate.toISOString(),
+        responsible_end_date: responsibleEndDate.toISOString(),
         is_active: isActive,
       };
 
@@ -156,24 +156,24 @@ const AdminPeriodsPage = () => {
     setSemester("");
     setStartDate(null);
     setEndDate(null);
-    setCollectStartDate(null);
-    setCollectEndDate(null);
-    setUploadStartDate(null);
-    setUploadEndDate(null);
+    setProductorStartDate(null);
+    setProductorEndDate(null);
+    setResponsibleStartDate(null);
+    setResponsibleEndDate(null);
     setIsActive(false);
     setSelectedPeriod(null);
   };
 
   const rows = periods.map((period) => (
     <Table.Tr key={period._id}>
-      <Table.Td>{period.name}</Table.Td>
-      <Table.Td>{new Date(period.start_date).toLocaleDateString()}</Table.Td>
-      <Table.Td>{new Date(period.end_date).toLocaleDateString()}</Table.Td>
-      <Table.Td>{new Date(period.collect_start_date).toLocaleDateString()}</Table.Td>
-      <Table.Td>{new Date(period.collect_end_date).toLocaleDateString()}</Table.Td>
-      <Table.Td>{new Date(period.upload_start_date).toLocaleDateString()}</Table.Td>
-      <Table.Td>{new Date(period.upload_end_date).toLocaleDateString()}</Table.Td>
-      <Table.Td>{period.is_active ? "Activo" : "Inactivo"}</Table.Td>
+      <Table.Td><Center>{period.name}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.productor_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.productor_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.responsible_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{new Date(period.responsible_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{period.is_active ? "Activo" : "Inactivo"}</Center></Table.Td>
       <Table.Td>
         <Center>
           <Group gap={5}>
@@ -206,14 +206,14 @@ const AdminPeriodsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Inicio Periodo</Table.Th>
-            <Table.Th>Fin Periodo</Table.Th>
-            <Table.Th>Inicio Productor</Table.Th>
-            <Table.Th>Fin Productor</Table.Th>
-            <Table.Th>Inicio Responsable</Table.Th>
-            <Table.Th>Fin Responsable</Table.Th>
-            <Table.Th>Estado</Table.Th>
+            <Table.Th><Center>Nombre</Center></Table.Th>
+            <Table.Th><Center>Inicio Periodo</Center></Table.Th>
+            <Table.Th><Center>Fin Periodo</Center></Table.Th>
+            <Table.Th><Center>Inicio Productor</Center></Table.Th>
+            <Table.Th><Center>Fin Productor</Center></Table.Th>
+            <Table.Th><Center>Inicio Responsable</Center></Table.Th>
+            <Table.Th><Center>Fin Responsable</Center></Table.Th>
+            <Table.Th><Center>Estado</Center></Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -277,39 +277,39 @@ const AdminPeriodsPage = () => {
           />
         </Stack>
         <Stack mb="md">
-          <Text>Inicio de Recolección</Text>
+          <Text>Inicio de Productor</Text>
           <DateInput
             locale="es"
             placeholder="Selecciona una fecha"
-            value={collectStartDate}
-            onChange={setCollectStartDate}
+            value={productorStartDate}
+            onChange={setProductorStartDate}
           />
         </Stack>
         <Stack mb="md">
-          <Text>Fin de Recolección</Text>
+          <Text>Fin de Productor</Text>
           <DateInput
             locale="es"
             placeholder="Selecciona una fecha"
-            value={collectEndDate}
-            onChange={setCollectEndDate}
+            value={productorEndDate}
+            onChange={setProductorEndDate}
           />
         </Stack>
         <Stack mb="md">
-          <Text>Inicio de Subida</Text>
+          <Text>Inicio de Responsable</Text>
           <DateInput
             locale="es"
             placeholder="Selecciona una fecha"
-            value={uploadStartDate}
-            onChange={setUploadStartDate}
+            value={responsibleStartDate}
+            onChange={setResponsibleStartDate}
           />
         </Stack>
         <Stack mb="md">
-          <Text>Fin de Subida</Text>
+          <Text>Fin de Responsable</Text>
           <DateInput
             locale="es"
             placeholder="Selecciona una fecha"
-            value={uploadEndDate}
-            onChange={setUploadEndDate}
+            value={responsibleEndDate}
+            onChange={setResponsibleEndDate}
           />
         </Stack>
         <Switch
