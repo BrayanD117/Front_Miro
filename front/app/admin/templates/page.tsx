@@ -357,7 +357,6 @@ const AdminTemplatesPage = () => {
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
-            <Table.Th><Center>Asignar</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -398,9 +397,6 @@ const AdminTemplatesPage = () => {
             value={selectedProducers}
             onChange={setSelectedProducers}
           />
-          <Group mt="md">
-              <Button type="submit">Asignar</Button>
-          </Group>
         </form>
       </Modal>
     </Container>
