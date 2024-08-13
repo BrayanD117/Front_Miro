@@ -44,6 +44,11 @@ interface ProducerData {
   filled_data: FilledFieldData[];
 }
 
+interface Validator { 
+  name: string;
+  values: any[];
+}
+
 interface PublishedTemplate {
   _id: string;
   name: string;
@@ -55,6 +60,7 @@ interface PublishedTemplate {
   createdAt: string;
   updatedAt: string;
   loaded_data: ProducerData[];
+  validators: Validator[];
 }
 
 const ProducerTemplatesPage = () => {
@@ -106,10 +112,14 @@ const ProducerTemplatesPage = () => {
   }, [search]);
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
-    const { template } = publishedTemplate;
+    const { template, validators } = publishedTemplate;
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(template.name);
 
+    console.log(validators)
+    
+    // Crear la hoja principal basada en el template
+    const worksheet = workbook.addWorksheet(template.name);
+  
     const headerRow = worksheet.addRow(template.fields.map(field => field.name));
     headerRow.eachCell((cell, colNumber) => {
       cell.font = { bold: true, color: { argb: 'FFFFFF' } };
@@ -125,7 +135,7 @@ const ProducerTemplatesPage = () => {
         right: { style: 'thin' },
       };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
-
+  
       const field = template.fields[colNumber - 1];
       if (field.comment) {
         cell.note = {
@@ -136,11 +146,56 @@ const ProducerTemplatesPage = () => {
         };
       }
     });
-
+  
     worksheet.columns.forEach(column => {
       column.width = 20;
     });
-
+  
+    // Crear una hoja por cada validador en el array
+    validators.forEach(validator => {
+      const validatorSheet = workbook.addWorksheet(validator.name);
+  
+      // Agregar encabezados basados en las claves del primer objeto de "values"
+      const header = Object.keys(validator.values[0]);
+      const validatorHeaderRow = validatorSheet.addRow(header);
+  
+      // Estilizar la fila de encabezado
+      validatorHeaderRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0f1f39' },
+        };
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+  
+      // Agregar las filas con los valores
+      validator.values.forEach(value => {
+        const row = validatorSheet.addRow(Object.values(value));
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+      });
+  
+      // Ajustar el ancho de las columnas
+      validatorSheet.columns.forEach(column => {
+        column.width = 20;
+      });
+    });
+  
+    // Generar y descargar el archivo Excel
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
     saveAs(blob, `${template.file_name}.xlsx`);
