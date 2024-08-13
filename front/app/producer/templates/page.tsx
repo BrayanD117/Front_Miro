@@ -78,7 +78,6 @@ const ProducerTemplatesPage = () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`, {
         params: { email: session?.user?.email, page, limit: 10, search },
       });
-      console.log("Templates fetched:", response.data);
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
@@ -114,8 +113,6 @@ const ProducerTemplatesPage = () => {
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
     const { template, validators } = publishedTemplate;
     const workbook = new ExcelJS.Workbook();
-
-    console.log(validators)
     
     // Crear la hoja principal basada en el template
     const worksheet = workbook.addWorksheet(template.name);
