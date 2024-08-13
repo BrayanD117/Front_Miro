@@ -166,7 +166,7 @@ const PublishedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
-        <Table.Td><Center>{"Fecha"}</Center></Table.Td>
+        <Table.Td>{format(new Date(publishedTemplate.updatedAt), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>
           <Center>
             <RingProgress
@@ -180,7 +180,7 @@ const PublishedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
+            <Button variant="outline" onClick={() => handleDownload(publishedTemplate)} disabled={publishedTemplate.loaded_data.length === 0}>
               <IconDownload size={16} />
             </Button>
           </Center>
@@ -206,7 +206,7 @@ const PublishedTemplatesPage = () => {
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
-            <Table.Th><Center>Última carga</Center></Table.Th>
+            <Table.Th>Última Modificación</Table.Th>
             <Table.Th><Center>Progreso</Center></Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
           </Table.Tr>

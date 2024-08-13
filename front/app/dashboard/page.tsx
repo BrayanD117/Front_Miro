@@ -216,7 +216,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconFileAnalytics size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
+                <Text ta={"center"} w={500}>Crear | Asignar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Crea y gestiona las plantillas que llenarán los usuarios.
