@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress, Text, Tooltip, List } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress, Text, Tooltip, List, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconDownload } from "@tabler/icons-react";
+import { IconArrowLeft, IconDownload } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { format } from 'fecha';
 import DateConfig from "@/app/components/DateConfig";
+import { useRouter } from "next/navigation";
+import { useRole } from "@/app/context/RoleContext";
 
 interface Field {
   name: string;
@@ -43,6 +45,8 @@ interface PublishedTemplate {
 }
 
 const PublishedTemplatesPage = () => {
+  const { userRole, setUserRole } = useRole();
+  const router = useRouter();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
   const [page, setPage] = useState(1);
@@ -199,6 +203,15 @@ const PublishedTemplatesPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
+      <Group>
+        <Button 
+          onClick={() => userRole==="Administrador" ? 
+            router.push('/admin/templates/') : router.push('/responsible/templates/')}
+          variant="outline"
+          leftSection={<IconArrowLeft size={16} />}>
+          Ir a Gestión de Plantillas
+        </Button>
+      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
