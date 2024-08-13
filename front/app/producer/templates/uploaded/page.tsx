@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconDownload, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconDownload, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
@@ -12,6 +12,7 @@ import { DropzoneUpdateButton } from "@/app/components/DropzoneUpdate/DropzoneUp
 import { useDisclosure } from '@mantine/hooks';
 import { format } from 'fecha';
 import DateConfig from "@/app/components/DateConfig";
+import { useRouter } from "next/navigation";
 
 interface Field {
   name: string;
@@ -57,6 +58,7 @@ interface PublishedTemplate {
 }
 
 const ProducerUploadedTemplatesPage = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
   const [page, setPage] = useState(1);
@@ -188,8 +190,8 @@ const ProducerUploadedTemplatesPage = () => {
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
-        <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
+        <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>{truncateString(publishedTemplate.loaded_data[0].send_by.full_name)}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.loaded_data[0].loaded_date), 'MMMM D, YYYY')}</Table.Td>
@@ -236,12 +238,20 @@ const ProducerUploadedTemplatesPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
+      <Group>
+        <Button 
+          onClick={() => router.push('/producer/templates')}
+          variant="outline"
+          leftSection={<IconArrowLeft size={16} />}>
+          Ver Plantillas Pendientes
+        </Button>
+      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Periodo</Table.Th>
-            <Table.Th>Nombre</Table.Th>
             <Table.Th>Dimensión</Table.Th>
+            <Table.Th>Nombre</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th>Cargado por</Table.Th>
             <Table.Th>Fecha de Cargue</Table.Th>

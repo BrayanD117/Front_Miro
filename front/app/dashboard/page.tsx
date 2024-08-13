@@ -230,7 +230,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Plantillas cargadas</Text>
+                  <Text ta={"center"} w={500}>Plantillas Cargadas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Administra las plantillas cargadas por los productores.

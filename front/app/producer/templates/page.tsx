@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconDownload, IconUpload } from "@tabler/icons-react";
+import { IconArrowRight, IconDownload, IconUpload } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
@@ -12,6 +12,7 @@ import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import { useDisclosure } from '@mantine/hooks';
 import { format } from 'fecha';
 import DateConfig from "@/app/components/DateConfig";
+import { useRouter } from "next/navigation";
 
 interface Field {
   name: string;
@@ -57,6 +58,7 @@ interface PublishedTemplate {
 }
 
 const ProducerTemplatesPage = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
   const [page, setPage] = useState(1);
@@ -188,6 +190,15 @@ const ProducerTemplatesPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
+      <Group>
+        <Button 
+          ml={"auto"} 
+          onClick={() => router.push('/producer/templates/uploaded')}
+          variant="outline"
+          rightSection={<IconArrowRight size={16} />}>
+          Ver Plantillas Enviadas
+        </Button>
+      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>

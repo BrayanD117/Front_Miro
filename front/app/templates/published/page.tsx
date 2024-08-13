@@ -163,8 +163,8 @@ const PublishedTemplatesPage = () => {
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
-        <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
+        <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.updatedAt), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>
@@ -203,8 +203,8 @@ const PublishedTemplatesPage = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Periodo</Table.Th>
-            <Table.Th>Nombre</Table.Th>
             <Table.Th>Dimensión</Table.Th>
+            <Table.Th>Nombre</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th>Última Modificación</Table.Th>
             <Table.Th><Center>Progreso</Center></Table.Th>
