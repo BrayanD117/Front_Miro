@@ -180,6 +180,10 @@ const ProducerUploadedTemplatesPage = () => {
     }
   };
 
+  const truncateString = (str: string, maxLength: number = 20): string => {
+    return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
+  }
+
   const rows = templates.map((publishedTemplate) => {
     return (
       <Table.Tr key={publishedTemplate._id}>
@@ -187,6 +191,8 @@ const ProducerUploadedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td>{truncateString(publishedTemplate.loaded_data[0].send_by.full_name)}</Table.Td>
+        <Table.Td>{format(new Date(publishedTemplate.loaded_data[0].loaded_date), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
@@ -237,6 +243,8 @@ const ProducerUploadedTemplatesPage = () => {
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
+            <Table.Th>Cargado por</Table.Th>
+            <Table.Th>Fecha de Cargue</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
             <Table.Th><Center>Corregir Información</Center></Table.Th>
             <Table.Th><Center>Eliminar Información</Center></Table.Th>
@@ -257,7 +265,7 @@ const ProducerUploadedTemplatesPage = () => {
 
       <Modal
         opened={uploadModalOpen}
-        onClose={closeUploadModal}
+        onClose={() => {closeUploadModal(); fetchTemplates(page, search);}}
         title="Editar Información"
         overlayProps={{
           backgroundOpacity: 0.55,
