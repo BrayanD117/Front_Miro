@@ -249,7 +249,7 @@ export default function Navbar() {
                   {/* Menu Dropdown */}
                   <Menu.Dropdown>
                     <Menu.Divider />
-                    <Menu.Label>Zona Peligrosa</Menu.Label>
+                    <Menu.Label></Menu.Label>
                     <Menu.Item
                       color="red"
                       leftSection={
