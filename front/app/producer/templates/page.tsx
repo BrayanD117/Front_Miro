@@ -8,11 +8,13 @@ import { IconArrowRight, IconDownload, IconUpload } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
-import { DropzoneButton } from "@/app/components/Dropzone/DropzoneButton";
 import { useDisclosure } from '@mantine/hooks';
 import { format } from 'fecha';
 import DateConfig from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
+import dynamic from 'next/dynamic';
+
+const DropzoneButton = dynamic(() => import('@/app/components/Dropzone/DropzoneButton').then((mod) => mod.DropzoneButton), { ssr: false });
 
 interface Field {
   name: string;

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, Group, Button, rem, useMantineTheme } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
@@ -77,8 +77,11 @@ export function DropzoneUpdateButton({ pubTemId, onClose, edit = false }: Dropzo
 
           if (error.response?.data.details) {
             const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
-            localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
-            window.open('/logs', '_blank');
+            useEffect(() => {
+              localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
+              window.open('/logs', '_blank');
+            }, []);
+          
           } else {
             showNotification({
               title: 'Error',

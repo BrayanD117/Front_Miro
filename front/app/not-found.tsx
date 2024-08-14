@@ -10,13 +10,29 @@ import {
   Paper,
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import Lottie from "lottie-react";
 import animationData from "../public/lottie/404.json";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+type LottieProps = {
+  animationData: object;
+  loop: boolean;
+  className: string;
+};
+
+const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
+  ssr: false,
+}) as React.FC<LottieProps>;
 
 const NotFound = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleReturnHome = () => {
     if (status === "authenticated") {
@@ -45,11 +61,13 @@ const NotFound = () => {
             justifyContent: "center",
           }}
         >
-          <Lottie
-            animationData={animationData}
-            className="flex justify-center items-center"
-            loop={false}
-          />
+          { isClient &&
+            <Lottie
+              animationData={animationData}
+              className="flex justify-center items-center"
+              loop={false}
+            />
+          }
         </Grid.Col>
         <Grid.Col
           span={{ base: 12, md: 6 }}
