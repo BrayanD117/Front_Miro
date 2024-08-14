@@ -135,6 +135,8 @@ const PublishedTemplatesPage = () => {
   };
 
   const rows = templates.map((publishedTemplate) => {
+    console.log("Published Template: ", publishedTemplate.loaded_data);
+    console.log("Producers: ", publishedTemplate.producers_dep_code);
     let progress = {
       value: (publishedTemplate.loaded_data.length/publishedTemplate.producers_dep_code.length)*100,
       color: 'cyan',
