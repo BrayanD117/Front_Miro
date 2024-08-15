@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - ci/versioning-test
   workflow_dispatch:
 
 jobs:
@@ -37,6 +38,7 @@ jobs:
     - name: Test internal connectivity with SSH
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
+        
     - name: Clone repository on remote server
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
@@ -46,14 +48,22 @@ jobs:
           else
             git pull
           fi'
+
     - name: Build project on remote server
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
           cd ~/MIRO/Front_Miro/front;
           npm install;
           npm run build'
+
+    - name: Run Semantic Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: npx semantic-release
+
     - name: Restart PM2
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'cd ~/MIRO/Front_Miro/front && pm2 restart Front_Miro'
+        
     - name: Post Checkout repository
       run: echo "Deployment complete"
