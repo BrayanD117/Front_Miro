@@ -64,6 +64,7 @@ jobs:
           npm run build'
 
     - name: Run Semantic Release
+      working-directory: ./front    
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npx semantic-release
