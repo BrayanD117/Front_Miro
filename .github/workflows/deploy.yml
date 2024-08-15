@@ -4,11 +4,7 @@ on:
   push:
     branches:
       - main
-      - ci/versioning-test
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   deploy:
@@ -17,14 +13,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20.14.0'
-
-    - name: Install dependencies
-      run: npm install
 
     - name: Install OpenConnect
       run: sudo apt-get install -y openconnect
@@ -49,28 +37,23 @@ jobs:
     - name: Test internal connectivity with SSH
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
-
-    - name: Run Semantic Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: npx semantic-release
-
-    - name: Update Repository on Remote Server
+    - name: Clone repository on remote server
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+          cd ~/MIRO/Front_Miro || exit;
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/BrayanD117/Front_Miro.git
+          else
+            git pull
+          fi'
+    - name: Build project on remote server
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
           cd ~/MIRO/Front_Miro/front;
-          git pull;
           npm install;
-          npm run build;
-          exit;'
-
-    - name: Restart PM2 with new version
+          npm run build'
+    - name: Restart PM2
       run: |
-        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
-          cd ~/MIRO/Front_Miro/front;
-          pm2 stop all;
-          pm2 startOrRestart ecosystem.config.js --env production;
-          exit;'
-
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'cd ~/MIRO/Front_Miro/front && pm2 restart Front_Miro'
     - name: Post Checkout repository
       run: echo "Deployment complete"
