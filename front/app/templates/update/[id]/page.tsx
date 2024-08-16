@@ -6,6 +6,7 @@ import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, L
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
+import { useRole } from "@/app/context/RoleContext";
 
 interface Field {
   name: string;
@@ -52,7 +53,7 @@ const UpdateTemplatePage = () => {
   const router = useRouter();
   const { id } = useParams();
   const { data: session } = useSession();
-  const userRole = localStorage.getItem('userRole');
+  const { userRole } = useRole();
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -78,7 +79,7 @@ const UpdateTemplatePage = () => {
     };
 
     const fetchDimensions = async () => {
-      const userEmail = session?.user?.email || localStorage.getItem('userEmail');
+      const userEmail = session?.user?.email;
       try {
         if (userRole === 'Administrador') {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions`);
@@ -128,7 +129,6 @@ const UpdateTemplatePage = () => {
 
     if (field === 'validate_with') {
       const selectedOption = validatorOptions.find(option => option.name === value);
-      console.log(selectedOption);
 
       if (selectedOption) {
         if (selectedOption.type === 'Número') {

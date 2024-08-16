@@ -6,6 +6,7 @@ import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select } 
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
+import { useRole } from "@/app/context/RoleContext";
 
 interface Field {
   name: string;
@@ -54,12 +55,12 @@ const CreateTemplatePage = () => {
   );
   const router = useRouter();
   const { data: session } = useSession();
+  const { userRole } = useRole(); 
 
   useEffect(() => {
     const fetchDimensions = async () => {
-      const userRole = localStorage.getItem("userRole");
-      const userEmail =
-        session?.user?.email || localStorage.getItem("userEmail");
+      const userEmail = session?.user?.email;
+
       try {
         if (userRole === "Administrador") {
           const response = await axios.get(
@@ -109,7 +110,7 @@ const CreateTemplatePage = () => {
       fetchDimensions();
       fetchValidatorOptions();
     }
-  }, [session]);
+  }, [session, userRole]);
 
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
@@ -168,7 +169,7 @@ const CreateTemplatePage = () => {
       return;
     }
 
-    const userEmail = session?.user?.email || localStorage.getItem("userEmail");
+    const userEmail = session?.user?.email;
 
     if (!userEmail) {
       showNotification({
@@ -222,8 +223,6 @@ const CreateTemplatePage = () => {
       }
     }
   };
-
-  const userRole = localStorage.getItem("userRole");
 
   return (
     <Container size="xl">
