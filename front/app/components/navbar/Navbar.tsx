@@ -63,7 +63,6 @@ const linksByRole: Record<Roles, LinkItem[]> = {
 
 const home = [{ link: "/dashboard", label: "Inicio" }];
 
-
 export default function Navbar() {
   const { data: session } = useSession();
   const [opened, { toggle }] = useDisclosure(false);
@@ -74,7 +73,9 @@ export default function Navbar() {
   const { userRole, setUserRole } = useRole();
   const [menuOpened, setMenuOpened] = useState(false);
 
-  const titles = session?[{ link: "/dashboard", label: "MIRÓ" }]:[{ link: "/", label: "MIRÓ" }];
+  const titles = session
+    ? [{ link: "/dashboard", label: "MIRÓ" }]
+    : [{ link: "/", label: "MIRÓ" }];
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -119,7 +120,6 @@ export default function Navbar() {
           activeRole: selectedRole,
         }
       );
-      // console.log("Active role updated:", response.data);
       setUserRole(selectedRole as Roles);
       setChangeRoleModalOpened(false);
       showNotification({
@@ -232,7 +232,6 @@ export default function Navbar() {
                       Gestionar
                     </Button>
                   </Menu.Target>
-                  {/* Menu Dropdown */}
                   <Menu.Dropdown>{actionItems}</Menu.Dropdown>
                 </Menu>
                 <ThemeChanger />
