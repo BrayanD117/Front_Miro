@@ -1,5 +1,5 @@
-'use client'
-import { createContext, useState, useContext, ReactNode, useEffect } from "react";
+'use client';
+import { createContext, useState, useContext, ReactNode } from "react";
 
 type RoleContextType = {
   userRole: string;
@@ -10,21 +10,11 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 type RoleProviderProps = {
   children: ReactNode;
+  initialRole: string;
 };
 
-export const RoleProvider = ({ children }: RoleProviderProps) => {
-  const [userRole, setUserRole] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem('userRole') || 'Usuario';
-    }
-    return 'Usuario';
-  });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem('userRole', userRole);
-    }
-  }, [userRole]);
+export const RoleProvider = ({ children, initialRole }: RoleProviderProps) => {
+  const [userRole, setUserRole] = useState<string>(initialRole);
 
   return (
     <RoleContext.Provider value={{ userRole, setUserRole }}>

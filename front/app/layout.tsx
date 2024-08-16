@@ -28,7 +28,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body>
         <Providers>
           <MantineProvider>
-            <RoleProvider>
+            <RoleProvider initialRole="Usuario">
               <AppInitializer>
                 <Notifications />
                 <ClientLayout>{children}</ClientLayout>
