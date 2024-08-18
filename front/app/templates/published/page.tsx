@@ -31,6 +31,11 @@ interface Template {
   active: boolean;
 }
 
+interface Validator { 
+  name: string;
+  values: any[];
+}
+
 interface PublishedTemplate {
   _id: string;
   name: string;
@@ -42,6 +47,7 @@ interface PublishedTemplate {
   createdAt: string;
   updatedAt: string;
   loaded_data: any[];
+  validators: Validator[];
 }
 
 const PublishedTemplatesPage = () => {
@@ -80,7 +86,7 @@ const PublishedTemplatesPage = () => {
     }
   }, [page, search, session]);
 
-  const handleDownload = async (publishedTemplate: PublishedTemplate) => {
+  const handleDownload = async (publishedTemplate: PublishedTemplate, validators = publishedTemplate.validators) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/dimension/mergedData`, {
         params: { pubTem_id: publishedTemplate._id, email: session?.user?.email },
@@ -118,6 +124,50 @@ const PublishedTemplatesPage = () => {
       data.forEach((row: any) => {
         worksheet.addRow(Object.values(row));
         console.log("Row: ", row);
+      });
+
+       // Crear una hoja por cada validador en el array
+      validators.forEach(validator => {
+        const validatorSheet = workbook.addWorksheet(validator.name);
+    
+        // Agregar encabezados basados en las claves del primer objeto de "values"
+        const header = Object.keys(validator.values[0]);
+        const validatorHeaderRow = validatorSheet.addRow(header);
+    
+        // Estilizar la fila de encabezado
+        validatorHeaderRow.eachCell((cell) => {
+          cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '0f1f39' },
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        });
+    
+        // Agregar las filas con los valores
+        validator.values.forEach((value: any) => {
+          const row = validatorSheet.addRow(Object.values(value));
+          row.eachCell((cell) => {
+            cell.border = {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thin' },
+            };
+          });
+        });
+    
+        // Ajustar el ancho de las columnas
+        validatorSheet.columns.forEach(column => {
+          column.width = 20;
+        });
       });
 
       const buffer = await workbook.xlsx.writeBuffer();
