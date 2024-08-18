@@ -78,7 +78,6 @@ export default function Navbar() {
 
   useEffect(() => {
     if (session?.user?.email) {
-      console.log(session.user.image);
       axios
         .get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
           params: { email: session.user.email },
@@ -239,7 +238,7 @@ export default function Navbar() {
                   <Menu.Target>
                     <Avatar
                       component="a"
-                      src={session.user.image}
+                      src={session?.user?.image || undefined}
                       color="blue"
                       radius="xl"
                       className={classes.avatarClickable}
