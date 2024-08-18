@@ -190,7 +190,7 @@ const AdminDimensionsPage = () => {
         {dimension.producers.length > 2 && (
           <>
             , ...
-            <Button variant="subtle" onClick={() => handleShowProducers(dimension)}>
+            <Button variant="subtle" ml={'5px'} onClick={() => handleShowProducers(dimension)}>
               <IconEye size={16} />
             </Button>
           </>
