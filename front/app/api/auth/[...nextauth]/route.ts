@@ -17,15 +17,15 @@ const options: NextAuthOptions = {
     maxAge: 3600 * 8,
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
           params: { email: user.email }
         });
         const existingUser = response.data;
 
-        if (existingUser && existingUser.isActive === false) {
-          return false; // No permitir el acceso si el usuario está inactivo
+        if (!existingUser || existingUser.isActive === false) {
+          return false;
         }
 
         return true;
@@ -37,7 +37,7 @@ const options: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       return '/dashboard';
     },
-    async session({ session, token }) {
+    async session({ session }) {
       try {
         if (session.user?.email) {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
