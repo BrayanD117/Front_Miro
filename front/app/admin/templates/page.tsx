@@ -19,6 +19,11 @@ interface Field {
   comment?: string;
 }
 
+interface Validator { 
+  name: string;
+  values: any[];
+}
+
 interface Template {
   _id: string;
   name: string;
@@ -31,6 +36,7 @@ interface Template {
     email: string;
     full_name: string;
   };
+  validators: Validator[]
 }
 
 interface Period {
@@ -125,7 +131,7 @@ const AdminTemplatesPage = () => {
     }
   };
 
-  const handleDownload = async (template: Template) => {
+  const handleDownload = async (template: Template, validators = template.validators) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(template.name);
 
@@ -253,6 +259,50 @@ const AdminTemplatesPage = () => {
             break;
         }
       }
+    });
+
+     // Crear una hoja por cada validador en el array
+     validators.forEach(validator => {
+      const validatorSheet = workbook.addWorksheet(validator.name);
+  
+      // Agregar encabezados basados en las claves del primer objeto de "values"
+      const header = Object.keys(validator.values[0]);
+      const validatorHeaderRow = validatorSheet.addRow(header);
+  
+      // Estilizar la fila de encabezado
+      validatorHeaderRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0f1f39' },
+        };
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+  
+      // Agregar las filas con los valores
+      validator.values.forEach((value: any) => {
+        const row = validatorSheet.addRow(Object.values(value));
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+      });
+  
+      // Ajustar el ancho de las columnas
+      validatorSheet.columns.forEach(column => {
+        column.width = 20;
+      });
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
