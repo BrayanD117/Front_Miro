@@ -32,7 +32,6 @@ export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneB
 
       const data: Record<string, any>[] = [];
 
-      // Obtener la primera hoja
       const sheet = workbook.worksheets[0];
       if (sheet) {
         let headers: string[] = [];
@@ -64,13 +63,20 @@ export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneB
           data: data,
         });
 
-        console.log("Respuesta del servidor:", response.data);
+        const recordsLoaded = response.data.recordsLoaded;
+
         setShowSuccessAnimation(true);
+        showNotification({
+          title: 'Carga exitosa',
+          message: `Se han cargado ${recordsLoaded} registros correctamente.`,
+          color: 'teal',
+        });
+
         setTimeout(() => {
           setShowSuccessAnimation(false);
           onUploadSuccess();
           onClose();
-        }, 3000); // Cerrar modal después de 3 segundos
+        }, 3000);
       } catch (error) {
         console.error('Error enviando los datos al servidor:', error);
 
@@ -97,7 +103,6 @@ export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneB
 
     reader.readAsArrayBuffer(file);
 };
-
 
   return (
     <div className={classes.wrapper}>

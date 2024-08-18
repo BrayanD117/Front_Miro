@@ -287,6 +287,7 @@ const ProducerTemplatesPage = () => {
         }}
         size="50%"
         centered
+        withCloseButton={false}
       >
         {selectedTemplateId && (
           <DropzoneButton 
