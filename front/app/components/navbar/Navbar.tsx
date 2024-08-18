@@ -280,6 +280,7 @@ export default function Navbar() {
             title="Menú"
             padding="md"
             size="md"
+            closeOnEscape={false}
           >
             <Stack align="stretch" justify="center" gap="md">
               {itemsDrawer}
