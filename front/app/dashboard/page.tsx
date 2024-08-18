@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -135,6 +135,20 @@ const DashboardPage = () => {
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/published')}>
                 Ir a Plantillas Cargadas
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-templates">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center><IconClipboardData size={80}/></Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Gestionar Reportes</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Genera reportes de las plantillas cargadas.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports')}>
+                Ir a Gestión de reportes
               </Button>
             </Card>
           </Grid.Col>,
