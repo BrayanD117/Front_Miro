@@ -63,6 +63,15 @@ export function DropzoneUpdateButton({ pubTemId, onClose, edit = false }: Dropzo
           edit,
         });
 
+        const recordsLoaded = response.data.recordsLoaded;
+
+        setShowSuccessAnimation(true);
+        showNotification({
+          title: 'Carga exitosa',
+          message: `Se han cargado ${recordsLoaded} registros correctamente.`,
+          color: 'teal',
+        });
+
         console.log("Respuesta del servidor:", response.data);
         setShowSuccessAnimation(true);
         setTimeout(() => {
@@ -99,7 +108,9 @@ export function DropzoneUpdateButton({ pubTemId, onClose, edit = false }: Dropzo
   return (
     <div className={classes.wrapper}>
       {showSuccessAnimation ? (
-        <Lottie animationData={successAnimation} loop={false} />
+        <div className={classes.animationWrapper}>
+          <Lottie animationData={successAnimation} loop={false} />
+        </div>
       ) : (
         <>
           <Dropzone
