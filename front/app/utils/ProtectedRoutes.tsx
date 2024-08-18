@@ -13,6 +13,10 @@ const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
   const [isVerifying, setIsVerifying] = useState(true);
 
   useEffect(() => {
+    if (!userRole) {
+      return;
+    }
+
     const adminRoutes = /^\/admin/;
     const responsibleRoutes = /^\/responsible/;
     const producerRoutes = /^\/producer/;
@@ -35,7 +39,7 @@ const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
     }
   }, [userRole, pathname, router]);
 
-  if (isVerifying) {
+  if (isVerifying || !userRole) {
     return <LoadingScreen />;
   }
 

@@ -1,12 +1,14 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRole } from './RoleContext';
 import axios from 'axios';
+import LoadingScreen from '../components/LoadingScreen';
 
 export const AppInitializer = ({ children }: { children: React.ReactNode }) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { setUserRole } = useRole();
+  const [isRoleLoaded, setIsRoleLoaded] = useState(false);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -20,12 +22,22 @@ export const AppInitializer = ({ children }: { children: React.ReactNode }) => {
           }
         } catch (error) {
           console.error("Error fetching user role from database:", error);
+        } finally {
+          setIsRoleLoaded(true);
         }
+      } else {
+        setIsRoleLoaded(true);
       }
     };
 
-    fetchUserRole();
-  }, [session, setUserRole]);
+    if (status !== "loading") {
+      fetchUserRole();
+    }
+  }, [session, setUserRole, status]);
+
+  if (!isRoleLoaded) {
+    return <LoadingScreen />;
+  }
 
   return <>{children}</>;
 };
