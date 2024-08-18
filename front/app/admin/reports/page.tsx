@@ -46,12 +46,13 @@ const AdminReportsPage = () => {
   const fetchReports = async (page: number, search: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reports/all`, {
-        params: { page, limit: 10, search, email: session?.user?.email }, // Añadir el email como parámetro
+        params: { page, limit: 10, search, email: session?.user?.email },
       });
       if (response.data) {
         setReports(response.data.reports);
         setTotalPages(response.data.totalPages || 1);
       }
+      console.log("Reports fetched:", response.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
       setReports([]);
@@ -60,19 +61,19 @@ const AdminReportsPage = () => {
 
   useEffect(() => {
     if (session?.user?.email) {
-      fetchReports(page, search); // Asegúrate de que el email está disponible antes de hacer la solicitud
+      fetchReports(page, search);
     }
   }, [page, session?.user?.email]);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (session?.user?.email) {
+    if (session?.user?.email) {
+      const delayDebounceFn = setTimeout(() => {
         fetchReports(page, search);
-      }
-    }, 500);
+      }, 500);
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [search, session?.user?.email]);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [search, session?.user?.email, page]);
 
   const handleCreateOrEdit = async () => {
     if (!name || !reportExample || requiredFiles.length === 0) {
@@ -89,7 +90,7 @@ const AdminReportsPage = () => {
     formData.append("description", description);
     formData.append("required_files", JSON.stringify(requiredFiles));
     formData.append("report_example", reportExample);
-    formData.append("email", session?.user?.email || ""); // Utiliza el email del usuario autenticado
+    formData.append("email", session?.user?.email || "");
 
     try {
       if (selectedReport) {
