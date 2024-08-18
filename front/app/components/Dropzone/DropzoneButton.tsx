@@ -107,7 +107,9 @@ export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneB
   return (
     <div className={classes.wrapper}>
       {showSuccessAnimation ? (
-        <Lottie animationData={successAnimation} loop={false} />
+        <div className={classes.animationWrapper}>
+          <Lottie animationData={successAnimation} loop={false} />
+        </div>
       ) : (
         <>
           <Dropzone

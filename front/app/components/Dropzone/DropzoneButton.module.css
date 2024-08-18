@@ -3,7 +3,14 @@
     margin-bottom: rem(30px);
     cursor: pointer;
   }
-  
+
+  .animationWrapper {
+    max-width: 500px;
+    max-height: 500px;
+    margin: 0 auto;
+    padding: 0%;
+  }
+
   .dropzone {
     border-width: 1px;
     padding: 1rem;

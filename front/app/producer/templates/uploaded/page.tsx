@@ -338,6 +338,7 @@ const ProducerUploadedTemplatesPage = () => {
         }}
         size="50%"
         centered
+        withCloseButton={false}
       >
         {selectedTemplateId && <DropzoneUpdateButton pubTemId={selectedTemplateId} onClose={closeUploadModal} edit />}
       </Modal>
