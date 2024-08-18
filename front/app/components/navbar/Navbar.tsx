@@ -13,11 +13,10 @@ import {
   Drawer,
   Stack,
   Divider,
-  Select,
   Badge,
+  Avatar,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Avatar } from "@mantine/core";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -67,11 +66,11 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [opened, { toggle }] = useDisclosure(false);
   const [modalOpened, setModalOpened] = useState(false);
-  const [changeRoleModalOpened, setChangeRoleModalOpened] = useState(false);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const { userRole, setUserRole } = useRole();
-  const [menuOpened, setMenuOpened] = useState(false);
+  const [roleMenuOpened, setRoleMenuOpened] = useState(false);
+  const [manageMenuOpened, setManageMenuOpened] = useState(false);
 
   const titles = session
     ? [{ link: "/dashboard", label: "MIRÓ" }]
@@ -79,6 +78,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (session?.user?.email) {
+      console.log(session.user.image);
       axios
         .get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
           params: { email: session.user.email },
@@ -95,36 +95,20 @@ export default function Navbar() {
     }
   }, [session]);
 
-  useEffect(() => {
-    if (changeRoleModalOpened && session?.user?.email) {
-      axios
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/users/roles`, {
-          params: { email: session.user.email },
-        })
-        .then((response) => {
-          setAvailableRoles(response.data.roles);
-        })
-        .catch((error) => {
-          console.error("Error fetching roles:", error);
-        });
-    }
-  }, [changeRoleModalOpened]);
-
-  const handleRoleChange = async () => {
+  const handleRoleChange = async (role: string) => {
     if (!session?.user?.email) return;
     try {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/users/updateActiveRole`,
         {
           email: session.user.email,
-          activeRole: selectedRole,
+          activeRole: role,
         }
       );
-      setUserRole(selectedRole as Roles);
-      setChangeRoleModalOpened(false);
+      setUserRole(role as Roles);
       showNotification({
         title: "Rol actualizado",
-        message: `Tu nuevo rol es ${selectedRole}`,
+        message: `Tu nuevo rol es ${role}`,
         autoClose: 5000,
         color: "teal",
       });
@@ -187,7 +171,7 @@ export default function Navbar() {
           fullWidth
           color="blue"
           variant="light"
-          onClick={() => setMenuOpened(false)}
+          onClick={() => setManageMenuOpened(false)}
         >
           {link.label}
         </Button>
@@ -208,20 +192,36 @@ export default function Navbar() {
                   {userRole}
                 </Badge>
                 {homeLink}
-                <Button
-                  variant="light"
-                  size="sm"
-                  style={{ fontWeight: 500 }}
-                  onClick={() => setChangeRoleModalOpened(true)}
-                >
-                  Cambiar rol
-                </Button>
                 <Menu
                   shadow="md"
                   width={200}
-                  opened={menuOpened}
-                  onClose={() => setMenuOpened(false)}
-                  onOpen={() => setMenuOpened(true)}
+                  position="bottom-end"
+                  opened={roleMenuOpened}
+                  onClose={() => setRoleMenuOpened(false)}
+                  onOpen={() => setRoleMenuOpened(true)}
+                >
+                  <Menu.Target>
+                    <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
+                      Cambiar rol
+                    </Button>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    {availableRoles.map((role) => (
+                      <Menu.Item
+                        key={role}
+                        onClick={() => handleRoleChange(role)}
+                      >
+                        {role}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Dropdown>
+                </Menu>
+                <Menu
+                  shadow="md"
+                  width={200}
+                  opened={manageMenuOpened}
+                  onClose={() => setManageMenuOpened(false)}
+                  onOpen={() => setManageMenuOpened(true)}
                 >
                   <Menu.Target>
                     <Button
@@ -328,39 +328,6 @@ export default function Navbar() {
             }}
           >
             Cerrar Sesión
-          </Button>
-        </Group>
-      </Modal>
-
-      {/* Roles modal */}
-
-      <Modal
-        opened={changeRoleModalOpened}
-        onClose={() => setChangeRoleModalOpened(false)}
-        title="Cambiar Rol"
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
-      >
-        <Select
-          label="Selecciona un nuevo rol"
-          placeholder="Elige un rol"
-          data={availableRoles}
-          value={selectedRole}
-          allowDeselect={false}
-          defaultValue={userRole}
-          onChange={(value) => setSelectedRole(value || "")}
-        />
-        <Group mt="md">
-          <Button
-            variant="default"
-            onClick={() => setChangeRoleModalOpened(false)}
-          >
-            Cancelar
-          </Button>
-          <Button color="blue" onClick={handleRoleChange}>
-            Cambiar Rol
           </Button>
         </Group>
       </Modal>
