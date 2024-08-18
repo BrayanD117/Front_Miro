@@ -32,7 +32,8 @@ export function DropzoneUpdateButton({ pubTemId, onClose, edit = false }: Dropzo
 
       const data: Record<string, any>[] = [];
 
-      workbook.eachSheet((sheet) => {
+      const sheet = workbook.worksheets[0];
+      if (sheet) {
         let headers: string[] = [];
 
         sheet.eachRow((row, rowNumber) => {
@@ -49,7 +50,7 @@ export function DropzoneUpdateButton({ pubTemId, onClose, edit = false }: Dropzo
             data.push(rowData);
           }
         });
-      });
+      }
 
       try {
         if (!session?.user?.email) {
