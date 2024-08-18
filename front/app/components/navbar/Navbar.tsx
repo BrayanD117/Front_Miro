@@ -83,7 +83,8 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
-          setAvailableRoles(response.data.roles);
+          const roles = response.data.roles.filter((role: string) => role !== "Usuario");
+          setAvailableRoles(roles);
           if (response.data.activeRole) {
             setUserRole(response.data.activeRole as Roles);
           }
