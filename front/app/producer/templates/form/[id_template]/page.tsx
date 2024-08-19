@@ -147,6 +147,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             withAsterisk={field.required}
             mb="md"
             locale="es"
+            maxDate={new Date()}
           />
         );
       default:
