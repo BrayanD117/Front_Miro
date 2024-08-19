@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, TextInput, Title, Text } from "@mantine/core";
-import LoadingScreen from "@/app/components/LoadingScreen";
+import { Container, Button, Group, TextInput, Title, Text, Select, NumberInput } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
+import 'dayjs/locale/es';
 
 interface Field {
   name: string;
@@ -59,12 +60,10 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   }, [id_template]);
 
   const handleChange = (fieldName: string, value: any) => {
-    console.log("Changing field:", fieldName, "Value:", value);
     setFormValues((prev) => ({ ...prev, [fieldName]: value }));
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting form with values:", formValues);
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/submit`, {
         templateId: id_template,
@@ -78,7 +77,6 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       });
       router.push('/producer/templates/uploaded');
     } catch (error) {
-      console.error("Error submitting data:", error);
       showNotification({
         title: "Error",
         message: "No se pudo enviar la información",
@@ -88,24 +86,89 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   };
 
   if (!template) {
-    return <Text ta={"center"} c={"dimmed"}>Cargando Información...</Text>;
+    return <Text ta="center" c="dimmed">Cargando Información...</Text>;
   }
 
+  const renderInputField = (field: Field) => {
+    switch (field.datatype) {
+      case "Entero":
+        return (
+          <NumberInput
+            key={field.name}
+            label={field.name}
+            description={field.comment}
+            value={formValues[field.name] || ""}
+            onChange={(value) => handleChange(field.name, value)}
+            required={field.required}
+            withAsterisk={field.required}
+            mb="md"
+          />
+        );
+      case "Texto Corto":
+      case "Texto Largo":
+        return (
+          <TextInput
+            key={field.name}
+            label={field.name}
+            description={field.comment}
+            value={formValues[field.name] || ""}
+            onChange={(event) => handleChange(field.name, event.currentTarget.value)}
+            required={field.required}
+            withAsterisk={field.required}
+            mb="md"
+          />
+        );
+      case "True/False":
+        return (
+          <Select
+            key={field.name}
+            label={field.name}
+            description={field.comment}
+            data={[
+              { value: "true", label: "Sí" },
+              { value: "false", label: "No" },
+            ]}
+            value={formValues[field.name] || ""}
+            onChange={(value) => handleChange(field.name, value)}
+            required={field.required}
+            withAsterisk={field.required}
+            mb="md"
+          />
+        );
+      case "Fecha":
+        return (
+          <DateInput
+            key={field.name}
+            label={field.name}
+            description={field.comment}
+            value={formValues[field.name] || null}
+            onChange={(value) => handleChange(field.name, value)}
+            required={field.required}
+            withAsterisk={field.required}
+            mb="md"
+            locale="es"
+          />
+        );
+      default:
+        return (
+          <TextInput
+            key={field.name}
+            label={field.name}
+            description={field.comment}
+            value={formValues[field.name] || ""}
+            onChange={(event) => handleChange(field.name, event.currentTarget.value)}
+            required={field.required}
+            withAsterisk={field.required}
+            mb="md"
+          />
+        );
+    }
+  };
+
   return (
-    <Container size="sm">
+    <Container size="xl">
       <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
-      {template.fields.map((field) => (
-        <TextInput
-          key={field.name}
-          label={field.name}
-          description={field.comment}
-          value={formValues[field.name] || ""}
-          onChange={(event) => handleChange(field.name, event.currentTarget.value)}
-          required={field.required}
-          withAsterisk={field.required}
-          mb="md"
-        />
-      ))}
+      {template.fields.map(renderInputField)}
       <Group mt="xl">
         <Button variant="outline" onClick={() => router.push('/producer/templates')}>
           Cancelar
