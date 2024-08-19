@@ -112,6 +112,7 @@ export default function Navbar() {
         autoClose: 5000,
         color: "teal",
       });
+      setRoleMenuOpened(false);
     } catch (error) {
       console.error("Error updating active role:", error);
       showNotification({
