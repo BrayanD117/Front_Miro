@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, TextInput, Title } from "@mantine/core";
+import { Container, Button, Group, TextInput, Title, Text } from "@mantine/core";
+import LoadingScreen from "@/app/components/LoadingScreen";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -21,20 +22,26 @@ interface Template {
   fields: Field[];
 }
 
+interface PublishedTemplateResponse {
+  name: string;
+  template: Template;
+}
+
 const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } }) => {
   const { id_template } = params;
   const { data: session } = useSession();
   const router = useRouter();
+  const [publishedTemplateName, setPublishedTemplateName] = useState<string>("");
   const [template, setTemplate] = useState<Template | null>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
 
   const fetchTemplate = async () => {
-    console.log("Fetching template with ID:", id_template);
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id_template}`);
-      console.log("API Response:", response);
-      setTemplate(response.data);
-      console.log("Template set:", response.data);
+      const response = await axios.get<PublishedTemplateResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id_template}`
+      );
+      setPublishedTemplateName(response.data.name);
+      setTemplate(response.data.template);
     } catch (error) {
       console.error("Error fetching template:", error);
       showNotification({
@@ -44,11 +51,9 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       });
     }
   };
-  
 
   useEffect(() => {
     if (id_template) {
-      console.log("Template ID is available:", id_template);
       fetchTemplate();
     }
   }, [id_template]);
@@ -83,13 +88,12 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   };
 
   if (!template) {
-    console.log("Template is null, displaying loading message.");
-    return <div>Cargando...</div>;
+    return <Text ta={"center"} c={"dimmed"}>Cargando Información...</Text>;
   }
 
   return (
     <Container size="sm">
-      <Title ta="center" mb="md">{`Completar Plantilla: ${template.name}`}</Title>
+      <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
       {template.fields.map((field) => (
         <TextInput
           key={field.name}
