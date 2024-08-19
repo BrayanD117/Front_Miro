@@ -207,16 +207,9 @@ export default function Navbar() {
                   </Menu.Target>
                   <Menu.Dropdown>
                     {availableRoles.map((role) => (
-                      <Menu.Item
-                        p={0}
-                        mb={"xs"}
-                        key={role}
-                        onClick={() => handleRoleChange(role)}
-                      >
-                        <Button fullWidth variant="light">
-                          {role}
-                        </Button>
-                      </Menu.Item>
+                      <Button key={role} mt={7} fullWidth variant="light">
+                        {role}
+                      </Button>
                     ))}
                   </Menu.Dropdown>
                 </Menu>
