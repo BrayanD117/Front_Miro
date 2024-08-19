@@ -454,6 +454,9 @@ const AdminTemplatesPage = () => {
             value={selectedProducers}
             onChange={setSelectedProducers}
           />
+          <Group justify="flex-end" mt="md">
+            <Button type="submit">Asignar</Button>
+          </Group>
         </form>
       </Modal>
     </Container>
