@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, TextInput, Text, Title } from "@mantine/core";
+import { Container, Button, Group, TextInput, Title } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -91,20 +91,16 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     <Container size="sm">
       <Title ta="center" mb="md">{`Completar Plantilla: ${template.name}`}</Title>
       {template.fields.map((field) => (
-        <div key={field.name} style={{ marginBottom: "1rem" }}>
-          <TextInput
-            label={field.name}
-            value={formValues[field.name] || ""}
-            onChange={(event) => handleChange(field.name, event.currentTarget.value)}
-            required={field.required}
-            withAsterisk={field.required}
-          />
-          {field.comment && (
-            <Text size="sm" color="dimmed" mt={5}>
-              {field.comment || "BUENAS"}
-            </Text>
-          )}
-        </div>
+        <TextInput
+          key={field.name}
+          label={field.name}
+          description={field.comment}
+          value={formValues[field.name] || ""}
+          onChange={(event) => handleChange(field.name, event.currentTarget.value)}
+          required={field.required}
+          withAsterisk={field.required}
+          mb="md"
+        />
       ))}
       <Group mt="xl">
         <Button variant="outline" onClick={() => router.push('/producer/templates')}>
