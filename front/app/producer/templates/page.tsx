@@ -221,13 +221,22 @@ const ProducerTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Button
-              variant="outline"
-              color="green"
-              onClick={() => handleUploadClick(publishedTemplate._id)}
-            >
-              <IconUpload size={16} />
-            </Button>
+            <Group>
+              <Button
+                variant="outline"
+                color="green"
+                onClick={() => handleUploadClick(publishedTemplate._id)}
+              >
+                <IconUpload size={16} />
+              </Button>
+              <Button
+                variant="outline"
+                color="blue"
+                onClick={() => router.push(`/producer/templates/form/${publishedTemplate._id}`)}
+              >
+                Registro Individual
+              </Button>
+            </Group>
           </Center>
         </Table.Td>
       </Table.Tr>
