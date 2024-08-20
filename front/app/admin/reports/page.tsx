@@ -16,7 +16,7 @@ import {
   rem,
   Text,
 } from "@mantine/core";
-import { IconCheck, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
+import { IconCheck, IconDownload, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -160,6 +160,46 @@ const AdminReportsPage = () => {
     }
   };
 
+  const handleDownload = async (id: string) => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reports/${id}`, {
+        responseType: "blob",
+      });
+  
+      // Obtén el nombre del archivo desde el encabezado de respuesta, si está disponible
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'archivo_descargado'; // Nombre por defecto
+  
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+?)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+  
+      // Crea un URL para el Blob recibido
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+  
+      // Crea un enlace para descargar el archivo
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+  
+      // Limpia el URL creado
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error descargando reporte:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al descargar el reporte",
+        color: "red",
+      });
+    }
+  }
+  
+
   const handleModalClose = () => {
     setOpened(false);
     setName("");
@@ -182,6 +222,9 @@ const AdminReportsPage = () => {
             </Button>
             <Button color="red" variant="outline" onClick={() => handleDelete(report._id)}>
               <IconTrash size={16} />
+            </Button>
+            <Button variant="outline" onClick={() => handleDownload(report.report_example_path)}>
+              <IconDownload size={16} />
             </Button>
           </Group>
         </Center>
