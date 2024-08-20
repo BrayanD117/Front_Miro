@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, TextInput, Title, Text, Select, NumberInput, ActionIcon } from "@mantine/core";
+import { Container, Button, Group, TextInput, Title, Text, Select, NumberInput, ActionIcon, Flex } from "@mantine/core";
 import { IconEye } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
@@ -128,52 +128,58 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       withAsterisk: field.required,
       mb: "md",
     };
-  
+
     return (
       <div key={field.name} style={{ position: 'relative' }}>
-        {(() => {
-          switch (field.datatype) {
-            case "Entero":
-              return <NumberInput key={field.name} {...commonProps} />;
-            case "Texto Corto":
-            case "Texto Largo":
-              return <TextInput key={field.name} {...commonProps} />;
-            case "True/False":
-              return (
-                <Select
-                  key={field.name}
-                  {...commonProps}
-                  data={[
-                    { value: "true", label: "Sí" },
-                    { value: "false", label: "No" },
-                  ]}
-                />
-              );
-            case "Fecha":
-              return (
-                <DateInput
-                  key={field.name}
-                  {...commonProps}
-                  locale="es"
-                  maxDate={new Date()}
-                />
-              );
-            default:
-              return <TextInput key={field.name} {...commonProps} />;
-          }
-        })()}
-        {field.validate_with && (
-          <ActionIcon
-            onClick={() => openValidatorPanelOrModal(field.validate_with?.id!)}
-            style={{ position: 'absolute', right: 10, top: 38 }}
-            title="Ver valores aceptados"
-          >
-            <IconEye />
-          </ActionIcon>
-        )}
+        <Flex justify="center" align="center">
+          {(() => {
+            switch (field.datatype) {
+              case "Entero":
+                return <NumberInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
+              case "Texto Corto":
+              case "Texto Largo":
+                return <TextInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
+              case "True/False":
+                return (
+                  <Select
+                    key={field.name}
+                    {...commonProps}
+                    data={[
+                      { value: "true", label: "Sí" },
+                      { value: "false", label: "No" },
+                    ]}
+                    style={{ flex: field.validate_with ? 1 : 'auto' }}
+                  />
+                );
+              case "Fecha":
+                return (
+                  <DateInput
+                    key={field.name}
+                    {...commonProps}
+                    locale="es"
+                    maxDate={new Date()}
+                    style={{ flex: field.validate_with ? 1 : 'auto' }}
+                  />
+                );
+              default:
+                return <TextInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
+            }
+          })()}
+          {field.validate_with && (
+            <ActionIcon
+              size={"lg"}
+              onClick={() => openValidatorPanelOrModal(field.validate_with?.id!)}
+              title="Ver valores aceptados"
+              ml={8}
+              mt={field.comment ? 30 : 8} // Adjust mt based on the presence of a description
+            >
+              <IconEye />
+            </ActionIcon>
+          )}
+        </Flex>
       </div>
     );
-  };  
+  };
 
   return (
     <Container size="xl" style={{ display: 'flex' }}>
