@@ -12,8 +12,11 @@ import {
   Center,
   FileInput,
   MultiSelect,
+  Switch,
+  rem,
+  Text,
 } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconCheck, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -23,7 +26,7 @@ interface Report {
   name: string;
   description: string;
   report_example_path: string;
-  required_files: string[];
+  requires_attachment: boolean;
   created_by: {
     email: string;
     full_name: string;
@@ -37,7 +40,7 @@ const AdminReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [requiredFiles, setRequiredFiles] = useState<string[]>([]);
+  const [requiresAttachment, setRequiresAttachment] = useState<boolean>(false);
   const [reportExample, setReportExample] = useState<File | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -76,10 +79,10 @@ const AdminReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreateOrEdit = async () => {
-    if (!name || !reportExample || requiredFiles.length === 0) {
+    if (!name || !reportExample || requiresAttachment) {
       showNotification({
         title: "Error",
-        message: "El nombre, el archivo de ejemplo y los archivos requeridos son obligatorios",
+        message: "El nombre y el formato de ejemplo son requeridos",
         color: "red",
       });
       return;
@@ -88,7 +91,7 @@ const AdminReportsPage = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("required_files", JSON.stringify(requiredFiles));
+    formData.append("requires_attachment", requiresAttachment.toString());
     formData.append("report_example", reportExample);
     formData.append("email", session?.user?.email || "");
 
@@ -134,7 +137,7 @@ const AdminReportsPage = () => {
     setSelectedReport(report);
     setName(report.name);
     setDescription(report.description);
-    setRequiredFiles(report.required_files);
+    setRequiresAttachment(report.requires_attachment);
     setOpened(true);
   };
 
@@ -161,7 +164,7 @@ const AdminReportsPage = () => {
     setOpened(false);
     setName("");
     setDescription("");
-    setRequiredFiles([]);
+    setRequiresAttachment(false);
     setReportExample(null);
     setSelectedReport(null);
   };
@@ -256,25 +259,38 @@ const AdminReportsPage = () => {
           value={description}
           onChange={(event) => setDescription(event.currentTarget.value)}
         />
-        <MultiSelect
-          label="Archivos Requeridos"
-          placeholder="Selecciona los archivos requeridos"
-          data={[
-            { value: "archivo1", label: "Archivo 1" },
-            { value: "archivo2", label: "Archivo 2" },
-            { value: "archivo3", label: "Archivo 3" },
-          ]}
-          value={requiredFiles}
-          onChange={setRequiredFiles}
-          searchable
-          clearable
-        />
         <FileInput
           label="Archivo de Ejemplo"
-          placeholder="Subir archivo de ejemplo"
+          placeholder="Subir reporte de ejemplo"
           value={reportExample}
           onChange={setReportExample}
         />
+        <Group my={"xs"}>
+          <Text size="sm">
+            ¿Necesita Anexos?
+          </Text>
+          <Switch
+            checked={requiresAttachment}
+            onChange={(event) => setRequiresAttachment(event.currentTarget.checked)}
+            color="rgba(25, 113, 194, 1)"
+            size="md"
+            thumbIcon={
+              requiresAttachment ? (
+                <IconCheck
+                  style={{ width: rem(12), height: rem(12) }}
+                  color={"rgba(25, 113, 194, 1)"}
+                  stroke={3}
+                />
+              ) : (
+                <IconX
+                  style={{ width: rem(12), height: rem(12) }}
+                  color={"red"}
+                  stroke={3}
+                />
+              )
+            }
+          />
+        </Group>
       </Modal>
     </Container>
   );
