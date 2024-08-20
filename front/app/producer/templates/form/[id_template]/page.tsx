@@ -78,8 +78,11 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   }, [id_template]);
 
   const handleChange = (fieldName: string, value: any) => {
-    console.log(`Changing field: ${fieldName} to value: ${value}`);
-    setFormValues((prev) => ({ ...prev, [fieldName]: value }));
+    let newValue = value;
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      newValue = "";
+    }
+    setFormValues((prev) => ({ ...prev, [fieldName]: newValue }));
   };
 
   const handleSubmit = async () => {
