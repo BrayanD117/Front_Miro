@@ -207,12 +207,12 @@ export default function Navbar() {
                     </Button>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    {availableRoles.map((role, index) => (
-                        <Button
+                    {availableRoles.map((role) => (
+                      <Button
                         key={role}
                         mt={"xs"}
                         fullWidth
-                        variant="light"
+                        variant={userRole === role ? "light" : "outline"}
                         onClick={() => handleRoleChange(role)}
                       >
                         {role}
