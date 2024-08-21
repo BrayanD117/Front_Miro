@@ -212,7 +212,7 @@ export default function Navbar() {
                         key={role}
                         mt={"xs"}
                         fullWidth
-                        variant={userRole === role ? "light" : "outline"}
+                        variant={userRole === role ? "outline" : "light"}
                         onClick={() => handleRoleChange(role)}
                       >
                         {role}
