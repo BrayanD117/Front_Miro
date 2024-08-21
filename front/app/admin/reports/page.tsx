@@ -251,18 +251,24 @@ const AdminReportsPage = () => {
           </Button>
         </Group>
         <TextInput
+          required={true}
+          withAsterisk={true}
           label="Nombre"
           placeholder="Nombre del reporte"
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
         />
         <TextInput
+          required={true}
+          withAsterisk={true}
           label="Descripción"
           placeholder="Descripción del reporte"
           value={description}
           onChange={(event) => setDescription(event.currentTarget.value)}
         />
         <FileInput
+          required={true}
+          withAsterisk={true}
           label="Archivo de Ejemplo"
           placeholder="Subir reporte de ejemplo"
           value={reportExample}
