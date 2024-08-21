@@ -15,6 +15,7 @@ import {
   Switch,
   rem,
   Text,
+  Textarea,
 } from "@mantine/core";
 import { IconCheck, IconDownload, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
 import axios from "axios";
@@ -28,7 +29,8 @@ interface Report {
   _id: string;
   name: string;
   description: string;
-  report_example_path: string;
+  report_example_id: string;
+  report_example_link: string;
   requires_attachment: boolean;
   created_by: {
     email: string;
@@ -84,7 +86,7 @@ const AdminReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreateOrEdit = async () => {
-    if (!name || !reportExample || requiresAttachment) {
+    if (!name || !reportExample) {
       showNotification({
         title: "Error",
         message: "El nombre y el formato de ejemplo son requeridos",
@@ -198,7 +200,7 @@ const AdminReportsPage = () => {
             <Button color="red" variant="outline" onClick={() => handleDelete(report._id)}>
               <IconTrash size={16} />
             </Button>
-            <Button variant="outline" onClick={() => window.open(report.report_example_path)}>
+            <Button variant="outline" onClick={() => window.open(report.report_example_link)}>
               <IconDownload size={16} />
             </Button>
           </Group>
@@ -283,18 +285,27 @@ const AdminReportsPage = () => {
               value={name}
               onChange={(event) => setName(event.currentTarget.value)}
             />
-            <TextInput
+            <Textarea
+              label="Descripción"
+              placeholder="Descripción del reporte"
+              required={true}
+              value={description}
+              onChange={(event) => setDescription(event.currentTarget.value)}
+              minRows={2}
+              maxRows={5}
+            />
+            {/* <TextInput
               required={true}
               withAsterisk={true}
               label="Descripción"
               placeholder="Descripción del reporte"
               value={description}
               onChange={(event) => setDescription(event.currentTarget.value)}
-            />
+            /> */}
             <FileInput
               required={true}
               withAsterisk={true}
-              label="Archivo de Ejemplo"
+              label="Formato de ejemplo"
               placeholder="Subir reporte de ejemplo"
               value={reportExample}
               onChange={setReportExample}
