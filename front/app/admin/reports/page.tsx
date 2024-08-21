@@ -20,6 +20,9 @@ import { IconCheck, IconDownload, IconEdit, IconTrash, IconX } from "@tabler/ico
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
+import Lottie from "lottie-react";
+import uploadAnimation from "../../../public/lottie/upload.json";
+import successAnimation from "../../../public/lottie/success.json";
 
 interface Report {
   _id: string;
@@ -34,9 +37,11 @@ interface Report {
 }
 
 const AdminReportsPage = () => {
-  const { data: session } = useSession(); // Obtén la sesión para acceder al email
+  const { data: session } = useSession(); 
   const [reports, setReports] = useState<Report[]>([]);
   const [opened, setOpened] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -95,6 +100,8 @@ const AdminReportsPage = () => {
     formData.append("report_example", reportExample);
     formData.append("email", session?.user?.email || "");
 
+    setLoading(true);
+
     try {
       if (selectedReport) {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/reports/${selectedReport._id}`, formData, {
@@ -120,8 +127,12 @@ const AdminReportsPage = () => {
         });
       }
 
-      handleModalClose();
-      fetchReports(page, search);
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        handleModalClose();
+        fetchReports(page, search);
+      }, 3000);
     } catch (error) {
       console.error("Error creando o actualizando reporte:", error);
 
@@ -130,6 +141,8 @@ const AdminReportsPage = () => {
         message: "Hubo un error al crear o actualizar el reporte",
         color: "red",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -167,6 +180,8 @@ const AdminReportsPage = () => {
     setRequiresAttachment(false);
     setReportExample(null);
     setSelectedReport(null);
+    setLoading(false);
+    setSuccess(false);
   };
 
   const rows = reports.map((report: Report) => (
@@ -242,64 +257,76 @@ const AdminReportsPage = () => {
         onClose={handleModalClose}
         title={selectedReport ? "Editar Reporte" : "Crear Nuevo Reporte"}
       >
-        <Group mb="md" grow>
-          <Button onClick={handleCreateOrEdit}>
-            {selectedReport ? "Actualizar" : "Crear"}
-          </Button>
-          <Button onClick={handleModalClose} variant="outline">
-            Cancelar
-          </Button>
-        </Group>
-        <TextInput
-          required={true}
-          withAsterisk={true}
-          label="Nombre"
-          placeholder="Nombre del reporte"
-          value={name}
-          onChange={(event) => setName(event.currentTarget.value)}
-        />
-        <TextInput
-          required={true}
-          withAsterisk={true}
-          label="Descripción"
-          placeholder="Descripción del reporte"
-          value={description}
-          onChange={(event) => setDescription(event.currentTarget.value)}
-        />
-        <FileInput
-          required={true}
-          withAsterisk={true}
-          label="Archivo de Ejemplo"
-          placeholder="Subir reporte de ejemplo"
-          value={reportExample}
-          onChange={setReportExample}
-        />
-        <Group my={"xs"}>
-          <Text size="sm">
-            ¿Necesita Anexos?
-          </Text>
-          <Switch
-            checked={requiresAttachment}
-            onChange={(event) => setRequiresAttachment(event.currentTarget.checked)}
-            color="rgba(25, 113, 194, 1)"
-            size="md"
-            thumbIcon={
-              requiresAttachment ? (
-                <IconCheck
-                  style={{ width: rem(12), height: rem(12) }}
-                  color={"rgba(25, 113, 194, 1)"}
-                  stroke={3}
-                />
-              ) : (
-                <IconX
-                  style={{ width: rem(12), height: rem(12) }}
-                  color={"red"}
-                  stroke={3}
-                />
-              )
-            }
-          />
-        </Group>
+        {loading ? (
+          <Center>
+            <Lottie animationData={uploadAnimation} loop={true} />
+          </Center>
+        ) : success ? (
+          <Center>
+            <Lottie animationData={successAnimation} loop={false} />
+          </Center>
+        ) : (
+          <>
+            <Group mb="md" grow>
+              <Button onClick={handleCreateOrEdit}>
+                {selectedReport ? "Actualizar" : "Crear"}
+              </Button>
+              <Button onClick={handleModalClose} variant="outline">
+                Cancelar
+              </Button>
+            </Group>
+            <TextInput
+              required={true}
+              withAsterisk={true}
+              label="Nombre"
+              placeholder="Nombre del reporte"
+              value={name}
+              onChange={(event) => setName(event.currentTarget.value)}
+            />
+            <TextInput
+              required={true}
+              withAsterisk={true}
+              label="Descripción"
+              placeholder="Descripción del reporte"
+              value={description}
+              onChange={(event) => setDescription(event.currentTarget.value)}
+            />
+            <FileInput
+              required={true}
+              withAsterisk={true}
+              label="Archivo de Ejemplo"
+              placeholder="Subir reporte de ejemplo"
+              value={reportExample}
+              onChange={setReportExample}
+            />
+            <Group my={"xs"}>
+              <Text size="sm">
+                ¿Necesita Anexos?
+              </Text>
+              <Switch
+                checked={requiresAttachment}
+                onChange={(event) => setRequiresAttachment(event.currentTarget.checked)}
+                color="rgba(25, 113, 194, 1)"
+                size="md"
+                thumbIcon={
+                  requiresAttachment ? (
+                    <IconCheck
+                      style={{ width: rem(12), height: rem(12) }}
+                      color={"rgba(25, 113, 194, 1)"}
+                      stroke={3}
+                    />
+                  ) : (
+                    <IconX
+                      style={{ width: rem(12), height: rem(12) }}
+                      color={"red"}
+                      stroke={3}
+                    />
+                  )
+                }
+              />
+            </Group>
+          </>
+        )}
       </Modal>
     </Container>
   );
