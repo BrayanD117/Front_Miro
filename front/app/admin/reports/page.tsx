@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Container,
   Table,
@@ -16,8 +16,9 @@ import {
   rem,
   Text,
   Textarea,
+  Select,
 } from "@mantine/core";
-import { IconCheck, IconDownload, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
+import { IconCheck, IconDownload, IconEdit, IconTrash, IconUser, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -32,21 +33,36 @@ interface Report {
   report_example_id: string;
   report_example_link: string;
   requires_attachment: boolean;
+  file_name: string;
   created_by: {
     email: string;
     full_name: string;
   };
 }
 
+interface Dimension {
+  _id: string;
+  name: string;
+}
+
+interface Period {
+  _id: string;
+  name: string;
+}
+
 const AdminReportsPage = () => {
   const { data: session } = useSession(); 
   const [reports, setReports] = useState<Report[]>([]);
   const [opened, setOpened] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [dimensions, setDimensions] = useState<Dimension[]>([]);
+  const [periods, setPeriods] = useState<Period[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [fileName, setFileName] = useState("");
   const [requiresAttachment, setRequiresAttachment] = useState<boolean>(false);
   const [reportExample, setReportExample] = useState<File | null>(null);
   const [page, setPage] = useState(1);
@@ -68,6 +84,23 @@ const AdminReportsPage = () => {
       setReports([]);
     }
   };
+
+  const fetchPublishOptions = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pReports/feed`,
+      { params: { email: session?.user?.email } }
+      );
+      if (response.data) {
+        setDimensions(response.data.dimensions);
+        setPeriods(response.data.periods);
+      }
+    } catch (error) {
+      console.error("Error fetching publish options:", error);
+      setDimensions([]);
+      setPeriods([]);
+    }
+  }
+
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -99,6 +132,7 @@ const AdminReportsPage = () => {
     formData.append("name", name);
     formData.append("description", description);
     formData.append("requires_attachment", requiresAttachment.toString());
+    formData.append("file_name", fileName);
     formData.append("report_example", reportExample);
     formData.append("email", session?.user?.email || "");
 
@@ -186,10 +220,18 @@ const AdminReportsPage = () => {
     setSuccess(false);
   };
 
+  const handlePublishModalClose = () => {
+    setSelectedReport(null);
+    setPublishing(false);
+    setDimensions([]);
+    setPeriods([]);
+  }
+
   const rows = reports.map((report: Report) => (
     <Table.Tr key={report._id}>
       <Table.Td>{report.name}</Table.Td>
       <Table.Td>{report.description}</Table.Td>
+      <Table.Td>{report.file_name}</Table.Td>
       <Table.Td>{report.created_by?.full_name || report.created_by?.email}</Table.Td>
       <Table.Td>
         <Center>
@@ -202,6 +244,14 @@ const AdminReportsPage = () => {
             </Button>
             <Button variant="outline" onClick={() => window.open(report.report_example_link)}>
               <IconDownload size={16} />
+            </Button>
+            <Button variant="outline" onClick={() => {
+              fetchPublishOptions();
+              setPublishing(true);
+              setSelectedReport(report)
+            }}
+            >
+              <IconUser size={16} />
             </Button>
           </Group>
         </Center>
@@ -232,6 +282,7 @@ const AdminReportsPage = () => {
           <Table.Tr>
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Descripción</Table.Th>
+            <Table.Th>Nombre de Archivo</Table.Th>
             <Table.Th>Creado Por</Table.Th>
             <Table.Th>
               <Center>Acciones</Center>
@@ -288,25 +339,25 @@ const AdminReportsPage = () => {
             <Textarea
               label="Descripción"
               placeholder="Descripción del reporte"
-              required={true}
+              required={false}
               value={description}
               onChange={(event) => setDescription(event.currentTarget.value)}
               minRows={2}
               maxRows={5}
             />
-            {/* <TextInput
+            <TextInput
               required={true}
               withAsterisk={true}
-              label="Descripción"
-              placeholder="Descripción del reporte"
-              value={description}
-              onChange={(event) => setDescription(event.currentTarget.value)}
-            /> */}
+              label="Nombre de archivo"
+              placeholder="Ingrese el nombre del archivo"
+              value={fileName}
+              onChange={(event) => setFileName(event.currentTarget.value)}
+            />
             <FileInput
               required={true}
               withAsterisk={true}
-              label="Formato de ejemplo"
-              placeholder="Subir reporte de ejemplo"
+              label="Archivo de ejemplo"
+              placeholder="Seleccione el archivo de ejemplo"
               value={reportExample}
               onChange={setReportExample}
             />
@@ -338,6 +389,40 @@ const AdminReportsPage = () => {
             </Group>
           </>
         )}
+      </Modal>
+      <Modal 
+        opened={publishing}
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        onClose={handlePublishModalClose}
+        title="Asignar Reporte a Dimension(es)"
+      >
+        <MultiSelect
+          data={dimensions.map((dimension) => ({ value: dimension._id, label: dimension.name }))}
+          value={[]}
+          onChange={() => {}}
+          searchable
+          placeholder="Selecciona las dimensiones"
+          label="Dimensiones"
+        />
+        <Select
+          data={periods.map((period) => ({ value: period._id, label: period.name }))}
+          value={periods.length === 1 ? periods[0]._id : null}
+          onChange={() => {}}
+          searchable
+          placeholder="Selecciona el periodo"
+          label="Periodo"
+        />
+        <Group mt="md" grow>
+          <Button>
+            Asignar
+          </Button>
+          <Button variant="outline" onClick={() => {handlePublishModalClose}}>
+            Cancelar
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );

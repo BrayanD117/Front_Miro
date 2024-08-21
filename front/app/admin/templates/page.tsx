@@ -374,7 +374,6 @@ const AdminTemplatesPage = () => {
       <Table.Td>
         <Center>
           <Button variant="outline" onClick={() => { 
-            console.log("Template selected:", template);
             setSelectedTemplate(template); 
             open(); 
             console.log("Modal open state:", modalOpen);
