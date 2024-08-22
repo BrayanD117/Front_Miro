@@ -18,13 +18,14 @@ import {
   Textarea,
   Select,
 } from "@mantine/core";
-import { IconCheck, IconDownload, IconEdit, IconTrash, IconUser, IconX } from "@tabler/icons-react";
+import { IconArrowRight, IconCheck, IconDownload, IconEdit, IconTrash, IconUser, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
 import Lottie from "lottie-react";
 import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
+import { useRouter } from "next/navigation";
 
 interface Report {
   _id: string;
@@ -70,6 +71,8 @@ const AdminReportsPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const router = useRouter();
+
 
   const fetchReports = async (page: number, search: string) => {
     try {
@@ -81,7 +84,6 @@ const AdminReportsPage = () => {
         setReports(response.data.reports);
         setTotalPages(response.data.totalPages || 1);
       }
-      console.log("Reports fetched:", response.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
       setReports([]);
@@ -303,6 +305,13 @@ const AdminReportsPage = () => {
           }}
         >
           Crear Nuevo Reporte
+        </Button>
+        <Button 
+          ml={"auto"} 
+          onClick={() => router.push('reports/published')}
+          variant="outline"
+          rightSection={<IconArrowRight size={16} />}>
+          Ir a Reportes Publicados
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">

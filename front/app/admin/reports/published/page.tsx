@@ -3,7 +3,9 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Center, Container, Group, Pagination, Table, TextInput } from '@mantine/core';
+import { Button, Center, Container, Group, Pagination, Table, TextInput } from '@mantine/core';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { useRouter } from 'next/navigation';
 
 interface Report {
     _id: string;
@@ -44,10 +46,10 @@ const AdminPubReportsPage = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
+    const router = useRouter();
 
     const fetchReports = async (page: number, search: string) => {
         try {
-            console.log("Llegue");
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pReports/all`,
                 {
                     params: {
@@ -58,6 +60,7 @@ const AdminPubReportsPage = () => {
                 }
             )
             if(response.data) {
+                console.log(response.data);
                 setPubReports(response.data.publishedReports);
                 setTotalPages(response.data.totalPages);
             }
@@ -104,6 +107,14 @@ const AdminPubReportsPage = () => {
                 onChange={(event) => setSearch(event.currentTarget.value)}
                 mb="md"
             />
+            <Group>
+                <Button 
+                onClick={() => router.push('/admin/reports')}
+                variant="outline"
+                leftSection={<IconArrowLeft size={16} />}>
+                Ir a Gestión de Reportes
+                </Button>
+            </Group>
             <Table striped withTableBorder mt="md">
                 <Table.Thead>
                     <Table.Tr>
