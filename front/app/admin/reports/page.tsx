@@ -77,6 +77,7 @@ const AdminReportsPage = () => {
         params: { page, limit: 10, search, email: session?.user?.email },
       });
       if (response.data) {
+
         setReports(response.data.reports);
         setTotalPages(response.data.totalPages || 1);
       }
