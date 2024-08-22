@@ -60,6 +60,8 @@ const AdminReportsPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [fileName, setFileName] = useState("");
@@ -225,6 +227,31 @@ const AdminReportsPage = () => {
     setPublishing(false);
     setDimensions([]);
     setPeriods([]);
+    setSelectedDimensions([]);
+    setSelectedPeriod(null);
+  }
+
+  const handleSubmitPublish = async () => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pReports/publish`, {
+        reportId: selectedReport?._id,
+        periodId: selectedPeriod,
+        dimensionsId: selectedDimensions,
+      })
+      showNotification({
+        title: "Publicación Exitosa",
+        message: "El reporte ha sido publicado exitosamente",
+        color: "teal",
+      })
+      handlePublishModalClose()
+    } catch (error) {
+      console.error("Error asignando reporte:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al asignar el reporte",
+        color: "red"
+      })
+    }
   }
 
   const rows = reports.map((report: Report) => (
@@ -401,25 +428,25 @@ const AdminReportsPage = () => {
       >
         <MultiSelect
           data={dimensions.map((dimension) => ({ value: dimension._id, label: dimension.name }))}
-          value={[]}
-          onChange={() => {}}
+          value={selectedDimensions}
+          onChange={setSelectedDimensions}
           searchable
           placeholder="Selecciona las dimensiones"
           label="Dimensiones"
         />
         <Select
           data={periods.map((period) => ({ value: period._id, label: period.name }))}
-          value={periods.length === 1 ? periods[0]._id : null}
-          onChange={() => {}}
+          value={selectedPeriod}
+          onChange={(value) => setSelectedPeriod(value || null)}
           searchable
           placeholder="Selecciona el periodo"
           label="Periodo"
         />
         <Group mt="md" grow>
-          <Button>
+          <Button onClick={handleSubmitPublish}>
             Asignar
           </Button>
-          <Button variant="outline" onClick={() => {handlePublishModalClose}}>
+          <Button variant="outline" onClick={handlePublishModalClose}>
             Cancelar
           </Button>
         </Group>

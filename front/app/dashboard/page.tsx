@@ -142,16 +142,30 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconClipboardData size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Reportes</Text>
+                <Text ta={"center"} w={500}>Crear | Editar Reportes</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Genera reportes de las plantillas cargadas.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports')}>
-                Ir a Gestión de reportes
+                Ir a Gestión de Reportes
               </Button>
             </Card>
           </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="published-reports">
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Center><IconClipboardData size={80}/></Center>
+            <Group mt="md" mb="xs">
+              <Text ta={"center"} w={500}>Reportes Cargados</Text>
+            </Group>
+            <Text ta={"center"} size="sm" color="dimmed">
+              Gestiona el proceso de cargue de los reportes por parte de las dimensiones.
+            </Text>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/published')}>
+              Ir a Reportes Cargados
+            </Button>
+          </Card>
+        </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconCalendarMonth size={80}/></Center>

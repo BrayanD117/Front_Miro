@@ -99,8 +99,6 @@ const AdminTemplatesPage = () => {
         const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/feedOptions`, {
           params: { email },
         });
-        console.log("Periods Data:", data.periods);
-        console.log("Producers Data:", data.producers);
         setPeriods(data.periods);
         setProducers(data.producers);
       } catch (error) {
@@ -312,15 +310,6 @@ const AdminTemplatesPage = () => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    console.log("selectedTemplate", selectedTemplate);
-    console.log("Submitting form with data:", {
-      name: publicationName,
-      template_id: selectedTemplate?._id,
-      period_id: selectedPeriod,
-      producers_dep_code: selectedProducers,
-      dimension_id: selectedTemplate?.dimension_id,
-      user_email: session?.user?.email,
-    });
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/publish`, {
         name: publicationName,
