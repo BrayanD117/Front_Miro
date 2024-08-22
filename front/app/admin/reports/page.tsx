@@ -17,8 +17,9 @@ import {
   Text,
   Textarea,
   Select,
+  Tooltip,
 } from "@mantine/core";
-import { IconArrowRight, IconCheck, IconDownload, IconEdit, IconTrash, IconUser, IconX } from "@tabler/icons-react";
+import { IconArrowRight, IconCheck, IconDownload, IconEdit, IconFile, IconTrash, IconUser, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -273,7 +274,9 @@ const AdminReportsPage = () => {
               <IconTrash size={16} />
             </Button>
             <Button variant="outline" onClick={() => window.open(report.report_example_link)}>
-              <IconDownload size={16} />
+              <Tooltip label="Ver formato adjunto" withArrow>
+                <IconFile size={16} />
+              </Tooltip>
             </Button>
             <Button variant="outline" onClick={() => {
               fetchPublishOptions();

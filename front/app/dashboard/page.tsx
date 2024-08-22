@@ -277,7 +277,7 @@ const DashboardPage = () => {
               <Text ta={"center"} size="sm" color="dimmed">
                 Genera reportes de la dimensión de la que eres responsable.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/report')}>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
                 Ir a Generar Reportes
               </Button>
             </Card>

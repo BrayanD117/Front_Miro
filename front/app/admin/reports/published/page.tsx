@@ -3,9 +3,10 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Button, Center, Container, Group, Pagination, Table, TextInput } from '@mantine/core';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { Accordion, Button, Center, Container, Group, Pagination, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
+import { IconArrowLeft, IconFile } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import classes from './AdminPubReportsPage.module.css';
 
 interface Report {
     _id: string;
@@ -41,6 +42,7 @@ interface PublishedReport {
 const AdminPubReportsPage = () => {
     const { data: session } = useSession();
     const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
+    const [dimensions, setDimensions] = useState<Dimension[]>([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [page, setPage] = useState(1);
@@ -90,6 +92,7 @@ const AdminPubReportsPage = () => {
             <Table.Tr key={pubReport._id}>
                 <Table.Td>{pubReport.period.name}</Table.Td>
                 <Table.Td>{pubReport.report.name}</Table.Td>
+                <Table.Td>{pubReport.report.file_name}</Table.Td>
             </Table.Tr>
         );
     }) : (
@@ -101,6 +104,7 @@ const AdminPubReportsPage = () => {
 
     return (
         <Container size="xl">
+            <Title ta="center" mb={"md"}>Proceso Cargue de Reportes</Title>
             <TextInput
                 placeholder='Buscar en los reportes publicados'
                 value={search}
@@ -120,6 +124,7 @@ const AdminPubReportsPage = () => {
                     <Table.Tr>
                         <Table.Th>Periodo</Table.Th>
                         <Table.Th>Reporte</Table.Th>
+                        <Table.Th>Nombre de Archivo</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>
@@ -135,6 +140,7 @@ const AdminPubReportsPage = () => {
                 />
             </Center>
         </Container>
+        
     )
 }
 
