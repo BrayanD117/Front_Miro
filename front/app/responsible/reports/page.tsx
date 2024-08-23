@@ -259,13 +259,13 @@ const ResponsibleReportsPage = () => {
                 placeholder='Seleccione el archivo de reporte'
                 required
               />
-              {selectedReport?.report.requires_attachment && (
+              {/* {selectedReport?.report.requires_attachment && (
                 <Dropzone
                   label='Anexo(s)'
                   placeholder='Arrastre y suelte el(los) archivo(s) de anexo'
                   required
                 />
-              )}
+              )} */}
             </Modal>
         </Container>
     )
