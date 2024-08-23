@@ -3,10 +3,10 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Accordion, Button, Center, Container, FileInput, Group, Modal, Pagination, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
-import { IconArrowRight, IconDownload, IconFileDescription, IconTrash, IconUpload } from '@tabler/icons-react';
+import { Accordion, Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
+import { IconArrowRight, IconCloudUpload, IconDownload, IconFileDescription, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import classes from './AdminPubReportsPage.module.css';
+import classes from './ResponsibleReportsPage.module.css';
 import DateConfig from '@/app/components/DateConfig';
 import { format } from 'fecha';
 import { showNotification } from '@mantine/notifications';
@@ -57,6 +57,7 @@ const ResponsibleReportsPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
     const [selectedReport, setSelectedReport] = useState<PublishedReport | null>(null);
+    const theme = useMantineTheme();
     const router = useRouter();
 
     const fetchReports = async (page: number, search: string) => {
@@ -248,24 +249,124 @@ const ResponsibleReportsPage = () => {
                 opened={publishing}
                 onClose={() => handleClosePublish()}
                 size="md"
-                title="Carga de reporte"
                 overlayProps={{
                   backgroundOpacity: 0.55,
                   blur: 3,
                 }}
+                withCloseButton={false}
             >
-              <FileInput
-                label='Formato de Reporte'
-                placeholder='Seleccione el archivo de reporte'
-                required
-              />
-              {/* {selectedReport?.report.requires_attachment && (
-                <Dropzone
-                  label='Anexo(s)'
-                  placeholder='Arrastre y suelte el(los) archivo(s) de anexo'
-                  required
-                />
-              )} */}
+              <Text size='xl' mb={'md'} fw={700} ta={'center'}>{selectedReport?.report.name}</Text>
+              <Text mb={'md'} size='md'>Cargar Formato de Reporte: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
+              <Dropzone
+                onDrop={(files) => {
+                  if(files.length > 1) {
+                    showNotification({
+                      title: 'Solo puedes cargar un archivo',
+                      message: 'En el reporte solo puedes cargar un archivo',
+                      color: 'red',
+                    });
+                    return;
+                  }
+                  setReportFile(files[0])
+                }}
+                className={classes.dropzone}
+                radius="md"
+                mx={'auto'}
+                mt={'md'}
+              >
+                <div style={{ cursor: 'pointer' }}>
+                  <Group justify="center" pt={'md'}>
+                    <Dropzone.Accept>
+                      <IconDownload
+                        style={{ width: rem(40), height: rem(40) }}
+                        color={theme.colors.blue[6]}
+                        stroke={1.5}
+                      />
+                    </Dropzone.Accept>
+                    <Dropzone.Reject>
+                      <IconX
+                        style={{ width: rem(40), height: rem(40) }}
+                        color={theme.colors.red[6]}
+                        stroke={1.5}
+                      />
+                    </Dropzone.Reject>
+                    <Dropzone.Idle>
+                      <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
+                    </Dropzone.Idle>
+                  </Group>
+                  <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
+                    Selecciona el archivo con tu reporte en formato .pdf o .docx
+                  </Text>
+                </div>
+              </Dropzone>
+                {reportFile && (
+                  <Pill 
+                    mt={'sm'} 
+                    withRemoveButton
+                    onRemove={() => setReportFile(null)}
+                    bg={'gray'}
+                  >
+                    {reportFile?.name}
+                  </Pill>
+                )}
+              {selectedReport?.report.requires_attachment && (
+                <>
+                  <Text mt={'md'}>Anexos: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
+                  <Dropzone
+                    onDrop={(files) => setAttachments(files)}
+                    className={classes.dropzone}
+                    radius="md"
+                    mx={'auto'}
+                    mt={'md'}
+                    multiple
+                  >
+                    <div style={{ cursor: 'pointer', marginBottom: '0px' }}>
+                      <Group justify="center" pt={'md'}>
+                        <Dropzone.Accept>
+                          <IconDownload
+                            style={{ width: rem(40), height: rem(40) }}
+                            color={theme.colors.blue[6]}
+                            stroke={1.5}
+                          />
+                        </Dropzone.Accept>
+                        <Dropzone.Reject>
+                          <IconX
+                            style={{ width: rem(40), height: rem(40) }}
+                            color={theme.colors.red[6]}
+                            stroke={1.5}
+                          />
+                        </Dropzone.Reject>
+                        <Dropzone.Idle>
+                          <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
+                        </Dropzone.Idle>
+                      </Group>
+                      <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
+                        Selecciona los anexos de tu reporte (mínimo 1)
+                      </Text>
+                    </div>
+                  </Dropzone>
+                    <PillGroup mt={'sm'} mb={'xs'}>
+                      {attachments.map((attachment, index) => (
+                        <Pill
+                          key={attachment.name}
+                          bg={'gray'}
+                          withRemoveButton 
+                          onRemove={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                        >
+                          {attachment.name}
+                        </Pill>
+                      ))}
+                    </PillGroup>
+                </>
+              )}
+              <Group mt="md" grow>
+                <Button>
+                  Asignar
+                </Button>
+                <Button variant="outline">
+                  Cancelar
+                </Button>
+              </Group>
             </Modal>
         </Container>
     )

@@ -1,0 +1,26 @@
+.wrapper {
+    position: relative;
+    margin-bottom: rem(30px);
+    cursor: pointer;
+  }
+  
+  .animationWrapper {
+    max-width: 500px;
+    max-height: 500px;
+    margin: 0 auto;
+    padding: 0%;
+  }
+  
+  .dropzone {
+    border-width: 1px;
+    border-radius: var(--mantine-radius-md);
+    border-style: dashed;
+    background-color: light-dark(
+      var(--mantine-color-gray-3),
+      var(--mantine-color-dark-5)
+    );
+  }
+  
+  .icon {
+    color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-3));
+  }
