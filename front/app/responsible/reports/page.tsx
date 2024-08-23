@@ -363,7 +363,7 @@ const ResponsibleReportsPage = () => {
                 <Button>
                   Asignar
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => setPublishing(false)}>
                   Cancelar
                 </Button>
               </Group>
