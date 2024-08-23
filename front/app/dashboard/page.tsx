@@ -12,6 +12,7 @@ const DashboardPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [opened, setOpened] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const { userRole, setUserRole } = useRole();
@@ -272,13 +273,13 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconReport size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Generar Reportes</Text>
+                <Text ta={"center"} w={500}>Reportes Pendientes</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Genera reportes de la dimensión de la que eres responsable.
+                Carga reportes de la dimensión de la que eres responsable.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
-                Ir a Generar Reportes
+                Ir a Reportes Pendientes
               </Button>
             </Card>
           </Grid.Col>,
@@ -310,7 +311,7 @@ const DashboardPage = () => {
                 Gestiona las plantillas que te asignaron y tienes disponibles.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/templates')}>
-                Ir a Mis Plantillas
+                Ir a Plantillas Pendientes
               </Button>
             </Card>
           </Grid.Col>,

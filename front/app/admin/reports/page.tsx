@@ -19,7 +19,7 @@ import {
   Select,
   Tooltip,
 } from "@mantine/core";
-import { IconArrowRight, IconCheck, IconDownload, IconEdit, IconFile, IconTrash, IconUser, IconX } from "@tabler/icons-react";
+import { IconArrowRight, IconCheck, IconEdit, IconFileDescription, IconTrash, IconUser, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -34,6 +34,7 @@ interface Report {
   description: string;
   report_example_id: string;
   report_example_link: string;
+  report_example_download: string;
   requires_attachment: boolean;
   file_name: string;
   created_by: {
@@ -275,7 +276,7 @@ const AdminReportsPage = () => {
             </Button>
             <Button variant="outline" onClick={() => window.open(report.report_example_link)}>
               <Tooltip label="Ver formato adjunto" withArrow>
-                <IconFile size={16} />
+                <IconFileDescription size={16} />
               </Tooltip>
             </Button>
             <Button variant="outline" onClick={() => {
@@ -446,6 +447,7 @@ const AdminReportsPage = () => {
           searchable
           placeholder="Selecciona las dimensiones"
           label="Dimensiones"
+          required
         />
         <Select
           data={periods.map((period) => ({ value: period._id, label: period.name }))}
@@ -454,6 +456,7 @@ const AdminReportsPage = () => {
           searchable
           placeholder="Selecciona el periodo"
           label="Periodo"
+          required
         />
         <Group mt="md" grow>
           <Button onClick={handleSubmitPublish}>

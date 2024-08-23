@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import { Accordion, Button, Center, Container, Group, Pagination, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
 import { IconArrowLeft, IconFile } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import classes from './AdminPubReportsPage.module.css';
 
 interface Report {
     _id: string;
@@ -97,7 +96,7 @@ const AdminPubReportsPage = () => {
         );
     }) : (
         <Table.Tr>
-            <Table.Td colSpan={2}>No reports found</Table.Td>
+            <Table.Td colSpan={5}>No se encontraron reportes publicados</Table.Td>
         </Table.Tr>
     );
     
@@ -113,10 +112,10 @@ const AdminPubReportsPage = () => {
             />
             <Group>
                 <Button 
-                onClick={() => router.push('/admin/reports')}
-                variant="outline"
-                leftSection={<IconArrowLeft size={16} />}>
-                Ir a Gestión de Reportes
+                    onClick={() => router.push('/admin/reports')}
+                    variant="outline"
+                    leftSection={<IconArrowLeft size={16} />}>
+                    Ir a Gestión de Reportes
                 </Button>
             </Group>
             <Table striped withTableBorder mt="md">
