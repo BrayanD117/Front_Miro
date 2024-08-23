@@ -274,7 +274,11 @@ const AdminReportsPage = () => {
             <Button color="red" variant="outline" onClick={() => handleDelete(report._id)}>
               <IconTrash size={16} />
             </Button>
-            <Button variant="outline" onClick={() => window.open(report.report_example_link)}>
+            <Button variant="outline" onClick={() => {
+                useEffect(() => {
+                  window.open(report.report_example_link)
+                }, [])
+              }}>
               <Tooltip label="Ver formato adjunto" withArrow>
                 <IconFileDescription size={16} />
               </Tooltip>

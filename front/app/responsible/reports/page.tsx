@@ -159,7 +159,11 @@ const ResponsibleReportsPage = () => {
                       </Button>
                     </Tooltip>
                     <Tooltip label='Descargar formato del reporte' withArrow>
-                      <Button variant='outline' onClick={() => window.open(pubReport.report.report_example_download)}>
+                      <Button variant='outline' onClick={() => {
+                          useEffect(() => {
+                            window.open(pubReport.report.report_example_download)
+                          }, [])
+                        }}>
                         <IconDownload size={16} />
                       </Button>
                     </Tooltip>
@@ -241,7 +245,12 @@ const ResponsibleReportsPage = () => {
                 variant='outline'
                 mt='md'
                 leftSection={<IconDownload size={16} />}
-                onClick={() => window.open(selectedReport?.report.report_example_download)}>
+                onClick={() => {
+                  useEffect(() => {
+                    window.open(selectedReport?.report.report_example_download)
+                  }, [])
+                }}
+                >
                 Descargar Formato
               </Button>
             </Modal>
