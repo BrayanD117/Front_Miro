@@ -18,6 +18,7 @@ import {
   Textarea,
   Select,
   Tooltip,
+  Title,
 } from "@mantine/core";
 import { IconArrowRight, IconCheck, IconEdit, IconFileDescription, IconTrash, IconUser, IconX } from "@tabler/icons-react";
 import axios from "axios";
@@ -298,6 +299,7 @@ const AdminReportsPage = () => {
 
   return (
     <Container size="xl">
+      <Title>Gestión de Reportes</Title>
       <TextInput
         placeholder="Buscar en todos los reportes"
         value={search}
