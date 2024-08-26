@@ -4,4 +4,4 @@ const UploadedReportsPage = () => {
     );
 }
 
-module.exports = UploadedReportsPage;
+export default UploadedReportsPage;
