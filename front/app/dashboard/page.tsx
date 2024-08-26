@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconCheckupList } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -283,6 +283,20 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Center><IconCheckupList size={80}/></Center>
+            <Group mt="md" mb="xs">
+              <Text ta={"center"} w={500}>Reportes Enviados</Text>
+            </Group>
+            <Text ta={"center"} size="sm" color="dimmed">
+              Revisa el estado de los reportes enviados por tu dimensión.
+            </Text>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports/uploaded')}>
+              Ir a Reportes Enviados
+            </Button>
+          </Card>
+        </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-dimensions">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconHexagon3d size={80}/></Center>
