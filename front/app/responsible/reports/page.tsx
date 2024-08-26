@@ -98,36 +98,67 @@ const ResponsibleReportsPage = () => {
 
     const handleCreate = async () => {
       if(!reportFile) {
-        
+        showNotification({
+          title: 'Error',
+          message: 'No ha cargado el archivo de reporte',
+          color: 'red'
+        });
+        return
       }
       if(selectedReport?.report.requires_attachment && attachments.length === 0) {
         showNotification({
           title: 'Error',
           message: 'No ha cargado el(los) archivo(s) de anexo',
-          color: 'red',
+          color: 'red'
         });
+        return
       }
-      if(reportFile && attachments.length > 0) {
-        const formData = new FormData();
-        formData.append('report_file', reportFile);
-        attachments.forEach((attachment) => {
-          formData.append('attachments', attachment);
-        })
-      } else {
-        if(!reportFile && !selectedReport?.report.requires_attachment) {
+      if(!selectedReport) {
+        showNotification({
+          title: 'Error',
+          message: 'No se seleccionó un reporte',
+          color: 'red'
+        });
+        return
+      }
+      if(!session?.user?.email) {
+        showNotification({
+          title: 'Error',
+          message: 'No se encontró la sesión del usuario',
+          color: 'red'
+        });
+        return
+      }
+
+      const formData = new FormData();
+      formData.append('email', session?.user?.email);
+      formData.append('reportId', selectedReport?._id);
+      formData.append('reportFile', reportFile);
+      attachments.forEach((attachment) => {
+        formData.append('attachments', attachment);
+      })
+      try {
+        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/load`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        if(response.data) {
           showNotification({
-            title: 'Error',
-            message: 'No ha cargado el archivo de reporte',
-            color: 'red',
+            title: 'Reporte cargado',
+            message: 'El reporte se ha cargado correctamente',
+            color: 'green'
           });
+          handleClosePublish();
+          fetchReports(page, search);
         }
-        if(selectedReport?.report.requires_attachment && attachments.length === 0) {
-          showNotification({
-            title: 'Error',
-            message: 'No ha cargado el archivo de reporte y/o el(los) archivo(s) de anexo',
-            color: 'red',
-          });
-        }
+      } catch (error) {
+        console.error(error);
+        showNotification({
+          title: 'Error',
+          message: 'Error al cargar el reporte',
+          color: 'red'
+        });
       }
     }
 
@@ -369,7 +400,7 @@ const ResponsibleReportsPage = () => {
                 </>
               )}
               <Group mt="md" grow>
-                <Button>
+                <Button onClick={handleCreate}>
                   Asignar
                 </Button>
                 <Button variant="outline" onClick={() => setPublishing(false)}>
