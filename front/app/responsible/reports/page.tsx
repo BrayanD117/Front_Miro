@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
@@ -11,6 +11,9 @@ import DateConfig from '@/app/components/DateConfig';
 import { format } from 'fecha';
 import { showNotification } from '@mantine/notifications';
 import { Dropzone } from '@mantine/dropzone';
+import uploadAnimation from "../../../public/lottie/upload.json";
+import successAnimation from "../../../public/lottie/success.json";
+import Lottie from "lottie-react";
 
 interface Report {
     _id: string;
@@ -48,6 +51,8 @@ interface PublishedReport {
 
 const ResponsibleReportsPage = () => {
     const { data: session } = useSession();
+    const [loading, setLoading] = useState<boolean>(false);
+    const [success, setSuccess] = useState<boolean>(false);
     const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
     const [reportFile, setReportFile] = useState<File | null>(null);
     const [attachments, setAttachments] = useState<File[]>([]);
@@ -82,19 +87,13 @@ const ResponsibleReportsPage = () => {
         }
     }
     useEffect(() => {
-        if(session?.user?.email) {
-            fetchReports(page, search);
-        }
-    }, [page, session?.user?.email]);
-
-    useEffect(() => {
-        if(session?.user?.email) {
-            const delayDebounceFn = setTimeout(() => {
-                fetchReports(page, search);
-            }, 500)
-            return () => clearTimeout(delayDebounceFn)
-        }
-    }, [search, session?.user?.email, page]);
+      if(session?.user?.email) {
+          const delayDebounceFn = setTimeout(() => {
+              fetchReports(page, search);
+          }, 500)
+          return () => clearTimeout(delayDebounceFn)
+      }
+     }, [search, session?.user?.email, page]);
 
     const handleCreate = async () => {
       if(!reportFile) {
@@ -137,6 +136,7 @@ const ResponsibleReportsPage = () => {
       attachments.forEach((attachment) => {
         formData.append('attachments', attachment);
       })
+      setLoading(true);
       try {
         const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/load`, formData, {
           headers: {
@@ -149,8 +149,12 @@ const ResponsibleReportsPage = () => {
             message: 'El reporte se ha cargado correctamente',
             color: 'green'
           });
-          handleClosePublish();
-          fetchReports(page, search);
+          setSuccess(true);
+          setTimeout(() => {
+            setSuccess(false);
+            handleClosePublish();
+            fetchReports(page, search);
+          }, 3000);
         }
       } catch (error) {
         console.error(error);
@@ -159,6 +163,8 @@ const ResponsibleReportsPage = () => {
           message: 'Error al cargar el reporte',
           color: 'red'
         });
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -172,6 +178,7 @@ const ResponsibleReportsPage = () => {
       setAttachments([]);
       setReportFile(null);
       setPublishing(false);
+      setLoading(false);
     }
 
     const rows = pubReports?.length ? pubReports.map((pubReport: PublishedReport) => {
@@ -191,10 +198,10 @@ const ResponsibleReportsPage = () => {
                     </Tooltip>
                     <Tooltip label='Descargar formato del reporte' withArrow>
                       <Button variant='outline' onClick={() => {
-                          useEffect(() => {
-                            window.open(pubReport.report.report_example_download)
-                          }, [])
-                        }}>
+                        if (typeof window !== "undefined") {
+                          window.open(pubReport.report.report_example_download);
+                        }
+                      }}>
                         <IconDownload size={16} />
                       </Button>
                     </Tooltip>
@@ -278,8 +285,9 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDownload size={16} />}
                 onClick={() => {
                   useEffect(() => {
-                    window.open(selectedReport?.report.report_example_download)
-                  }, [])
+                    if (typeof window !== "undefined")
+                      window.open(selectedReport?.report.report_example_download)
+                  }, [selectedReport])
                 }}
                 >
                 Descargar Formato
@@ -296,117 +304,128 @@ const ResponsibleReportsPage = () => {
                 withCloseButton={false}
             >
               <Text size='xl' mb={'md'} fw={700} ta={'center'}>{selectedReport?.report.name}</Text>
-              <Text mb={'md'} size='md'>Cargar Formato de Reporte: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
-              <Dropzone
-                onDrop={(files) => {
-                  if(files.length > 1) {
-                    showNotification({
-                      title: 'Solo puedes cargar un archivo',
-                      message: 'En el reporte solo puedes cargar un archivo',
-                      color: 'red',
-                    });
-                    return;
-                  }
-                  setReportFile(files[0])
-                }}
-                className={classes.dropzone}
-                radius="md"
-                mx={'auto'}
-                mt={'md'}
-              >
-                <div style={{ cursor: 'pointer' }}>
-                  <Group justify="center" pt={'md'}>
-                    <Dropzone.Accept>
-                      <IconDownload
-                        style={{ width: rem(40), height: rem(40) }}
-                        color={theme.colors.blue[6]}
-                        stroke={1.5}
-                      />
-                    </Dropzone.Accept>
-                    <Dropzone.Reject>
-                      <IconX
-                        style={{ width: rem(40), height: rem(40) }}
-                        color={theme.colors.red[6]}
-                        stroke={1.5}
-                      />
-                    </Dropzone.Reject>
-                    <Dropzone.Idle>
-                      <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
-                    </Dropzone.Idle>
-                  </Group>
-                  <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
-                    Selecciona el archivo con tu reporte en formato .pdf o .docx
-                  </Text>
-                </div>
-              </Dropzone>
-                {reportFile && (
-                  <Pill 
-                    mt={'sm'} 
-                    withRemoveButton
-                    onRemove={() => setReportFile(null)}
-                    bg={'gray'}
-                  >
-                    {reportFile?.name}
-                  </Pill>
+              {loading ? (
+                <Center>
+                  <Lottie animationData={uploadAnimation} loop={true} />
+                </Center>
+              ) : success ? (
+                <Center>
+                  <Lottie animationData={successAnimation} loop={false} />
+                </Center>
+              ): <>
+                <Text mb={'md'} size='md'>Cargar Formato de Reporte: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
+                <Dropzone
+                  onDrop={(files) => {
+                    if(files.length > 1) {
+                      showNotification({
+                        title: 'Solo puedes cargar un archivo',
+                        message: 'En el reporte solo puedes cargar un archivo',
+                        color: 'red',
+                      });
+                      return;
+                    }
+                    setReportFile(files[0])
+                  }}
+                  className={classes.dropzone}
+                  radius="md"
+                  mx={'auto'}
+                  mt={'md'}
+                >
+                  <div style={{ cursor: 'pointer' }}>
+                    <Group justify="center" pt={'md'}>
+                      <Dropzone.Accept>
+                        <IconDownload
+                          style={{ width: rem(40), height: rem(40) }}
+                          color={theme.colors.blue[6]}
+                          stroke={1.5}
+                        />
+                      </Dropzone.Accept>
+                      <Dropzone.Reject>
+                        <IconX
+                          style={{ width: rem(40), height: rem(40) }}
+                          color={theme.colors.red[6]}
+                          stroke={1.5}
+                        />
+                      </Dropzone.Reject>
+                      <Dropzone.Idle>
+                        <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
+                      </Dropzone.Idle>
+                    </Group>
+                    <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
+                      Selecciona el archivo con tu reporte en formato .pdf o .docx
+                    </Text>
+                  </div>
+                </Dropzone>
+                  {reportFile && (
+                    <Pill 
+                      mt={'sm'} 
+                      withRemoveButton
+                      onRemove={() => setReportFile(null)}
+                      bg={'gray'}
+                    >
+                      {reportFile?.name}
+                    </Pill>
+                  )}
+                {selectedReport?.report.requires_attachment && (
+                  <>
+                    <Text mt={'md'}>Anexos: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
+                    <Dropzone
+                      onDrop={(files) => setAttachments(files)}
+                      className={classes.dropzone}
+                      radius="md"
+                      mx={'auto'}
+                      mt={'md'}
+                      multiple
+                    >
+                      <div style={{ cursor: 'pointer', marginBottom: '0px' }}>
+                        <Group justify="center" pt={'md'}>
+                          <Dropzone.Accept>
+                            <IconDownload
+                              style={{ width: rem(40), height: rem(40) }}
+                              color={theme.colors.blue[6]}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Accept>
+                          <Dropzone.Reject>
+                            <IconX
+                              style={{ width: rem(40), height: rem(40) }}
+                              color={theme.colors.red[6]}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Reject>
+                          <Dropzone.Idle>
+                            <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
+                          </Dropzone.Idle>
+                        </Group>
+                        <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
+                          Selecciona los anexos de tu reporte (mínimo 1)
+                        </Text>
+                      </div>
+                    </Dropzone>
+                      <PillGroup mt={'sm'} mb={'xs'}>
+                        {attachments.map((attachment, index) => (
+                          <Pill
+                            key={attachment.name}
+                            bg={'gray'}
+                            withRemoveButton 
+                            onRemove={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                          >
+                            {attachment.name}
+                          </Pill>
+                        ))}
+                      </PillGroup>
+                  </>
                 )}
-              {selectedReport?.report.requires_attachment && (
-                <>
-                  <Text mt={'md'}>Anexos: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
-                  <Dropzone
-                    onDrop={(files) => setAttachments(files)}
-                    className={classes.dropzone}
-                    radius="md"
-                    mx={'auto'}
-                    mt={'md'}
-                    multiple
-                  >
-                    <div style={{ cursor: 'pointer', marginBottom: '0px' }}>
-                      <Group justify="center" pt={'md'}>
-                        <Dropzone.Accept>
-                          <IconDownload
-                            style={{ width: rem(40), height: rem(40) }}
-                            color={theme.colors.blue[6]}
-                            stroke={1.5}
-                          />
-                        </Dropzone.Accept>
-                        <Dropzone.Reject>
-                          <IconX
-                            style={{ width: rem(40), height: rem(40) }}
-                            color={theme.colors.red[6]}
-                            stroke={1.5}
-                          />
-                        </Dropzone.Reject>
-                        <Dropzone.Idle>
-                          <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
-                        </Dropzone.Idle>
-                      </Group>
-                      <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
-                        Selecciona los anexos de tu reporte (mínimo 1)
-                      </Text>
-                    </div>
-                  </Dropzone>
-                    <PillGroup mt={'sm'} mb={'xs'}>
-                      {attachments.map((attachment, index) => (
-                        <Pill
-                          key={attachment.name}
-                          bg={'gray'}
-                          withRemoveButton 
-                          onRemove={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
-                        >
-                          {attachment.name}
-                        </Pill>
-                      ))}
-                    </PillGroup>
-                </>
-              )}
-              <Group mt="md" grow>
-                <Button onClick={handleCreate}>
-                  Asignar
-                </Button>
-                <Button variant="outline" onClick={() => setPublishing(false)}>
-                  Cancelar
-                </Button>
-              </Group>
+                <Group mt="md" grow>
+                  <Button onClick={handleCreate}>
+                    Asignar
+                  </Button>
+                  <Button variant="outline" onClick={() => setPublishing(false)}>
+                    Cancelar
+                  </Button>
+                </Group>
+              </>
+            }
             </Modal>
         </Container>
     )

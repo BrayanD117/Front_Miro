@@ -275,9 +275,8 @@ const AdminReportsPage = () => {
               <IconTrash size={16} />
             </Button>
             <Button variant="outline" onClick={() => {
-                useEffect(() => {
+                if(typeof window !== 'undefined')
                   window.open(report.report_example_link)
-                }, [])
               }}>
               <Tooltip label="Ver formato adjunto" withArrow>
                 <IconFileDescription size={16} />
