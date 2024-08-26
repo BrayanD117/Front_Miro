@@ -315,7 +315,7 @@ const AdminReportsPage = () => {
         </Button>
         <Button 
           ml={"auto"} 
-          onClick={() => router.push('reports/published')}
+          onClick={() => router.push('reports/uploaded')}
           variant="outline"
           rightSection={<IconArrowRight size={16} />}>
           Ir a Reportes Publicados

@@ -237,7 +237,7 @@ const ResponsibleReportsPage = () => {
             />
             <Group>
                 <Button 
-                    onClick={() => router.push('/admin/reports')}
+                    onClick={() => router.push('reports/uploaded')}
                     variant="outline"
                     ml={"auto"}
                     rightSection={<IconArrowRight size={16} />}>
