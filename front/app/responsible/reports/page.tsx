@@ -221,7 +221,7 @@ const ResponsibleReportsPage = () => {
         );
     }) : (
         <Table.Tr>
-            <Table.Td colSpan={10}>No se encontraron reportes</Table.Td>
+            <Table.Td colSpan={10}>No se encontraron reportes pendientes</Table.Td>
         </Table.Tr>
     );
     
@@ -241,7 +241,7 @@ const ResponsibleReportsPage = () => {
                     variant="outline"
                     ml={"auto"}
                     rightSection={<IconArrowRight size={16} />}>
-                    Ir a Reportes Cargados
+                    Ir a Reportes Enviados
                 </Button>
             </Group>
             <Table striped withTableBorder mt="md">
@@ -277,7 +277,7 @@ const ResponsibleReportsPage = () => {
                 withCloseButton={false}
             >
               <Text size='xl' mb={'md'} fw={700} ta={'center'}>{selectedReport?.report.name}</Text>
-              <Text mb={'md'} size='md'>{selectedReport?.report.description || 'Sin descripción'}</Text>
+              <Text mb={'md'} size='md' ta={'justify'}>{selectedReport?.report.description || 'Sin descripción'}</Text>
               <Text size='md'>Requiere Anexo(s): {selectedReport?.report.requires_attachment ? 'Sí' : 'No'}</Text>
               <Button
                 variant='outline'
