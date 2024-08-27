@@ -132,7 +132,12 @@ const AdminPubReportsPage = () => {
                 <Table.Td>{truncateString(filledReport.send_by.full_name)}</Table.Td>
                 <Table.Td>
                     <Center>
-                        <Select data={options} w={rem(200)}/>
+                        <Select 
+                            data={options}
+                            w={rem(200)}
+                            value={filledReport.status}
+                            c='red'
+                        />
                     </Center>
                 </Table.Td>
                 <Table.Td>
@@ -193,7 +198,11 @@ const AdminPubReportsPage = () => {
                     <Center>
                         <Group>
                             <Tooltip label='Ver reportes cargados'>
-                                <Button variant='outline'>
+                                <Button variant='outline' onClick={() => {
+                                    setSelectedReport(pubReport);
+                                    setOpened(true);
+                                }}
+                                >
                                     <IconFileDescription size={16} />
                                 </Button>
                             </Tooltip>
