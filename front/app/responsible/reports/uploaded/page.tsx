@@ -144,8 +144,8 @@ const ResponsibleUploadedReportsPage = () => {
               <Table.Td>
                 <Center>
                   <Badge
-                    bg={pubReport.filled_reports[0].status === 'Rechazado' ? theme.colors.red[9] : theme.colors.blue[9]}
-                    c={pubReport.filled_reports[0].status === 'Rechazado' ? theme.colors.red[0] : theme.colors.blue[0]}
+                    bg={pubReport.filled_reports[0].status === 'Rechazado' ? theme.colors.red[9] : theme.colors.blue}
+                    c={pubReport.filled_reports[0].status === 'Rechazado' ? theme.colors.red[0] : theme.colors.blue}
                     variant={variant(pubReport.filled_reports[0].status)}
                   >
                     {pubReport.filled_reports[0].status}
