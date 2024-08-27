@@ -3,9 +3,16 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Accordion, Button, Center, Container, Group, Pagination, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
-import { IconArrowLeft, IconFile } from '@tabler/icons-react';
+import {  Button, Center, Container, Group, Modal, Pagination, Progress, rem, Select, Stack, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
+import { IconArrowLeft, IconFileDescription, IconFolderOpen, IconReportSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { format } from 'fecha';
+
+const options = [
+    {value: 'Pendiente Aprobación', label: 'Pendiente Aprobación'},
+    {value: 'Aprobado', label: 'Aprobado'},
+    {value: 'Rechazado', label:'Rechazado'}
+]
 
 interface Report {
     _id: string;
@@ -13,6 +20,7 @@ interface Report {
   description: string;
   report_example_id: string;
   report_example_link: string;
+  report_example_download: string;
   requires_attachment: boolean;
   file_name: string;
   created_by: {
@@ -29,18 +37,41 @@ interface Dimension {
 interface Period {
     _id: string;
     name: string;
+    responsible_start_date: Date;
+    responsible_end_date: Date;
+}
+
+interface File {
+    id: string;
+    name: string;
+    view_link: string;
+    download_link: string;
+    folder_id: string;
+}
+
+interface FilledReport {
+    dimension: Dimension
+    send_by: any
+    loaded_date: Date
+    report_file: File
+    attachments: File[]
+    status: string
 }
 
 interface PublishedReport {
-    _id: string;
-    report: Report;
-    dimensions: Dimension;
-    period: Period;
+    _id: string
+    report: Report
+    dimensions: Dimension[]
+    period: Period
+    filled_reports: FilledReport[]
+    folder_id: string
 }
 
 const AdminPubReportsPage = () => {
     const { data: session } = useSession();
     const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
+    const [selectedReport, setSelectedReport] = useState<PublishedReport | null>(null);
+    const [opened, setOpened] = useState<boolean>(false);
     const [dimensions, setDimensions] = useState<Dimension[]>([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -85,6 +116,52 @@ const AdminPubReportsPage = () => {
         }
     }, [search, session?.user?.email, page]);
 
+    const giveReportPercentage = (pubReport: PublishedReport) => {
+        return pubReport.filled_reports.length/pubReport.dimensions.length*100;
+    }
+
+    const truncateString = (str: string, maxLength: number = 20): string => {
+        return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
+    }
+
+    const selectedReportRows = selectedReport?.filled_reports.map((filledReport: FilledReport) => {
+        return (
+            <Table.Tr key={filledReport.report_file.id}>
+                <Table.Td>{filledReport.dimension.name}</Table.Td>
+                <Table.Td>{format(new Date(filledReport.loaded_date), 'D/M/YYYY')}</Table.Td>
+                <Table.Td>{truncateString(filledReport.send_by.full_name)}</Table.Td>
+                <Table.Td>
+                    <Center>
+                        <Select data={options} w={rem(200)}/>
+                    </Center>
+                </Table.Td>
+                <Table.Td>
+                    <Center>
+                        <Group>
+                            <Tooltip label='Ver reporte'>
+                                <Button size='compact-lg' variant='outline' onClick={() => {
+                                    if(typeof window !== 'undefined') {
+                                        window.open(filledReport.report_file.view_link);
+                                    }
+                                }}>
+                                    <IconReportSearch size={16} />
+                                </Button>
+                            </Tooltip>
+                            <Tooltip label='Ver carpeta de reporte'>
+                                <Button size='compact-lg' variant='outline' onClick={() => {
+                                    if(typeof window !== 'undefined') {
+                                        window.open(`https://drive.google.com/drive/folders/${filledReport.report_file.folder_id}`);
+                                    }
+                                }}>
+                                    <IconFolderOpen size={16} />
+                                </Button>
+                            </Tooltip>
+                        </Group>
+                    </Center>
+                </Table.Td>
+            </Table.Tr>
+        )
+    });
 
     const rows = pubReports?.length ? pubReports.map((pubReport: PublishedReport) => {
         return (
@@ -92,11 +169,51 @@ const AdminPubReportsPage = () => {
                 <Table.Td>{pubReport.period.name}</Table.Td>
                 <Table.Td>{pubReport.report.name}</Table.Td>
                 <Table.Td>{pubReport.report.file_name}</Table.Td>
+                <Table.Td>
+                    <Center>
+                        <Stack gap={0}>
+                            <Progress.Root 
+                                mt={'xs'}
+                                size={'md'}
+                                w={rem(200)}
+                                onClick={() => {
+                                    setSelectedReport(pubReport);
+                                    setOpened(true);
+                                }}
+                                style={{cursor: 'pointer'}}
+                            >
+                                <Progress.Section value={giveReportPercentage(pubReport)}/>
+                                <Progress.Section value={100-giveReportPercentage(pubReport)} color='red'/>
+                            </Progress.Root>
+                            <Text size='sm' ta={'center'}>{pubReport.filled_reports.length} de {pubReport.dimensions.length}</Text>
+                        </Stack>
+                    </Center>
+                </Table.Td>
+                <Table.Td>
+                    <Center>
+                        <Group>
+                            <Tooltip label='Ver reportes cargados'>
+                                <Button variant='outline'>
+                                    <IconFileDescription size={16} />
+                                </Button>
+                            </Tooltip>
+                            <Tooltip label='Ver carpeta de reportes'>
+                                <Button variant='outline' onClick={() => {
+                                    if(typeof window !== 'undefined') {
+                                        window.open(`https://drive.google.com/drive/folders/${pubReport.folder_id}`);
+                                    }
+                                }}>
+                                    <IconFolderOpen size={16} />
+                                </Button>
+                            </Tooltip>
+                        </Group>
+                    </Center>
+                </Table.Td>
             </Table.Tr>
         );
     }) : (
         <Table.Tr>
-            <Table.Td colSpan={5}>No se encontraron reportes publicados</Table.Td>
+            <Table.Td colSpan={10}>No se encontraron reportes publicados</Table.Td>
         </Table.Tr>
     );
     
@@ -124,6 +241,8 @@ const AdminPubReportsPage = () => {
                         <Table.Th>Periodo</Table.Th>
                         <Table.Th>Reporte</Table.Th>
                         <Table.Th>Nombre de Archivo</Table.Th>
+                        <Table.Th><Center>Progreso</Center></Table.Th>
+                        <Table.Th><Center>Acciones</Center></Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>
@@ -138,6 +257,29 @@ const AdminPubReportsPage = () => {
                     boundaries={3}
                 />
             </Center>
+            <Modal
+                opened={opened}
+                onClose={() => setOpened(false)}
+                size="xl"
+                overlayProps={{
+                  backgroundOpacity: 0.55,
+                  blur: 3,
+                }}
+                title={<Title size={'md'}>Reporte: {selectedReport?.report.name}</Title>}
+            >
+                <Table striped withTableBorder mt="md">
+                    <Table.Thead>
+                        <Table.Tr>
+                            <Table.Th>Dimensión</Table.Th>
+                            <Table.Th>Carga</Table.Th>
+                            <Table.Th>Enviado por</Table.Th>
+                            <Table.Th><Center>Estado</Center></Table.Th>
+                            <Table.Th><Center>Acciones</Center></Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>{selectedReportRows}</Table.Tbody>
+                </Table>
+            </Modal>
         </Container>
         
     )

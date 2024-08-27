@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconCheckupList } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconInfoCircle, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconCheckupList, IconReportSearch } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -155,7 +155,7 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="uploaded-reports">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconClipboardData size={80}/></Center>
+            <Center><IconReportSearch size={80}/></Center>
             <Group mt="md" mb="xs">
               <Text ta={"center"} w={500}>Reportes Cargados</Text>
             </Group>
