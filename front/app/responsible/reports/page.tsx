@@ -181,6 +181,18 @@ const ResponsibleReportsPage = () => {
       setLoading(false);
     }
 
+    const addFilesToAttachments = (files: File[]) => {
+      if(files.some((file) => attachments.some((attachment) => attachment.name === file.name))){
+        showNotification({
+          title: 'Error',
+          message: 'No puedes cargar dos veces el mismo archivo',
+          color: 'red'
+        });
+        return;
+      }
+        setAttachments([...attachments, ...files]);
+    }
+
     const rows = pubReports?.length ? pubReports.map((pubReport: PublishedReport) => {
         return (
             <Table.Tr key={pubReport._id}>
@@ -370,7 +382,7 @@ const ResponsibleReportsPage = () => {
                   <>
                     <Text mt={'md'}>Anexos: <Text component="span" c={theme.colors.red[8]}>*</Text></Text>
                     <Dropzone
-                      onDrop={(files) => setAttachments(files)}
+                      onDrop={addFilesToAttachments}
                       className={classes.dropzone}
                       radius="md"
                       mx={'auto'}

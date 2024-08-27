@@ -283,7 +283,7 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports-sended">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconCheckupList size={80}/></Center>
             <Group mt="md" mb="xs">

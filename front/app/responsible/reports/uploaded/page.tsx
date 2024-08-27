@@ -3,7 +3,7 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Accordion, Badge, Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
+import { Accordion, Badge, Button, Center, Container, Divider, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
 import { IconArrowLeft, IconArrowRight, IconCloudUpload, IconDownload, IconEdit, IconFileDescription, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import DateConfig from '@/app/components/DateConfig';
@@ -234,6 +234,7 @@ const ResponsibleUploadedReportsPage = () => {
             >
               <Text size='xl' mb={'md'} fw={700} ta={'center'}>{selectedReport?.report.name}</Text>
               <Text mb={'md'} size='md' ta={'justify'}>{selectedReport?.report.description || 'Sin descripción'}</Text>
+              <Divider mb={'sm'}/>
               <Group gap={'xs'}>
                 <Text size='md'>Reporte enviado: </Text>
                 <Pill 
@@ -249,29 +250,32 @@ const ResponsibleUploadedReportsPage = () => {
                     {selectedReport?.filled_reports[0].report_file.name}
                 </Pill>
               </Group>
-              {selectedReport?.report.requires_attachment && (    
-                <Group gap={'xs'} mt={'md'}>
-                    <Text size='md'>Anexos enviados: </Text>
-                    <PillGroup>
-                    {selectedReport?.filled_reports[0].attachments.map((attachment: File) => {
-                        return (
-                        <Pill 
-                            key={attachment.id}
-                            style={{ cursor: 'pointer' }}
-                            bg={'gray'}
-                            size='sm'
-                            onClick={() => {
-                                if (typeof window !== "undefined") {
-                                    window.open(attachment.view_link);
-                                }   
-                            }}
-                        >
-                            {attachment.name}
-                        </Pill>
-                        );
-                    })}
-                    </PillGroup>
-                </Group>
+              {selectedReport?.report.requires_attachment && (
+                <>
+                  <Divider mt={'md'}/>
+                  <Group gap={'xs'} mt={'sm'}>
+                      <Text size='md'>Anexos enviados: </Text>
+                      <PillGroup>
+                      {selectedReport?.filled_reports[0].attachments.map((attachment: File) => {
+                          return (
+                          <Pill 
+                              key={attachment.id}
+                              style={{ cursor: 'pointer' }}
+                              bg={'gray'}
+                              size='sm'
+                              onClick={() => {
+                                  if (typeof window !== "undefined") {
+                                      window.open(attachment.view_link);
+                                  }   
+                              }}
+                          >
+                              {attachment.name}
+                          </Pill>
+                          );
+                      })}
+                      </PillGroup>
+                  </Group>
+                </>
               )}
             </Modal>
         </Container>
