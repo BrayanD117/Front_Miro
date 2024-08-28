@@ -193,6 +193,7 @@ const ResponsibleReportsPage = () => {
         setAttachments([...attachments, ...files]);
     }
 
+    
     const rows = pubReports?.length ? pubReports.map((pubReport: PublishedReport) => {
         return (
             <Table.Tr key={pubReport._id}>
