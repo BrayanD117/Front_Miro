@@ -20,7 +20,15 @@ import {
   Tooltip,
   Title,
 } from "@mantine/core";
-import { IconArrowRight, IconCheck, IconEdit, IconFileDescription, IconTrash, IconUser, IconX } from "@tabler/icons-react";
+import {
+  IconArrowRight,
+  IconCheck,
+  IconEdit,
+  IconFileDescription,
+  IconTrash,
+  IconUser,
+  IconX,
+} from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
@@ -55,7 +63,7 @@ interface Period {
 }
 
 const AdminReportsPage = () => {
-  const { data: session } = useSession(); 
+  const { data: session } = useSession();
   const [reports, setReports] = useState<Report[]>([]);
   const [opened, setOpened] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -76,14 +84,15 @@ const AdminReportsPage = () => {
   const [search, setSearch] = useState("");
   const router = useRouter();
 
-
   const fetchReports = async (page: number, search: string) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reports/all`, {
-        params: { page, limit: 10, search, email: session?.user?.email },
-      });
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/reports/all`,
+        {
+          params: { page, limit: 10, search, email: session?.user?.email },
+        }
+      );
       if (response.data) {
-
         setReports(response.data.reports);
         setTotalPages(response.data.totalPages || 1);
       }
@@ -95,8 +104,9 @@ const AdminReportsPage = () => {
 
   const fetchPublishOptions = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pReports/feed`,
-      { params: { email: session?.user?.email } }
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/pReports/feed`,
+        { params: { email: session?.user?.email } }
       );
       if (response.data) {
         setDimensions(response.data.dimensions);
@@ -107,8 +117,7 @@ const AdminReportsPage = () => {
       setDimensions([]);
       setPeriods([]);
     }
-  }
-
+  };
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -148,22 +157,30 @@ const AdminReportsPage = () => {
 
     try {
       if (selectedReport) {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/reports/${selectedReport._id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/reports/${selectedReport._id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         showNotification({
           title: "Actualizado",
           message: "Reporte actualizado exitosamente",
           color: "teal",
         });
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reports/create`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/reports/create`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         showNotification({
           title: "Creado",
           message: "Reporte creado exitosamente",
@@ -235,7 +252,7 @@ const AdminReportsPage = () => {
     setPeriods([]);
     setSelectedDimensions([]);
     setSelectedPeriod(null);
-  }
+  };
 
   const handleSubmitPublish = async () => {
     try {
@@ -243,51 +260,62 @@ const AdminReportsPage = () => {
         reportId: selectedReport?._id,
         periodId: selectedPeriod,
         dimensionsId: selectedDimensions,
-      })
+      });
       showNotification({
         title: "Publicación Exitosa",
         message: "El reporte ha sido publicado exitosamente",
         color: "teal",
-      })
-      handlePublishModalClose()
+      });
+      handlePublishModalClose();
     } catch (error) {
       console.error("Error asignando reporte:", error);
       showNotification({
         title: "Error",
         message: "Hubo un error al asignar el reporte",
-        color: "red"
-      })
+        color: "red",
+      });
     }
-  }
+  };
 
   const rows = reports.map((report: Report) => (
     <Table.Tr key={report._id}>
       <Table.Td>{report.name}</Table.Td>
       <Table.Td>{report.description}</Table.Td>
       <Table.Td>{report.file_name}</Table.Td>
-      <Table.Td>{report.created_by?.full_name || report.created_by?.email}</Table.Td>
+      <Table.Td>
+        {report.created_by?.full_name || report.created_by?.email}
+      </Table.Td>
       <Table.Td>
         <Center>
           <Group gap={5}>
             <Button variant="outline" onClick={() => handleEdit(report)}>
               <IconEdit size={16} />
             </Button>
-            <Button color="red" variant="outline" onClick={() => handleDelete(report._id)}>
+            <Button
+              color="red"
+              variant="outline"
+              onClick={() => handleDelete(report._id)}
+            >
               <IconTrash size={16} />
             </Button>
-            <Button variant="outline" onClick={() => {
-                if(typeof window !== 'undefined')
-                  window.open(report.report_example_link)
-              }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (typeof window !== "undefined")
+                  window.open(report.report_example_link);
+              }}
+            >
               <Tooltip label="Ver formato adjunto" withArrow>
                 <IconFileDescription size={16} />
               </Tooltip>
             </Button>
-            <Button variant="outline" onClick={() => {
-              fetchPublishOptions();
-              setPublishing(true);
-              setSelectedReport(report)
-            }}
+            <Button
+              variant="outline"
+              onClick={() => {
+                fetchPublishOptions();
+                setPublishing(true);
+                setSelectedReport(report);
+              }}
             >
               <IconUser size={16} />
             </Button>
@@ -315,11 +343,12 @@ const AdminReportsPage = () => {
         >
           Crear Nuevo Reporte
         </Button>
-        <Button 
-          ml={"auto"} 
-          onClick={() => router.push('reports/uploaded')}
+        <Button
+          ml={"auto"}
+          onClick={() => router.push("reports/uploaded")}
           variant="outline"
-          rightSection={<IconArrowRight size={16} />}>
+          rightSection={<IconArrowRight size={16} />}
+        >
           Ir a Reportes Publicados
         </Button>
       </Group>
@@ -408,12 +437,12 @@ const AdminReportsPage = () => {
               onChange={setReportExample}
             />
             <Group my={"xs"}>
-              <Text size="sm">
-                ¿Necesita Anexos?
-              </Text>
+              <Text size="sm">¿Necesita Anexos?</Text>
               <Switch
                 checked={requiresAttachment}
-                onChange={(event) => setRequiresAttachment(event.currentTarget.checked)}
+                onChange={(event) =>
+                  setRequiresAttachment(event.currentTarget.checked)
+                }
                 color="rgba(25, 113, 194, 1)"
                 size="md"
                 thumbIcon={
@@ -436,7 +465,7 @@ const AdminReportsPage = () => {
           </>
         )}
       </Modal>
-      <Modal 
+      <Modal
         opened={publishing}
         overlayProps={{
           backgroundOpacity: 0.55,
@@ -446,7 +475,10 @@ const AdminReportsPage = () => {
         title="Asignar Reporte a Dimension(es)"
       >
         <MultiSelect
-          data={dimensions.map((dimension) => ({ value: dimension._id, label: dimension.name }))}
+          data={dimensions.map((dimension) => ({
+            value: dimension._id,
+            label: dimension.name,
+          }))}
           value={selectedDimensions}
           onChange={setSelectedDimensions}
           searchable
@@ -455,7 +487,10 @@ const AdminReportsPage = () => {
           required
         />
         <Select
-          data={periods.map((period) => ({ value: period._id, label: period.name }))}
+          data={periods.map((period) => ({
+            value: period._id,
+            label: period.name,
+          }))}
           value={selectedPeriod}
           onChange={(value) => setSelectedPeriod(value || null)}
           searchable
@@ -464,9 +499,7 @@ const AdminReportsPage = () => {
           required
         />
         <Group mt="md" grow>
-          <Button onClick={handleSubmitPublish}>
-            Asignar
-          </Button>
+          <Button onClick={handleSubmitPublish}>Asignar</Button>
           <Button variant="outline" onClick={handlePublishModalClose}>
             Cancelar
           </Button>
