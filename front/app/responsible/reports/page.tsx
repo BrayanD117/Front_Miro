@@ -3,8 +3,8 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Space, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
-import { IconArrowRight, IconCancel, IconCloudUpload, IconDeviceFloppy, IconDownload, IconFileDescription, IconHistory, IconHistoryToggle, IconReport, IconSend, IconTrash, IconUpload, IconVocabulary, IconX } from '@tabler/icons-react';
+import { Badge, Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Space, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
+import { IconArrowRight, IconCancel, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconFileDescription, IconHistory, IconHistoryToggle, IconMailForward, IconReport, IconSend, IconTrash, IconUpload, IconVocabulary, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import classes from './ResponsibleReportsPage.module.css';
 import DateConfig from '@/app/components/DateConfig';
@@ -42,11 +42,30 @@ interface Period {
     responsible_end_date: Date;
 }
 
+interface DriveFile {
+  id: string;
+  name: string;
+  view_link: string;
+  download_link: string;
+  folder_id: string;
+}
+
+interface FilledReport {
+  dimension: Dimension;
+  send_by: any;
+  loaded_date: Date;
+  report_file: DriveFile;
+  attachments: DriveFile[];
+  status: string;
+}
+
 interface PublishedReport {
-    _id: string;
-    report: Report;
-    dimensions: Dimension;
-    period: Period;
+  _id: string;
+  report: Report;
+  dimensions: Dimension[];
+  period: Period;
+  filled_reports: FilledReport[];
+  folder_id: string;
 }
 
 const ResponsibleReportsPage = () => {
@@ -77,7 +96,6 @@ const ResponsibleReportsPage = () => {
                 }
             )
             if(response.data) {
-                console.log(response.data);
                 setPubReports(response.data.publishedReports);
                 setTotalPages(response.data.totalPages);
             }
@@ -202,20 +220,26 @@ const ResponsibleReportsPage = () => {
               <Table.Td>{format(new Date(pubReport.period.responsible_end_date), 'MMMM D, YYYY')}</Table.Td>
               <Table.Td>{pubReport.report.name}</Table.Td>
               <Table.Td>
+                <Badge autoContrast color={pubReport.filled_reports[0]?.status==='En Borrador' ? 'orange' : 'red'} variant={'light'}>
+                  {pubReport.filled_reports[0]?.status ?? 'Pendiente'}
+                </Badge>
+              </Table.Td>
+              <Table.Td>{format(new Date(pubReport.filled_reports[0]?.loaded_date), 'MMMM D, YYYY')}</Table.Td>
+              <Table.Td>
                 <Center>
-                  <Group>
+                  <Group gap={'xs'}>
                     <Tooltip label='Ver detalles del reporte' withArrow>
                       <Button variant='outline' onClick={() => handleOpenReport(pubReport)}>
                         <IconFileDescription size={16} />
                       </Button>
                     </Tooltip>
-                    <Tooltip label='Subir reporte' withArrow>
+                    <Tooltip label='Cargar reporte' withArrow>
                       <Button variant='outline' onClick={() => {
                         setPublishing(true)
                         setSelectedReport(pubReport)
                         }}
                       >
-                        <IconUpload size={16}/>
+                        <IconEdit size={16}/>
                       </Button>
                     </Tooltip>
                     <Tooltip label='Ver historial de cargas del reporte' withArrow>
@@ -262,6 +286,8 @@ const ResponsibleReportsPage = () => {
                       <Table.Th>Fecha Inicio</Table.Th>
                       <Table.Th>Fecha Límite</Table.Th>
                       <Table.Th>Reporte</Table.Th>
+                      <Table.Th>Estado</Table.Th>
+                      <Table.Th>Última Modificación</Table.Th>
                       <Table.Td fw={700}><Center>Acciones</Center></Table.Td>
                     </Table.Tr>
                 </Table.Thead>
@@ -362,7 +388,7 @@ const ResponsibleReportsPage = () => {
                         <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
                       </Dropzone.Idle>
                     </Group>
-                    <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
+                    <Text ta="center" fz="sm" c="dimmed" pb={'sm'}>
                       Selecciona el archivo con tu reporte en formato .pdf o .docx
                     </Text>
                   </div>
@@ -408,7 +434,7 @@ const ResponsibleReportsPage = () => {
                             <IconCloudUpload style={{ width: rem(40), height: rem(40) }} stroke={1.5} />
                           </Dropzone.Idle>
                         </Group>
-                        <Text ta="center" fz="sm" c="dimmed" mb={'sm'}>
+                        <Text ta="center" fz="sm" c="dimmed" pb={'sm'}>
                           Selecciona los anexos de tu reporte (mínimo 1)
                         </Text>
                       </div>
@@ -430,6 +456,7 @@ const ResponsibleReportsPage = () => {
                 <Group mt="md" grow>
                   <Button
                     justify='space-between'
+                    variant='outline'
                     rightSection={<span />}
                     leftSection={<IconDeviceFloppy/>}
                   >
@@ -446,7 +473,15 @@ const ResponsibleReportsPage = () => {
                     Cancelar
                   </Button>
                 </Group>
-                <Button onClick={handleCreate} fullWidth mt={'md'} disabled={true}>
+                <Button
+                  onClick={handleCreate}
+                  fullWidth
+                  mt={'md'}
+                  disabled={false}
+                  justify='space-between'
+                  leftSection={<span/>}
+                  rightSection={<IconMailForward/>}
+                >
                   Enviar
                 </Button>
               </>
