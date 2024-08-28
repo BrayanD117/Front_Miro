@@ -249,6 +249,35 @@ const ResponsibleReportsPage = () => {
     setDeletedReport(null);
   };
 
+  const handleSendReport = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/send`,
+        {
+          email: session?.user?.email,
+          reportId: selectedReport?._id,
+          loadedDate: selectedReport?.filled_reports[0].loaded_date,
+        }
+      );
+      if (response.data) {
+        showNotification({
+          title: "Reporte enviado",
+          message: "El reporte se ha enviado correctamente",
+          color: "green",
+        });
+        handleClosePublish();
+        fetchReports(page, search);
+      }
+    } catch (error) {
+      console.error(error);
+      showNotification({
+        title: "Error",
+        message: "Error al enviar el reporte",
+        color: "red",
+      });
+    }
+  }
+
   const addFilesToAttachments = (files: File[]) => {
     if (
       files.some((file) =>
@@ -508,7 +537,13 @@ const ResponsibleReportsPage = () => {
                       selectedReport?.filled_reports[0].report_file.id
                     )
                   }
-                  bg={"gray"}
+                  bg={"blue"}
+                  c={"white"}
+                  onClick={() =>{
+                    if(typeof window !== "undefined")
+                      window.open(selectedReport?.filled_reports[0].report_file.download_link)
+                  }}
+                  style={{ cursor: "pointer" }}
                 >
                   {selectedReport?.filled_reports[0].report_file.name}
                 </Pill>
@@ -519,6 +554,7 @@ const ResponsibleReportsPage = () => {
                 withRemoveButton
                 onRemove={() => setReportFile(null)}
                 bg={"gray"}
+                c={"white"}
               >
                 {reportFile?.name}
               </Pill>
@@ -572,6 +608,7 @@ const ResponsibleReportsPage = () => {
                     <Pill
                       key={attachment.name}
                       bg={"gray"}
+                      c={"white"}
                       withRemoveButton
                       onRemove={() =>
                         setAttachments((prev) =>
@@ -588,7 +625,8 @@ const ResponsibleReportsPage = () => {
                         !deletedAttachments.includes(attachment.id) && (
                           <Pill
                             key={attachment.name}
-                            bg={"gray"}
+                            bg={"blue"}
+                            c={"white"}
                             withRemoveButton
                             onRemove={() =>
                               setDeletedAttachments([
@@ -596,6 +634,11 @@ const ResponsibleReportsPage = () => {
                                 attachment.id,
                               ])
                             }
+                            onClick={() =>{
+                              if(typeof window !== "undefined")
+                                window.open(attachment.download_link)
+                            }}
+                            style={{ cursor: "pointer" }}
                           >
                             {attachment.name}
                           </Pill>
@@ -635,10 +678,12 @@ const ResponsibleReportsPage = () => {
             <Button
               fullWidth
               mt={"md"}
-              disabled={false}
+              disabled={!(attachments.length === 0 && reportFile === null 
+                && deletedReport===null && deletedAttachments.length===0)}
               justify="space-between"
               leftSection={<span />}
               rightSection={<IconMailForward />}
+              onClick={handleSendReport}
             >
               Enviar
             </Button>
