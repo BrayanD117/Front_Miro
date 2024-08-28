@@ -73,7 +73,7 @@ const ResponsibleUploadedReportsPage = () => {
     const [success, setSuccess] = useState<boolean>(false);
     const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
     const [reportFile, setReportFile] = useState<File | null>(null);
-    const [isReportFileDeleted, setIsReportFileDeleted] = useState<boolean>(false);
+    const [deletedReport, setDeletedReport] = useState<string | null>(null);
     const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
     const [attachments, setAttachments] = useState<File[]>([]);
     const [opened, setOpened] = useState<boolean>(false);
@@ -298,7 +298,8 @@ const ResponsibleUploadedReportsPage = () => {
               opened={editing}
               onClose={() => {
                 setEditing(false)
-                setIsReportFileDeleted(false);
+                setDeletedReport(null)
+                setDeletedAttachments([])
               }}
               size="md"
               overlayProps={{
@@ -328,8 +329,10 @@ const ResponsibleUploadedReportsPage = () => {
                     });
                     return;
                   }
-                  setIsReportFileDeleted(true);
-                  setReportFile(files[0])
+                  if(selectedReport) {
+                    setDeletedReport(selectedReport?.filled_reports[0].report_file.id);
+                    setReportFile(files[0])
+                  }
                 }}
                 className={classes.dropzone}
                 radius="md"
@@ -361,11 +364,11 @@ const ResponsibleUploadedReportsPage = () => {
                   </Text>
                 </div>
               </Dropzone>
-              {selectedReport?.filled_reports[0].report_file && !isReportFileDeleted && (
+              {selectedReport?.filled_reports[0].report_file && !deletedReport && (
                 <Pill 
                   mt={'sm'} 
                   withRemoveButton
-                  onRemove={() => setIsReportFileDeleted(true)}
+                  onRemove={() => setDeletedReport(selectedReport?.filled_reports[0].report_file.name)}
                   bg={'gray'}
                 >
                   {selectedReport?.filled_reports[0].report_file.name}
@@ -447,7 +450,8 @@ const ResponsibleUploadedReportsPage = () => {
                 </Button>
                 <Button variant="outline" onClick={() => {
                   setEditing(false)
-                  setIsReportFileDeleted(false);
+                  setDeletedReport(null);
+                  setDeletedAttachments([]);
                 }}>
                   Cancelar
                 </Button>

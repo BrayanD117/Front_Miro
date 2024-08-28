@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress, Text, Tooltip, List, Group } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Title, RingProgress, Text, Tooltip, List, Group, Progress } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconArrowLeft, IconDownload } from "@tabler/icons-react";
@@ -223,6 +223,9 @@ const PublishedTemplatesPage = () => {
         <Table.Td>{format(new Date(publishedTemplate.updatedAt), 'MMMM D, YYYY')}</Table.Td>
         <Table.Td>
           <Center>
+            <Progress>
+              
+            </Progress>
             <RingProgress
               size={35}
               thickness={6}
