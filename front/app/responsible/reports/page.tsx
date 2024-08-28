@@ -3,8 +3,8 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
-import { IconArrowRight, IconCloudUpload, IconDeviceFloppy, IconDownload, IconFileDescription, IconHistory, IconReport, IconSend, IconTrash, IconUpload, IconVocabulary, IconX } from '@tabler/icons-react';
+import { Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Space, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
+import { IconArrowRight, IconCancel, IconCloudUpload, IconDeviceFloppy, IconDownload, IconFileDescription, IconHistory, IconHistoryToggle, IconReport, IconSend, IconTrash, IconUpload, IconVocabulary, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import classes from './ResponsibleReportsPage.module.css';
 import DateConfig from '@/app/components/DateConfig';
@@ -209,22 +209,20 @@ const ResponsibleReportsPage = () => {
                         <IconFileDescription size={16} />
                       </Button>
                     </Tooltip>
-                    <Tooltip label='Descargar formato del reporte' withArrow>
-                      <Button variant='outline' onClick={() => {
-                        if (typeof window !== "undefined") {
-                          window.open(pubReport.report.report_example_download);
-                        }
-                      }}>
-                        <IconVocabulary size={16} />
-                      </Button>
-                    </Tooltip>
                     <Tooltip label='Subir reporte' withArrow>
                       <Button variant='outline' onClick={() => {
                         setPublishing(true)
                         setSelectedReport(pubReport)
                         }}
                       >
-                        <IconUpload size={16} />
+                        <IconUpload size={16}/>
+                      </Button>
+                    </Tooltip>
+                    <Tooltip label='Ver historial de cargas del reporte' withArrow>
+                      <Button variant='outline' onClick={() => {
+                        
+                      }}>
+                        <IconHistoryToggle size={16} />
                       </Button>
                     </Tooltip>
                   </Group>
@@ -430,10 +428,21 @@ const ResponsibleReportsPage = () => {
                   </>
                 )}
                 <Group mt="md" grow>
-                  <Button leftSection={<IconDeviceFloppy/>}>
+                  <Button
+                    justify='space-between'
+                    rightSection={<span />}
+                    leftSection={<IconDeviceFloppy/>}
+                  >
                     Guardar Borrador
                   </Button>
-                  <Button variant="outline" onClick={() => setPublishing(false)} color='red' rightSection={<IconTrash/>}>
+                  <Button 
+                    variant="outline" 
+                    color='red'
+                    justify='space-between'
+                    leftSection={<span />}
+                    rightSection={<IconCancel/>}
+                    onClick={() => setPublishing(false)}
+                  >
                     Cancelar
                   </Button>
                 </Group>
