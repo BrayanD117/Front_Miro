@@ -162,6 +162,7 @@ const ResponsibleUploadedReportsPage = () => {
                   <Badge
                     bg={pubReport.filled_reports[0].status === 'Rechazado' ? theme.colors.red[9] : pubReport.filled_reports[0].status === 'Pendiente Aprobación' ? theme.colors.yellow[9] : theme.colors.green[9]}
                     c={pubReport.filled_reports[0].status === 'Rechazado' ? theme.colors.red[0] : pubReport.filled_reports[0].status === 'Pendiente Aprobación' ? theme.colors.yellow[0] : theme.colors.green[0]}
+
                     variant={'light'}
                   >
                     {pubReport.filled_reports[0].status}

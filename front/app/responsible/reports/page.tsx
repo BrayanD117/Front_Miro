@@ -3,8 +3,8 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Accordion, Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
-import { IconArrowRight, IconCloudUpload, IconDownload, IconFileDescription, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
+import { Button, Center, Container, FileInput, Group, Modal, Pagination, Pill, PillGroup, rem, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from '@mantine/core';
+import { IconArrowRight, IconCloudUpload, IconDeviceFloppy, IconDownload, IconFileDescription, IconHistory, IconReport, IconSend, IconTrash, IconUpload, IconVocabulary, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import classes from './ResponsibleReportsPage.module.css';
 import DateConfig from '@/app/components/DateConfig';
@@ -214,7 +214,7 @@ const ResponsibleReportsPage = () => {
                           window.open(pubReport.report.report_example_download);
                         }
                       }}>
-                        <IconDownload size={16} />
+                        <IconVocabulary size={16} />
                       </Button>
                     </Tooltip>
                     <Tooltip label='Subir reporte' withArrow>
@@ -263,7 +263,7 @@ const ResponsibleReportsPage = () => {
                       <Table.Th>Fecha Inicio</Table.Th>
                       <Table.Th>Fecha Límite</Table.Th>
                       <Table.Th>Reporte</Table.Th>
-                      <Table.Td><Center>Acciones</Center></Table.Td>
+                      <Table.Td fw={700}><Center>Acciones</Center></Table.Td>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>
@@ -429,13 +429,16 @@ const ResponsibleReportsPage = () => {
                   </>
                 )}
                 <Group mt="md" grow>
-                  <Button onClick={handleCreate}>
-                    Asignar
+                  <Button leftSection={<IconDeviceFloppy/>}>
+                    Guardar Borrador
                   </Button>
-                  <Button variant="outline" onClick={() => setPublishing(false)}>
+                  <Button variant="outline" onClick={() => setPublishing(false)} color='red' rightSection={<IconTrash/>}>
                     Cancelar
                   </Button>
                 </Group>
+                <Button onClick={handleCreate} fullWidth mt={'md'} disabled={true}>
+                  Enviar
+                </Button>
               </>
             }
             </Modal>

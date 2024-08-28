@@ -3,7 +3,7 @@
 import {use, useEffect, useState} from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import {  Button, Center, Container, Group, Modal, Pagination, Progress, rem, Select, Stack, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
+import {  Badge, Button, Center, Container, Group, Modal, Pagination, Progress, rem, Select, Stack, Table, Text, TextInput, Title, Tooltip } from '@mantine/core';
 import { IconArrowLeft, IconFileDescription, IconFolderOpen, IconReportSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'fecha';
@@ -171,7 +171,11 @@ const AdminPubReportsPage = () => {
     const rows = pubReports?.length ? pubReports.map((pubReport: PublishedReport) => {
         return (
             <Table.Tr key={pubReport._id}>
-                <Table.Td>{pubReport.period.name}</Table.Td>
+                <Table.Td maw={rem(55)}>
+                    <Center>
+                      <Badge size={rem(12)} h={rem(8)} variant='light' p={'xs'}>{pubReport.period.name}</Badge>
+                    </Center>
+                </Table.Td>
                 <Table.Td>{pubReport.report.name}</Table.Td>
                 <Table.Td>{pubReport.report.file_name}</Table.Td>
                 <Table.Td>
@@ -180,6 +184,7 @@ const AdminPubReportsPage = () => {
                             <Progress.Root 
                                 mt={'xs'}
                                 size={'md'}
+                                radius={'md'}
                                 w={rem(200)}
                                 onClick={() => {
                                     setSelectedReport(pubReport);
@@ -187,10 +192,9 @@ const AdminPubReportsPage = () => {
                                 }}
                                 style={{cursor: 'pointer'}}
                             >
-                                <Progress.Section value={giveReportPercentage(pubReport)}/>
-                                <Progress.Section value={100-giveReportPercentage(pubReport)} color='red'/>
+                                <Progress.Section value={giveReportPercentage(pubReport)} striped animated/>
                             </Progress.Root>
-                            <Text size='sm' ta={'center'}>{pubReport.filled_reports.length} de {pubReport.dimensions.length}</Text>
+                            <Text size='sm' ta={'center'} mt={rem(5)}>{pubReport.filled_reports.length} de {pubReport.dimensions.length}</Text>
                         </Stack>
                     </Center>
                 </Table.Td>
@@ -247,7 +251,7 @@ const AdminPubReportsPage = () => {
             <Table striped withTableBorder mt="md">
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th>Periodo</Table.Th>
+                        <Table.Th maw={rem(55)}><Center>Periodo</Center></Table.Th>
                         <Table.Th>Reporte</Table.Th>
                         <Table.Th>Nombre de Archivo</Table.Th>
                         <Table.Th><Center>Progreso</Center></Table.Th>
