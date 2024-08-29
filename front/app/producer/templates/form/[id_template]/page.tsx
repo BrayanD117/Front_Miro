@@ -170,7 +170,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         return (
           <DateInput
             {...commonProps}
-            value={row[field.name] || null ? "" : row[field.name]}
+            value={row[field.name] || ""}
             locale="es"
             valueFormat="DD/MM/YYYY"
             onChange={(date) => handleInputChange(rowIndex, field.name, date)}
