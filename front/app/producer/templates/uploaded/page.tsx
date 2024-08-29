@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconArrowLeft, IconDownload, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconDownload, IconEdit, IconPencil, IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
@@ -237,6 +237,10 @@ const ProducerUploadedTemplatesPage = () => {
     }
   };
 
+  const handleDirectEditClick = (publishedTemplateId: string) => {
+    router.push(`/producer/templates/form/update/${publishedTemplateId}`);
+  };
+
   const truncateString = (str: string, maxLength: number = 20): string => {
     return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
   }
@@ -272,6 +276,19 @@ const ProducerUploadedTemplatesPage = () => {
             </Tooltip>
           </Center>
         </Table.Td>
+        <Table.Td>
+        <Center>
+          <Tooltip label="Edición directa" position="top" withArrow>
+            <Button
+              variant="outline"
+              color="teal"
+              onClick={() => handleDirectEditClick(publishedTemplate._id)}
+            >
+              <IconPencil size={16} />
+            </Button>
+          </Tooltip>
+        </Center>
+      </Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" color="red" onClick={() => handleDeleteClick(publishedTemplate._id)}>
@@ -312,6 +329,7 @@ const ProducerUploadedTemplatesPage = () => {
             <Table.Th>Fecha de Cargue</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
             <Table.Th><Center>Corregir Información</Center></Table.Th>
+            <Table.Th><Center>Edición directa</Center></Table.Th>
             <Table.Th><Center>Eliminar Información</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
