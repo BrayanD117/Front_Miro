@@ -2,15 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, TextInput, Title, Text, Select, NumberInput, ActionIcon, Flex } from "@mantine/core";
-import { IconEye } from "@tabler/icons-react";
-import { DateInput } from "@mantine/dates";
+import { Container, Button, Group, Text, Table, ActionIcon, ScrollArea, Title, Input } from "@mantine/core";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
-import { ValidatorPanel } from "./ValidatorPanel";
-import { ValidatorModal } from "./ValidatorModal";
-import 'dayjs/locale/es';
 
 interface Field {
   name: string;
@@ -37,17 +33,13 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const router = useRouter();
   const [publishedTemplateName, setPublishedTemplateName] = useState<string>("");
   const [template, setTemplate] = useState<Template | null>(null);
-  const [formValues, setFormValues] = useState<Record<string, any>>({});
-  const [currentValidatorId, setCurrentValidatorId] = useState<string | null>(null);
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [rows, setRows] = useState<Record<string, any>[]>([{}]);
 
   const fetchTemplate = async () => {
-    console.log("Fetching template data...");
     try {
       const response = await axios.get<PublishedTemplateResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id_template}`
       );
-      console.log("Template data:", response.data);
       setPublishedTemplateName(response.data.name);
       setTemplate(response.data.template);
     } catch (error) {
@@ -64,34 +56,28 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     if (id_template) {
       fetchTemplate();
     }
-
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
   }, [id_template]);
 
-  const handleChange = (fieldName: string, value: any) => {
-    let newValue = value;
-    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      newValue = "";
-    }
-    setFormValues((prev) => ({ ...prev, [fieldName]: newValue }));
+  const handleInputChange = (rowIndex: number, fieldName: string, value: any) => {
+    const updatedRows = [...rows];
+    updatedRows[rowIndex][fieldName] = value;
+    setRows(updatedRows);
+  };
+
+  const addRow = () => {
+    setRows([...rows, {}]);
+  };
+
+  const removeRow = (index: number) => {
+    setRows(rows.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting form with values:", formValues);
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/submit`, {
         templateId: id_template,
         email: session?.user?.email,
-        data: formValues,
+        data: rows,
       });
       showNotification({
         title: "Éxito",
@@ -109,107 +95,60 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     }
   };
 
-  const openValidatorPanelOrModal = (validatorId: string) => {
-    console.log(`Opening validator with ID: ${validatorId}`);
-    setCurrentValidatorId(validatorId);
-  };
-
   if (!template) {
     return <Text ta="center" c="dimmed">Cargando Información...</Text>;
   }
 
-  const renderInputField = (field: Field) => {
-    const commonProps = {
-      label: field.name,
-      description: field.comment,
-      value: formValues[field.name] || "",
-      onChange: (event: any) => handleChange(field.name, event.currentTarget?.value || event),
-      required: field.required,
-      withAsterisk: field.required,
-      mb: "md",
-    };
-
-    return (
-      <div key={field.name} style={{ position: 'relative' }}>
-        <Flex justify="center" align="center">
-          {(() => {
-            switch (field.datatype) {
-              case "Entero":
-                return <NumberInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
-              case "Texto Corto":
-              case "Texto Largo":
-                return <TextInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
-              case "True/False":
-                return (
-                  <Select
-                    key={field.name}
-                    {...commonProps}
-                    data={[
-                      { value: "true", label: "Sí" },
-                      { value: "false", label: "No" },
-                    ]}
-                    style={{ flex: field.validate_with ? 1 : 'auto' }}
-                  />
-                );
-              case "Fecha":
-                return (
-                  <DateInput
-                    key={field.name}
-                    {...commonProps}
-                    locale="es"
-                    maxDate={new Date()}
-                    style={{ flex: field.validate_with ? 1 : 'auto' }}
-                  />
-                );
-              default:
-                return <TextInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
-            }
-          })()}
-          {field.validate_with && (
-            <ActionIcon
-              size={"lg"}
-              onClick={() => openValidatorPanelOrModal(field.validate_with?.id!)}
-              title="Ver valores aceptados"
-              ml={8}
-              mt={field.comment ? 30 : 8} // Adjust mt based on the presence of a description
-            >
-              <IconEye />
-            </ActionIcon>
-          )}
-        </Flex>
-      </div>
-    );
-  };
-
   return (
-    <Container size="xl" style={{ display: 'flex' }}>
-      <div style={{ flex: 1 }}>
-        <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
-        {template.fields.map(renderInputField)}
-        <Group mt="xl">
-          <Button variant="outline" onClick={() => router.push('/producer/templates')}>
-            Cancelar
+    <Container size="xl">
+      <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
+      <ScrollArea>
+        <Table withColumnBorders withRowBorders>
+          <Table.Thead>
+            <Table.Tr>
+              {template.fields.map((field) => (
+                <Table.Th key={field.name}>{field.name}</Table.Th>
+              ))}
+              <Table.Th>Acciones</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {rows.map((row, rowIndex) => (
+              <Table.Tr key={rowIndex}>
+                {template.fields.map((field) => (
+                  <Table.Td key={field.name}>
+                    <Input 
+                      type="text"
+                      value={row[field.name] || ""}
+                      onChange={(e) =>
+                        handleInputChange(rowIndex, field.name, e.target.value)
+                      }
+                      required={field.required}
+                      placeholder={field.comment}
+                    />
+                  </Table.Td>
+                ))}
+                <Table.Td>
+                  <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </ScrollArea>
+      <Group mt="md">
+        <Button variant="outline" onClick={() => router.push('/producer/templates')}>
+          Cancelar
+        </Button>
+        <Group>
+          <Button variant="light" onClick={addRow}>
+            <IconPlus size={16} /> Agregar Fila
           </Button>
-          <Button onClick={handleSubmit}>
-            Enviar
-          </Button>
+          <Button onClick={handleSubmit}>Enviar</Button>
         </Group>
-      </div>
-
-      {!isMobileView && currentValidatorId && (
-        <ValidatorPanel
-          validatorId={currentValidatorId}
-          onClose={() => setCurrentValidatorId(null)}
-        />
-      )}
-
-      {isMobileView && currentValidatorId && (
-        <ValidatorModal
-          opened={!!currentValidatorId}
-          onClose={() => setCurrentValidatorId(null)}
-          validatorId={currentValidatorId}
-        />
-      )}
+      </Group>
     </Container>
   );
 };
