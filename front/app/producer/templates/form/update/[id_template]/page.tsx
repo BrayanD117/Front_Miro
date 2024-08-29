@@ -70,7 +70,6 @@ const ProducerTemplateUpdatePage = ({
   >({});
 
   useEffect(() => {
-    console.log("useEffect triggered for id_template:", id_template);
     if (id_template) {
       fetchTemplateAndData();
     }
@@ -90,8 +89,7 @@ const ProducerTemplateUpdatePage = ({
           params: { email: session?.user?.email },
         }
       );
-  
-      // Transforma la estructura de datos para crear una fila con múltiples columnas
+      
       const transformedRows = transformData(dataResponse.data.data);
   
       setRows(transformedRows);
@@ -132,18 +130,14 @@ const ProducerTemplateUpdatePage = ({
     const transformedRow: Record<string, any> = {};
   
     data.forEach((fieldData) => {
-      fieldData.values.forEach((value: any, index: number) => {
-        if (!transformedRow[index]) {
-          transformedRow[index] = {};
-        }
-        transformedRow[index][fieldData.field_name] = value;
-      });
+      transformedRow[fieldData.field_name] = fieldData.values[0];
     });
-  
+
+    console.log("data", data);
+    console.log("transformedRow", transformedRow);
     return [transformedRow];
   };
   
-
   const renderInputField = (
     field: Field,
     row: Record<string, any>,
@@ -183,7 +177,7 @@ const ProducerTemplateUpdatePage = ({
         return (
           <DateInput
             {...commonProps}
-            value={row[field.name] || ""}
+            value={new Date(row[field.name]) || ""}
             locale="es"
             valueFormat="DD/MM/YYYY"
             onChange={(date) => handleInputChange(rowIndex, field.name, date)}
@@ -269,10 +263,9 @@ const ProducerTemplateUpdatePage = ({
 
   return (
     <Container size="xl">
-      <Title
-        ta="center"
-        mb="md"
-      >{`Editar Plantilla: ${publishedTemplateName}`}</Title>
+      <Title ta="center" mb="md">
+        {`Editar Plantilla: ${publishedTemplateName}`}
+      </Title>
       <ScrollArea>
         <Table withTableBorder withColumnBorders withRowBorders>
           <Table.Thead>
@@ -327,11 +320,7 @@ const ProducerTemplateUpdatePage = ({
         </Table>
       </ScrollArea>
       <Group justify="center" mt="md">
-        <Button
-          color={"red"}
-          variant="outline"
-          onClick={() => router.push("/producer/templates")}
-        >
+        <Button color={"red"} variant="outline" onClick={() => router.push("/producer/templates")}>
           Cancelar
         </Button>
         <Button onClick={handleSubmit}>Actualizar</Button>
