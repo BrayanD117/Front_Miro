@@ -43,6 +43,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const [rows, setRows] = useState<Record<string, any>[]>([{}]);
   const [validatorModalOpen, setValidatorModalOpen] = useState(false);
   const [validatorData, setValidatorData] = useState<ValidatorData | null>(null);
+  const [validatorExists, setValidatorExists] = useState<Record<string, boolean>>({});
 
   const fetchTemplate = async () => {
     try {
@@ -51,6 +52,24 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       );
       setPublishedTemplateName(response.data.name);
       setTemplate(response.data.template);
+
+      // Verificar la existencia de los validadores
+      const validatorCheckPromises = response.data.template.fields.map(async (field) => {
+        if (field.validate_with) {
+          try {
+            const validatorResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${field.validate_with.id}`);
+            return { [field.name]: !!validatorResponse.data.validator };
+          } catch {
+            return { [field.name]: false };
+          }
+        }
+        return { [field.name]: false };
+      });
+
+      const validatorChecks = await Promise.all(validatorCheckPromises);
+      const validatorCheckResults = validatorChecks.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      setValidatorExists(validatorCheckResults);
+
     } catch (error) {
       console.error("Error fetching template:", error);
       showNotification({
@@ -188,6 +207,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                         size={"lg"}
                         onClick={() => handleValidatorOpen(field.validate_with?.id!)}
                         title="Ver valores aceptados"
+                        disabled={!validatorExists[field.name]} // Deshabilitar si no existe en la base de datos
                       >
                         <IconEye />
                       </ActionIcon>
