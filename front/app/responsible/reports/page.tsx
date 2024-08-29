@@ -443,10 +443,8 @@ const ResponsibleReportsPage = () => {
           mt="md"
           leftSection={<IconDownload size={16} />}
           onClick={() => {
-            useEffect(() => {
               if (typeof window !== "undefined")
                 window.open(selectedReport?.report.report_example_download);
-            }, [selectedReport]);
           }}
         >
           Descargar Formato
