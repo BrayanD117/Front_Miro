@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, Text, Table, ActionIcon, ScrollArea, Title, TextInput, NumberInput, Modal } from "@mantine/core";
+import { Container, Button, Group, Text, Table, ActionIcon, ScrollArea, Title, TextInput, NumberInput, Modal, Center } from "@mantine/core";
 import { IconPlus, IconTrash, IconEye } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
@@ -194,17 +194,19 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                   </Table.Td>
                 ))}
                 <Table.Td>
-                  <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
-                    <IconTrash size={16} />
-                  </ActionIcon>
+                  <Center>
+                    <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Center>
                 </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
       </ScrollArea>
-      <Group mt="md">
-        <Button variant="outline" onClick={() => router.push('/producer/templates')}>
+      <Group justify="center" mt="md">
+        <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
           Cancelar
         </Button>
         <Group>
