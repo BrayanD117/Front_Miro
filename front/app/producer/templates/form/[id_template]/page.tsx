@@ -69,7 +69,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
 
   const handleInputChange = (rowIndex: number, fieldName: string, value: any) => {
     const updatedRows = [...rows];
-    updatedRows[rowIndex][fieldName] = value;
+    updatedRows[rowIndex][fieldName] = value === "" ? null : value;
     setRows(updatedRows);
   };
 
@@ -135,21 +135,36 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             value={row[field.name] || ""}
             min={0}
             hideControls
+            onChange={(value) => handleInputChange(rowIndex, field.name, value)}
           />
         );
       case "Texto Corto":
       case "Texto Largo":
-        return <TextInput {...commonProps} />;
+        return (
+          <TextInput
+            {...commonProps}
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
       case "Fecha":
         return (
           <DateInput
             {...commonProps}
+            value={row[field.name] || null ? "" : row[field.name]}
             locale="es"
             valueFormat="DD/MM/YYYY"
+            onChange={(date) => handleInputChange(rowIndex, field.name, date)}
           />
         );
       default:
-        return <TextInput {...commonProps} />;
+        return (
+          <TextInput
+            {...commonProps}
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
     }
   };
 
