@@ -8,6 +8,7 @@ import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
+import { ValidatorModal } from "./ValidatorModal";
 import 'dayjs/locale/es';
 
 interface Field {
@@ -31,6 +32,7 @@ interface PublishedTemplateResponse {
 
 interface ValidatorData {
   name: string;
+  _id: string;
   columns: { name: string; is_validator: boolean; values: any[] }[];
 }
 
@@ -207,7 +209,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                         size={"lg"}
                         onClick={() => handleValidatorOpen(field.validate_with?.id!)}
                         title="Ver valores aceptados"
-                        disabled={!validatorExists[field.name]} // Deshabilitar si no existe en la base de datos
+                        disabled={!validatorExists[field.name]}
                       >
                         <IconEye />
                       </ActionIcon>
@@ -251,44 +253,11 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
           <Button onClick={handleSubmit}>Enviar</Button>
         </Group>
       </Group>
-
-      <Modal
+      <ValidatorModal
         opened={validatorModalOpen}
         onClose={() => setValidatorModalOpen(false)}
-        title="Valores aceptados"
-      >
-        {validatorData ? (
-          <ScrollArea style={{ height: 300 }}>
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Valores aceptados</Table.Th>
-                  <Table.Th>Descripción</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {validatorData.columns.map((column, columnIndex) => {
-                  if (column.is_validator) {
-                    return column.values.map((value, valueIndex) => (
-                      <Table.Tr key={`${columnIndex}-${valueIndex}`}>
-                        <Table.Td>{value}</Table.Td>
-                        <Table.Td>
-                          {validatorData.columns.find(
-                            (col) => !col.is_validator
-                          )?.values[valueIndex]}
-                        </Table.Td>
-                      </Table.Tr>
-                    ));
-                  }
-                  return null;
-                })}
-              </Table.Tbody>
-            </Table>
-          </ScrollArea>
-        ) : (
-          <Text ta="center" c="dimmed">Cargando...</Text>
-        )}
-      </Modal>
+        validatorId={validatorData?._id || ""}
+      />
     </Container>
   );
 };

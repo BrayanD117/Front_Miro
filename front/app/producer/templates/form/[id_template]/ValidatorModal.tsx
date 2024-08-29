@@ -22,7 +22,6 @@ export const ValidatorModal = ({ opened, onClose, validatorId }: ValidatorModalP
     const fetchValidatorData = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${validatorId}`);
-        console.log(response.data.validator);
         setValidatorData(response.data.validator);
       } catch (error) {
         showNotification({
@@ -56,7 +55,7 @@ export const ValidatorModal = ({ opened, onClose, validatorId }: ValidatorModalP
               <Table.Tr>
                 <Table.Th>Valores aceptados</Table.Th>
                 <Table.Th>Descripción</Table.Th>
-                <Table.Th>Copiar valor aceptado</Table.Th>
+                <Table.Th>Copiar</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
