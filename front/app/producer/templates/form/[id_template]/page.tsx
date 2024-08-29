@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, TextInput, Title, Text, Select, NumberInput, ActionIcon, Flex } from "@mantine/core";
-import { IconEye } from "@tabler/icons-react";
+import { Container, Button, Group, Text, Table, ActionIcon, ScrollArea, Title, TextInput, NumberInput, Modal, Center } from "@mantine/core";
+import { IconPlus, IconTrash, IconEye } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
-import { ValidatorPanel } from "./ValidatorPanel";
-import { ValidatorModal } from "./ValidatorModal";
+import { ValidatorModal } from "../../../../components/Validators/ValidatorModal";
 import 'dayjs/locale/es';
 
 interface Field {
@@ -31,25 +30,48 @@ interface PublishedTemplateResponse {
   template: Template;
 }
 
+interface ValidatorData {
+  name: string;
+  _id: string;
+  columns: { name: string; is_validator: boolean; values: any[] }[];
+}
+
 const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } }) => {
   const { id_template } = params;
   const { data: session } = useSession();
   const router = useRouter();
   const [publishedTemplateName, setPublishedTemplateName] = useState<string>("");
   const [template, setTemplate] = useState<Template | null>(null);
-  const [formValues, setFormValues] = useState<Record<string, any>>({});
-  const [currentValidatorId, setCurrentValidatorId] = useState<string | null>(null);
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [rows, setRows] = useState<Record<string, any>[]>([{}]);
+  const [validatorModalOpen, setValidatorModalOpen] = useState(false);
+  const [validatorData, setValidatorData] = useState<ValidatorData | null>(null);
+  const [validatorExists, setValidatorExists] = useState<Record<string, boolean>>({});
 
   const fetchTemplate = async () => {
-    console.log("Fetching template data...");
     try {
       const response = await axios.get<PublishedTemplateResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id_template}`
       );
-      console.log("Template data:", response.data);
       setPublishedTemplateName(response.data.name);
       setTemplate(response.data.template);
+
+      // Verificar la existencia de los validadores
+      const validatorCheckPromises = response.data.template.fields.map(async (field) => {
+        if (field.validate_with) {
+          try {
+            const validatorResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${field.validate_with.id}`);
+            return { [field.name]: !!validatorResponse.data.validator };
+          } catch {
+            return { [field.name]: false };
+          }
+        }
+        return { [field.name]: false };
+      });
+
+      const validatorChecks = await Promise.all(validatorCheckPromises);
+      const validatorCheckResults = validatorChecks.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      setValidatorExists(validatorCheckResults);
+
     } catch (error) {
       console.error("Error fetching template:", error);
       showNotification({
@@ -64,34 +86,43 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     if (id_template) {
       fetchTemplate();
     }
-
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
   }, [id_template]);
 
-  const handleChange = (fieldName: string, value: any) => {
-    let newValue = value;
-    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      newValue = "";
+  const handleInputChange = (rowIndex: number, fieldName: string, value: any) => {
+    const updatedRows = [...rows];
+    updatedRows[rowIndex][fieldName] = value === "" ? null : value;
+    setRows(updatedRows);
+  };
+
+  const addRow = () => {
+    setRows([...rows, {}]);
+  };
+
+  const removeRow = (index: number) => {
+    setRows(rows.filter((_, i) => i !== index));
+  };
+
+  const handleValidatorOpen = async (validatorId: string) => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${validatorId}`);
+      setValidatorData(response.data.validator);
+      setValidatorModalOpen(true);
+    } catch (error) {
+      showNotification({
+        title: "Error",
+        message: "No se pudieron cargar los datos de validación",
+        color: "red",
+      });
     }
-    setFormValues((prev) => ({ ...prev, [fieldName]: newValue }));
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting form with values:", formValues);
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/submit`, {
-        templateId: id_template,
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
         email: session?.user?.email,
-        data: formValues,
+        pubTem_id: id_template,
+        data: rows,
+        edit: false,
       });
       showNotification({
         title: "Éxito",
@@ -109,107 +140,124 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     }
   };
 
-  const openValidatorPanelOrModal = (validatorId: string) => {
-    console.log(`Opening validator with ID: ${validatorId}`);
-    setCurrentValidatorId(validatorId);
+  const renderInputField = (field: Field, row: Record<string, any>, rowIndex: number) => {
+    const commonProps = {
+      value: row[field.name] || "",
+      onChange: (e: any) => handleInputChange(rowIndex, field.name, e.currentTarget?.value || e),
+      required: field.required,
+      placeholder: field.comment,
+    };
+
+    switch (field.datatype) {
+      case "Entero":
+        return (
+          <NumberInput
+            {...commonProps}
+            value={row[field.name] || ""}
+            min={0}
+            hideControls
+            onChange={(value) => handleInputChange(rowIndex, field.name, value)}
+          />
+        );
+      case "Texto Corto":
+      case "Texto Largo":
+        return (
+          <TextInput
+            {...commonProps}
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
+      case "Fecha":
+        return (
+          <DateInput
+            {...commonProps}
+            value={row[field.name] || ""}
+            locale="es"
+            valueFormat="DD/MM/YYYY"
+            onChange={(date) => handleInputChange(rowIndex, field.name, date)}
+          />
+        );
+      default:
+        return (
+          <TextInput
+            {...commonProps}
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
+    }
   };
 
   if (!template) {
     return <Text ta="center" c="dimmed">Cargando Información...</Text>;
   }
 
-  const renderInputField = (field: Field) => {
-    const commonProps = {
-      label: field.name,
-      description: field.comment,
-      value: formValues[field.name] || "",
-      onChange: (event: any) => handleChange(field.name, event.currentTarget?.value || event),
-      required: field.required,
-      withAsterisk: field.required,
-      mb: "md",
-    };
-
-    return (
-      <div key={field.name} style={{ position: 'relative' }}>
-        <Flex justify="center" align="center">
-          {(() => {
-            switch (field.datatype) {
-              case "Entero":
-                return <NumberInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
-              case "Texto Corto":
-              case "Texto Largo":
-                return <TextInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
-              case "True/False":
-                return (
-                  <Select
-                    key={field.name}
-                    {...commonProps}
-                    data={[
-                      { value: "true", label: "Sí" },
-                      { value: "false", label: "No" },
-                    ]}
-                    style={{ flex: field.validate_with ? 1 : 'auto' }}
-                  />
-                );
-              case "Fecha":
-                return (
-                  <DateInput
-                    key={field.name}
-                    {...commonProps}
-                    locale="es"
-                    maxDate={new Date()}
-                    style={{ flex: field.validate_with ? 1 : 'auto' }}
-                  />
-                );
-              default:
-                return <TextInput key={field.name} {...commonProps} style={{ flex: field.validate_with ? 1 : 'auto' }} />;
-            }
-          })()}
-          {field.validate_with && (
-            <ActionIcon
-              size={"lg"}
-              onClick={() => openValidatorPanelOrModal(field.validate_with?.id!)}
-              title="Ver valores aceptados"
-              ml={8}
-              mt={field.comment ? 30 : 8} // Adjust mt based on the presence of a description
-            >
-              <IconEye />
-            </ActionIcon>
-          )}
-        </Flex>
-      </div>
-    );
-  };
-
   return (
-    <Container size="xl" style={{ display: 'flex' }}>
-      <div style={{ flex: 1 }}>
-        <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
-        {template.fields.map(renderInputField)}
-        <Group mt="xl">
-          <Button variant="outline" onClick={() => router.push('/producer/templates')}>
-            Cancelar
+    <Container size="xl">
+      <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
+      <ScrollArea>
+        <Table withTableBorder withColumnBorders withRowBorders>
+          <Table.Thead>
+            <Table.Tr>
+              {template.fields.map((field) => (
+                <Table.Th key={field.name}>
+                  <Group>
+                    {field.name} {field.required && <Text span color="red">*</Text>}
+                    {field.validate_with && (
+                      <ActionIcon
+                        size={"lg"}
+                        onClick={() => handleValidatorOpen(field.validate_with?.id!)}
+                        title="Ver valores aceptados"
+                        disabled={!validatorExists[field.name]}
+                      >
+                        <IconEye />
+                      </ActionIcon>
+                    )}
+                  </Group>
+                </Table.Th>
+              ))}
+              <Table.Th>Acciones</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {rows.map((row, rowIndex) => (
+              <Table.Tr key={rowIndex}>
+                {template.fields.map((field) => (
+                  <Table.Td key={field.name}>
+                    <Group align="center">
+                      {renderInputField(field, row, rowIndex)}
+                    </Group>
+                  </Table.Td>
+                ))}
+                <Table.Td>
+                  <Center>
+                    <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Center>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </ScrollArea>
+      <Group justify="center" mt="md">
+        <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
+          Cancelar
+        </Button>
+        <Group>
+          <Button variant="light" onClick={addRow}>
+            <IconPlus size={16} /> Agregar Fila
           </Button>
-          <Button onClick={handleSubmit}>
-            Enviar
-          </Button>
+          <Button onClick={handleSubmit}>Enviar</Button>
         </Group>
-      </div>
-
-      {!isMobileView && currentValidatorId && (
-        <ValidatorPanel
-          validatorId={currentValidatorId}
-          onClose={() => setCurrentValidatorId(null)}
-        />
-      )}
-
-      {isMobileView && currentValidatorId && (
-        <ValidatorModal
-          opened={!!currentValidatorId}
-          onClose={() => setCurrentValidatorId(null)}
-          validatorId={currentValidatorId}
-        />
-      )}
+      </Group>
+      <ValidatorModal
+        opened={validatorModalOpen}
+        onClose={() => setValidatorModalOpen(false)}
+        validatorId={validatorData?._id || ""}
+      />
     </Container>
   );
 };

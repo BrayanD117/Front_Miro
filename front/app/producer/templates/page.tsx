@@ -234,7 +234,7 @@ const ProducerTemplatesPage = () => {
                 color="blue"
                 onClick={() => router.push(`/producer/templates/form/${publishedTemplate._id}`)}
               >
-                Registro Individual
+                Registro Directo
               </Button>
             </Group>
           </Center>
