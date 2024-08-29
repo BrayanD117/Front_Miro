@@ -326,10 +326,10 @@ const ResponsibleReportsPage = () => {
             </Badge>
           </Table.Td>
           <Table.Td>
-            {format(
-              new Date(pubReport.filled_reports[0]?.loaded_date),
-              "MMMM D, YYYY"
-            )}
+          {pubReport.filled_reports[0]?.loaded_date
+            ? format(new Date(pubReport.filled_reports[0].loaded_date), "MMMM D, YYYY")
+            : ""
+          }
           </Table.Td>
           <Table.Td>
             <Center>
@@ -527,7 +527,7 @@ const ResponsibleReportsPage = () => {
                 </Text>
               </div>
             </Dropzone>
-            {selectedReport?.filled_reports[0].report_file &&
+            {selectedReport?.filled_reports[0]?.report_file &&
               !deletedReport && (
                 <Pill
                   mt={"sm"}
@@ -619,7 +619,7 @@ const ResponsibleReportsPage = () => {
                       {attachment.name}
                     </Pill>
                   ))}
-                  {selectedReport.filled_reports[0].attachments.map(
+                  {selectedReport.filled_reports[0]?.attachments.map(
                     (attachment) => {
                       return (
                         !deletedAttachments.includes(attachment.id) && (
