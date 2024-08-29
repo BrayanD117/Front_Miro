@@ -13,10 +13,9 @@ import {
   Title,
   TextInput,
   NumberInput,
-  Modal,
   Center,
 } from "@mantine/core";
-import { IconTrash, IconEye } from "@tabler/icons-react";
+import { IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -74,7 +73,7 @@ const ProducerTemplateUpdatePage = ({
       fetchTemplateAndData();
     }
   }, [id_template]);
-  
+
   const fetchTemplateAndData = async () => {
     try {
       const templateResponse = await axios.get<PublishedTemplateResponse>(
@@ -82,18 +81,18 @@ const ProducerTemplateUpdatePage = ({
       );
       setPublishedTemplateName(templateResponse.data.name);
       setTemplate(templateResponse.data.template);
-  
+
       const dataResponse = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/uploaded/${id_template}`,
         {
           params: { email: session?.user?.email },
         }
       );
-      
+
       const transformedRows = transformData(dataResponse.data.data);
-  
+
       setRows(transformedRows);
-  
+
       const validatorCheckPromises = templateResponse.data.template.fields.map(
         async (field) => {
           if (field.validate_with) {
@@ -109,7 +108,7 @@ const ProducerTemplateUpdatePage = ({
           return { [field.name]: false };
         }
       );
-  
+
       const validatorChecks = await Promise.all(validatorCheckPromises);
       const validatorCheckResults = validatorChecks.reduce(
         (acc, curr) => ({ ...acc, ...curr }),
@@ -125,19 +124,20 @@ const ProducerTemplateUpdatePage = ({
       });
     }
   };
-  
+
   const transformData = (data: any[]): Record<string, any>[] => {
-    const transformedRow: Record<string, any> = {};
-  
+    const rowCount = data[0]?.values?.length || 0;
+    const transformedRows: Record<string, any>[] = Array.from({ length: rowCount }, () => ({}));
+
     data.forEach((fieldData) => {
-      transformedRow[fieldData.field_name] = fieldData.values[0];
+      fieldData.values.forEach((value: any, index: number) => {
+        transformedRows[index][fieldData.field_name] = value;
+      });
     });
 
-    console.log("data", data);
-    console.log("transformedRow", transformedRow);
-    return [transformedRow];
+    return transformedRows;
   };
-  
+
   const renderInputField = (
     field: Field,
     row: Record<string, any>,
@@ -177,7 +177,7 @@ const ProducerTemplateUpdatePage = ({
         return (
           <DateInput
             {...commonProps}
-            value={new Date(row[field.name]) || ""}
+            value={row[field.name] ? new Date(row[field.name]) : null}
             locale="es"
             valueFormat="DD/MM/YYYY"
             onChange={(date) => handleInputChange(rowIndex, field.name, date)}
@@ -194,6 +194,14 @@ const ProducerTemplateUpdatePage = ({
           />
         );
     }
+  };
+
+  const addRow = () => {
+    const newRow: Record<string, any> = {};
+    template?.fields.forEach((field) => {
+      newRow[field.name] = null;
+    });
+    setRows([...rows, newRow]);
   };
 
   const removeRow = (index: number) => {
@@ -318,6 +326,14 @@ const ProducerTemplateUpdatePage = ({
             ))}
           </Table.Tbody>
         </Table>
+        <Button 
+          mt="md" 
+          fullWidth 
+          onClick={addRow} 
+          leftSection={<IconPlus size={16} />}
+        >
+          Agregar Fila
+        </Button>
       </ScrollArea>
       <Group justify="center" mt="md">
         <Button color={"red"} variant="outline" onClick={() => router.push("/producer/templates")}>
