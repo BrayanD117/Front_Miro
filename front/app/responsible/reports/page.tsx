@@ -35,7 +35,6 @@ import {
 import { useRouter } from "next/navigation";
 import classes from "./ResponsibleReportsPage.module.css";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
-import { format } from "fecha";
 import { showNotification } from "@mantine/notifications";
 import { Dropzone } from "@mantine/dropzone";
 import uploadAnimation from "../../../public/lottie/upload.json";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid, List } from "@mantine/core";
+import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
