@@ -271,7 +271,7 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconReport size={80}/></Center>
+              <Center><IconClipboardData size={80}/></Center>
               <Group mt="md" mb="xs">
                 <Text ta={"center"} w={500}>Gestión de Reportes</Text>
               </Group>
