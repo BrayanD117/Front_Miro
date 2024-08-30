@@ -3,8 +3,18 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Container, Title, Text, Button, Group } from "@mantine/core";
 import { IconArrowLeft, IconBulb } from "@tabler/icons-react";
-import Lottie from "lottie-react";
 import errorAnimation from "@/public/lottie/error.json";
+import dynamic from "next/dynamic";
+
+type LottieProps = {
+  animationData: object;
+  loop: boolean;
+  style: object;
+};
+
+const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
+  ssr: false,
+}) as React.FC<LottieProps>;
 
 export default function ErrorPage() {
   const searchParams = useSearchParams();

@@ -49,7 +49,16 @@ import { showNotification } from "@mantine/notifications";
 import { Dropzone } from "@mantine/dropzone";
 import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
+
+type LottieProps = {
+  animationData: object;
+  loop: boolean;
+};
+
+const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
+  ssr: false,
+}) as React.FC<LottieProps>;
 
 interface Report {
   _id: string;

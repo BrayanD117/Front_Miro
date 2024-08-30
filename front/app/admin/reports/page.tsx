@@ -32,10 +32,19 @@ import {
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
-import Lottie from "lottie-react";
 import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+type LottieProps = {
+  animationData: object;
+  loop: boolean;
+};
+
+const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
+  ssr: false,
+}) as React.FC<LottieProps>;
 
 interface Report {
   _id: string;
