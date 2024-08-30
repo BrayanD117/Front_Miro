@@ -273,30 +273,16 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconReport size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Reportes Pendientes</Text>
+                <Text ta={"center"} w={500}>Gestión de Reportes</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Carga reportes de la dimensión de la que eres responsable.
+                Gestiona los reportes pendientes y enviados de la dimensión de la que eres responsable.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
-                Ir a Reportes Pendientes
+                Ir a Gestión de Reportes
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports-sended">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconCheckupList size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Reportes Enviados</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Revisa el estado de los reportes enviados por tu dimensión.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports/uploaded')}>
-              Ir a Reportes Enviados
-            </Button>
-          </Card>
-        </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-dimensions">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconHexagon3d size={80}/></Center>

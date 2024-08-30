@@ -389,7 +389,7 @@ const ResponsibleReportsPage = () => {
     <Container size="xl">
       <DateConfig />
       <Title ta="center" mb={"md"}>
-        Reportes Pendientes
+        Gestión de Reportes
       </Title>
       <TextInput
         placeholder="Buscar en los reportes publicados"
@@ -397,16 +397,6 @@ const ResponsibleReportsPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <Group>
-        <Button
-          onClick={() => router.push("reports/uploaded")}
-          variant="outline"
-          ml={"auto"}
-          rightSection={<IconArrowRight size={16} />}
-        >
-          Ir a Reportes Enviados
-        </Button>
-      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
