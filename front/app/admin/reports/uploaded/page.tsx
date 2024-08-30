@@ -20,6 +20,7 @@ import {
   TextInput,
   Title,
   Tooltip,
+  useMantineTheme,
 } from "@mantine/core";
 import {
   IconArrowLeft,
@@ -29,12 +30,6 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { format } from "fecha";
-
-const options = [
-  { value: "Pendiente Aprobación", label: "Pendiente Aprobación" },
-  { value: "Aprobado", label: "Aprobado" },
-  { value: "Rechazado", label: "Rechazado" },
-];
 
 interface Report {
   _id: string;
@@ -104,6 +99,13 @@ const AdminPubReportsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const theme = useMantineTheme();
+
+  const options = [
+    { value: "En Revisión", label: "En Revisión", color: theme.colors.yellow[9] },
+    { value: "Aprobado", label: "Aprobado", color: theme.colors.green[7] },
+    { value: "Rechazado", label: "Rechazado", color: theme.colors.red[7] },
+  ];
 
   const fetchReports = async (page: number, search: string) => {
     try {
@@ -165,9 +167,16 @@ const AdminPubReportsPage = () => {
             <Center>
               <Select
                 data={options}
-                w={rem(200)}
+                w={rem(130)}
                 value={filledReport.status}
-                c="red"
+                color="red"
+                radius={"xl"}
+                styles={{
+                  input: {
+                    borderColor: options.find((option) => option.value === filledReport.status)?.color, // Change the border color
+                    color: options.find((option) => option.value === filledReport.status)?.color, // Change the text color
+                  },
+                }}
               />
             </Center>
           </Table.Td>
@@ -341,7 +350,7 @@ const AdminPubReportsPage = () => {
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        size="xl"
+        size="auto"
         overlayProps={{
           backgroundOpacity: 0.55,
           blur: 3,
