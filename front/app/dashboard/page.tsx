@@ -276,7 +276,7 @@ const DashboardPage = () => {
                 <Text ta={"center"} w={500}>Gestión de Reportes</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Gestiona los reportes pendientes y enviados de la dimensión de la que eres responsable.
+                Gestiona los reportes de la dimensión en que eres responsable.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
                 Ir a Gestión de Reportes

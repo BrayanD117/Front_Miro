@@ -8,6 +8,7 @@ import {
   Button,
   Center,
   Container,
+  Divider,
   Group,
   Modal,
   Pagination,
@@ -46,9 +47,12 @@ type LottieProps = {
   loop: boolean;
 };
 
-const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
-  ssr: false,
-}) as React.FC<LottieProps>;
+const Lottie = dynamic(
+  () => import("lottie-react").then((mod) => mod.default),
+  {
+    ssr: false,
+  }
+) as React.FC<LottieProps>;
 
 interface Report {
   _id: string;
@@ -106,17 +110,18 @@ interface PublishedReport {
 }
 
 const StatusColor: Record<string, string> = {
-  "Pendiente": "orange",
+  Pendiente: "orange",
   "En Borrador": "grape",
   "En Revisión": "cyan",
-  "Aprobado": "lime",
-  "Rechazado": "red",
+  Aprobado: "lime",
+  Rechazado: "red",
 };
 
 const ResponsibleReportsPage = () => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [history, setHistory] = useState<boolean>(false);
   const [deletedReport, setDeletedReport] = useState<string | null | undefined>(
     null
   );
@@ -267,7 +272,7 @@ const ResponsibleReportsPage = () => {
         {
           email: session?.user?.email,
           reportId: selectedReport?._id,
-          
+
           loadedDate: selectedReport?.filled_reports[0].loaded_date,
         }
       );
@@ -306,6 +311,56 @@ const ResponsibleReportsPage = () => {
     setAttachments([...attachments, ...files]);
   };
 
+  const historyRows = selectedReport?.filled_reports.map(
+    (filledReport, index) => {
+      return (
+        <>
+          <Divider 
+            mt={index === 0 ? "0" : "md"}
+            label={`Estado: ${
+              index > 0 && filledReport.status === "En Revisión"
+                ? "Reemplazado"
+                : filledReport.status
+            } - Fecha de Estado: ${dateToGMT(
+              filledReport.status_date,
+              "MMMM DD, YYYY HH:mm"
+            )}`}
+          />
+          <Group>
+            <Text size="sm">Reporte: </Text>
+            <Pill
+              onClick={() => {
+                if (typeof window !== "undefined")
+                  window.open(filledReport.report_file.view_link);
+              }}
+              bg="gray"
+              c="white"
+            >
+              {filledReport.report_file.name}
+            </Pill>
+          </Group>
+          {filledReport.attachments.length > 0 && (
+            <Group>
+              <Text>Anexos: </Text>
+              <PillGroup>
+                {filledReport.attachments.map((attachment) => (
+                  <Pill
+                    onClick={() => {
+                      if (typeof window !== "undefined")
+                        window.open(attachment.view_link);
+                    }}
+                  >
+                    {attachment.name}
+                  </Pill>
+                ))}
+              </PillGroup>
+            </Group>
+          )}
+        </>
+      );
+    }
+  );
+
   const rows = pubReports?.length ? (
     pubReports.map((pubReport: PublishedReport) => {
       return (
@@ -331,7 +386,8 @@ const ResponsibleReportsPage = () => {
           </Table.Td>
           <Table.Td>
             {pubReport.filled_reports[0]?.status_date
-              ? dateToGMT(pubReport.filled_reports[0].status_date,
+              ? dateToGMT(
+                  pubReport.filled_reports[0].status_date,
                   "MMM D, YYYY HH:mm"
                 )
               : ""}
@@ -358,8 +414,14 @@ const ResponsibleReportsPage = () => {
                     <IconEdit size={16} />
                   </Button>
                 </Tooltip>
-                <Tooltip label="Ver historial de cargas del reporte" withArrow>
-                  <Button variant="outline" onClick={() => {}}>
+                <Tooltip label="Ver historial de envíos del reporte" withArrow>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedReport(pubReport);
+                      setHistory(true);
+                    }}
+                  >
                     <IconHistoryToggle size={16} />
                   </Button>
                 </Tooltip>
@@ -655,9 +717,13 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDeviceFloppy />}
                 onClick={handleCreate}
                 disabled={
-                  (!reportFile || (deletedReport !== null && !reportFile)) ||
+                  !reportFile ||
+                  (deletedReport !== null && !reportFile) ||
                   (selectedReport?.report.requires_attachment &&
-                  attachments.length === 0) || (deletedAttachments.length>0 && selectedReport?.filled_reports[0]?.attachments.length === deletedAttachments.length)
+                    attachments.length === 0) ||
+                  (deletedAttachments.length > 0 &&
+                    selectedReport?.filled_reports[0]?.attachments.length ===
+                      deletedAttachments.length)
                 }
               >
                 Guardar Borrador
@@ -694,6 +760,19 @@ const ResponsibleReportsPage = () => {
             </Button>
           </>
         )}
+      </Modal>
+      <Modal
+        opened={history}
+        onClose={() => setHistory(false)}
+        size="md"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        title="Historial de Envíos"
+        withCloseButton={true}
+      >
+        {historyRows}
       </Modal>
     </Container>
   );
