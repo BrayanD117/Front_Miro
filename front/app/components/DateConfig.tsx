@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { setGlobalDateI18n } from 'fecha';
+import { format, setGlobalDateI18n } from 'fecha';
 
 const spanishLocale = {
   dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'] as [string, string, string, string, string, string, string],
@@ -19,4 +19,13 @@ const DateConfig = () => {
   return null;
 };
 
+const dateToGMT = (date: Date | string | number, formatDate: string = "MMM D, YYYY") => {
+  // Ensure `date` is a Date object
+  const validDate = new Date(date);
+
+  return format(new Date(validDate.getTime() + 5 * 60 * 60 * 1000), formatDate);
+};
+
+
+export { dateToGMT };
 export default DateConfig;

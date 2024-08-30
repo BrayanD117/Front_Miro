@@ -97,6 +97,10 @@ interface PublishedReport {
   filled_reports: FilledReport[];
 }
 
+const dateToGMT = (date: Date, formatDate: string = "MMM D, YYYY") => {
+  return format(new Date(date.getTime() - 5 * 60 * 60 * 1000), formatDate);
+}
+
 const ResponsibleUploadedReportsPage = () => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState<boolean>(false);
@@ -197,19 +201,13 @@ const ResponsibleUploadedReportsPage = () => {
             <Table.Td>{pubReport.period.name}</Table.Td>
             <Table.Td>{pubReport.dimensions[0].name}</Table.Td>
             <Table.Td>
-              {format(
-                new Date(pubReport.period.responsible_end_date),
-                "MMMM D, YYYY"
-              )}
+              {dateToGMT(pubReport.period.responsible_end_date)}
             </Table.Td>
             <Table.Td>
               {truncateString(pubReport.filled_reports[0].send_by.full_name)}
             </Table.Td>
             <Table.Td>
-              {format(
-                new Date(pubReport.filled_reports[0].loaded_date),
-                "MMMM D, YYYY"
-              )}
+              {dateToGMT(pubReport.filled_reports[0].loaded_date)}
             </Table.Td>
             <Table.Td>{pubReport.report.name}</Table.Td>
             <Table.Td>

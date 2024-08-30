@@ -43,7 +43,7 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import classes from "./ResponsibleReportsPage.module.css";
-import DateConfig from "@/app/components/DateConfig";
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { format } from "fecha";
 import { showNotification } from "@mantine/notifications";
 import { Dropzone } from "@mantine/dropzone";
@@ -103,6 +103,7 @@ interface FilledReport {
   report_file: DriveFile;
   attachments: DriveFile[];
   status: string;
+  status_date: Date;
 }
 
 interface PublishedReport {
@@ -113,6 +114,14 @@ interface PublishedReport {
   filled_reports: FilledReport[];
   folder_id: string;
 }
+
+const StatusColor: Record<string, string> = {
+  "Pendiente": "orange",
+  "En Borrador": "grape",
+  "En Revisión": "cyan",
+  "Aprobado": "lime",
+  "Rechazado": "red",
+};
 
 const ResponsibleReportsPage = () => {
   const { data: session } = useSession();
@@ -313,25 +322,17 @@ const ResponsibleReportsPage = () => {
         <Table.Tr key={pubReport._id}>
           <Table.Td>{pubReport.period.name}</Table.Td>
           <Table.Td>
-            {format(
-              new Date(pubReport.period.responsible_start_date),
-              "MMMM D, YYYY"
-            )}
+            {dateToGMT(pubReport.period.responsible_start_date)}
           </Table.Td>
           <Table.Td>
-            {format(
-              new Date(pubReport.period.responsible_end_date),
-              "MMMM D, YYYY"
-            )}
+            {dateToGMT(pubReport.period.responsible_end_date)}
           </Table.Td>
           <Table.Td>{pubReport.report.name}</Table.Td>
           <Table.Td>
             <Badge
               autoContrast
               color={
-                pubReport.filled_reports[0]?.status === "En Borrador"
-                  ? "orange"
-                  : "red"
+                StatusColor[pubReport.filled_reports[0]?.status] ?? "orange"
               }
               variant={"light"}
             >
@@ -339,10 +340,9 @@ const ResponsibleReportsPage = () => {
             </Badge>
           </Table.Td>
           <Table.Td>
-            {pubReport.filled_reports[0]?.loaded_date
-              ? format(
-                  new Date(pubReport.filled_reports[0].loaded_date),
-                  "MMMM D, YYYY"
+            {pubReport.filled_reports[0]?.status_date
+              ? dateToGMT(pubReport.filled_reports[0].status_date,
+                  "MMM D, YYYY HH:mm"
                 )
               : ""}
           </Table.Td>
