@@ -335,7 +335,7 @@ const ResponsibleUploadedReportsPage = () => {
           {selectedReport?.report.name}
         </Text>
         <Text mb={"md"} size="md" ta={"justify"}>
-          {selectedReport?.report.description || "Sin descripción"}
+          {selectedReport?.report.description || "-"}
         </Text>
         <Divider mb={"sm"} />
         <Group gap={"xs"}>

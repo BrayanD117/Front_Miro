@@ -72,6 +72,7 @@ interface File {
 }
 
 interface FilledReport {
+  _id: string;
   dimension: Dimension;
   send_by: any;
   loaded_date: Date;
@@ -312,7 +313,7 @@ const AdminPubReportsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th maw={rem(55)}>
+            <Table.Th w={rem(100)}>
               <Center>Periodo</Center>
             </Table.Th>
             <Table.Th>Reporte</Table.Th>

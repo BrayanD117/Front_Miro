@@ -87,6 +87,7 @@ interface DriveFile {
 }
 
 interface FilledReport {
+  _id: string;
   dimension: Dimension;
   send_by: any;
   loaded_date: Date;
@@ -108,7 +109,9 @@ const ResponsibleReportsPage = () => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const [deletedReport, setDeletedReport] = useState<string | null | undefined>(null);
+  const [deletedReport, setDeletedReport] = useState<string | null | undefined>(
+    null
+  );
   const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
   const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
   const [reportFile, setReportFile] = useState<File | null>(null);
@@ -256,6 +259,7 @@ const ResponsibleReportsPage = () => {
         {
           email: session?.user?.email,
           reportId: selectedReport?._id,
+          
           loadedDate: selectedReport?.filled_reports[0].loaded_date,
         }
       );
@@ -276,7 +280,7 @@ const ResponsibleReportsPage = () => {
         color: "red",
       });
     }
-  }
+  };
 
   const addFilesToAttachments = (files: File[]) => {
     if (
@@ -326,10 +330,12 @@ const ResponsibleReportsPage = () => {
             </Badge>
           </Table.Td>
           <Table.Td>
-          {pubReport.filled_reports[0]?.loaded_date
-            ? format(new Date(pubReport.filled_reports[0].loaded_date), "MMMM D, YYYY")
-            : ""
-          }
+            {pubReport.filled_reports[0]?.loaded_date
+              ? format(
+                  new Date(pubReport.filled_reports[0].loaded_date),
+                  "MMMM D, YYYY"
+                )
+              : ""}
           </Table.Td>
           <Table.Td>
             <Center>
@@ -400,7 +406,7 @@ const ResponsibleReportsPage = () => {
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Reporte</Table.Th>
             <Table.Th>Estado</Table.Th>
-            <Table.Th>Última Modificación</Table.Th>
+            <Table.Th>Fecha de Estado</Table.Th>
             <Table.Td fw={700}>
               <Center>Acciones</Center>
             </Table.Td>
@@ -432,7 +438,7 @@ const ResponsibleReportsPage = () => {
           {selectedReport?.report.name}
         </Text>
         <Text mb={"md"} size="md" ta={"justify"}>
-          {selectedReport?.report.description || "Sin descripción"}
+          {selectedReport?.report.description || "-"}
         </Text>
         <Text size="md">
           Requiere Anexo(s):{" "}
@@ -443,8 +449,8 @@ const ResponsibleReportsPage = () => {
           mt="md"
           leftSection={<IconDownload size={16} />}
           onClick={() => {
-              if (typeof window !== "undefined")
-                window.open(selectedReport?.report.report_example_download);
+            if (typeof window !== "undefined")
+              window.open(selectedReport?.report.report_example_download);
           }}
         >
           Descargar Formato
@@ -490,7 +496,9 @@ const ResponsibleReportsPage = () => {
                   return;
                 }
                 setReportFile(files[0]);
-                setDeletedReport(selectedReport?.filled_reports[0].report_file.id);
+                setDeletedReport(
+                  selectedReport?.filled_reports[0].report_file.id
+                );
               }}
               className={classes.dropzone}
               radius="md"
@@ -537,9 +545,12 @@ const ResponsibleReportsPage = () => {
                   }
                   bg={"blue"}
                   c={"white"}
-                  onClick={() =>{
-                    if(typeof window !== "undefined")
-                      window.open(selectedReport?.filled_reports[0].report_file.download_link)
+                  onClick={() => {
+                    if (typeof window !== "undefined")
+                      window.open(
+                        selectedReport?.filled_reports[0].report_file
+                          .download_link
+                      );
                   }}
                   style={{ cursor: "pointer" }}
                 >
@@ -632,9 +643,9 @@ const ResponsibleReportsPage = () => {
                                 attachment.id,
                               ])
                             }
-                            onClick={() =>{
-                              if(typeof window !== "undefined")
-                                window.open(attachment.download_link)
+                            onClick={() => {
+                              if (typeof window !== "undefined")
+                                window.open(attachment.download_link);
                             }}
                             style={{ cursor: "pointer" }}
                           >
@@ -655,9 +666,9 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDeviceFloppy />}
                 onClick={handleCreate}
                 disabled={
-                  (!reportFile || (deletedReport!==null && !reportFile)) &&
+                  (!reportFile || (deletedReport !== null && !reportFile)) ||
                   (selectedReport?.report.requires_attachment &&
-                    attachments.length === 0)
+                  attachments.length === 0) || (deletedAttachments.length>0 && selectedReport?.filled_reports[0]?.attachments.length === deletedAttachments.length)
                 }
               >
                 Guardar Borrador
@@ -668,7 +679,7 @@ const ResponsibleReportsPage = () => {
                 justify="space-between"
                 leftSection={<span />}
                 rightSection={<IconCancel />}
-                onClick={() => setPublishing(false)}
+                onClick={handleClosePublish}
               >
                 Cancelar
               </Button>
@@ -676,8 +687,15 @@ const ResponsibleReportsPage = () => {
             <Button
               fullWidth
               mt={"md"}
-              disabled={!(attachments.length === 0 && reportFile === null 
-                && deletedReport===null && deletedAttachments.length===0)}
+              disabled={
+                !(
+                  attachments.length === 0 &&
+                  reportFile === null &&
+                  deletedReport === null &&
+                  deletedAttachments.length === 0 &&
+                  selectedReport?.filled_reports[0]?.status === "En Borrador"
+                )
+              }
               justify="space-between"
               leftSection={<span />}
               rightSection={<IconMailForward />}
