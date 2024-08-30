@@ -547,9 +547,10 @@ const ResponsibleReportsPage = () => {
                   return;
                 }
                 setReportFile(files[0]);
-                setDeletedReport(
-                  selectedReport?.filled_reports[0].report_file.id
-                );
+                if(selectedReport?.filled_reports[0]?.report_file)
+                  setDeletedReport(
+                    selectedReport?.filled_reports[0].report_file.id
+                  );
               }}
               className={classes.dropzone}
               radius="md"
