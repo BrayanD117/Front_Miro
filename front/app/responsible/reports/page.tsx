@@ -326,7 +326,7 @@ const ResponsibleReportsPage = () => {
               "MMMM DD, YYYY HH:mm"
             )}`}
           />
-          <Group>
+          <Group mt={rem(5)}>
             <Text size="sm">Reporte: </Text>
             <Pill
               onClick={() => {
@@ -335,6 +335,7 @@ const ResponsibleReportsPage = () => {
               }}
               bg="gray"
               c="white"
+              style={{ cursor: "pointer" }}
             >
               {filledReport.report_file.name}
             </Pill>
@@ -345,10 +346,12 @@ const ResponsibleReportsPage = () => {
               <PillGroup>
                 {filledReport.attachments.map((attachment) => (
                   <Pill
+                    key={attachment.name}
                     onClick={() => {
                       if (typeof window !== "undefined")
                         window.open(attachment.view_link);
                     }}
+                    style={{ cursor: "pointer" }}
                   >
                     {attachment.name}
                   </Pill>
