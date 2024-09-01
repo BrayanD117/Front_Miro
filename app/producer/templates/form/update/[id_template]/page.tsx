@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -14,6 +14,10 @@ import {
   TextInput,
   NumberInput,
   Center,
+  Textarea,
+  Switch,
+  Tooltip,
+  rem,
 } from "@mantine/core";
 import { IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
@@ -67,6 +71,7 @@ const ProducerTemplateUpdatePage = ({
   const [validatorExists, setValidatorExists] = useState<
     Record<string, boolean>
   >({});
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (id_template) {
@@ -149,28 +154,47 @@ const ProducerTemplateUpdatePage = ({
         handleInputChange(rowIndex, field.name, e.currentTarget?.value || e),
       required: field.required,
       placeholder: field.comment,
+      style: { width: "100%" }
     };
 
     switch (field.datatype) {
       case "Entero":
+      case "Decimal":
+      case "Porcentaje":
         return (
           <NumberInput
             {...commonProps}
             value={row[field.name] || ""}
             min={0}
+            step={field.datatype === "Porcentaje" ? 0.01 : 1}
             hideControls
             onChange={(value) => handleInputChange(rowIndex, field.name, value)}
           />
         );
-      case "Texto Corto":
       case "Texto Largo":
+        return (
+          <Textarea
+            {...commonProps}
+            resize="vertical"
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
+      case "Texto Corto":
+      case "Link":
         return (
           <TextInput
             {...commonProps}
             value={row[field.name] === null ? "" : row[field.name]}
-            onChange={(e) =>
-              handleInputChange(rowIndex, field.name, e.target.value)
-            }
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
+      case "True/False":
+        return (
+          <Switch
+            {...commonProps}
+            checked={row[field.name] || false}
+            onChange={(event) => handleInputChange(rowIndex, field.name, event.currentTarget.checked)}
           />
         );
       case "Fecha":
@@ -188,9 +212,7 @@ const ProducerTemplateUpdatePage = ({
           <TextInput
             {...commonProps}
             value={row[field.name] === null ? "" : row[field.name]}
-            onChange={(e) =>
-              handleInputChange(rowIndex, field.name, e.target.value)
-            }
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
           />
         );
     }
@@ -274,72 +296,71 @@ const ProducerTemplateUpdatePage = ({
       <Title ta="center" mb="md">
         {`Editar Plantilla: ${publishedTemplateName}`}
       </Title>
-      <ScrollArea>
-        <Table withTableBorder withColumnBorders withRowBorders>
-          <Table.Thead>
-            <Table.Tr>
-              {template.fields.map((field) => (
-                <Table.Th key={field.name}>
-                  <Group>
-                    {field.name}{" "}
-                    {field.required && (
-                      <Text span color="red">
-                        *
-                      </Text>
-                    )}
-                    {field.validate_with && (
-                      <ActionIcon
-                        size={"lg"}
-                        onClick={() =>
-                          handleValidatorOpen(field.validate_with?.id!)
-                        }
-                        title="Ver valores aceptados"
-                        disabled={!validatorExists[field.name]}
-                      >
-                        <IconEye />
-                      </ActionIcon>
-                    )}
-                  </Group>
-                </Table.Th>
-              ))}
-              <Table.Th>Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {rows.map((row, rowIndex) => (
-              <Table.Tr key={rowIndex}>
-                {template.fields.map((field) => (
-                  <Table.Td key={field.name}>
-                    <Group align="center">
-                      {renderInputField(field, row, rowIndex)}
-                    </Group>
-                  </Table.Td>
+      <Tooltip
+        label="Desplázate horizontalmente para ver todas las columnas"
+        position="bottom"
+        withArrow
+        transitionProps={{ transition: "slide-up", duration: 300 }}
+      >
+        <ScrollArea viewportRef={scrollAreaRef}>
+          <ScrollArea type="always" offsetScrollbars>
+            <Table mb={"xs"} withTableBorder withColumnBorders withRowBorders>
+              <Table.Thead>
+                <Table.Tr>
+                  {template.fields.map((field) => (
+                    <Table.Th key={field.name} style={{ minWidth: '250px' }}>
+                      <Group>
+                        {field.name} {field.required && <Text span color="red">*</Text>}
+                        {field.validate_with && (
+                          <ActionIcon
+                            size={"lg"}
+                            onClick={() => handleValidatorOpen(field.validate_with?.id!)}
+                            title="Ver valores aceptados"
+                            disabled={!validatorExists[field.name]}
+                          >
+                            <IconEye />
+                          </ActionIcon>
+                        )}
+                      </Group>
+                    </Table.Th>
+                  ))}
+                  <Table.Th style={{ minWidth: '250px' }}>Acciones</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {rows.map((row, rowIndex) => (
+                  <Table.Tr key={rowIndex}>
+                    {template.fields.map((field) => (
+                      <Table.Td key={field.name} style={{ minWidth: '250px' }}>
+                        <Group align="center">
+                          {renderInputField(field, row, rowIndex)}
+                        </Group>
+                      </Table.Td>
+                    ))}
+                    <Table.Td style={{ minWidth: '250px' }}>
+                      <Center>
+                        <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Center>
+                    </Table.Td>
+                  </Table.Tr>
                 ))}
-                <Table.Td>
-                  <Center>
-                    <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Center>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-        <Button 
-          mt="md" 
-          fullWidth 
-          onClick={addRow} 
-          leftSection={<IconPlus size={16} />}
-        >
-          Agregar Fila
-        </Button>
-      </ScrollArea>
-      <Group justify="center" mt="md">
-        <Button color={"red"} variant="outline" onClick={() => router.push("/producer/templates")}>
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </ScrollArea>
+      </Tooltip>
+      <Group justify="center" mt={rem(50)}>
+        <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit}>Actualizar</Button>
+        <Group>
+          <Button variant="light" onClick={addRow}>
+            <IconPlus size={16} /> Agregar Fila
+          </Button>
+          <Button onClick={handleSubmit}>Actualizar</Button>
+        </Group>
       </Group>
       <ValidatorModal
         opened={validatorModalOpen}
