@@ -13,7 +13,6 @@ import {
   Title,
   TextInput,
   NumberInput,
-  Modal,
   Center,
   Textarea,
   Switch,
@@ -70,7 +69,6 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       setPublishedTemplateName(response.data.name);
       setTemplate(response.data.template);
 
-      // Verificar la existencia de los validadores
       const validatorCheckPromises = response.data.template.fields.map(async (field) => {
         if (field.validate_with) {
           try {
@@ -231,51 +229,53 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   return (
     <Container size="xl">
       <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
-      <ScrollArea>
-        <Table withTableBorder withColumnBorders withRowBorders>
-          <Table.Thead>
-            <Table.Tr>
-              {template.fields.map((field) => (
-                <Table.Th key={field.name}>
-                  <Group>
-                    {field.name} {field.required && <Text span color="red">*</Text>}
-                    {field.validate_with && (
-                      <ActionIcon
-                        size={"lg"}
-                        onClick={() => handleValidatorOpen(field.validate_with?.id!)}
-                        title="Ver valores aceptados"
-                        disabled={!validatorExists[field.name]}
-                      >
-                        <IconEye />
-                      </ActionIcon>
-                    )}
-                  </Group>
-                </Table.Th>
-              ))}
-              <Table.Th>Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {rows.map((row, rowIndex) => (
-              <Table.Tr key={rowIndex}>
+      <ScrollArea style={{ maxHeight: 300 }}>
+        <ScrollArea type="always" offsetScrollbars>
+          <Table withTableBorder withColumnBorders withRowBorders>
+            <Table.Thead>
+              <Table.Tr>
                 {template.fields.map((field) => (
-                  <Table.Td key={field.name}>
-                    <Group align="center">
-                      {renderInputField(field, row, rowIndex)}
+                  <Table.Th key={field.name} style={{ minWidth: '250px' }}>
+                    <Group>
+                      {field.name} {field.required && <Text span color="red">*</Text>}
+                      {field.validate_with && (
+                        <ActionIcon
+                          size={"lg"}
+                          onClick={() => handleValidatorOpen(field.validate_with?.id!)}
+                          title="Ver valores aceptados"
+                          disabled={!validatorExists[field.name]}
+                        >
+                          <IconEye />
+                        </ActionIcon>
+                      )}
                     </Group>
-                  </Table.Td>
+                  </Table.Th>
                 ))}
-                <Table.Td>
-                  <Center>
-                    <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Center>
-                </Table.Td>
+                <Table.Th style={{ minWidth: '250px' }}>Acciones</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {rows.map((row, rowIndex) => (
+                <Table.Tr key={rowIndex}>
+                  {template.fields.map((field) => (
+                    <Table.Td key={field.name} style={{ minWidth: '250px' }}>
+                      <Group align="center">
+                        {renderInputField(field, row, rowIndex)}
+                      </Group>
+                    </Table.Td>
+                  ))}
+                  <Table.Td style={{ minWidth: '250px' }}>
+                    <Center>
+                      <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
+                        <IconTrash size={16} />
+                      </ActionIcon>
+                    </Center>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
       </ScrollArea>
       <Group justify="center" mt="md">
         <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
