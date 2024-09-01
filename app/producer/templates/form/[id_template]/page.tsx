@@ -239,7 +239,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         withArrow
         transitionProps={{ transition: "slide-up", duration: 300 }}
       >
-        <ScrollArea style={{ maxHeight: 300 }} viewportRef={scrollAreaRef}>
+        <ScrollArea viewportRef={scrollAreaRef}>
           <ScrollArea type="always" offsetScrollbars>
             <Table withTableBorder withColumnBorders withRowBorders>
               <Table.Thead>
