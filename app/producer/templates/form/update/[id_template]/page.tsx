@@ -64,6 +64,7 @@ const ProducerTemplateUpdatePage = ({
     useState<string>("");
   const [template, setTemplate] = useState<Template | null>(null);
   const [rows, setRows] = useState<Record<string, any>[]>([]);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [validatorModalOpen, setValidatorModalOpen] = useState(false);
   const [validatorData, setValidatorData] = useState<ValidatorData | null>(
     null
@@ -143,78 +144,37 @@ const ProducerTemplateUpdatePage = ({
     return transformedRows;
   };
 
-  const renderInputField = (
-    field: Field,
-    row: Record<string, any>,
-    rowIndex: number
-  ) => {
-    const commonProps = {
-      value: row[field.name] || "",
-      onChange: (e: any) =>
-        handleInputChange(rowIndex, field.name, e.currentTarget?.value || e),
-      required: field.required,
-      placeholder: field.comment,
-      style: { width: "100%" }
-    };
+  const validateFields = () => {
+    const newErrors: Record<string, string[]> = {};
 
-    switch (field.datatype) {
-      case "Entero":
-      case "Decimal":
-      case "Porcentaje":
-        return (
-          <NumberInput
-            {...commonProps}
-            value={row[field.name] || ""}
-            min={0}
-            step={field.datatype === "Porcentaje" ? 0.01 : 1}
-            hideControls
-            onChange={(value) => handleInputChange(rowIndex, field.name, value)}
-          />
-        );
-      case "Texto Largo":
-        return (
-          <Textarea
-            {...commonProps}
-            resize="vertical"
-            value={row[field.name] === null ? "" : row[field.name]}
-            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
-          />
-        );
-      case "Texto Corto":
-      case "Link":
-        return (
-          <TextInput
-            {...commonProps}
-            value={row[field.name] === null ? "" : row[field.name]}
-            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
-          />
-        );
-      case "True/False":
-        return (
-          <Switch
-            {...commonProps}
-            checked={row[field.name] || false}
-            onChange={(event) => handleInputChange(rowIndex, field.name, event.currentTarget.checked)}
-          />
-        );
-      case "Fecha":
-        return (
-          <DateInput
-            {...commonProps}
-            value={row[field.name] ? new Date(row[field.name]) : null}
-            locale="es"
-            valueFormat="DD/MM/YYYY"
-            onChange={(date) => handleInputChange(rowIndex, field.name, date)}
-          />
-        );
-      default:
-        return (
-          <TextInput
-            {...commonProps}
-            value={row[field.name] === null ? "" : row[field.name]}
-            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
-          />
-        );
+    rows.forEach((row, rowIndex) => {
+      template?.fields.forEach((field) => {
+        if (field.required && !row[field.name]) {
+          if (!newErrors[field.name]) {
+            newErrors[field.name] = [];
+          }
+          newErrors[field.name][rowIndex] = "Este campo es obligatorio.";
+        }
+      });
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (
+    rowIndex: number,
+    fieldName: string,
+    value: any
+  ) => {
+    const updatedRows = [...rows];
+    updatedRows[rowIndex][fieldName] = value === "" ? null : value;
+    setRows(updatedRows);
+
+    const updatedErrors = { ...errors };
+    if (updatedErrors[fieldName]) {
+      delete updatedErrors[fieldName];
+      setErrors(updatedErrors);
     }
   };
 
@@ -228,16 +188,6 @@ const ProducerTemplateUpdatePage = ({
 
   const removeRow = (index: number) => {
     setRows(rows.filter((_, i) => i !== index));
-  };
-
-  const handleInputChange = (
-    rowIndex: number,
-    fieldName: string,
-    value: any
-  ) => {
-    const updatedRows = [...rows];
-    updatedRows[rowIndex][fieldName] = value === "" ? null : value;
-    setRows(updatedRows);
   };
 
   const handleValidatorOpen = async (validatorId: string) => {
@@ -257,6 +207,15 @@ const ProducerTemplateUpdatePage = ({
   };
 
   const handleSubmit = async () => {
+    if (!validateFields()) {
+      showNotification({
+        title: "Error de Validación",
+        message: "Por favor completa los campos obligatorios.",
+        color: "red",
+      });
+      return;
+    }
+
     try {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`,
@@ -275,11 +234,111 @@ const ProducerTemplateUpdatePage = ({
       router.push("/producer/templates/uploaded");
     } catch (error) {
       console.error("Error submitting data:", error);
-      showNotification({
-        title: "Error",
-        message: "No se pudo enviar la información",
-        color: "red",
-      });
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        const validationErrors = error.response.data.details;
+        const errorObject: Record<string, string[]> = {};
+
+        validationErrors.forEach((error: { column: string, errors: { register: number, message: string }[] }) => {
+          error.errors.forEach(err => {
+            if (!errorObject[error.column]) {
+              errorObject[error.column] = [];
+            }
+            errorObject[error.column][err.register - 1] = err.message;
+          });
+        });
+
+        setErrors(errorObject);
+        showNotification({
+          title: "Error de Validación",
+          message: "Algunos campos contienen errores. Por favor revisa y corrige.",
+          color: "red",
+        });
+      }
+    }
+  };
+
+  const renderInputField = (
+    field: Field,
+    row: Record<string, any>,
+    rowIndex: number
+  ) => {
+    const fieldError = errors[field.name]?.[rowIndex];
+    const commonProps = {
+      value: row[field.name] || "",
+      onChange: (e: React.ChangeEvent<HTMLInputElement> | number) =>
+        handleInputChange(rowIndex, field.name, typeof e === "number" ? e : e.currentTarget.value),
+      required: field.required,
+      placeholder: field.comment,
+      style: { width: "100%" },
+      error: Boolean(fieldError),
+    };
+
+    switch (field.datatype) {
+      case "Entero":
+      case "Decimal":
+      case "Porcentaje":
+        const formattedValue = field.datatype === "Porcentaje" ? (row[field.name] ? `${row[field.name]}%` : "") : row[field.name];
+
+        return (
+          <NumberInput
+            {...commonProps}
+            value={formattedValue}
+            min={0}
+            step={field.datatype === "Porcentaje" ? 1 : 1}
+            hideControls
+            onChange={(value) => handleInputChange(rowIndex, field.name, value)}
+            error={fieldError ? fieldError : undefined}
+          />
+        );
+      case "Texto Largo":
+        return (
+          <Textarea
+            {...commonProps}
+            resize="vertical"
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+            error={fieldError ? fieldError : undefined}
+          />
+        );
+      case "Texto Corto":
+      case "Link":
+        return (
+          <TextInput
+            {...commonProps}
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+            error={fieldError ? fieldError : undefined}
+          />
+        );
+      case "True/False":
+        return (
+          <Switch
+            {...commonProps}
+            checked={row[field.name] || false}
+            onChange={(event) => handleInputChange(rowIndex, field.name, event.currentTarget.checked)}
+            error={fieldError ? fieldError : undefined}
+          />
+        );
+      case "Fecha":
+        return (
+          <DateInput
+            {...commonProps}
+            value={row[field.name] ? new Date(row[field.name]) : null}
+            locale="es"
+            valueFormat="DD/MM/YYYY"
+            onChange={(date) => handleInputChange(rowIndex, field.name, date)}
+            error={fieldError ? fieldError : undefined}
+          />
+        );
+      default:
+        return (
+          <TextInput
+            {...commonProps}
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+            error={fieldError ? fieldError : undefined}
+          />
+        );
     }
   };
 

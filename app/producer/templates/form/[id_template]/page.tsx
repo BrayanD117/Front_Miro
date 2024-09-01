@@ -110,7 +110,6 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     updatedRows[rowIndex][fieldName] = value === "" ? null : value;
     setRows(updatedRows);
 
-    // Limpiar error si se hace algún cambio en el campo
     const updatedErrors = { ...errors };
     if (updatedErrors[fieldName]) {
       delete updatedErrors[fieldName];
