@@ -2,7 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Button, Group, Text, Table, ActionIcon, ScrollArea, Title, TextInput, NumberInput, Modal, Center } from "@mantine/core";
+import {
+  Container,
+  Button,
+  Group,
+  Text,
+  Table,
+  ActionIcon,
+  ScrollArea,
+  Title,
+  TextInput,
+  NumberInput,
+  Modal,
+  Center,
+  Textarea,
+  Switch,
+} from "@mantine/core";
 import { IconPlus, IconTrash, IconEye } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
@@ -150,17 +165,29 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
 
     switch (field.datatype) {
       case "Entero":
+      case "Decimal":
+      case "Porcentaje":
         return (
           <NumberInput
             {...commonProps}
             value={row[field.name] || ""}
             min={0}
+            step={field.datatype === "Porcentaje" ? 0.01 : 1}
             hideControls
             onChange={(value) => handleInputChange(rowIndex, field.name, value)}
           />
         );
-      case "Texto Corto":
       case "Texto Largo":
+        return (
+          <Textarea
+            {...commonProps}
+            resize="vertical"
+            value={row[field.name] === null ? "" : row[field.name]}
+            onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+          />
+        );
+      case "Texto Corto":
+      case "Link":
         return (
           <TextInput
             {...commonProps}
@@ -168,11 +195,19 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
           />
         );
+      case "True/False":
+        return (
+          <Switch
+            {...commonProps}
+            checked={row[field.name] || false}
+            onChange={(event) => handleInputChange(rowIndex, field.name, event.currentTarget.checked)}
+          />
+        );
       case "Fecha":
         return (
           <DateInput
             {...commonProps}
-            value={row[field.name] || ""}
+            value={row[field.name] ? new Date(row[field.name]) : null}
             locale="es"
             valueFormat="DD/MM/YYYY"
             onChange={(date) => handleInputChange(rowIndex, field.name, date)}
