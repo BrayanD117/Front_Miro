@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -16,6 +16,8 @@ import {
   Center,
   Textarea,
   Switch,
+  Tooltip,
+  rem,
 } from "@mantine/core";
 import { IconPlus, IconTrash, IconEye } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
@@ -60,6 +62,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const [validatorModalOpen, setValidatorModalOpen] = useState(false);
   const [validatorData, setValidatorData] = useState<ValidatorData | null>(null);
   const [validatorExists, setValidatorExists] = useState<Record<string, boolean>>({});
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   const fetchTemplate = async () => {
     try {
@@ -159,6 +162,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       onChange: (e: any) => handleInputChange(rowIndex, field.name, e.currentTarget?.value || e),
       required: field.required,
       placeholder: field.comment,
+      style: { width: "100%" }
     };
 
     switch (field.datatype) {
@@ -229,55 +233,62 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   return (
     <Container size="xl">
       <Title ta="center" mb="md">{`Completar Plantilla: ${publishedTemplateName}`}</Title>
-      <ScrollArea style={{ maxHeight: 300 }}>
-        <ScrollArea type="always" offsetScrollbars>
-          <Table withTableBorder withColumnBorders withRowBorders>
-            <Table.Thead>
-              <Table.Tr>
-                {template.fields.map((field) => (
-                  <Table.Th key={field.name} style={{ minWidth: '250px' }}>
-                    <Group>
-                      {field.name} {field.required && <Text span color="red">*</Text>}
-                      {field.validate_with && (
-                        <ActionIcon
-                          size={"lg"}
-                          onClick={() => handleValidatorOpen(field.validate_with?.id!)}
-                          title="Ver valores aceptados"
-                          disabled={!validatorExists[field.name]}
-                        >
-                          <IconEye />
-                        </ActionIcon>
-                      )}
-                    </Group>
-                  </Table.Th>
-                ))}
-                <Table.Th style={{ minWidth: '250px' }}>Acciones</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {rows.map((row, rowIndex) => (
-                <Table.Tr key={rowIndex}>
+      <Tooltip
+        label="Desplázate horizontalmente para ver todas las columnas"
+        position="bottom"
+        withArrow
+        transitionProps={{ transition: "slide-up", duration: 300 }}
+      >
+        <ScrollArea style={{ maxHeight: 300 }} viewportRef={scrollAreaRef}>
+          <ScrollArea type="always" offsetScrollbars>
+            <Table withTableBorder withColumnBorders withRowBorders>
+              <Table.Thead>
+                <Table.Tr>
                   {template.fields.map((field) => (
-                    <Table.Td key={field.name} style={{ minWidth: '250px' }}>
-                      <Group align="center">
-                        {renderInputField(field, row, rowIndex)}
+                    <Table.Th key={field.name} style={{ minWidth: '250px' }}>
+                      <Group>
+                        {field.name} {field.required && <Text span color="red">*</Text>}
+                        {field.validate_with && (
+                          <ActionIcon
+                            size={"lg"}
+                            onClick={() => handleValidatorOpen(field.validate_with?.id!)}
+                            title="Ver valores aceptados"
+                            disabled={!validatorExists[field.name]}
+                          >
+                            <IconEye />
+                          </ActionIcon>
+                        )}
                       </Group>
-                    </Table.Td>
+                    </Table.Th>
                   ))}
-                  <Table.Td style={{ minWidth: '250px' }}>
-                    <Center>
-                      <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Center>
-                  </Table.Td>
+                  <Table.Th style={{ minWidth: '250px' }}>Acciones</Table.Th>
                 </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+              </Table.Thead>
+              <Table.Tbody>
+                {rows.map((row, rowIndex) => (
+                  <Table.Tr key={rowIndex}>
+                    {template.fields.map((field) => (
+                      <Table.Td key={field.name} style={{ minWidth: '250px' }}>
+                        <Group align="center">
+                          {renderInputField(field, row, rowIndex)}
+                        </Group>
+                      </Table.Td>
+                    ))}
+                    <Table.Td style={{ minWidth: '250px' }}>
+                      <Center>
+                        <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Center>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
         </ScrollArea>
-      </ScrollArea>
-      <Group justify="center" mt="md">
+      </Tooltip>
+      <Group justify="center" mt={rem(50)}>
         <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
           Cancelar
         </Button>
