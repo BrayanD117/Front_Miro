@@ -126,6 +126,24 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     setRows(rows.filter((_, i) => i !== index));
   };
 
+  const validateFields = () => {
+    const newErrors: Record<string, string[]> = {};
+
+    rows.forEach((row, rowIndex) => {
+      template?.fields.forEach((field) => {
+        if (field.required && !row[field.name]) {
+          if (!newErrors[field.name]) {
+            newErrors[field.name] = [];
+          }
+          newErrors[field.name][rowIndex] = "Este campo es obligatorio.";
+        }
+      });
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleValidatorOpen = async (validatorId: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${validatorId}`);
@@ -141,6 +159,15 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   };
 
   const handleSubmit = async () => {
+    if (!validateFields()) {
+      showNotification({
+        title: "Error de Validación",
+        message: "Por favor completa los campos obligatorios.",
+        color: "red",
+      });
+      return;
+    }
+
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
         email: session?.user?.email,
@@ -305,10 +332,6 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                         <Group align="center">
                           {renderInputField(field, row, rowIndex)}
                         </Group>
-                        {errors[field.name]?.[rowIndex] && (
-                          <Text color="red" size="sm" mt={5}>
-                          </Text>
-                        )}
                       </Table.Td>
                     ))}
                     <Table.Td style={{ minWidth: '250px' }}>
