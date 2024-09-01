@@ -339,9 +339,9 @@ const ProducerTemplateUpdatePage = ({
                     ))}
                     <Table.Td style={{ minWidth: '250px' }}>
                       <Center>
-                        <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
-                          <IconTrash size={16} />
-                        </ActionIcon>
+                        <Button size={"md"} color="red" onClick={() => removeRow(rowIndex)} rightSection={<IconTrash size={25} />}>
+                          Borrar
+                        </Button>
                       </Center>
                     </Table.Td>
                   </Table.Tr>

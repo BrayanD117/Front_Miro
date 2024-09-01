@@ -59,6 +59,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const [publishedTemplateName, setPublishedTemplateName] = useState<string>("");
   const [template, setTemplate] = useState<Template | null>(null);
   const [rows, setRows] = useState<Record<string, any>[]>([{}]);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [validatorModalOpen, setValidatorModalOpen] = useState(false);
   const [validatorData, setValidatorData] = useState<ValidatorData | null>(null);
   const [validatorExists, setValidatorExists] = useState<Record<string, boolean>>({});
@@ -108,6 +109,13 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     const updatedRows = [...rows];
     updatedRows[rowIndex][fieldName] = value === "" ? null : value;
     setRows(updatedRows);
+
+    // Limpiar error si se hace algún cambio en el campo
+    const updatedErrors = { ...errors };
+    if (updatedErrors[fieldName]) {
+      delete updatedErrors[fieldName];
+      setErrors(updatedErrors);
+    }
   };
 
   const addRow = () => {
@@ -148,35 +156,55 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       router.push('/producer/templates/uploaded');
     } catch (error) {
       console.error("Error submitting data:", error);
-      showNotification({
-        title: "Error",
-        message: "No se pudo enviar la información",
-        color: "red",
-      });
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        const validationErrors = error.response.data.details;
+        const errorObject: Record<string, string[]> = {};
+
+        validationErrors.forEach((error: { column: string, errors: { register: number, message: string }[] }) => {
+          error.errors.forEach(err => {
+            if (!errorObject[error.column]) {
+              errorObject[error.column] = [];
+            }
+            errorObject[error.column][err.register - 1] = err.message;
+          });
+        });
+
+        setErrors(errorObject);
+        showNotification({
+          title: "Error de Validación",
+          message: "Algunos campos contienen errores. Por favor revisa y corrige.",
+          color: "red",
+        });
+      }
     }
   };
 
   const renderInputField = (field: Field, row: Record<string, any>, rowIndex: number) => {
+    const fieldError = errors[field.name]?.[rowIndex];
     const commonProps = {
       value: row[field.name] || "",
-      onChange: (e: any) => handleInputChange(rowIndex, field.name, e.currentTarget?.value || e),
+      onChange: (e: React.ChangeEvent<HTMLInputElement> | number) => handleInputChange(rowIndex, field.name, typeof e === "number" ? e : e.currentTarget.value),
       required: field.required,
       placeholder: field.comment,
-      style: { width: "100%" }
+      style: { width: "100%" },
+      error: Boolean(fieldError),
     };
 
     switch (field.datatype) {
       case "Entero":
       case "Decimal":
       case "Porcentaje":
+        const formattedValue = field.datatype === "Porcentaje" ? (row[field.name] ? `${row[field.name]}%` : "") : row[field.name];
+
         return (
           <NumberInput
             {...commonProps}
-            value={row[field.name] || ""}
+            value={formattedValue}
             min={0}
-            step={field.datatype === "Porcentaje" ? 0.01 : 1}
+            step={field.datatype === "Porcentaje" ? 1 : 1}
             hideControls
             onChange={(value) => handleInputChange(rowIndex, field.name, value)}
+            error={fieldError ? fieldError : undefined}
           />
         );
       case "Texto Largo":
@@ -186,6 +214,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             resize="vertical"
             value={row[field.name] === null ? "" : row[field.name]}
             onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+            error={fieldError ? fieldError : undefined}
           />
         );
       case "Texto Corto":
@@ -195,6 +224,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             {...commonProps}
             value={row[field.name] === null ? "" : row[field.name]}
             onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+            error={fieldError ? fieldError : undefined}
           />
         );
       case "True/False":
@@ -203,6 +233,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             {...commonProps}
             checked={row[field.name] || false}
             onChange={(event) => handleInputChange(rowIndex, field.name, event.currentTarget.checked)}
+            error={fieldError ? fieldError : undefined}
           />
         );
       case "Fecha":
@@ -213,6 +244,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             locale="es"
             valueFormat="DD/MM/YYYY"
             onChange={(date) => handleInputChange(rowIndex, field.name, date)}
+            error={fieldError ? fieldError : undefined}
           />
         );
       default:
@@ -221,6 +253,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             {...commonProps}
             value={row[field.name] === null ? "" : row[field.name]}
             onChange={(e) => handleInputChange(rowIndex, field.name, e.target.value)}
+            error={fieldError ? fieldError : undefined}
           />
         );
     }
@@ -272,6 +305,10 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                         <Group align="center">
                           {renderInputField(field, row, rowIndex)}
                         </Group>
+                        {errors[field.name]?.[rowIndex] && (
+                          <Text color="red" size="sm" mt={5}>
+                          </Text>
+                        )}
                       </Table.Td>
                     ))}
                     <Table.Td style={{ minWidth: '250px' }}>
