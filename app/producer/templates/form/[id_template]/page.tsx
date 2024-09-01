@@ -241,7 +241,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       >
         <ScrollArea viewportRef={scrollAreaRef}>
           <ScrollArea type="always" offsetScrollbars>
-            <Table withTableBorder withColumnBorders withRowBorders>
+            <Table mb={"xs"} withTableBorder withColumnBorders withRowBorders>
               <Table.Thead>
                 <Table.Tr>
                   {template.fields.map((field) => (
@@ -276,9 +276,9 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                     ))}
                     <Table.Td style={{ minWidth: '250px' }}>
                       <Center>
-                        <ActionIcon color="red" onClick={() => removeRow(rowIndex)}>
-                          <IconTrash size={16} />
-                        </ActionIcon>
+                        <Button size={"md"} color="red" onClick={() => removeRow(rowIndex)} rightSection={<IconTrash size={25} />}>
+                          Borrar
+                        </Button>
                       </Center>
                     </Table.Td>
                   </Table.Tr>
