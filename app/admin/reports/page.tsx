@@ -221,6 +221,7 @@ const AdminReportsPage = () => {
     setName(report.name);
     setDescription(report.description);
     setRequiresAttachment(report.requires_attachment);
+    setFileName(report.file_name);
     setOpened(true);
   };
 
@@ -285,6 +286,21 @@ const AdminReportsPage = () => {
       });
     }
   };
+
+  const checkIfChanges = () => {
+    if (
+      selectedReport &&
+      (name !== selectedReport.name ||
+        description !== selectedReport.description ||
+        requiresAttachment !== selectedReport.requires_attachment ||
+        fileName !== selectedReport.file_name ||
+        reportExample)
+    ) {
+      return true;
+    }
+
+    return false;
+  }
 
   const rows = reports.map((report: Report) => (
     <Table.Tr key={report._id}>
@@ -405,7 +421,10 @@ const AdminReportsPage = () => {
         ) : (
           <>
             <Group mb="md" grow>
-              <Button onClick={handleCreateOrEdit}>
+              <Button
+                onClick={handleCreateOrEdit} 
+                disabled={checkIfChanges()}
+              >
                 {selectedReport ? "Actualizar" : "Crear"}
               </Button>
               <Button onClick={handleModalClose} variant="outline">
