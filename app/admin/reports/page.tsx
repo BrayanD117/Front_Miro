@@ -288,18 +288,18 @@ const AdminReportsPage = () => {
   };
 
   const checkIfChanges = () => {
-    if (
-      selectedReport &&
-      (name !== selectedReport.name ||
+    if(!selectedReport) return false
+    else if (
+      name !== selectedReport.name ||
         description !== selectedReport.description ||
         requiresAttachment !== selectedReport.requires_attachment ||
         fileName !== selectedReport.file_name ||
-        reportExample)
+        reportExample
     ) {
-      return true;
+      return false;
     }
 
-    return false;
+    return true;
   }
 
   const rows = reports.map((report: Report) => (
