@@ -721,13 +721,12 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDeviceFloppy />}
                 onClick={handleCreate}
                 disabled={
-                  !reportFile ||
-                  (deletedReport !== null && !reportFile) ||
-                  (selectedReport?.report.requires_attachment &&
-                    attachments.length === 0) ||
-                  (deletedAttachments.length > 0 &&
-                    selectedReport?.filled_reports[0]?.attachments.length ===
-                      deletedAttachments.length)
+                  selectedReport?.filled_reports[0] ? 
+                  (!deletedReport && deletedAttachments.length === 0 && attachments.length === 0) ||
+                  (deletedReport && reportFile === null) || 
+                  (deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length 
+                    && attachments.length === 0) :
+                  !reportFile || (selectedReport?.report.requires_attachment && attachments.length === 0)
                 }
               >
                 Guardar Borrador
