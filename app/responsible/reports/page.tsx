@@ -171,7 +171,7 @@ const ResponsibleReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreate = async () => {
-    if (!reportFile && deletedReport) {
+    if (!reportFile && !deletedReport) {
       showNotification({
         title: "Error",
         message: "No ha cargado el archivo de reporte",
