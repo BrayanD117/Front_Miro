@@ -171,24 +171,49 @@ const ResponsibleReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreate = async () => {
-    if (!reportFile) {
-      showNotification({
-        title: "Error",
-        message: "No ha cargado el archivo de reporte",
-        color: "red",
-      });
-      return;
+    if(selectedReport?.filled_reports[0]) {
+      if(deletedReport && !reportFile) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado el archivo de reporte",
+          color: "red",
+        });
+      }
+      if(deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length && attachments.length === 0) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado archivo(s) de anexo",
+          color: "red",
+        });
+      }
+      if(deletedAttachments.length === 0 && attachments.length === 0 && !deletedReport) {
+        showNotification({
+          title: "Error",
+          message: "No ha habido cambios desde el borrador anterior en el reporte",
+          color: "red",
+        });
+      }
     }
-    if (
-      selectedReport?.report.requires_attachment &&
-      attachments.length === 0
-    ) {
-      showNotification({
-        title: "Error",
-        message: "No ha cargado el(los) archivo(s) de anexo",
-        color: "red",
-      });
-      return;
+    else {
+      if (!reportFile) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado el archivo de reporte",
+          color: "red",
+        });
+        return;
+      }
+      if (
+        selectedReport?.report.requires_attachment &&
+        attachments.length === 0
+      ) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado el(los) archivo(s) de anexo",
+          color: "red",
+        });
+        return;
+      }
     }
     if (!selectedReport) {
       showNotification({
@@ -210,10 +235,23 @@ const ResponsibleReportsPage = () => {
     const formData = new FormData();
     formData.append("email", session?.user?.email);
     formData.append("reportId", selectedReport?._id);
-    formData.append("reportFile", reportFile);
+    if (deletedReport) {
+      formData.append("deletedReport", deletedReport);
+    }
+    if (deletedAttachments.length > 0) {
+      console.log(JSON.stringify(deletedAttachments));
+      formData.append("deletedAttachments", JSON.stringify(deletedAttachments));
+    }
+    if(reportFile) {
+      formData.append("reportFile", reportFile);
+    }
+    if(selectedReport?.filled_reports[0]) {
+      formData.append("filledRepId", selectedReport.filled_reports[0]._id);
+    }
     attachments.forEach((attachment) => {
       formData.append("attachments", attachment);
     });
+
     setLoading(true);
     try {
       const response = await axios.put(
