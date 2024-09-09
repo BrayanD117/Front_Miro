@@ -379,8 +379,8 @@ const ResponsibleReportsPage = () => {
             </Pill>
           </Group>
           {filledReport.attachments.length > 0 && (
-            <Group>
-              <Text>Anexos: </Text>
+            <Group mt={'xs'}>
+              <Text size="sm">Anexos: </Text>
               <PillGroup>
                 {filledReport.attachments.map((attachment) => (
                   <Pill
@@ -390,6 +390,8 @@ const ResponsibleReportsPage = () => {
                         window.open(attachment.view_link);
                     }}
                     style={{ cursor: "pointer" }}
+                    bg="gray"
+                     c="white"
                   >
                     {attachment.name}
                   </Pill>
@@ -626,7 +628,7 @@ const ResponsibleReportsPage = () => {
                 </Text>
               </div>
             </Dropzone>
-            {selectedReport?.filled_reports[0]?.report_file &&
+            {selectedReport?.filled_reports[0]?.status === 'En Borrador' && selectedReport?.filled_reports[0]?.report_file &&
               !deletedReport && (
                 <Pill
                   mt={"sm"}
@@ -721,7 +723,7 @@ const ResponsibleReportsPage = () => {
                       {attachment.name}
                     </Pill>
                   ))}
-                  {selectedReport.filled_reports[0]?.attachments.map(
+                  {selectedReport?.filled_reports[0]?.status === 'En Borrador' &&  selectedReport.filled_reports[0]?.attachments.map(
                     (attachment) => {
                       return (
                         !deletedAttachments.includes(attachment.id) && (
