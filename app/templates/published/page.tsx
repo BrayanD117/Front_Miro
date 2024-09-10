@@ -272,6 +272,19 @@ const PublishedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
+            <Button
+              variant="outline"
+              onClick={() => {
+                router.push(`/templates/uploaded/${publishedTemplate._id}`);
+              }}
+              disabled={publishedTemplate.loaded_data.length === 0}
+            >
+              Ver Información
+            </Button>
+          </Center>
+        </Table.Td>
+        <Table.Td>
+          <Center>
             {/* <Progress.Root
               mt={"xs"}
               size={"md"}
@@ -344,6 +357,9 @@ const PublishedTemplatesPage = () => {
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Fecha Fin Productor</Table.Th>
             <Table.Th>Última Modificación</Table.Th>
+            <Table.Th>
+              <Center>Ver informacion Cargada</Center>
+            </Table.Th>
             <Table.Th>
               <Center>Progreso</Center>
             </Table.Th>

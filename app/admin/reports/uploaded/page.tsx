@@ -17,6 +17,7 @@ import {
   Stack,
   Table,
   Text,
+  Textarea,
   TextInput,
   Title,
   Tooltip,
@@ -24,12 +25,16 @@ import {
 } from "@mantine/core";
 import {
   IconArrowLeft,
+  IconCancel,
+  IconDeviceFloppy,
   IconFileDescription,
   IconFolderOpen,
   IconReportSearch,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { format } from "fecha";
+import { dateToGMT } from "@/app/components/DateConfig";
+import { modals } from "@mantine/modals";
+import { showNotification } from "@mantine/notifications";
 
 interface Report {
   _id: string;
@@ -73,7 +78,7 @@ interface FilledReport {
   loaded_date: Date;
   report_file: File;
   attachments: File[];
-  status: string;
+  status: string | null;
 }
 
 interface PublishedReport {
@@ -88,10 +93,15 @@ interface PublishedReport {
 const AdminPubReportsPage = () => {
   const { data: session } = useSession();
   const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<PublishedReport | null>(
+  const [selectedReport, setSelectedReport] = useState<PublishedReport | null | undefined>(
     null
   );
+  const [filledReportRows, setFilledReportRows] = useState<FilledReport[]>([]);
+  const [filledReport, setFilledReport] = useState<FilledReport | null>(null);
   const [opened, setOpened] = useState<boolean>(false);
+  const [statusOpened, setStatusOpened] = useState<boolean>(false);
+  const [newStatus, setNewStatus] = useState<string | null>(null);
+  const [observations, setObservations] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -123,6 +133,10 @@ const AdminPubReportsPage = () => {
         console.log(response.data);
         setPubReports(response.data.publishedReports);
         setTotalPages(response.data.totalPages);
+        if(selectedReport) {
+          setSelectedReport(response.data.publishedReports.find((report:any) => report._id === selectedReport._id));
+          setFilledReportRows(response.data.publishedReports.find((report:any) => report._id === selectedReport._id).filled_reports);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -154,23 +168,89 @@ const AdminPubReportsPage = () => {
     return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
   };
 
-  const selectedReportRows = selectedReport?.filled_reports.map(
-    (filledReport: FilledReport) => {
+  const handleOpenModalStatus = (index: number, newStatus: string | null) => {
+    setStatusOpened(true);
+    const report = selectedReport?.filled_reports[index];
+    if (report) {
+      setFilledReport(report);
+    }
+    setNewStatus(newStatus)
+  };
+
+  const handleCloseModalStatus = () => {
+    setLoading(false);
+    setStatusOpened(false);
+    setNewStatus(null);
+    setFilledReport(null);
+    setObservations(null);
+    fetchReports(page, search);
+  }
+
+  const handleUpdateStatus = async () => {
+    setLoading(true);
+    if (filledReport && newStatus) {
+      if(newStatus === 'Rechazado' && !observations) {
+        showNotification({
+          title: "Error",
+          message: "Por favor ingrese una razón de rechazo",
+          color: "red",
+        });
+        setLoading(false);
+        return
+      }
+      try {
+        const response = await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/pReports/status`,
+          {
+            reportId: selectedReport?._id,
+            filledRepId: filledReport._id,
+            status: newStatus,
+            observations: observations,
+            email: session?.user?.email
+          }
+        );
+        if (response.data) {
+          handleCloseModalStatus()
+          showNotification({
+            title: "Éxito",
+            message: "Estado actualizado correctamente",
+            color: "green",
+          });
+          fetchReports(page, search);
+        }
+      } catch (error) {
+        handleCloseModalStatus()
+        showNotification({
+          title: "Error",
+          message: "Ocurrió un error al actualizar el estado",
+          color: "red",
+        });
+      }
+    }
+  }
+
+  const selectedReportRows = filledReportRows?.map(
+    (filledReport: FilledReport, index) => {
       return (
         <Table.Tr key={filledReport.report_file.id}>
           <Table.Td>{filledReport.dimension.name}</Table.Td>
           <Table.Td>
-            {format(new Date(filledReport.loaded_date), "D/M/YYYY")}
+            {dateToGMT(filledReport.loaded_date, "D/MM/YYYY h:mm")}
           </Table.Td>
           <Table.Td>{truncateString(filledReport.send_by.full_name)}</Table.Td>
           <Table.Td>
             <Center>
               <Select
+                onChange={(value) => {
+                  handleOpenModalStatus(index, value)
+                }}
+                allowDeselect={false}
                 data={options}
                 w={rem(130)}
                 value={filledReport.status}
                 color="red"
                 radius={"xl"}
+                fw={700}
                 styles={{
                   input: {
                     borderColor: options.find((option) => option.value === filledReport.status)?.color, // Change the border color
@@ -242,6 +322,7 @@ const AdminPubReportsPage = () => {
                   w={rem(200)}
                   onClick={() => {
                     setSelectedReport(pubReport);
+                    setFilledReportRows(pubReport.filled_reports);
                     setOpened(true);
                   }}
                   style={{ cursor: "pointer" }}
@@ -267,6 +348,7 @@ const AdminPubReportsPage = () => {
                     variant="outline"
                     onClick={() => {
                       setSelectedReport(pubReport);
+                      setFilledReportRows(pubReport.filled_reports);
                       setOpened(true);
                     }}
                   >
@@ -375,6 +457,64 @@ const AdminPubReportsPage = () => {
           </Table.Thead>
           <Table.Tbody>{selectedReportRows}</Table.Tbody>
         </Table>
+      </Modal>
+      <Modal
+        opened={statusOpened}
+        onClose={handleCloseModalStatus}
+        size="auto"
+        overlayProps={{
+          backgroundOpacity: 0.2,
+          blur: 1,
+        }}
+        title={
+          <Title size={"md"}>{selectedReport?.report.name}</Title>
+        }
+      >
+        <Text fw={700}>Dimensión: {filledReport?.dimension.name}</Text>
+        {newStatus === 'Rechazado' && (
+          <Textarea
+            mt={'md'}
+            label={
+              <Text fw={700}>Razón de rechazo:{" "}
+                <Text component="span" c={'red'}>
+                    *
+                </Text>
+              </Text>
+            }
+            placeholder="Ingrese observaciones al rechazo de la solicitud" 
+            rows={3} 
+            mb='md' 
+            style={{width: '100%'}} 
+            resize='vertical'
+            onChange={(event) => setObservations(event.currentTarget.value)}
+          ></Textarea>
+        )}
+        <Text mt='md' fw={700}>
+          ¿Estás seguro de cambiar el estado a {" "}
+          <Text component="span" fw={700} c={options.find(option => option.value === newStatus)?.color}>
+            {newStatus}
+          </Text>
+          ?
+        </Text>
+        <Group mt={'md'} grow>
+          <Button
+            onClick={handleUpdateStatus}
+            color="blue"
+            variant="outline"
+            leftSection={<IconDeviceFloppy/>}
+            loading={loading}
+          >
+            Guardar
+          </Button>
+          <Button
+            onClick={handleCloseModalStatus}
+            color="red"
+            variant="outline"
+            leftSection={<IconCancel/>}
+          >
+            Cancelar
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );

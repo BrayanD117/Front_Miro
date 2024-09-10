@@ -19,6 +19,7 @@ import {
   Select,
   Tooltip,
   Title,
+  Pill,
 } from "@mantine/core";
 import {
   IconArrowRight,
@@ -145,7 +146,7 @@ const AdminReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreateOrEdit = async () => {
-    if (!name || !reportExample) {
+    if ((!name || !reportExample) && !selectedReport) {
       showNotification({
         title: "Error",
         message: "El nombre y el formato de ejemplo son requeridos",
@@ -159,15 +160,16 @@ const AdminReportsPage = () => {
     formData.append("description", description);
     formData.append("requires_attachment", requiresAttachment.toString());
     formData.append("file_name", fileName);
-    formData.append("report_example", reportExample);
     formData.append("email", session?.user?.email || "");
+    if(reportExample)
+      formData.append("report_example", reportExample);
 
     setLoading(true);
 
     try {
       if (selectedReport) {
         await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}/reports/${selectedReport._id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/reports/update/${selectedReport._id}`,
           formData,
           {
             headers: {
@@ -221,6 +223,7 @@ const AdminReportsPage = () => {
     setName(report.name);
     setDescription(report.description);
     setRequiresAttachment(report.requires_attachment);
+    setFileName(report.file_name);
     setOpened(true);
   };
 
@@ -250,6 +253,7 @@ const AdminReportsPage = () => {
     setRequiresAttachment(false);
     setReportExample(null);
     setSelectedReport(null);
+    setFileName("");
     setLoading(false);
     setSuccess(false);
   };
@@ -285,6 +289,21 @@ const AdminReportsPage = () => {
       });
     }
   };
+
+  const checkIfChanges = () => {
+    if(!selectedReport) return false
+    else if (
+      name !== selectedReport.name ||
+        description !== selectedReport.description ||
+        requiresAttachment !== selectedReport.requires_attachment ||
+        fileName !== selectedReport.file_name ||
+        reportExample
+    ) {
+      return false;
+    }
+
+    return true;
+  }
 
   const rows = reports.map((report: Report) => (
     <Table.Tr key={report._id}>
@@ -405,7 +424,10 @@ const AdminReportsPage = () => {
         ) : (
           <>
             <Group mb="md" grow>
-              <Button onClick={handleCreateOrEdit}>
+              <Button
+                onClick={handleCreateOrEdit} 
+                disabled={checkIfChanges()}
+              >
                 {selectedReport ? "Actualizar" : "Crear"}
               </Button>
               <Button onClick={handleModalClose} variant="outline">
@@ -471,6 +493,26 @@ const AdminReportsPage = () => {
                 }
               />
             </Group>
+            {selectedReport && (
+              <Group mt="sm">
+                <Text size="sm">
+                  Reporte cargado:{" "}
+                </Text>
+                <Pill
+                  onClick={() => {
+                    if (typeof window !== "undefined")
+                      window.open(selectedReport.report_example_link);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  bg={"blue"}
+                  c={"white"}
+                  size="xs"
+                >
+                  {selectedReport.file_name}
+                </Pill>
+              </Group>
+            )}
+
           </>
         )}
       </Modal>
