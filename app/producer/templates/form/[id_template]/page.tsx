@@ -130,7 +130,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
 
     rows.forEach((row, rowIndex) => {
       template?.fields.forEach((field) => {
-        if (field.required && !row[field.name]) {
+        if (field.required && (row[field.name] === null || row[field.name] === undefined)) {
           if (!newErrors[field.name]) {
             newErrors[field.name] = [];
           }
@@ -257,7 +257,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         return (
           <Switch
             {...commonProps}
-            checked={row[field.name] || false}
+            checked={row[field.name] === true}
             onChange={(event) => handleInputChange(rowIndex, field.name, event.currentTarget.checked)}
             error={fieldError ? fieldError : undefined}
           />
