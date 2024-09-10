@@ -277,6 +277,7 @@ const PublishedTemplatesPage = () => {
               onClick={() => {
                 router.push(`/templates/uploaded/${publishedTemplate._id}`);
               }}
+              disabled={publishedTemplate.loaded_data.length === 0}
             >
               Ver Información
             </Button>
