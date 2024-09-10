@@ -19,7 +19,29 @@ const UploadedTemplatePage = () => {
   const [templateName, setTemplateName] = useState("");
   const { data: session } = useSession();
 
+  const fetchDependenciesNames = async (depCodes: string[]) => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
+        codes: depCodes,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching dependency names:", error);
+      return [];
+    }
+  };
+
   useEffect(() => {
+    const fetchTemplateName = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id}`);
+        const templateName = response.data.name || "Plantilla sin nombre";
+        setTemplateName(templateName);
+      } catch (error) {
+        console.error("Error fetching template name:", error);
+      }
+    };
+
     const fetchUploadedData = async () => {
       if (id && session?.user?.email) {
         try {
@@ -36,9 +58,18 @@ const UploadedTemplatePage = () => {
           const data = response.data.data;
 
           if (Array.isArray(data) && data.length > 0) {
-            setTemplateName(`${id}`);
-            setTableData(data);
-            console.log(data);
+            const depCodes = data.map((row: RowData) => row.Dependencia);
+            const dependencyNames = await fetchDependenciesNames(depCodes);
+
+            const updatedData = data.map((row: RowData) => {
+              const dependencyName = dependencyNames.find((dep: { code: string, name: string }) => dep.code === row.Dependencia);
+              return {
+                ...row,
+                Dependencia: dependencyName ? dependencyName.name : row.Dependencia,
+              };
+            });
+
+            setTableData(updatedData);
           } else {
             console.error("Invalid data format received from API.");
           }
@@ -48,6 +79,7 @@ const UploadedTemplatePage = () => {
       }
     };
 
+    fetchTemplateName();
     fetchUploadedData();
   }, [id, session]);
 
@@ -55,7 +87,6 @@ const UploadedTemplatePage = () => {
     if (typeof value === "boolean") {
       return value ? <IconCheck color="green" size={25} /> : <IconX color="red" size={25} />;
     } else if (typeof value === "string" && dayjs(value).isValid()) {
-      // Formatear la fecha usando dayjs
       return dayjs(value).locale('es').format('DD/MM/YYYY');
     }
     return value;
