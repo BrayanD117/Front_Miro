@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Table, Title, Text, ScrollArea, Center } from "@mantine/core";
 import { useSession } from "next-auth/react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 
 interface RowData {
   [key: string]: any;
@@ -35,7 +36,7 @@ const UploadedTemplatePage = () => {
           if (Array.isArray(data) && data.length > 0) {
             setTemplateName(`Template ID: ${id}`);
             setTableData(data);
-            console.log(data)
+            console.log(data);
           } else {
             console.error("Invalid data format received from API.");
           }
@@ -48,8 +49,15 @@ const UploadedTemplatePage = () => {
     fetchUploadedData();
   }, [id, session]);
 
+  const renderCellContent = (value: any) => {
+    if (typeof value === "boolean") {
+      return value ? <IconCheck color="green" size={25} /> : <IconX color="red" size={25} />;
+    }
+    return value;
+  };
+
   return (
-    <Container>
+    <Container size={"lg"}>
       <Title ta="center" mb={"md"}>{`Datos Cargados para: ${templateName}`}</Title>
       {tableData.length === 0 ? (
         <Text ta={"center"}>No hay datos cargados para esta plantilla.</Text>
@@ -67,7 +75,7 @@ const UploadedTemplatePage = () => {
               {tableData.map((rowData, rowIndex) => (
                 <Table.Tr key={rowIndex}>
                   {Object.keys(rowData).map((fieldName, cellIndex) => (
-                    <Table.Td key={cellIndex}><Center>{rowData[fieldName]}</Center></Table.Td>
+                    <Table.Td key={cellIndex}><Center>{renderCellContent(rowData[fieldName])}</Center></Table.Td>
                   ))}
                 </Table.Tr>
               ))}
