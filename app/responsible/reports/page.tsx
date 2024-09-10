@@ -761,7 +761,7 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDeviceFloppy />}
                 onClick={handleCreate}
                 disabled={
-                  selectedReport?.filled_reports[0] ? 
+                  selectedReport?.filled_reports[0]?.status==='En Borrador' ? 
                   (!deletedReport && deletedAttachments.length === 0 && attachments.length === 0) ||
                   (deletedReport && reportFile === null) || 
                   (deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length 
