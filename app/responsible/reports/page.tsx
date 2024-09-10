@@ -171,24 +171,49 @@ const ResponsibleReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreate = async () => {
-    if (!reportFile) {
-      showNotification({
-        title: "Error",
-        message: "No ha cargado el archivo de reporte",
-        color: "red",
-      });
-      return;
+    if(selectedReport?.filled_reports[0]) {
+      if(deletedReport && !reportFile) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado el archivo de reporte",
+          color: "red",
+        });
+      }
+      if(deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length && attachments.length === 0) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado archivo(s) de anexo",
+          color: "red",
+        });
+      }
+      if(deletedAttachments.length === 0 && attachments.length === 0 && !deletedReport) {
+        showNotification({
+          title: "Error",
+          message: "No ha habido cambios desde el borrador anterior en el reporte",
+          color: "red",
+        });
+      }
     }
-    if (
-      selectedReport?.report.requires_attachment &&
-      attachments.length === 0
-    ) {
-      showNotification({
-        title: "Error",
-        message: "No ha cargado el(los) archivo(s) de anexo",
-        color: "red",
-      });
-      return;
+    else {
+      if (!reportFile) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado el archivo de reporte",
+          color: "red",
+        });
+        return;
+      }
+      if (
+        selectedReport?.report.requires_attachment &&
+        attachments.length === 0
+      ) {
+        showNotification({
+          title: "Error",
+          message: "No ha cargado el(los) archivo(s) de anexo",
+          color: "red",
+        });
+        return;
+      }
     }
     if (!selectedReport) {
       showNotification({
@@ -210,10 +235,23 @@ const ResponsibleReportsPage = () => {
     const formData = new FormData();
     formData.append("email", session?.user?.email);
     formData.append("reportId", selectedReport?._id);
-    formData.append("reportFile", reportFile);
+    if (deletedReport) {
+      formData.append("deletedReport", deletedReport);
+    }
+    if (deletedAttachments.length > 0) {
+      console.log(JSON.stringify(deletedAttachments));
+      formData.append("deletedAttachments", JSON.stringify(deletedAttachments));
+    }
+    if(reportFile) {
+      formData.append("reportFile", reportFile);
+    }
+    if(selectedReport?.filled_reports[0]) {
+      formData.append("filledRepId", selectedReport.filled_reports[0]._id);
+    }
     attachments.forEach((attachment) => {
       formData.append("attachments", attachment);
     });
+
     setLoading(true);
     try {
       const response = await axios.put(
@@ -341,8 +379,8 @@ const ResponsibleReportsPage = () => {
             </Pill>
           </Group>
           {filledReport.attachments.length > 0 && (
-            <Group>
-              <Text>Anexos: </Text>
+            <Group mt={'xs'}>
+              <Text size="sm">Anexos: </Text>
               <PillGroup>
                 {filledReport.attachments.map((attachment) => (
                   <Pill
@@ -352,6 +390,8 @@ const ResponsibleReportsPage = () => {
                         window.open(attachment.view_link);
                     }}
                     style={{ cursor: "pointer" }}
+                    bg="gray"
+                     c="white"
                   >
                     {attachment.name}
                   </Pill>
@@ -588,7 +628,7 @@ const ResponsibleReportsPage = () => {
                 </Text>
               </div>
             </Dropzone>
-            {selectedReport?.filled_reports[0]?.report_file &&
+            {selectedReport?.filled_reports[0]?.status === 'En Borrador' && selectedReport?.filled_reports[0]?.report_file &&
               !deletedReport && (
                 <Pill
                   mt={"sm"}
@@ -683,7 +723,7 @@ const ResponsibleReportsPage = () => {
                       {attachment.name}
                     </Pill>
                   ))}
-                  {selectedReport.filled_reports[0]?.attachments.map(
+                  {selectedReport?.filled_reports[0]?.status === 'En Borrador' &&  selectedReport.filled_reports[0]?.attachments.map(
                     (attachment) => {
                       return (
                         !deletedAttachments.includes(attachment.id) && (
@@ -721,13 +761,12 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDeviceFloppy />}
                 onClick={handleCreate}
                 disabled={
-                  !reportFile ||
-                  (deletedReport !== null && !reportFile) ||
-                  (selectedReport?.report.requires_attachment &&
-                    attachments.length === 0) ||
-                  (deletedAttachments.length > 0 &&
-                    selectedReport?.filled_reports[0]?.attachments.length ===
-                      deletedAttachments.length)
+                  selectedReport?.filled_reports[0]?.status==='En Borrador' ? 
+                  (!deletedReport && deletedAttachments.length === 0 && attachments.length === 0) ||
+                  (deletedReport && reportFile === null) || 
+                  (deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length 
+                    && attachments.length === 0) :
+                  !reportFile || (selectedReport?.report.requires_attachment && attachments.length === 0)
                 }
               >
                 Guardar Borrador

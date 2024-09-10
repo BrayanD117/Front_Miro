@@ -1,3 +1,5 @@
+const { exec } = require('child_process');
+
 require('dotenv').config();
 
 module.exports = {
@@ -5,6 +7,8 @@ module.exports = {
       {
         name: 'Front_Miro',
         script: 'npm',
+        instances: 'max',
+        exec_mode: 'cluster',
         args: 'start',
         env: {
           NODE_ENV: 'production',
