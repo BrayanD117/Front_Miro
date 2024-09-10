@@ -3,9 +3,9 @@
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Table, Title, Text, ScrollArea, Center, Tooltip } from "@mantine/core";
+import { Container, Table, Title, Text, ScrollArea, Center, Tooltip, Button, Group } from "@mantine/core";
 import { useSession } from "next-auth/react";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { IconCheck, IconX, IconArrowLeft } from "@tabler/icons-react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
@@ -14,6 +14,7 @@ interface RowData {
 }
 
 const UploadedTemplatePage = () => {
+  const router = useRouter();
   const { id } = useParams();
   const [tableData, setTableData] = useState<RowData[]>([]);
   const [templateName, setTemplateName] = useState("");
@@ -94,7 +95,12 @@ const UploadedTemplatePage = () => {
 
   return (
     <Container size={"lg"}>
-      <Title ta="center" mb={"md"}>{`Datos Cargados para: ${templateName}`}</Title>
+      <Title ta="center">{`Datos Cargados para: ${templateName}`}</Title>
+      <Group mb="md">
+        <Button variant="outline" leftSection={<IconArrowLeft />} onClick={() => router.back()}>
+          Ir atrás
+        </Button>
+      </Group>
       {tableData.length === 0 ? (
         <Text ta={"center"}>No hay datos cargados para esta plantilla.</Text>
       ) : (
