@@ -3,17 +3,16 @@
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Table, Title, Text } from "@mantine/core";
+import { Container, Table, Title, Text, ScrollArea, Center } from "@mantine/core";
 import { useSession } from "next-auth/react";
 
-interface UploadedData {
-  field_name: string;
-  value: any;
+interface RowData {
+  [key: string]: any;
 }
 
 const UploadedTemplatePage = () => {
   const { id } = useParams();
-  const [uploadedData, setUploadedData] = useState<UploadedData[]>([]);
+  const [tableData, setTableData] = useState<RowData[]>([]);
   const [templateName, setTemplateName] = useState("");
   const { data: session } = useSession();
 
@@ -32,9 +31,14 @@ const UploadedTemplatePage = () => {
           );
 
           const data = response.data.data;
-          console.log("DATA:",data);
-          setUploadedData(data);
-          setTemplateName(`Template ID: ${id}`);
+
+          if (Array.isArray(data) && data.length > 0) {
+            setTemplateName(`Template ID: ${id}`);
+            setTableData(data);
+            console.log(data)
+          } else {
+            console.error("Invalid data format received from API.");
+          }
         } catch (error) {
           console.error("Error fetching uploaded data:", error);
         }
@@ -46,29 +50,30 @@ const UploadedTemplatePage = () => {
 
   return (
     <Container>
-      <Title
-        ta="center"
-        mb={"md"}
-      >{`Datos Cargados para: ${templateName}`}</Title>
-      {uploadedData.length === 0 ? (
+      <Title ta="center" mb={"md"}>{`Datos Cargados para: ${templateName}`}</Title>
+      {tableData.length === 0 ? (
         <Text ta={"center"}>No hay datos cargados para esta plantilla.</Text>
       ) : (
-        <Table striped withTableBorder>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Campo</Table.Th>
-              <Table.Th>Valor</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {uploadedData.map((data, index) => (
-              <Table.Tr key={index}>
-                <Table.Td>{data.field_name}</Table.Td>
-                <Table.Td>{data.value}</Table.Td>
+        <ScrollArea>
+          <Table striped withTableBorder>
+            <Table.Thead>
+              <Table.Tr>
+                {Object.keys(tableData[0]).map((fieldName, index) => (
+                  <Table.Th key={index}><Center>{fieldName}</Center></Table.Th>
+                ))}
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {tableData.map((rowData, rowIndex) => (
+                <Table.Tr key={rowIndex}>
+                  {Object.keys(rowData).map((fieldName, cellIndex) => (
+                    <Table.Td key={cellIndex}><Center>{rowData[fieldName]}</Center></Table.Td>
+                  ))}
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
       )}
     </Container>
   );
