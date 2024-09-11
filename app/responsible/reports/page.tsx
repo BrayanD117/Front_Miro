@@ -31,6 +31,7 @@ import {
   IconFileDescription,
   IconHistoryToggle,
   IconMailForward,
+  IconUpload,
   IconX,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
@@ -172,30 +173,38 @@ const ResponsibleReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreate = async () => {
-    if(selectedReport?.filled_reports[0]) {
-      if(deletedReport && !reportFile) {
+    if (selectedReport?.filled_reports[0]) {
+      if (deletedReport && !reportFile) {
         showNotification({
           title: "Error",
           message: "No ha cargado el archivo de reporte",
           color: "red",
         });
       }
-      if(deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length && attachments.length === 0) {
+      if (
+        deletedAttachments.length ===
+          selectedReport?.filled_reports[0].attachments.length &&
+        attachments.length === 0
+      ) {
         showNotification({
           title: "Error",
           message: "No ha cargado archivo(s) de anexo",
           color: "red",
         });
       }
-      if(deletedAttachments.length === 0 && attachments.length === 0 && !deletedReport) {
+      if (
+        deletedAttachments.length === 0 &&
+        attachments.length === 0 &&
+        !deletedReport
+      ) {
         showNotification({
           title: "Error",
-          message: "No ha habido cambios desde el borrador anterior en el reporte",
+          message:
+            "No ha habido cambios desde el borrador anterior en el reporte",
           color: "red",
         });
       }
-    }
-    else {
+    } else {
       if (!reportFile) {
         showNotification({
           title: "Error",
@@ -243,10 +252,10 @@ const ResponsibleReportsPage = () => {
       console.log(JSON.stringify(deletedAttachments));
       formData.append("deletedAttachments", JSON.stringify(deletedAttachments));
     }
-    if(reportFile) {
+    if (reportFile) {
       formData.append("reportFile", reportFile);
     }
-    if(selectedReport?.filled_reports[0]) {
+    if (selectedReport?.filled_reports[0]) {
       formData.append("filledRepId", selectedReport.filled_reports[0]._id);
     }
     attachments.forEach((attachment) => {
@@ -354,7 +363,7 @@ const ResponsibleReportsPage = () => {
     (filledReport, index) => {
       return (
         <>
-          <Divider 
+          <Divider
             mt={index === 0 ? "0" : "md"}
             label={`Estado: ${
               index > 0 && filledReport.status === "En Revisión"
@@ -362,7 +371,7 @@ const ResponsibleReportsPage = () => {
                 : filledReport.status
             } - Fecha de Estado: ${dateToGMT(
               filledReport.status_date,
-              "MMMM DD, YYYY HH:mm"
+              "MMM DD, YYYY HH:mm"
             )}`}
           />
           <Group mt={rem(5)}>
@@ -380,7 +389,7 @@ const ResponsibleReportsPage = () => {
             </Pill>
           </Group>
           {filledReport.attachments.length > 0 && (
-            <Group mt={'xs'}>
+            <Group mt={"xs"}>
               <Text size="sm">Anexos: </Text>
               <PillGroup>
                 {filledReport.attachments.map((attachment) => (
@@ -392,7 +401,7 @@ const ResponsibleReportsPage = () => {
                     }}
                     style={{ cursor: "pointer" }}
                     bg="gray"
-                     c="white"
+                    c="white"
                   >
                     {attachment.name}
                   </Pill>
@@ -401,7 +410,7 @@ const ResponsibleReportsPage = () => {
             </Group>
           )}
           {filledReport.observations && (
-            <Text size="sm" mt={'xs'} fw={700}>
+            <Text size="sm" mt={"xs"} fw={700}>
               Observaciones: {filledReport.observations}
             </Text>
           )}
@@ -422,24 +431,28 @@ const ResponsibleReportsPage = () => {
             {dateToGMT(pubReport.period.responsible_end_date)}
           </Table.Td>
           <Table.Td>{pubReport.report.name}</Table.Td>
-          <Table.Td>
-            <Badge
-              autoContrast
-              color={
-                StatusColor[pubReport.filled_reports[0]?.status] ?? "orange"
-              }
-              variant={"light"}
-            >
-              {pubReport.filled_reports[0]?.status ?? "Pendiente"}
-            </Badge>
+          <Table.Td maw={rem(100)}>
+            <Center>
+              <Badge
+                autoContrast
+                color={
+                  StatusColor[pubReport.filled_reports[0]?.status] ?? "orange"
+                }
+                variant={"light"}
+              >
+                {pubReport.filled_reports[0]?.status ?? "Pendiente"}
+              </Badge>
+            </Center>
           </Table.Td>
-          <Table.Td>
-            {pubReport.filled_reports[0]?.status_date
-              ? dateToGMT(
-                  pubReport.filled_reports[0].status_date,
-                  "MMM D, YYYY HH:mm"
-                )
-              : ""}
+          <Table.Td w={160}>
+            <Center>
+              {pubReport.filled_reports[0]?.status_date
+                ? dateToGMT(
+                    pubReport.filled_reports[0].status_date,
+                    "MMM D, YYYY HH:mm"
+                  )
+                : ""}
+            </Center>
           </Table.Td>
           <Table.Td>
             <Center>
@@ -460,7 +473,11 @@ const ResponsibleReportsPage = () => {
                       setSelectedReport(pubReport);
                     }}
                   >
-                    <IconEdit size={16} />
+                    {pubReport.filled_reports[0]?.status === "En Borrador" ? (
+                      <IconEdit size={16} />
+                    ) : (
+                      <IconUpload size={16} />
+                    )}
                   </Button>
                 </Tooltip>
                 <Tooltip label="Ver historial de envíos del reporte" withArrow>
@@ -505,8 +522,12 @@ const ResponsibleReportsPage = () => {
             <Table.Th>Fecha Inicio</Table.Th>
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Reporte</Table.Th>
-            <Table.Th>Estado</Table.Th>
-            <Table.Th>Fecha de Estado</Table.Th>
+            <Table.Th>
+              <Center>Estado</Center>
+            </Table.Th>
+            <Table.Th>
+              <Center>Fecha de Estado</Center>
+            </Table.Th>
             <Table.Td fw={700}>
               <Center>Acciones</Center>
             </Table.Td>
@@ -566,7 +587,7 @@ const ResponsibleReportsPage = () => {
         }}
         withCloseButton={false}
       >
-        <Text size="xl" mb={"md"} fw={700} ta={"center"}>
+        <Text size="xl" mb={"sm"} fw={700} ta={"center"}>
           {selectedReport?.report.name}
         </Text>
         {loading ? (
@@ -579,6 +600,16 @@ const ResponsibleReportsPage = () => {
           </Center>
         ) : (
           <>
+            <Text 
+              size="sm"
+              c={'blue'}
+              ta={'end'}
+              td={'underline'}
+              onClick={() => {setHistory(true)}}
+              style={{cursor: 'pointer'}}
+            >
+               Ver historial de envíos
+            </Text>
             <Text mb={"md"} size="md">
               Cargar Formato de Reporte:{" "}
               <Text component="span" c={theme.colors.red[8]}>
@@ -596,7 +627,7 @@ const ResponsibleReportsPage = () => {
                   return;
                 }
                 setReportFile(files[0]);
-                if(selectedReport?.filled_reports[0]?.report_file)
+                if (selectedReport?.filled_reports[0]?.report_file)
                   setDeletedReport(
                     selectedReport?.filled_reports[0].report_file.id
                   );
@@ -634,7 +665,8 @@ const ResponsibleReportsPage = () => {
                 </Text>
               </div>
             </Dropzone>
-            {selectedReport?.filled_reports[0]?.status === 'En Borrador' && selectedReport?.filled_reports[0]?.report_file &&
+            {selectedReport?.filled_reports[0]?.status === "En Borrador" &&
+              selectedReport?.filled_reports[0]?.report_file &&
               !deletedReport && (
                 <Pill
                   mt={"sm"}
@@ -729,33 +761,35 @@ const ResponsibleReportsPage = () => {
                       {attachment.name}
                     </Pill>
                   ))}
-                  {selectedReport?.filled_reports[0]?.status === 'En Borrador' &&  selectedReport.filled_reports[0]?.attachments.map(
-                    (attachment) => {
-                      return (
-                        !deletedAttachments.includes(attachment.id) && (
-                          <Pill
-                            key={attachment.name}
-                            bg={"blue"}
-                            c={"white"}
-                            withRemoveButton
-                            onRemove={() =>
-                              setDeletedAttachments([
-                                ...deletedAttachments,
-                                attachment.id,
-                              ])
-                            }
-                            onClick={() => {
-                              if (typeof window !== "undefined")
-                                window.open(attachment.download_link);
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {attachment.name}
-                          </Pill>
-                        )
-                      );
-                    }
-                  )}
+                  {selectedReport?.filled_reports[0]?.status ===
+                    "En Borrador" &&
+                    selectedReport.filled_reports[0]?.attachments.map(
+                      (attachment) => {
+                        return (
+                          !deletedAttachments.includes(attachment.id) && (
+                            <Pill
+                              key={attachment.name}
+                              bg={"blue"}
+                              c={"white"}
+                              withRemoveButton
+                              onRemove={() =>
+                                setDeletedAttachments([
+                                  ...deletedAttachments,
+                                  attachment.id,
+                                ])
+                              }
+                              onClick={() => {
+                                if (typeof window !== "undefined")
+                                  window.open(attachment.download_link);
+                              }}
+                              style={{ cursor: "pointer" }}
+                            >
+                              {attachment.name}
+                            </Pill>
+                          )
+                        );
+                      }
+                    )}
                 </PillGroup>
               </>
             )}
@@ -767,12 +801,17 @@ const ResponsibleReportsPage = () => {
                 leftSection={<IconDeviceFloppy />}
                 onClick={handleCreate}
                 disabled={
-                  selectedReport?.filled_reports[0]?.status==='En Borrador' ? 
-                  (!deletedReport && deletedAttachments.length === 0 && attachments.length === 0) ||
-                  (deletedReport && reportFile === null) || 
-                  (deletedAttachments.length === selectedReport?.filled_reports[0].attachments.length 
-                    && attachments.length === 0) :
-                  !reportFile || (selectedReport?.report.requires_attachment && attachments.length === 0)
+                  selectedReport?.filled_reports[0]?.status === "En Borrador"
+                    ? (!deletedReport &&
+                        deletedAttachments.length === 0 &&
+                        attachments.length === 0) ||
+                      (deletedReport && reportFile === null) ||
+                      (deletedAttachments.length ===
+                        selectedReport?.filled_reports[0].attachments.length &&
+                        attachments.length === 0)
+                    : !reportFile ||
+                      (selectedReport?.report.requires_attachment &&
+                        attachments.length === 0)
                 }
               >
                 Guardar Borrador
