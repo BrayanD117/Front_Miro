@@ -10,7 +10,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { useDisclosure } from '@mantine/hooks';
 import { format } from 'fecha';
-import DateConfig from "@/app/components/DateConfig";
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 
@@ -211,7 +211,7 @@ const ProducerTemplatesPage = () => {
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
-        <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td>{dateToGMT(publishedTemplate.period.producer_end_date)}</Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
@@ -268,7 +268,7 @@ const ProducerTemplatesPage = () => {
             <Table.Th>Periodo</Table.Th>
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Dimensión</Table.Th>
-            <Table.Th>Fecha Fin Productor</Table.Th>
+            <Table.Th>Fecha Límite</Table.Th>
             <Table.Th><Center>Descargar</Center></Table.Th>
             <Table.Th><Center>Subir Información</Center></Table.Th>
           </Table.Tr>

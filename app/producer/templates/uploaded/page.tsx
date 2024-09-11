@@ -10,7 +10,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { useDisclosure } from '@mantine/hooks';
 import { format } from 'fecha';
-import DateConfig from "@/app/components/DateConfig";
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -251,20 +251,18 @@ const ProducerUploadedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
-        <Table.Td>{format(new Date(publishedTemplate.period.producer_end_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td>{dateToGMT(publishedTemplate.period.producer_end_date)}</Table.Td>
         <Table.Td>{truncateString(publishedTemplate.loaded_data[0].send_by.full_name)}</Table.Td>
-        <Table.Td>{format(new Date(publishedTemplate.loaded_data[0].loaded_date), 'MMMM D, YYYY')}</Table.Td>
+        <Table.Td>{dateToGMT(publishedTemplate.loaded_data[0].loaded_date)}</Table.Td>
         <Table.Td>
           <Center>
-            <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
-              <IconDownload size={16} />
-            </Button>
-          </Center>
-        </Table.Td>
-        <Table.Td>
-          <Center>
-            <Tooltip label="Editar esta plantilla" position="top" withArrow>
-              <div>
+            <Group gap={'sm'}>
+              <Tooltip label="Descargar información cargada" position="top" withArrow>
+                <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
+                  <IconDownload size={16} />
+                </Button>
+              </Tooltip>
+              <Tooltip label="Editar plantilla mediante archivo" position="top" withArrow>
                 <Button
                   variant="outline"
                   color="blue"
@@ -272,23 +270,19 @@ const ProducerUploadedTemplatesPage = () => {
                 >
                   <IconEdit size={16} />
                 </Button>
-              </div>
-            </Tooltip>
+              </Tooltip>
+              <Tooltip label="Edición directa" position="top" withArrow>
+                <Button
+                  variant="outline"
+                  color="teal"
+                  onClick={() => handleDirectEditClick(publishedTemplate._id)}
+                >
+                  <IconPencil size={16} />
+                </Button>
+              </Tooltip>
+            </Group>
           </Center>
         </Table.Td>
-        <Table.Td>
-        <Center>
-          <Tooltip label="Edición directa" position="top" withArrow>
-            <Button
-              variant="outline"
-              color="teal"
-              onClick={() => handleDirectEditClick(publishedTemplate._id)}
-            >
-              <IconPencil size={16} />
-            </Button>
-          </Tooltip>
-        </Center>
-      </Table.Td>
         <Table.Td>
           <Center>
             <Button variant="outline" color="red" onClick={() => handleDeleteClick(publishedTemplate._id)}>
@@ -324,12 +318,10 @@ const ProducerUploadedTemplatesPage = () => {
             <Table.Th>Periodo</Table.Th>
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Fecha Fin Productor</Table.Th>
+            <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Cargado por</Table.Th>
             <Table.Th>Fecha de Cargue</Table.Th>
-            <Table.Th><Center>Descargar</Center></Table.Th>
-            <Table.Th><Center>Corregir Información</Center></Table.Th>
-            <Table.Th><Center>Edición directa</Center></Table.Th>
+            <Table.Th><Center>Acciones</Center></Table.Th>
             <Table.Th><Center>Eliminar Información</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
