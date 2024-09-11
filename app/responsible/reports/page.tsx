@@ -98,6 +98,7 @@ interface FilledReport {
   attachments: DriveFile[];
   status: string;
   status_date: Date;
+  observations: string;
 }
 
 interface PublishedReport {
@@ -398,6 +399,11 @@ const ResponsibleReportsPage = () => {
                 ))}
               </PillGroup>
             </Group>
+          )}
+          {filledReport.observations && (
+            <Text size="sm" mt={'xs'} fw={700}>
+              Observaciones: {filledReport.observations}
+            </Text>
           )}
         </>
       );
