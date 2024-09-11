@@ -248,7 +248,6 @@ const AdminPubReportsPage = () => {
                 data={options}
                 w={rem(130)}
                 value={filledReport.status}
-                color="red"
                 radius={"xl"}
                 fw={700}
                 styles={{
