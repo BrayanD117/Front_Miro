@@ -24,7 +24,7 @@ import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { format } from "fecha";
-import DateConfig from "@/app/components/DateConfig";
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import { useRole } from "@/app/context/RoleContext";
 
@@ -262,13 +262,10 @@ const PublishedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>
-          {format(
-            new Date(publishedTemplate.period.producer_end_date),
-            "MMMM D, YYYY"
-          )}
+          {dateToGMT(publishedTemplate.period.producer_end_date)}
         </Table.Td>
         <Table.Td>
-          {format(new Date(publishedTemplate.updatedAt), "MMMM D, YYYY")}
+          {dateToGMT(publishedTemplate.updatedAt)}
         </Table.Td>
         <Table.Td>
           <Center>
