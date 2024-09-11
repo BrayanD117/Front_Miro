@@ -180,9 +180,16 @@ const UpdateTemplatePage = () => {
         color: "teal",
       });
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error guardando plantilla:", error);
 
+      if(error.response.data.message) {
+        showNotification({
+          title: "Error",
+          message: 'La plantilla se encuentra publicada y ya han hecho cargue de información, no se puede modificar',
+          color: "red",
+        });
+      }
       if (axios.isAxiosError(error) && error.response && error.response.data.mensaje) {
         showNotification({
           title: "Error",
