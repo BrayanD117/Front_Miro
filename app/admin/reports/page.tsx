@@ -205,14 +205,21 @@ const AdminReportsPage = () => {
         handleModalClose();
         fetchReports(page, search);
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creando o actualizando reporte:", error);
-
-      showNotification({
-        title: "Error",
-        message: "Hubo un error al crear o actualizar el reporte",
-        color: "red",
-      });
+      if(error.response.data.message){
+        showNotification({
+          title: "Error",
+          message: "Este reporte ya se encuentra publicado y con reporte(s) cargado(s), no se puede modificar",
+          color: "red",
+        });
+      } else {
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al crear o actualizar el reporte",
+          color: "red",
+        });
+      }
     } finally {
       setLoading(false);
     }
