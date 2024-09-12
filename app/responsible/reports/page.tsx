@@ -457,7 +457,10 @@ const ResponsibleReportsPage = () => {
           <Table.Td>
             <Center>
               <Group gap={"xs"}>
-                <Tooltip label="Ver detalles del reporte" withArrow>
+                <Tooltip 
+                  label="Ver detalles del reporte"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+                >
                   <Button
                     variant="outline"
                     onClick={() => handleOpenReport(pubReport)}
@@ -465,7 +468,10 @@ const ResponsibleReportsPage = () => {
                     <IconFileDescription size={16} />
                   </Button>
                 </Tooltip>
-                <Tooltip label="Cargar reporte" withArrow>
+                <Tooltip
+                  label="Cargar reporte"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+                >
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -480,7 +486,10 @@ const ResponsibleReportsPage = () => {
                     )}
                   </Button>
                 </Tooltip>
-                <Tooltip label="Ver historial de envíos del reporte" withArrow>
+                <Tooltip
+                  label="Ver historial de envíos del reporte"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+                >
                   <Button
                     variant="outline"
                     onClick={() => {
