@@ -24,6 +24,7 @@ import {
 import {
   IconArrowRight,
   IconCheck,
+  IconCirclePlus,
   IconEdit,
   IconFileDescription,
   IconTrash,
@@ -397,6 +398,7 @@ const AdminReportsPage = () => {
             setSelectedReport(null);
             setOpened(true);
           }}
+          leftSection={<IconCirclePlus/>}
         >
           Crear Nuevo Reporte
         </Button>
