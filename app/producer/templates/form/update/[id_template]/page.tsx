@@ -383,7 +383,7 @@ const ProducerTemplateUpdatePage = ({
                       </Group>
                     </Table.Th>
                   ))}
-                  <Table.Th maw={rem(80)}><Center>Acciones</Center></Table.Th>
+                  <Table.Th maw={rem(70)}><Center>Acciones</Center></Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -396,7 +396,7 @@ const ProducerTemplateUpdatePage = ({
                         </Group>
                       </Table.Td>
                     ))}
-                    <Table.Td maw={rem(80)}>
+                    <Table.Td maw={rem(70)}>
                       <Center>
                         <Button
                           size={"xs"} 
