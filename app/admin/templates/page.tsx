@@ -4,7 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
@@ -403,7 +403,10 @@ const AdminTemplatesPage = () => {
         mb="md"
       />
       <Group>
-        <Button variant="outline" onClick={() => router.push('/templates/create')}>
+        <Button
+          onClick={() => router.push('/templates/create')}
+          leftSection={<IconCirclePlus/>}
+        >
           Crear Nueva Plantilla
         </Button>
         <Button 
