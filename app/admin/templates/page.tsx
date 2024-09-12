@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight } from "@tabler/icons-react";
@@ -345,30 +345,50 @@ const AdminTemplatesPage = () => {
       <Table.Td>
         <Center>
           <Group gap={5}>
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/templates/update/${template._id}`)}
+            <Tooltip
+                  label="Descargar plantilla"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
-              <IconEdit size={16} />
-            </Button>
-            <Button color="red" variant="outline" onClick={() => handleDelete(template._id)}>
-              <IconTrash size={16} />
-            </Button>
-            <Button variant="outline" onClick={() => handleDownload(template)}>
-              <IconDownload size={16} />
-            </Button>
+              <Button variant="outline" onClick={() => handleDownload(template)}>
+                <IconDownload size={16} />
+              </Button>
+            </Tooltip>
+            <Tooltip
+                  label="Editar plantilla"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+            >
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/templates/update/${template._id}`)}
+              >
+                <IconEdit size={16} />
+              </Button>
+            </Tooltip>
+            <Tooltip
+                  label="Borrar plantilla"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+            >
+              <Button color="red" variant="outline" onClick={() => handleDelete(template._id)}>
+                <IconTrash size={16} />
+              </Button>
+            </Tooltip>
           </Group>
         </Center>
       </Table.Td>
       <Table.Td>
         <Center>
-          <Button variant="outline" onClick={() => { 
-            setSelectedTemplate(template); 
-            open(); 
-            console.log("Modal open state:", modalOpen);
-          }}>
-            <IconUser size={16} />
-          </Button>
+          <Tooltip
+                  label="Asignar plantilla a productores"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+          >
+            <Button variant="outline" onClick={() => { 
+              setSelectedTemplate(template); 
+              open(); 
+              console.log("Modal open state:", modalOpen);
+            }}>
+              <IconUser size={16} />
+            </Button>
+          </Tooltip>
         </Center>
       </Table.Td>
     </Table.Tr>
@@ -402,6 +422,7 @@ const AdminTemplatesPage = () => {
             <Table.Th>Descripción del Archivo</Table.Th>
             <Table.Th>Estado</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
+            <Table.Th><Center>Asignar</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
