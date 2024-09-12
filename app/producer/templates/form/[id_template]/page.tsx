@@ -19,7 +19,7 @@ import {
   Tooltip,
   rem,
 } from "@mantine/core";
-import { IconPlus, IconTrash, IconEye } from "@tabler/icons-react";
+import { IconPlus, IconTrash, IconEye, IconCancel, IconSend2 } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -348,14 +348,28 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         </ScrollArea>
       </Tooltip>
       <Group justify="center" mt={rem(50)}>
-        <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
+        <Button 
+          color={"red"}
+          variant="outline"
+          onClick={() => router.push('/producer/templates')}
+          leftSection={<IconCancel/>}
+        >
           Cancelar
         </Button>
         <Group>
-          <Button variant="light" onClick={addRow}>
-            <IconPlus size={16} /> Agregar Fila
+          <Button 
+            variant="light" 
+            onClick={addRow}
+            leftSection={<IconPlus/>}
+          >
+            Agregar Fila
           </Button>
-          <Button onClick={handleSubmit}>Enviar</Button>
+          <Button
+            onClick={handleSubmit}
+            rightSection={<IconSend2/>}
+          >
+            Enviar
+          </Button>
         </Group>
       </Group>
       <ValidatorModal
