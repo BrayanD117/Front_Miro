@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Modal, Title, Group } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Modal, Title, Group, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconArrowRight, IconDownload, IconUpload } from "@tabler/icons-react";
+import { IconArrowRight, IconDownload, IconEdit, IconPencil, IconUpload } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
@@ -214,28 +214,43 @@ const ProducerTemplatesPage = () => {
         <Table.Td>{dateToGMT(publishedTemplate.period.producer_end_date)}</Table.Td>
         <Table.Td>
           <Center>
-            <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
-              <IconDownload size={16} />
-            </Button>
+            <Tooltip
+                  label="Descargar plantilla"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+            >
+              <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
+                <IconDownload size={16} />
+              </Button>
+            </Tooltip>
           </Center>
         </Table.Td>
         <Table.Td>
           <Center>
             <Group>
-              <Button
-                variant="outline"
-                color="green"
-                onClick={() => handleUploadClick(publishedTemplate._id)}
+              <Tooltip
+                    label="Cargar plantilla (archivo Excel)"
+                    transitionProps={{ transition: 'fade-up', duration: 300 }}
               >
-                <IconUpload size={16} />
-              </Button>
-              <Button
-                variant="outline"
-                color="blue"
-                onClick={() => router.push(`/producer/templates/form/${publishedTemplate._id}`)}
+                <Button
+                  variant="outline"
+                  color="green"
+                  onClick={() => handleUploadClick(publishedTemplate._id)}
+                >
+                  <IconUpload size={16} />
+                </Button>
+              </Tooltip>
+              <Tooltip
+                  label="Edición en línea"
+                  transitionProps={{ transition: 'fade-up', duration: 300 }}
               >
-                Registro Directo
-              </Button>
+                <Button
+                  variant="outline"
+                  color="green"
+                  onClick={() => router.push(`/producer/templates/form/${publishedTemplate._id}`)}
+                >
+                  <IconPencil size={16}/>
+                </Button>
+              </Tooltip>
             </Group>
           </Center>
         </Table.Td>

@@ -47,10 +47,11 @@ const linksByRole: Record<Roles, LinkItem[]> = {
     { link: "/admin/dependencies", label: "Dependencias" },
     { link: "/admin/periods", label: "Periodos" },
     { link: "/admin/templates", label: "Plantillas" },
+    { link: "/admin/reports", label: "Reportes" },
   ],
   Responsable: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/responsible/productions", label: "Producciones" },
+    { link: "/responsible/reports", label: "Reportes" },
     { link: "/responsible/templates", label: "Plantillas" },
     { link: "/responsible/dimension", label: "Dimensión" },
   ],
@@ -136,7 +137,7 @@ export default function Navbar() {
 
   const homeLink = home.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
-      <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
+      <Button variant="light" size="sm" fw={700}>
         {link.label}
       </Button>
     </Link>
@@ -157,7 +158,7 @@ export default function Navbar() {
 
   const titleButton = titles.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
-      <Button variant="transparent" size="sm" style={{ fontWeight: 500 }}>
+      <Button variant="transparent" size="sm" fw={700}>
         {link.label}
       </Button>
     </Link>
@@ -193,33 +194,35 @@ export default function Navbar() {
                   {userRole}
                 </Badge>
                 {homeLink}
-                <Menu
-                  shadow="md"
-                  width={200}
-                  position="bottom-end"
-                  opened={roleMenuOpened}
-                  onClose={() => setRoleMenuOpened(false)}
-                  onOpen={() => setRoleMenuOpened(true)}
-                >
-                  <Menu.Target>
-                    <Button variant="light" size="sm" style={{ fontWeight: 500 }}>
-                      Cambiar rol
-                    </Button>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    {availableRoles.map((role) => (
-                      <Button
-                        key={role}
-                        mt={"xs"}
-                        fullWidth
-                        variant={userRole === role ? "outline" : "light"}
-                        onClick={() => handleRoleChange(role)}
-                      >
-                        {role}
+                {availableRoles.length > 1 && (
+                  <Menu
+                    shadow="md"
+                    width={200}
+                    position="bottom-end"
+                    opened={roleMenuOpened}
+                    onClose={() => setRoleMenuOpened(false)}
+                    onOpen={() => setRoleMenuOpened(true)}
+                  >
+                    <Menu.Target>
+                      <Button variant="light" size="sm" fw={700}>
+                        Cambiar rol
                       </Button>
-                    ))}
-                  </Menu.Dropdown>
-                </Menu>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {availableRoles.map((role) => (
+                        <Button
+                          key={role}
+                          mt={"xs"}
+                          fullWidth
+                          variant={userRole === role ? "outline" : "light"}
+                          onClick={() => handleRoleChange(role)}
+                        >
+                          {role}
+                        </Button>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+                )}
                 <Menu
                   shadow="md"
                   width={200}
@@ -231,7 +234,7 @@ export default function Navbar() {
                     <Button
                       variant="light"
                       size="sm"
-                      style={{ fontWeight: 500 }}
+                      fw={700}
                     >
                       Gestionar
                     </Button>
@@ -272,7 +275,7 @@ export default function Navbar() {
           ) : (
             <Group>
               <ThemeChanger />
-              <Button variant="light" onClick={() => signIn()}>
+              <Button variant="light" fw={700} onClick={() => signIn()}>
                 Iniciar Sesión
               </Button>
             </Group>

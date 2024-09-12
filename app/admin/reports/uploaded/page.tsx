@@ -25,6 +25,7 @@ import {
 } from "@mantine/core";
 import {
   IconArrowLeft,
+  IconBrandGoogleDrive,
   IconCancel,
   IconDeviceFloppy,
   IconFileDescription,
@@ -342,7 +343,10 @@ const AdminPubReportsPage = () => {
           <Table.Td>
             <Center>
               <Group>
-                <Tooltip label="Ver reportes cargados">
+                <Tooltip
+                  label="Ver reportes cargados"
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
+                >
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -351,10 +355,13 @@ const AdminPubReportsPage = () => {
                       setOpened(true);
                     }}
                   >
-                    <IconFileDescription size={16} />
+                    <IconFileDescription size={20} />
                   </Button>
                 </Tooltip>
-                <Tooltip label="Ver carpeta de reportes">
+                <Tooltip
+                  label="Ver carpeta de reportes"
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
+                >
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -365,7 +372,7 @@ const AdminPubReportsPage = () => {
                       }
                     }}
                   >
-                    <IconFolderOpen size={16} />
+                    <IconBrandGoogleDrive size={20}/>
                   </Button>
                 </Tooltip>
               </Group>
