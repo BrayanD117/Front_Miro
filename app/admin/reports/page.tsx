@@ -545,11 +545,12 @@ const AdminReportsPage = () => {
                 rightSection={<span/>}
                 leftSection={<IconDeviceFloppy />}
               >
-                {selectedReport ? "Actualizar" : "Crear"}
+                {selectedReport ? "Actualizar" : "Crear Reporte"}
               </Button>
               <Button
                 onClick={handleModalClose}
-                variant="outline"
+                variant="light"
+                color="red"
                 justify="space-between"
                 rightSection={<IconCancel/>}
                 leftSection={<span/>}
