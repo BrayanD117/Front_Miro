@@ -320,7 +320,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                       </Group>
                     </Table.Th>
                   ))}
-                  <Table.Th style={{ minWidth: '250px' }}>Acciones</Table.Th>
+                  <Table.Th maw={rem(120)}><Center>Acciones</Center></Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -333,9 +333,14 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                         </Group>
                       </Table.Td>
                     ))}
-                    <Table.Td style={{ minWidth: '250px' }}>
+                    <Table.Td maw={rem(120)}>
                       <Center>
-                        <Button size={"md"} color="red" onClick={() => removeRow(rowIndex)} rightSection={<IconTrash size={25} />}>
+                        <Button
+                          size={"xs"}
+                          color="red"
+                          onClick={() => removeRow(rowIndex)}
+                          rightSection={<IconTrash/>}
+                        >
                           Borrar
                         </Button>
                       </Center>
