@@ -19,7 +19,7 @@ import {
   Tooltip,
   rem,
 } from "@mantine/core";
-import { IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
+import { IconTrash, IconEye, IconPlus, IconCancel, IconRefresh } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -383,7 +383,7 @@ const ProducerTemplateUpdatePage = ({
                       </Group>
                     </Table.Th>
                   ))}
-                  <Table.Th style={{ minWidth: '250px' }}>Acciones</Table.Th>
+                  <Table.Th maw={rem(80)}><Center>Acciones</Center></Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -396,9 +396,14 @@ const ProducerTemplateUpdatePage = ({
                         </Group>
                       </Table.Td>
                     ))}
-                    <Table.Td style={{ minWidth: '250px' }}>
+                    <Table.Td maw={rem(80)}>
                       <Center>
-                        <Button size={"md"} color="red" onClick={() => removeRow(rowIndex)} rightSection={<IconTrash size={25} />}>
+                        <Button
+                          size={"xs"} 
+                          color="red"
+                          onClick={() => removeRow(rowIndex)}
+                          rightSection={<IconTrash />}
+                        >
                           Borrar
                         </Button>
                       </Center>
@@ -411,14 +416,28 @@ const ProducerTemplateUpdatePage = ({
         </ScrollArea>
       </Tooltip>
       <Group justify="center" mt={rem(50)}>
-        <Button color={"red"} variant="outline" onClick={() => router.push('/producer/templates')}>
+        <Button
+          color={"red"}
+          variant="outline"
+          onClick={() => router.push('/producer/templates/uploaded')}
+          leftSection={<IconCancel/>}
+        >
           Cancelar
         </Button>
         <Group>
-          <Button variant="light" onClick={addRow}>
-            <IconPlus size={16} /> Agregar Fila
+          <Button
+            variant="light"
+            onClick={addRow}
+            leftSection={<IconPlus/>}
+          >
+            Agregar Fila
           </Button>
-          <Button onClick={handleSubmit}>Actualizar</Button>
+          <Button 
+            onClick={handleSubmit}
+            rightSection={<IconRefresh/>}
+          >
+            Actualizar
+          </Button>
         </Group>
       </Group>
       <ValidatorModal
