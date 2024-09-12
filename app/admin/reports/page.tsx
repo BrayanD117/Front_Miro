@@ -23,8 +23,10 @@ import {
 } from "@mantine/core";
 import {
   IconArrowRight,
+  IconCancel,
   IconCheck,
   IconCirclePlus,
+  IconDeviceFloppy,
   IconEdit,
   IconFileDescription,
   IconTrash,
@@ -457,17 +459,6 @@ const AdminReportsPage = () => {
           </Center>
         ) : (
           <>
-            <Group mb="md" grow>
-              <Button
-                onClick={handleCreateOrEdit} 
-                disabled={checkIfChanges()}
-              >
-                {selectedReport ? "Actualizar" : "Crear"}
-              </Button>
-              <Button onClick={handleModalClose} variant="outline">
-                Cancelar
-              </Button>
-            </Group>
             <TextInput
               required={true}
               withAsterisk={true}
@@ -546,7 +537,26 @@ const AdminReportsPage = () => {
                 </Pill>
               </Group>
             )}
-
+            <Group mt="lg" grow>
+              <Button
+                onClick={handleCreateOrEdit} 
+                disabled={checkIfChanges()}
+                justify="space-between"
+                rightSection={<span/>}
+                leftSection={<IconDeviceFloppy />}
+              >
+                {selectedReport ? "Actualizar" : "Crear"}
+              </Button>
+              <Button
+                onClick={handleModalClose}
+                variant="outline"
+                justify="space-between"
+                rightSection={<IconCancel/>}
+                leftSection={<span/>}
+              >
+                Cancelar
+              </Button>
+            </Group>
           </>
         )}
       </Modal>
