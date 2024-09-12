@@ -257,12 +257,20 @@ const ProducerUploadedTemplatesPage = () => {
         <Table.Td>
           <Center>
             <Group gap={'sm'}>
-              <Tooltip label="Descargar información cargada" position="top" withArrow>
+              <Tooltip
+                label="Descargar información cargada"
+                position="top"
+                transitionProps={{ transition: 'fade-up', duration: 300 }}
+              >
                 <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
                   <IconDownload size={16} />
                 </Button>
               </Tooltip>
-              <Tooltip label="Editar plantilla mediante archivo" position="top" withArrow>
+              <Tooltip 
+                label="Editar plantilla (archivo Excel)" 
+                position="top"
+                transitionProps={{ transition: 'fade-up', duration: 300 }}
+              >
                 <Button
                   variant="outline"
                   color="blue"
@@ -271,7 +279,11 @@ const ProducerUploadedTemplatesPage = () => {
                   <IconEdit size={16} />
                 </Button>
               </Tooltip>
-              <Tooltip label="Edición directa" position="top" withArrow>
+              <Tooltip 
+                label="Edición en línea"
+                position="top" 
+                transitionProps={{ transition: 'fade-up', duration: 300 }}
+              >
                 <Button
                   variant="outline"
                   color="teal"
@@ -285,9 +297,15 @@ const ProducerUploadedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Button variant="outline" color="red" onClick={() => handleDeleteClick(publishedTemplate._id)}>
-              <IconTrash size={16} />
-            </Button>
+            <Tooltip 
+              label='Eliminar envío'
+              position="top"
+              transitionProps={{ transition: 'fade-up', duration: 200 }}
+            >
+              <Button variant="outline" color="red" onClick={() => handleDeleteClick(publishedTemplate._id)}>
+                <IconTrash size={16} />
+              </Button>
+            </Tooltip>
           </Center>
         </Table.Td>
       </Table.Tr>
@@ -308,7 +326,8 @@ const ProducerUploadedTemplatesPage = () => {
         <Button 
           onClick={() => router.push('/producer/templates')}
           variant="outline"
-          leftSection={<IconArrowLeft size={16} />}>
+          leftSection={<IconArrowLeft size={16} />}
+        >
           Ver Plantillas Pendientes
         </Button>
       </Group>
