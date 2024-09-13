@@ -431,9 +431,10 @@ const ResponsibleReportsPage = () => {
             {dateToGMT(pubReport.period.responsible_end_date)}
           </Table.Td>
           <Table.Td>{pubReport.report.name}</Table.Td>
-          <Table.Td maw={rem(100)}>
+          <Table.Td >
             <Center>
               <Badge
+                w={rem(110)}
                 autoContrast
                 color={
                   StatusColor[pubReport.filled_reports[0]?.status] ?? "orange"
@@ -531,7 +532,7 @@ const ResponsibleReportsPage = () => {
             <Table.Th>Fecha Inicio</Table.Th>
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Reporte</Table.Th>
-            <Table.Th>
+            <Table.Th w={rem(20)}>
               <Center>Estado</Center>
             </Table.Th>
             <Table.Th>
