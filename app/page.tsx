@@ -30,23 +30,16 @@ const HomePage = () => {
   };
 
   return (
-    <Container
-      size={"xl"}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <Container fluid p={8}>
       <Grid justify="center" align="center">
         <Grid.Col
           span={{ base: 12, md: 6 }}
           align-items={"center"}
           justify-content={"center"}
           order={{ base: 1, md: 2 }}
+          p={0}
         >
-          <Paper p="xl" shadow="lg" withBorder>
+          <Paper m={"md"} p="xl" shadow="lg" withBorder>
             <Stack
               align="center"
               style={{ textAlign: "center", borderRadius: "10px" }}
@@ -91,13 +84,13 @@ const HomePage = () => {
           </Paper>
         </Grid.Col>
         <Grid.Col
+          p={0}
           span={{ base: 12, md: 6 }}
           align-items={"center"}
           justify-content={"center"}
         >
           <Image
             src="/assets/panoramica.png"
-            radius="md"
             height={600}
             width="100%"
             fit="cover"
