@@ -89,22 +89,19 @@ const HomePage = () => {
           align-items={"center"}
           justify-content={"center"}
         >
-          <Image
-            src="/assets/panoramica.png"
-            height={600}
-            width="100%"
-            fit="cover"
-            style={(theme) => ({
-              image: {
-                [theme.breakpoints.sm]: {
-                  height: 200,
-                },
-                [theme.breakpoints.md]: {
-                  height: 300,
-                },
-              },
-            })}
-          />
+          <div style={{ width: "100%", height: "100vh", overflow: "hidden" }}>
+            <Image
+              src="/assets/panoramica.png"
+              width="100%"
+              height="100%"
+              fit="cover"
+              style={{
+                objectFit: "cover",
+                height: "100vh",
+                width: "100%",
+              }}
+            />
+          </div>
         </Grid.Col>
       </Grid>
     </Container>
