@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import styles from './page.module.css';
 
 const HomePage = () => {
   const router = useRouter();
@@ -47,6 +48,12 @@ const HomePage = () => {
               <Title order={1} fw={700}>
                 Bienvenidos a MIRÓ
               </Title>
+              <Image 
+                src="/assets/LogoOjoMiro.webp"
+                style={{ width: '10%', height: 'auto' }}
+                alt="Logo MIRO"
+                className={styles.rotate} // Aplica la animación
+              />
               <Title order={4} fw={500}>
                 El mecanismo de información y reporte oficial de la Universidad
                 de Ibagué.
@@ -91,7 +98,7 @@ const HomePage = () => {
         >
           <div style={{ width: "100%", height: "100vh", overflow: "hidden" }}>
             <Image
-              src="/assets/panoramica.png"
+              src="/assets/biblioteca.webp"
               width="100%"
               height="100%"
               fit="cover"
