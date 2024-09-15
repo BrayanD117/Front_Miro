@@ -186,6 +186,26 @@ const HomePage = () => {
               </Accordion.Panel>
             </Accordion.Item>
           </Accordion>
+          <Paper mt={50}>
+            <Center>
+              <Image m={10} h={100} src="/assets/unibague.webp"></Image>
+            </Center>
+            <Center>
+              <Title order={3}>Universidad de Ibagué</Title>
+            </Center>
+            <Center>
+              <Text>NIT: 890704382-1</Text>
+            </Center>
+            <Center>
+              <Text>Carrera 22 Calle 67, Barrio Ambalá.</Text>
+            </Center>
+            <Center>
+              <Text>Ibagué - Tolima - Colombia</Text>
+            </Center>
+            <Center>
+              <Text>Teléfono: +57 (608) 270 88 88</Text>
+            </Center>
+          </Paper>
         </Grid.Col>
       </Grid>
     </Container>
