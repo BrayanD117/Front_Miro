@@ -9,4 +9,17 @@
 
 .rotate {
   animation: rotate 3s linear infinite;
+  animation-timing-function: linear;
+  animation-play-state: paused;
+  transition: animation-play-state 0.2s ease;
+}
+
+.rotate:hover {
+  animation-play-state: running;
+}
+
+.blurBackground {
+  background-color: rgba(84, 85, 85, 0.534);
+  backdrop-filter: blur(15px);
+  border-radius: 10px;
 }
