@@ -129,7 +129,7 @@ const HomePage = () => {
           justify-content={"center"}
           p={0}
         >
-          <Title ta={"center"}>¡Conoce MIRÓ!✨</Title>
+          <Title ta={"center"} mt={30}>¡Conoce MIRÓ!🔎</Title>
           <Accordion
             m={30}
             mt={30}
@@ -142,7 +142,7 @@ const HomePage = () => {
             }}
           >
             <Accordion.Item value="que-es-miro">
-              <Accordion.Control>¿Qué es MIRÓ? 🔎</Accordion.Control>
+              <Accordion.Control>¿Qué es MIRÓ? 👀</Accordion.Control>
               <Accordion.Panel>
                 MIRÓ es el Mecanismo de Información y Reporte Oficial de la Universidad de Ibagué.
                 Es una herramienta diseñada para mejorar la gestión y acceso a la información
