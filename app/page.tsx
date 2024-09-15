@@ -29,6 +29,7 @@ const HomePage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [showStars, setShowStars] = useState(false);
+
   const handleMouseEnter = () => setShowStars(true);
   const handleMouseLeave = () => setShowStars(false);
 
@@ -51,7 +52,14 @@ const HomePage = () => {
           align-items={"center"}
           justify-content={"center"}
         >
-          <div style={{ width: "100%", height: "100vh", overflow: "hidden", position: "relative" }}>
+          <div
+            style={{
+              width: "100%",
+              height: "100vh",
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
             <BackgroundImage
               src="/assets/CanchaVertical.webp"
               style={{
@@ -61,9 +69,12 @@ const HomePage = () => {
               }}
             >
               <div
-                style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "relative",
+                }}
               >
                 <Paper
                   m={"md"}
@@ -77,6 +88,8 @@ const HomePage = () => {
                     position: "relative",
                   }}
                   shadow="lg"
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <Stack align="center" style={{ position: "relative" }}>
                     <Title order={1} fw={700}>
@@ -129,7 +142,9 @@ const HomePage = () => {
           justify-content={"center"}
           p={0}
         >
-          <Title ta={"center"} mt={30}>¡Conoce MIRÓ!🔎</Title>
+          <Title ta={"center"} mt={30}>
+            ¡Conoce MIRÓ!🔎
+          </Title>
           <Accordion
             m={30}
             mt={30}
@@ -144,27 +159,30 @@ const HomePage = () => {
             <Accordion.Item value="que-es-miro">
               <Accordion.Control>¿Qué es MIRÓ? 👀</Accordion.Control>
               <Accordion.Panel>
-                MIRÓ es el Mecanismo de Información y Reporte Oficial de la Universidad de Ibagué.
-                Es una herramienta diseñada para mejorar la gestión y acceso a la información
-                institucional de manera efectiva y centralizada.
+                MIRÓ es el Mecanismo de Información y Reporte Oficial de la
+                Universidad de Ibagué. Es una herramienta diseñada para mejorar
+                la gestión y acceso a la información institucional de manera
+                efectiva y centralizada.
               </Accordion.Panel>
             </Accordion.Item>
 
             <Accordion.Item value="proposito-miro">
               <Accordion.Control>Propósito de MIRÓ 🚀</Accordion.Control>
               <Accordion.Panel>
-                El propósito de MIRÓ es consolidar la información de la Universidad de Ibagué y proporcionar
-                una plataforma donde los usuarios puedan acceder a reportes y datos relevantes
-                de manera eficiente y segura.
+                El propósito de MIRÓ es consolidar la información de la
+                Universidad de Ibagué y proporcionar una plataforma donde los
+                usuarios puedan acceder a reportes y datos relevantes de manera
+                eficiente y segura.
               </Accordion.Panel>
             </Accordion.Item>
 
             <Accordion.Item value="beneficios-miro">
               <Accordion.Control>Beneficios de MIRÓ 📖</Accordion.Control>
               <Accordion.Panel>
-                Los beneficios de MIRÓ incluyen la centralización de la información, reducción de
-                tiempos en la generación de reportes, seguridad en el manejo de datos y mejora en
-                la toma de decisiones a nivel institucional.
+                Los beneficios de MIRÓ incluyen la centralización de la
+                información, reducción de tiempos en la generación de reportes,
+                seguridad en el manejo de datos y mejora en la toma de
+                decisiones a nivel institucional.
               </Accordion.Panel>
             </Accordion.Item>
           </Accordion>
