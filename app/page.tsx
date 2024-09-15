@@ -45,7 +45,7 @@ const HomePage = () => {
 
   return (
     <Container fluid p={8}>
-      <Grid justify="center" align="center">
+      <Grid mb={15} justify="center" align="center">
         <Grid.Col
           p={0}
           span={{ base: 12, md: 6 }}
