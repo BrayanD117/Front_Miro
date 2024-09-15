@@ -12,7 +12,11 @@ import {
   Center,
   Image,
   BackgroundImage,
+  Accordion,
 } from "@mantine/core";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import starsAnimation from "@/public/lottie/stars.json";
 import styles from "./page.module.css";
@@ -22,42 +26,25 @@ const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), 
 }) as React.FC<{ animationData: object; loop: boolean; style: object }>;
 
 const HomePage = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [showStars, setShowStars] = useState(false);
-
   const handleMouseEnter = () => setShowStars(true);
   const handleMouseLeave = () => setShowStars(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status]);
+
+  const handleLogin = () => {
+    router.push("/signIn");
+  };
 
   return (
     <Container fluid p={8}>
       <Grid justify="center" align="center">
-        <Grid.Col
-          span={{ base: 12, md: 6 }}
-          align-items={"center"}
-          justify-content={"center"}
-          order={{ base: 1, md: 2 }}
-          p={0}
-        >
-          <Paper mt={50}>
-            <Center>
-              <Title order={4} fw={500}>
-                El mecanismo de información y reporte oficial de la Universidad de Ibagué.
-              </Title>
-              <Title order={3}>Universidad de Ibagué</Title>
-            </Center>
-            <Center>
-              <Text>NIT: 890704382-1</Text>
-            </Center>
-            <Center>
-              <Text>Carrera 22 Calle 67, Barrio Ambalá.</Text>
-            </Center>
-            <Center>
-              <Text>Ibagué - Tolima - Colombia</Text>
-            </Center>
-            <Center>
-              <Text>Teléfono: +57 (608) 270 88 88</Text>
-            </Center>
-          </Paper>
-        </Grid.Col>
         <Grid.Col
           p={0}
           span={{ base: 12, md: 6 }}
@@ -126,6 +113,7 @@ const HomePage = () => {
                       color="blue"
                       size="lg"
                       radius="md"
+                      onClick={handleLogin}
                     >
                       Iniciar Sesión
                     </Button>
@@ -134,6 +122,52 @@ const HomePage = () => {
               </div>
             </BackgroundImage>
           </div>
+        </Grid.Col>
+        <Grid.Col
+          span={{ base: 12, md: 6 }}
+          align-items={"center"}
+          justify-content={"center"}
+          p={0}
+        >
+          <Title ta={"center"}>¡Conoce MIRÓ!✨</Title>
+          <Accordion
+            m={30}
+            mt={30}
+            variant="separated"
+            defaultValue="que-es-miro"
+            classNames={{
+              root: styles.root,
+              item: styles.item,
+              chevron: styles.chevron,
+            }}
+          >
+            <Accordion.Item value="que-es-miro">
+              <Accordion.Control>¿Qué es MIRÓ? 🔎</Accordion.Control>
+              <Accordion.Panel>
+                MIRÓ es el Mecanismo de Información y Reporte Oficial de la Universidad de Ibagué.
+                Es una herramienta diseñada para mejorar la gestión y acceso a la información
+                institucional de manera efectiva y centralizada.
+              </Accordion.Panel>
+            </Accordion.Item>
+
+            <Accordion.Item value="proposito-miro">
+              <Accordion.Control>Propósito de MIRÓ 🚀</Accordion.Control>
+              <Accordion.Panel>
+                El propósito de MIRÓ es consolidar la información de la Universidad de Ibagué y proporcionar
+                una plataforma donde los usuarios puedan acceder a reportes y datos relevantes
+                de manera eficiente y segura.
+              </Accordion.Panel>
+            </Accordion.Item>
+
+            <Accordion.Item value="beneficios-miro">
+              <Accordion.Control>Beneficios de MIRÓ 📖</Accordion.Control>
+              <Accordion.Panel>
+                Los beneficios de MIRÓ incluyen la centralización de la información, reducción de
+                tiempos en la generación de reportes, seguridad en el manejo de datos y mejora en
+                la toma de decisiones a nivel institucional.
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
         </Grid.Col>
       </Grid>
     </Container>

@@ -19,7 +19,44 @@
 }
 
 .blurBackground {
-  background-color: rgba(84, 85, 85, 0.534);
-  backdrop-filter: blur(15px);
+  background-color: rgba(255, 255, 255, 0.616);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
+  color: black;
+}
+
+.root {
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--mantine-color-body);
+}
+
+.item {
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+  border: 1px solid var(--mantine-color-gray-4);
+  position: relative;
+  z-index: 0;
+  transition: transform 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+
+  &[data-active] {
+    transform: scale(1.03);
+    z-index: 1;
+    background-color: var(--mantine-color-body);
+    border-color: var(--mantine-color-blue-6);
+    box-shadow: var(--mantine-shadow-md);
+    border-radius: var(--mantine-radius-md);
+  }
+
+  &:hover {
+    background-color: var(--mantine-color-hover);
+    border-color: var(--mantine-color-blue-5);
+  }
+}
+
+.chevron {
+  color: var(--mantine-color-text);
+  
+  &[data-rotate] {
+    transform: rotate(-90deg);
+  }
 }
