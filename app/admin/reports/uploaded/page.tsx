@@ -371,6 +371,7 @@ const AdminPubReportsPage = () => {
                         );
                       }
                     }}
+                    disabled={!pubReport.folder_id || pubReport.filled_reports.length === 0}
                   >
                     <IconBrandGoogleDrive size={20}/>
                   </Button>
