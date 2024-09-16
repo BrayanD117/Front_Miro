@@ -280,10 +280,23 @@ const ResponsibleReportsPage = () => {
           color: "green",
         });
         setSuccess(true);
+        fetchReports(page, search);
+        console.log("selectedReport._id", selectedReport._id);
+        const updatedReportResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/${selectedReport._id}`,
+          {
+            params: {
+              email: session?.user?.email,
+            },
+          }
+        );
+        if (updatedReportResponse.data) {
+          setSelectedReport(updatedReportResponse.data);
+          console.log("updatedReportResponse.data", updatedReportResponse.data);
+        }
         setTimeout(() => {
           setSuccess(false);
-          handleClosePublish();
-          fetchReports(page, search);
+          setPublishing(true);
         }, 3000);
       }
     } catch (error) {
@@ -362,59 +375,59 @@ const ResponsibleReportsPage = () => {
   const historyRows = selectedReport?.filled_reports.map(
     (filledReport, index) => {
       return (
-        <>
-          <Divider
-            mt={index === 0 ? "0" : "md"}
-            label={`Estado: ${
-              index > 0 && filledReport.status === "En Revisión"
-                ? "Reemplazado"
-                : filledReport.status
-            } - Fecha de Estado: ${dateToGMT(
-              filledReport.status_date,
-              "MMM DD, YYYY HH:mm"
-            )}`}
-          />
-          <Group mt={rem(5)}>
-            <Text size="sm">Reporte: </Text>
-            <Pill
-              onClick={() => {
-                if (typeof window !== "undefined")
-                  window.open(filledReport.report_file.view_link);
-              }}
-              bg="gray"
-              c="white"
-              style={{ cursor: "pointer" }}
-            >
-              {filledReport.report_file.name}
-            </Pill>
+        <div key={filledReport._id}>
+        <Divider
+          mt={index === 0 ? "0" : "md"}
+          label={`Estado: ${
+            index > 0 && filledReport.status === "En Revisión"
+              ? "Reemplazado"
+              : filledReport.status
+          } - Fecha de Estado: ${dateToGMT(
+            filledReport.status_date,
+            "MMM DD, YYYY HH:mm"
+          )}`}
+        />
+        <Group mt={rem(5)}>
+          <Text size="sm">Reporte: </Text>
+          <Pill
+            onClick={() => {
+              if (typeof window !== "undefined")
+                window.open(filledReport.report_file.view_link);
+            }}
+            bg="gray"
+            c="white"
+            style={{ cursor: "pointer" }}
+          >
+            {filledReport.report_file.name}
+          </Pill>
+        </Group>
+        {filledReport.attachments.length > 0 && (
+          <Group mt={"xs"}>
+            <Text size="sm">Anexos: </Text>
+            <PillGroup>
+              {filledReport.attachments.map((attachment) => (
+                <Pill
+                  key={attachment.id}
+                  onClick={() => {
+                    if (typeof window !== "undefined")
+                      window.open(attachment.view_link);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  bg="gray"
+                  c="white"
+                >
+                  {attachment.name}
+                </Pill>
+              ))}
+            </PillGroup>
           </Group>
-          {filledReport.attachments.length > 0 && (
-            <Group mt={"xs"}>
-              <Text size="sm">Anexos: </Text>
-              <PillGroup>
-                {filledReport.attachments.map((attachment) => (
-                  <Pill
-                    key={attachment.name}
-                    onClick={() => {
-                      if (typeof window !== "undefined")
-                        window.open(attachment.view_link);
-                    }}
-                    style={{ cursor: "pointer" }}
-                    bg="gray"
-                    c="white"
-                  >
-                    {attachment.name}
-                  </Pill>
-                ))}
-              </PillGroup>
-            </Group>
-          )}
-          {filledReport.observations && (
-            <Text size="sm" mt={"xs"} fw={700}>
-              Observaciones: {filledReport.observations}
-            </Text>
-          )}
-        </>
+        )}
+        {filledReport.observations && (
+          <Text size="sm" mt={"xs"} fw={700}>
+            Observaciones: {filledReport.observations}
+          </Text>
+        )}
+      </div>
       );
     }
   );
