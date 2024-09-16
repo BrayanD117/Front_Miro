@@ -7,6 +7,20 @@
   }
 }
 
+.imageColumn {
+  position: fixed;
+  width: 50vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.scrollableContent {
+  margin-left: 50vw;
+  height: 100vh;
+}
+
 .rotate {
   animation: rotate 3s linear infinite;
   animation-timing-function: linear;
@@ -48,7 +62,23 @@
 }
 
 .chevron {
+  color: var(--mantine-color-gray-6);
   &[data-rotate] {
     transform: rotate(-90deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .imageColumn {
+    position: relative;
+    width: 100vw;
+    height: auto;
+    overflow: visible;
+  }
+
+  .scrollableContent {
+    margin-left: 0;
+    height: auto;
+    overflow-y: visible;
   }
 }
