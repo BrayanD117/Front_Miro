@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import starsAnimation from "@/public/lottie/stars.json";
+import ThemeChanger from "./components/ThemeChanger/ThemeChanger";
 import styles from "./page.module.css";
 
 const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
@@ -126,6 +127,9 @@ const HomePage = () => {
         <Title ta={"center"} mt={30}>
           ¡Conoce MIRÓ!🔎
         </Title>
+        <Center mt={10}>
+          <ThemeChanger/>
+        </Center>
         <Accordion
           m={30}
           mt={30}
