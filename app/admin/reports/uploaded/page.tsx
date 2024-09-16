@@ -231,6 +231,42 @@ const AdminPubReportsPage = () => {
     }
   }
 
+  const handleDeletePubReport = async (reportId: string) => {
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/pReports/delete/${reportId}`,
+        {
+          params: {
+            email: session?.user?.email,
+          },
+        }
+      );
+      if (response.data) {
+        showNotification({
+          title: "Éxito",
+          message: "Reporte eliminado correctamente",
+          color: "green",
+        });
+        fetchReports(page, search);
+      }
+    } catch (error: any) {
+      if(error.response.status === 400) {
+        showNotification({
+          title: "Error",
+          message: "Ocurrió un error al eliminar el reporte",
+          color: "red",
+          autoClose: 1200
+        });
+        showNotification({
+          title: "Error",
+          message: "El reporte que intentas borrar tiene borradores de envío de los responsables",
+          color: "red",
+          autoClose: 4000
+        });
+      }
+    }
+  }
+
   const pendingReports = selectedReport?.dimensions.map((dimension) => {
     if(!filledReportRows.some((filledReport: FilledReport) => filledReport.dimension._id === dimension._id)) {
       return (
@@ -399,6 +435,7 @@ const AdminPubReportsPage = () => {
                     variant="outline"
                     color="red" 
                     disabled={pubReport.filled_reports.length > 0}
+                    onClick={() => handleDeletePubReport(pubReport._id)}
                   >
                     <IconTrash size={20} />
                   </Button>
