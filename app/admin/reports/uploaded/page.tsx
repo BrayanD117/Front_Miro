@@ -31,6 +31,7 @@ import {
   IconFileDescription,
   IconFolderOpen,
   IconReportSearch,
+  IconTrash,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { dateToGMT } from "@/app/components/DateConfig";
@@ -385,6 +386,21 @@ const AdminPubReportsPage = () => {
                     disabled={!pubReport.folder_id || pubReport.filled_reports.length === 0}
                   >
                     <IconBrandGoogleDrive size={20}/>
+                  </Button>
+                </Tooltip>
+                <Tooltip
+                  label={ pubReport.filled_reports.length > 0 ? 
+                    "No puedes borrar porque hay reportes cargados" : 
+                    "Borrar publicación del reporte"
+                  }
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
+                >
+                  <Button 
+                    variant="outline"
+                    color="red" 
+                    disabled={pubReport.filled_reports.length > 0}
+                  >
+                    <IconTrash size={20} />
                   </Button>
                 </Tooltip>
               </Group>
