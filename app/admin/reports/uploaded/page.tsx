@@ -230,6 +230,17 @@ const AdminPubReportsPage = () => {
     }
   }
 
+  const pendingReports = selectedReport?.dimensions.map((dimension) => {
+    if(!filledReportRows.some((filledReport: FilledReport) => filledReport.dimension._id === dimension._id)) {
+      return (
+        <Table.Tr key={dimension._id}>
+          <Table.Td>{dimension.name}</Table.Td>
+          <Table.Td colSpan={8}>No hay envíos registrados...</Table.Td>
+        </Table.Tr>
+      )
+    }
+  })
+
   const selectedReportRows = filledReportRows?.map(
     (filledReport: FilledReport, index) => {
       return (
@@ -462,7 +473,7 @@ const AdminPubReportsPage = () => {
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody>{selectedReportRows}</Table.Tbody>
+          <Table.Tbody>{selectedReportRows && pendingReports}</Table.Tbody>
         </Table>
       </Modal>
       <Modal
