@@ -67,6 +67,7 @@ const HomePage = () => {
               m={"md"}
               p="xl"
               mt={"35%"}
+              bg={"rgba(255, 255, 255, 0.616)"}
               className={styles.blurBackground}
               style={{
                 textAlign: "center",
@@ -84,7 +85,7 @@ const HomePage = () => {
                 </Title>
                 <div style={{ position: "relative", width: "20%" }}>
                   <Image
-                    src="/assets/LogoOjoMiro.webp"
+                    src="/assets/Logoojomiro.webp"
                     style={{ width: "100%", height: "auto" }}
                     alt="Logo MIRO"
                     className={styles.rotate}
