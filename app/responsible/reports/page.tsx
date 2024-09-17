@@ -829,9 +829,9 @@ const ResponsibleReportsPage = () => {
                         deletedAttachments.length === 0 &&
                         attachments.length === 0) ||
                       (deletedReport && reportFile === null) ||
-                      (deletedAttachments.length ===
+                      (selectedReport.report.requires_attachment && (deletedAttachments.length ===
                         selectedReport?.filled_reports[0].attachments.length &&
-                        attachments.length === 0)
+                        attachments.length === 0))
                     : !reportFile ||
                       (selectedReport?.report.requires_attachment &&
                         attachments.length === 0)
