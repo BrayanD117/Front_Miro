@@ -526,7 +526,7 @@ const AdminPubReportsPage = () => {
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody>{selectedReportRows && pendingReports}</Table.Tbody>
+          <Table.Tbody>{[...selectedReportRows, pendingReports]}</Table.Tbody>
         </Table>
       </Modal>
       <Modal
