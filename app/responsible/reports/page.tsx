@@ -90,6 +90,11 @@ interface DriveFile {
   folder_id: string;
 }
 
+interface User {
+  email: string;
+  full_name: string;
+}
+
 interface FilledReport {
   _id: string;
   dimension: Dimension;
@@ -100,6 +105,7 @@ interface FilledReport {
   status: string;
   status_date: Date;
   observations: string;
+  evaluated_by: User;
 }
 
 interface PublishedReport {
@@ -410,8 +416,13 @@ const ResponsibleReportsPage = () => {
             </Group>
           )}
           {filledReport.observations && (
-            <Text size="sm" mt={"xs"} fw={700}>
+            <Text size="sm" mt={"xs"}>
               Observaciones: {filledReport.observations}
+            </Text>
+          )}
+          {filledReport.evaluated_by && (
+            <Text size="sm" mt={"xs"}>
+              Evaluado por: <Text tt='capitalize' component="span">{filledReport.evaluated_by.full_name.toLowerCase()}</Text>
             </Text>
           )}
         </>

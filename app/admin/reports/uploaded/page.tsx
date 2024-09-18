@@ -31,6 +31,7 @@ import {
   IconFileDescription,
   IconFolderOpen,
   IconReportSearch,
+  IconTrash,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { dateToGMT } from "@/app/components/DateConfig";
@@ -230,6 +231,53 @@ const AdminPubReportsPage = () => {
     }
   }
 
+  const handleDeletePubReport = async (reportId: string) => {
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/pReports/delete/${reportId}`,
+        {
+          params: {
+            email: session?.user?.email,
+          },
+        }
+      );
+      if (response.data) {
+        showNotification({
+          title: "Éxito",
+          message: "Reporte eliminado correctamente",
+          color: "green",
+        });
+        fetchReports(page, search);
+      }
+    } catch (error: any) {
+      if(error.response.status === 400) {
+        showNotification({
+          title: "Error",
+          message: "Ocurrió un error al eliminar el reporte",
+          color: "red",
+          autoClose: 1200
+        });
+        showNotification({
+          title: "Error",
+          message: "El reporte que intentas borrar tiene borradores de envío de los responsables",
+          color: "red",
+          autoClose: 4000
+        });
+      }
+    }
+  }
+
+  const pendingReports = selectedReport?.dimensions.map((dimension) => {
+    if(!filledReportRows.some((filledReport: FilledReport) => filledReport.dimension._id === dimension._id)) {
+      return (
+        <Table.Tr key={dimension._id}>
+          <Table.Td>{dimension.name}</Table.Td>
+          <Table.Td colSpan={8}>No hay envíos registrados...</Table.Td>
+        </Table.Tr>
+      )
+    }
+  })
+
   const selectedReportRows = filledReportRows?.map(
     (filledReport: FilledReport, index) => {
       return (
@@ -371,8 +419,25 @@ const AdminPubReportsPage = () => {
                         );
                       }
                     }}
+                    disabled={!pubReport.folder_id || pubReport.filled_reports.length === 0}
                   >
                     <IconBrandGoogleDrive size={20}/>
+                  </Button>
+                </Tooltip>
+                <Tooltip
+                  label={ pubReport.filled_reports.length > 0 ? 
+                    "No puedes borrar porque hay reportes cargados" : 
+                    "Borrar publicación del reporte"
+                  }
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
+                >
+                  <Button 
+                    variant="outline"
+                    color="red" 
+                    disabled={pubReport.filled_reports.length > 0}
+                    onClick={() => handleDeletePubReport(pubReport._id)}
+                  >
+                    <IconTrash size={20} />
                   </Button>
                 </Tooltip>
               </Group>
@@ -461,7 +526,7 @@ const AdminPubReportsPage = () => {
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody>{selectedReportRows}</Table.Tbody>
+          <Table.Tbody>{[...selectedReportRows, pendingReports]}</Table.Tbody>
         </Table>
       </Modal>
       <Modal
