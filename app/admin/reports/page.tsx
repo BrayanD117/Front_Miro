@@ -239,7 +239,7 @@ const AdminReportsPage = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/reports/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/reports/delete/${id}`);
       showNotification({
         title: "Eliminado",
         message: "Reporte eliminado exitosamente",
