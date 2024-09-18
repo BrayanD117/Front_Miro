@@ -300,7 +300,6 @@ const ResponsibleReportsPage = () => {
         setDeletedAttachments([]);
         setTimeout(() => {
           setSuccess(false);
-          // setPublishing(true);
         }, 3000);
       }
     } catch (error) {
@@ -331,6 +330,7 @@ const ResponsibleReportsPage = () => {
   };
 
   const handleSendReport = async () => {
+    setLoading(true);
     try {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/send`,
@@ -342,13 +342,17 @@ const ResponsibleReportsPage = () => {
         }
       );
       if (response.data) {
+        setSuccess(true);
         showNotification({
           title: "Reporte enviado",
           message: "El reporte se ha enviado correctamente",
           color: "green",
         });
-        handleClosePublish();
         fetchReports(page, search);
+        setTimeout(() => {
+          setSuccess(false);
+          handleClosePublish();
+        }, 3000);
       }
     } catch (error) {
       console.error(error);
@@ -357,6 +361,8 @@ const ResponsibleReportsPage = () => {
         message: "Error al enviar el reporte",
         color: "red",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
