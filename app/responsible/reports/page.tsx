@@ -294,9 +294,13 @@ const ResponsibleReportsPage = () => {
           setSelectedReport(updatedReportResponse.data);
           console.log("updatedReportResponse.data", updatedReportResponse.data);
         }
+        setReportFile(null);
+        setDeletedReport(null);
+        setAttachments([]);
+        setDeletedAttachments([]);
         setTimeout(() => {
           setSuccess(false);
-          setPublishing(true);
+          // setPublishing(true);
         }, 3000);
       }
     } catch (error) {
@@ -601,6 +605,7 @@ const ResponsibleReportsPage = () => {
         </Button>
       </Modal>
       <Modal
+        key={`${selectedReport?._id ?? ''}_${selectedReport?.filled_reports[0]?.status ?? ''}`}
         opened={publishing}
         onClose={handleClosePublish}
         size="md"
