@@ -8,9 +8,12 @@ import {
   Button,
   Center,
   Container,
+  Divider,
   Group,
   Modal,
   Pagination,
+  Pill,
+  PillGroup,
   Progress,
   rem,
   Select,
@@ -30,6 +33,7 @@ import {
   IconDeviceFloppy,
   IconFileDescription,
   IconFolderOpen,
+  IconHistoryToggle,
   IconReportSearch,
   IconTrash,
 } from "@tabler/icons-react";
@@ -81,6 +85,9 @@ interface FilledReport {
   report_file: File;
   attachments: File[];
   status: string | null;
+  status_date: Date;
+  observations: string | null;
+  evaluated_by: any;
 }
 
 interface PublishedReport {
@@ -95,15 +102,18 @@ interface PublishedReport {
 const AdminPubReportsPage = () => {
   const { data: session } = useSession();
   const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<PublishedReport | null | undefined>(
-    null
-  );
+  const [selectedReport, setSelectedReport] = useState<
+    PublishedReport | null | undefined
+  >(null);
   const [filledReportRows, setFilledReportRows] = useState<FilledReport[]>([]);
   const [filledReport, setFilledReport] = useState<FilledReport | null>(null);
   const [opened, setOpened] = useState<boolean>(false);
   const [statusOpened, setStatusOpened] = useState<boolean>(false);
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [observations, setObservations] = useState<string | null>(null);
+  const [filledReportsHistory, setFilledReportsHistory] = useState<
+    FilledReport[]
+  >([]);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -114,7 +124,11 @@ const AdminPubReportsPage = () => {
   const theme = useMantineTheme();
 
   const options = [
-    { value: "En Revisión", label: "En Revisión", color: theme.colors.yellow[9] },
+    {
+      value: "En Revisión",
+      label: "En Revisión",
+      color: theme.colors.yellow[9],
+    },
     { value: "Aprobado", label: "Aprobado", color: theme.colors.green[7] },
     { value: "Rechazado", label: "Rechazado", color: theme.colors.red[7] },
   ];
@@ -135,9 +149,17 @@ const AdminPubReportsPage = () => {
         console.log(response.data);
         setPubReports(response.data.publishedReports);
         setTotalPages(response.data.totalPages);
-        if(selectedReport) {
-          setSelectedReport(response.data.publishedReports.find((report:any) => report._id === selectedReport._id));
-          setFilledReportRows(response.data.publishedReports.find((report:any) => report._id === selectedReport._id).filled_reports);
+        if (selectedReport) {
+          setSelectedReport(
+            response.data.publishedReports.find(
+              (report: any) => report._id === selectedReport._id
+            )
+          );
+          setFilledReportRows(
+            response.data.publishedReports.find(
+              (report: any) => report._id === selectedReport._id
+            ).filled_reports
+          );
         }
       }
     } catch (error) {
@@ -145,6 +167,35 @@ const AdminPubReportsPage = () => {
       setPubReports([]);
     }
   };
+
+  const fetchHistory = async (reportId: string, dimensionId: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/pReports/history`,
+        {
+          params: { reportId, dimensionId },
+        }
+      );
+      if (response.data) {
+        setFilledReportsHistory(response.data);
+      } else {
+        showNotification({
+          title: "Error",
+          message: "Sin historial",
+          color: "orange",
+        });
+        setFilledReportsHistory([]);
+      }
+    } catch (error) {
+      showNotification({
+        title: "Error",
+        message: "Sin historial",
+        color: "orange",
+      });
+      setFilledReportsHistory([]);
+    }
+  };
+
   useEffect(() => {
     if (session?.user?.email) {
       fetchReports(page, search);
@@ -176,7 +227,7 @@ const AdminPubReportsPage = () => {
     if (report) {
       setFilledReport(report);
     }
-    setNewStatus(newStatus)
+    setNewStatus(newStatus);
   };
 
   const handleCloseModalStatus = () => {
@@ -186,19 +237,19 @@ const AdminPubReportsPage = () => {
     setFilledReport(null);
     setObservations(null);
     fetchReports(page, search);
-  }
+  };
 
   const handleUpdateStatus = async () => {
     setLoading(true);
     if (filledReport && newStatus) {
-      if(newStatus === 'Rechazado' && !observations) {
+      if (newStatus === "Rechazado" && !observations) {
         showNotification({
           title: "Error",
           message: "Por favor ingrese una razón de rechazo",
           color: "red",
         });
         setLoading(false);
-        return
+        return;
       }
       try {
         const response = await axios.put(
@@ -208,11 +259,11 @@ const AdminPubReportsPage = () => {
             filledRepId: filledReport._id,
             status: newStatus,
             observations: observations,
-            email: session?.user?.email
+            email: session?.user?.email,
           }
         );
         if (response.data) {
-          handleCloseModalStatus()
+          handleCloseModalStatus();
           showNotification({
             title: "Éxito",
             message: "Estado actualizado correctamente",
@@ -221,7 +272,7 @@ const AdminPubReportsPage = () => {
           fetchReports(page, search);
         }
       } catch (error) {
-        handleCloseModalStatus()
+        handleCloseModalStatus();
         showNotification({
           title: "Error",
           message: "Ocurrió un error al actualizar el estado",
@@ -229,7 +280,7 @@ const AdminPubReportsPage = () => {
         });
       }
     }
-  }
+  };
 
   const handleDeletePubReport = async (reportId: string) => {
     try {
@@ -250,33 +301,105 @@ const AdminPubReportsPage = () => {
         fetchReports(page, search);
       }
     } catch (error: any) {
-      if(error.response.status === 400) {
+      if (error.response.status === 400) {
         showNotification({
           title: "Error",
           message: "Ocurrió un error al eliminar el reporte",
           color: "red",
-          autoClose: 1200
+          autoClose: 1200,
         });
         showNotification({
           title: "Error",
-          message: "El reporte que intentas borrar tiene borradores de envío de los responsables",
+          message:
+            "El reporte que intentas borrar tiene borradores de envío de los responsables",
           color: "red",
-          autoClose: 4000
+          autoClose: 4000,
         });
       }
     }
-  }
+  };
 
   const pendingReports = selectedReport?.dimensions.map((dimension) => {
-    if(!filledReportRows.some((filledReport: FilledReport) => filledReport.dimension._id === dimension._id)) {
+    if (
+      !filledReportRows.some(
+        (filledReport: FilledReport) =>
+          filledReport.dimension._id === dimension._id
+      )
+    ) {
       return (
         <Table.Tr key={dimension._id}>
           <Table.Td>{dimension.name}</Table.Td>
           <Table.Td colSpan={8}>No hay envíos registrados...</Table.Td>
         </Table.Tr>
-      )
+      );
     }
-  })
+  });
+
+  const historyRows = filledReportsHistory.map((filledReport, index) => {
+    return (
+      <div key={filledReport._id}>
+        <Divider
+          mt={index === 0 ? "0" : "md"}
+          label={`Estado: ${
+            index > 0 && filledReport.status === "En Revisión"
+              ? "Reemplazado"
+              : filledReport.status
+          } - Fecha de Estado: ${dateToGMT(
+            filledReport.status_date,
+            "MMM DD, YYYY HH:mm"
+          )}`}
+        />
+        <Group mt={rem(5)}>
+          <Text size="sm">Reporte: </Text>
+          <Pill
+            onClick={() => {
+              if (typeof window !== "undefined")
+                window.open(filledReport.report_file.view_link);
+            }}
+            bg="gray"
+            c="white"
+            style={{ cursor: "pointer" }}
+          >
+            {filledReport.report_file.name}
+          </Pill>
+        </Group>
+        {filledReport.attachments.length > 0 && (
+          <Group mt={"xs"}>
+            <Text size="sm">Anexos: </Text>
+            <PillGroup>
+              {filledReport.attachments.map((attachment) => (
+                <Pill
+                  key={attachment.id}
+                  onClick={() => {
+                    if (typeof window !== "undefined")
+                      window.open(attachment.view_link);
+                  }}
+                  style={{ cursor: "pointer" }}
+                  bg="gray"
+                  c="white"
+                >
+                  {attachment.name}
+                </Pill>
+              ))}
+            </PillGroup>
+          </Group>
+        )}
+        {filledReport.observations && (
+          <Text size="sm" mt={"xs"}>
+            Observaciones: {filledReport.observations}
+          </Text>
+        )}
+        {filledReport.evaluated_by && (
+          <Text size="sm" c="dimmed">
+            Evaluado por:{" "}
+            <Text tt="capitalize" component="span">
+              {filledReport.evaluated_by.full_name.toLowerCase()}
+            </Text>
+          </Text>
+        )}
+      </div>
+    );
+  });
 
   const selectedReportRows = filledReportRows?.map(
     (filledReport: FilledReport, index) => {
@@ -291,7 +414,7 @@ const AdminPubReportsPage = () => {
             <Center>
               <Select
                 onChange={(value) => {
-                  handleOpenModalStatus(index, value)
+                  handleOpenModalStatus(index, value);
                 }}
                 allowDeselect={false}
                 data={options}
@@ -301,8 +424,12 @@ const AdminPubReportsPage = () => {
                 fw={700}
                 styles={{
                   input: {
-                    borderColor: options.find((option) => option.value === filledReport.status)?.color, // Change the border color
-                    color: options.find((option) => option.value === filledReport.status)?.color, // Change the text color
+                    borderColor: options.find(
+                      (option) => option.value === filledReport.status
+                    )?.color, // Change the border color
+                    color: options.find(
+                      (option) => option.value === filledReport.status
+                    )?.color, // Change the text color
                   },
                 }}
               />
@@ -310,7 +437,7 @@ const AdminPubReportsPage = () => {
           </Table.Td>
           <Table.Td>
             <Center>
-              <Group>
+              <Group gap={'xs'}>
                 <Tooltip label="Ver reporte">
                   <Button
                     size="compact-lg"
@@ -337,6 +464,22 @@ const AdminPubReportsPage = () => {
                     }}
                   >
                     <IconFolderOpen size={16} />
+                  </Button>
+                </Tooltip>
+                <Tooltip label="Ver historial">
+                  <Button
+                    size="compact-lg"
+                    variant="outline"
+                    onClick={() => {
+                      if (selectedReport?._id) {
+                        fetchHistory(
+                          selectedReport._id,
+                          filledReport.dimension._id
+                        );
+                      }
+                    }}
+                  >
+                    <IconHistoryToggle size={16} />
                   </Button>
                 </Tooltip>
               </Group>
@@ -419,21 +562,25 @@ const AdminPubReportsPage = () => {
                         );
                       }
                     }}
-                    disabled={!pubReport.folder_id || pubReport.filled_reports.length === 0}
+                    disabled={
+                      !pubReport.folder_id ||
+                      pubReport.filled_reports.length === 0
+                    }
                   >
-                    <IconBrandGoogleDrive size={20}/>
+                    <IconBrandGoogleDrive size={20} />
                   </Button>
                 </Tooltip>
                 <Tooltip
-                  label={ pubReport.filled_reports.length > 0 ? 
-                    "No puedes borrar porque hay reportes cargados" : 
-                    "Borrar publicación del reporte"
+                  label={
+                    pubReport.filled_reports.length > 0
+                      ? "No puedes borrar porque hay reportes cargados"
+                      : "Borrar publicación del reporte"
                   }
                   transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
-                  <Button 
+                  <Button
                     variant="outline"
-                    color="red" 
+                    color="red"
                     disabled={pubReport.filled_reports.length > 0}
                     onClick={() => handleDeletePubReport(pubReport._id)}
                   >
@@ -537,42 +684,45 @@ const AdminPubReportsPage = () => {
           backgroundOpacity: 0.2,
           blur: 1,
         }}
-        title={
-          <Title size={"md"}>{selectedReport?.report.name}</Title>
-        }
+        title={<Title size={"md"}>{selectedReport?.report.name}</Title>}
       >
         <Text fw={700}>Dimensión: {filledReport?.dimension.name}</Text>
-        {newStatus === 'Rechazado' && (
+        {newStatus === "Rechazado" && (
           <Textarea
-            mt={'md'}
+            mt={"md"}
             label={
-              <Text fw={700}>Razón de rechazo:{" "}
-                <Text component="span" c={'red'}>
-                    *
+              <Text fw={700}>
+                Razón de rechazo:{" "}
+                <Text component="span" c={"red"}>
+                  *
                 </Text>
               </Text>
             }
-            placeholder="Ingrese observaciones al rechazo de la solicitud" 
-            rows={3} 
-            mb='md' 
-            style={{width: '100%'}} 
-            resize='vertical'
+            placeholder="Ingrese observaciones al rechazo de la solicitud"
+            rows={3}
+            mb="md"
+            style={{ width: "100%" }}
+            resize="vertical"
             onChange={(event) => setObservations(event.currentTarget.value)}
           ></Textarea>
         )}
-        <Text mt='md' fw={700}>
-          ¿Estás seguro de cambiar el estado a {" "}
-          <Text component="span" fw={700} c={options.find(option => option.value === newStatus)?.color}>
+        <Text mt="md" fw={700}>
+          ¿Estás seguro de cambiar el estado a{" "}
+          <Text
+            component="span"
+            fw={700}
+            c={options.find((option) => option.value === newStatus)?.color}
+          >
             {newStatus}
           </Text>
           ?
         </Text>
-        <Group mt={'md'} grow>
+        <Group mt={"md"} grow>
           <Button
             onClick={handleUpdateStatus}
             color="blue"
             variant="outline"
-            leftSection={<IconDeviceFloppy/>}
+            leftSection={<IconDeviceFloppy />}
             loading={loading}
           >
             Guardar
@@ -581,11 +731,24 @@ const AdminPubReportsPage = () => {
             onClick={handleCloseModalStatus}
             color="red"
             variant="outline"
-            leftSection={<IconCancel/>}
+            leftSection={<IconCancel />}
           >
             Cancelar
           </Button>
         </Group>
+      </Modal>
+      <Modal
+        opened={filledReportsHistory.length > 0}
+        onClose={() => setFilledReportsHistory([])}
+        size="md"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        title="Historial de Envíos"
+        withCloseButton={true}
+      >
+        {historyRows}
       </Modal>
     </Container>
   );

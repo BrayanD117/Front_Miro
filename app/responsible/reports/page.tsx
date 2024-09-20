@@ -444,7 +444,7 @@ const ResponsibleReportsPage = () => {
           </Text>
         )}
         {filledReport.evaluated_by && (
-            <Text size="sm" mt={"xs"}>
+            <Text size="sm" c='dimmed'>
               Evaluado por: <Text tt='capitalize' component="span">{filledReport.evaluated_by.full_name.toLowerCase()}</Text>
             </Text>
           )}

@@ -42,22 +42,27 @@ const linksByRole: Record<Roles, LinkItem[]> = {
   Usuario: [{ link: "/dashboard", label: "Inicio" }],
   Administrador: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/admin/users", label: "Usuarios" },
+    { link: "/admin/templates", label: "Plantillas" },
+    { link: "/templates/published", label: "Plantillas publicadas" },
+    { link: "/admin/reports", label: "Reportes" },
+    { link: "/admin/reports/uploaded", label: "Reportes publicados" },
+    { link: "/admin/periods", label: "Periodos" },
     { link: "/admin/dimensions", label: "Dimensiones" },
     { link: "/admin/dependencies", label: "Dependencias" },
-    { link: "/admin/periods", label: "Periodos" },
-    { link: "/admin/templates", label: "Plantillas" },
-    { link: "/admin/reports", label: "Reportes" },
+    { link: "/admin/validations", label: "Validaciones" },
+    { link: "/admin/users", label: "Usuarios" },
   ],
   Responsable: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/responsible/reports", label: "Reportes" },
     { link: "/responsible/templates", label: "Plantillas" },
+    { link: "/templates/published", label: "Plantillas publicadas" },
+    { link: "/responsible/reports", label: "Reportes" },
     { link: "/responsible/dimension", label: "Dimensión" },
   ],
   Productor: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/producer/tasks", label: "Tareas" },
+    { link: "/producer/templates", label: "Plantillas pendientes" },
+    { link: "/producer/templates/uploaded", label: "Plantillas cargadas" },
   ],
 };
 
