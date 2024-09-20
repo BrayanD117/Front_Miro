@@ -437,7 +437,7 @@ const AdminPubReportsPage = () => {
           </Table.Td>
           <Table.Td>
             <Center>
-              <Group>
+              <Group gap={'xs'}>
                 <Tooltip label="Ver reporte">
                   <Button
                     size="compact-lg"
