@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, Text, List } from "@mantine/core";
-import { IconEdit, IconTrash, IconEye, IconBulb } from "@tabler/icons-react";
+import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb } from "@tabler/icons-react";
+import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
@@ -38,6 +39,7 @@ const AdminDimensionsPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   const fetchDimensions = async (page: number, search: string) => {
     try {
@@ -181,6 +183,10 @@ const AdminDimensionsPage = () => {
     setSelectedProducers([]);
   };
 
+  const handleConfigureProducers = (dimension: Dimension) => {
+    router.push(`/admin/dimensions/${dimension._id}`);
+  };
+  
   const rows = dimensions.map((dimension: Dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
@@ -201,6 +207,9 @@ const AdminDimensionsPage = () => {
           <Group gap={5}>
             <Button variant="outline" onClick={() => handleEdit(dimension)}>
               <IconEdit size={16} />
+            </Button>
+            <Button variant="outline" onClick={() => handleConfigureProducers(dimension)}>
+            <IconSettings size={16} />
             </Button>
             <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
               <IconTrash size={16} />
