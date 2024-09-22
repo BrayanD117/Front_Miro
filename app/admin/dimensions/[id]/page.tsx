@@ -44,10 +44,16 @@ const AdminDimensionEditPage = () => {
             codes: dimensionData.producers,
           });
           console.log("codes", dimensionData.producers);
-          const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
+          console.log("producerResponse.data", producerResponse.data);
+
+          const producerData = producerResponse.data.map((dep: any) => ({
+            dep_code: dep.code,
+            name: dep.name,
+          }));
+
+          const newProducerNames = producerData.reduce((acc: any, dep: any) => {
             acc[dep.dep_code] = dep.name;
             return acc;
-           
           }, {});
           console.log("newProducerNames", newProducerNames);
           setProducerNames(newProducerNames);
@@ -117,10 +123,19 @@ const AdminDimensionEditPage = () => {
         const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
           codes: [dep_code],
         });
-        const newProducerNames = { ...producerNames, ...response.data.reduce((acc: any, dep: any) => {
-          acc[dep.dep_code] = dep.name;
-          return acc;
-        }, {}) };
+
+        const producerData = response.data.map((dep: any) => ({
+          dep_code: dep.code,
+          name: dep.name,
+        }));
+
+        const newProducerNames = {
+          ...producerNames,
+          ...producerData.reduce((acc: any, dep: any) => {
+            acc[dep.dep_code] = dep.name;
+            return acc;
+          }, {}),
+        };
         setProducerNames(newProducerNames);
       } catch (error) {
         console.error("Error fetching producer name:", error);
@@ -182,7 +197,7 @@ const AdminDimensionEditPage = () => {
             onChange={(event) => setSearch(event.currentTarget.value)}
             mb="md"
           />
-          <Tooltip 
+          <Tooltip
             label="Desplázate para ver más dependencias"
             transitionProps={{ transition: "slide-up", duration: 300 }}
             withArrow
