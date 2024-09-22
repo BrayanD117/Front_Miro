@@ -2,7 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid } from "@mantine/core";
+import {
+  Container,
+  Table,
+  Button,
+  TextInput,
+  Group,
+  Title,
+  Divider,
+  Box,
+  Checkbox,
+  ScrollArea,
+  Pagination,
+  Center,
+  Tooltip,
+  Grid,
+  Select,
+} from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconTrash } from "@tabler/icons-react";
@@ -19,6 +35,11 @@ interface Dependency {
   name: string;
 }
 
+interface User {
+  email: string;
+  full_name: string;
+}
+
 const AdminDimensionEditPage = () => {
   const router = useRouter();
   const params = useParams();
@@ -30,6 +51,8 @@ const AdminDimensionEditPage = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [responsibles, setResponsibles] = useState<User[]>([]);
+  const [selectedResponsible, setSelectedResponsible] = useState<string>("");
 
   useEffect(() => {
     const fetchDimension = async () => {
@@ -39,12 +62,14 @@ const AdminDimensionEditPage = () => {
           const dimensionData = response.data;
           setDimension(dimensionData);
           setProducers(dimensionData.producers);
+          setSelectedResponsible(dimensionData.responsible);
+
+          const responsiblesResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/responsibles`);
+          setResponsibles(responsiblesResponse.data);
 
           const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
             codes: dimensionData.producers,
           });
-          console.log("codes", dimensionData.producers);
-          console.log("producerResponse.data", producerResponse.data);
 
           const producerData = producerResponse.data.map((dep: any) => ({
             dep_code: dep.code,
@@ -55,7 +80,6 @@ const AdminDimensionEditPage = () => {
             acc[dep.dep_code] = dep.name;
             return acc;
           }, {});
-          console.log("newProducerNames", newProducerNames);
           setProducerNames(newProducerNames);
         } catch (error) {
           console.error("Error fetching dimension:", error);
@@ -91,6 +115,7 @@ const AdminDimensionEditPage = () => {
       try {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${dimension._id}`, {
           ...dimension,
+          responsible: selectedResponsible,
           producers,
         });
         showNotification({
@@ -178,10 +203,16 @@ const AdminDimensionEditPage = () => {
           readOnly
           mb="md"
         />
-        <TextInput
+        <Select
           label="Responsable"
-          value={dimension?.responsible || ""}
-          readOnly
+          placeholder="Selecciona un responsable"
+          value={selectedResponsible}
+          onChange={(value) => setSelectedResponsible(value!)}
+          data={responsibles.map((user) => ({
+            value: user.email,
+            label: `${user.full_name} (${user.email})`,
+          }))}
+          searchable
           mb="md"
         />
       </Box>
@@ -233,7 +264,9 @@ const AdminDimensionEditPage = () => {
           </Table>
           <Group mt="md">
             <Button onClick={handleSave}>Guardar</Button>
-            <Button variant="outline" onClick={() => router.back()}>Volver</Button>
+            <Button variant="outline" onClick={() => router.back()}>
+              Volver
+            </Button>
           </Group>
         </Grid.Col>
       </Grid>
