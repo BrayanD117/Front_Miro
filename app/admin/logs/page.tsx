@@ -139,78 +139,104 @@ const AdminLogsPage = () => {
         title="Detalles del Log"
         size="auto"
         overlayProps={{
-            backgroundOpacity: 0.55,
-            blur: 3,
+          backgroundOpacity: 0.55,
+          blur: 3,
         }}
-        >
+      >
         {selectedLog && (
-        <div>
-            <Title order={3} ta={"center"} mb={5}>Registro de errores</Title>
-            <Flex gap="xs" align="center">
-                <Text fw={700}>Usuario:</Text><Text>{selectedLog.user.full_name}</Text>
-            </Flex>
-            <Flex gap="xs" align="center">
-                <Text fw={700}>Email:</Text><Text>{selectedLog.user.email}</Text>
-            </Flex>
-            <Flex gap="xs" align="center">
-                <Text fw={700}>Plantilla:</Text><Text>{selectedLog.published_template.name}</Text>
-            </Flex>
-            <Flex gap="xs" align="center">
-                <Text fw={700}>Fecha:</Text><Text>{dayjs(selectedLog.date).format("DD/MM/YYYY HH:mm")}</Text>
-            </Flex>
-            <Divider m={5}/>
+          <div>
+            <Title order={3} ta={"center"} mb={5}>
+              Registro de errores
+            </Title>
+            <Table
+              striped
+              withRowBorders
+              withColumnBorders
+              withTableBorder
+              highlightOnHover
+            >
+              <Table.Tbody>
+                <Table.Tr>
+                  <Table.Th style={{ textAlign: "right" }}>Usuario:</Table.Th>
+                  <Table.Td>{selectedLog.user.full_name}</Table.Td>
+                </Table.Tr>
+                <Table.Tr>
+                  <Table.Th style={{ textAlign: "right" }}>Email:</Table.Th>
+                  <Table.Td>{selectedLog.user.email}</Table.Td>
+                </Table.Tr>
+                <Table.Tr>
+                  <Table.Th style={{ textAlign: "right" }}>Plantilla:</Table.Th>
+                  <Table.Td>{selectedLog.published_template.name}</Table.Td>
+                </Table.Tr>
+                <Table.Tr>
+                  <Table.Th style={{ textAlign: "right" }}>Fecha:</Table.Th>
+                  <Table.Td>
+                    {dayjs(selectedLog.date).format("DD/MM/YYYY HH:mm")}
+                  </Table.Td>
+                </Table.Tr>
+              </Table.Tbody>
+            </Table>
+            <Divider m={5} />
             <Center mt={15}>
-                <Badge size="lg" color="red">Errores</Badge>
+              <Badge size="lg" color="red">
+                Errores
+              </Badge>
             </Center>
-            <ScrollArea style={{ height: 300 }}>
+            <ScrollArea style={{ height: 250 }}>
               {selectedLog.errors.map((error, index) => (
                 <div key={index} style={{ marginBottom: "1rem" }}>
-                    <List
-                        spacing="xs"
-                        size="sm"
-                        center
-                        icon={
-                            <ThemeIcon color="blue" size={24} radius="xl">
-                            <IconColumnRemove style={{ width: rem(16), height: rem(16) }} />
-                            </ThemeIcon>
-                        }
-                    >
-                        <List.Item>
-                            <Flex gap="xs" align="center">
-                                <Text fw={700}>Columna:</Text><Text>{error.column}</Text>
-                            </Flex>
-                        </List.Item>
-                    </List>
-                    
+                  <List
+                    spacing="xs"
+                    size="sm"
+                    center
+                    icon={
+                      <ThemeIcon color="blue" size={24} radius="xl">
+                        <IconColumnRemove
+                          style={{ width: rem(16), height: rem(16) }}
+                        />
+                      </ThemeIcon>
+                    }
+                  >
+                    <List.Item>
+                      <Flex gap="xs" align="center">
+                        <Text fw={700}>Columna:</Text>
+                        <Text>{error.column}</Text>
+                      </Flex>
+                    </List.Item>
+                  </List>
+
                   {error.description.map((desc, idx) => (
                     <div
                       key={idx}
-                      style={{ marginLeft: "1rem", marginBottom: "0.5rem", marginTop: "0.5rem" }}
+                      style={{
+                        marginLeft: "1rem",
+                        marginBottom: "0.5rem",
+                        marginTop: "0.5rem",
+                      }}
                     >
-                        <List
-                        spacing="xs"
-                        size="sm"
-                        center
-                    >
+                      <List spacing="xs" size="sm" center>
                         <List.Item>
-                            <Flex gap="xs" align="center">
-                                <Text fw={700}>Registro:</Text><Text>{desc.register}</Text>
-                            </Flex>
+                          <Flex gap="xs" align="center">
+                            <Text fw={700}>Registro:</Text>
+                            <Text>{desc.register}</Text>
+                          </Flex>
                         </List.Item>
                         <List.Item>
-                            <Flex gap="xs" align="center">
-                                <Text fw={700}>Valor:</Text><Text>{desc.value}</Text>
-                            </Flex>
+                          <Flex gap="xs" align="center">
+                            <Text fw={700}>Valor:</Text>
+                            <Text>{desc.value}</Text>
+                          </Flex>
                         </List.Item>
                         <List.Item>
-                            <Flex gap="xs" align="center">
-                                <Text fw={700}>Mensaje:</Text><Text>{desc.message}</Text>
-                            </Flex>
+                          <Flex gap="xs" align="center">
+                            <Text fw={700}>Mensaje:</Text>
+                            <Text>{desc.message}</Text>
+                          </Flex>
                         </List.Item>
-                    </List>
+                      </List>
                     </div>
                   ))}
-                  <Divider/>
+                  <Divider />
                 </div>
               ))}
             </ScrollArea>
