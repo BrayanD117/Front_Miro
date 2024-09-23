@@ -197,7 +197,7 @@ const AdminDimensionEditPage = () => {
 
   return (
     <Container size="xl">
-      <Title order={2} mb="md">
+      <Title ta={"center"} order={2} mb="md">
         Gestionar Dimensión
       </Title>
       <Box mb="lg">
