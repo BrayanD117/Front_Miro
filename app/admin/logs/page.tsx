@@ -8,12 +8,20 @@ import {
   Pagination,
   Button,
   Modal,
+  Text,
   Title,
   ScrollArea,
   Center,
+  Divider,
+  Flex,
+  Badge,
+  List,
+  ThemeIcon,
+  rem,
 } from "@mantine/core";
 import axios from "axios";
 import dayjs from "dayjs";
+import { IconCircleCheck, IconColumnRemove } from "@tabler/icons-react";
 
 interface Log {
   _id: string;
@@ -93,8 +101,8 @@ const AdminLogsPage = () => {
 
   return (
     <Container size="xl">
-      <Title order={2} mb="md">
-        Logs
+      <Title ta={"center"} order={2} mb="md">
+        Errores en el cargue de informacion (logs)
       </Title>
       <TextInput
         placeholder="Buscar logs"
@@ -129,46 +137,80 @@ const AdminLogsPage = () => {
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
         title="Detalles del Log"
-        size="lg"
-      >
+        size="auto"
+        overlayProps={{
+            backgroundOpacity: 0.55,
+            blur: 3,
+        }}
+        >
         {selectedLog && (
-          <div>
-            <p>
-              <strong>Usuario:</strong> {selectedLog.user.full_name} (
-              {selectedLog.user.email})
-            </p>
-            <p>
-              <strong>Plantilla:</strong> {selectedLog.published_template.name}
-            </p>
-            <p>
-              <strong>Fecha:</strong>{" "}
-              {dayjs(selectedLog.date).format("DD/MM/YYYY HH:mm")}
-            </p>
-            <p>
-              <strong>Errores:</strong>
-            </p>
+        <div>
+            <Title order={3} ta={"center"} mb={5}>Registro de errores</Title>
+            <Flex gap="xs" align="center">
+                <Text fw={700}>Usuario:</Text><Text>{selectedLog.user.full_name}</Text>
+            </Flex>
+            <Flex gap="xs" align="center">
+                <Text fw={700}>Email:</Text><Text>{selectedLog.user.email}</Text>
+            </Flex>
+            <Flex gap="xs" align="center">
+                <Text fw={700}>Plantilla:</Text><Text>{selectedLog.published_template.name}</Text>
+            </Flex>
+            <Flex gap="xs" align="center">
+                <Text fw={700}>Fecha:</Text><Text>{dayjs(selectedLog.date).format("DD/MM/YYYY HH:mm")}</Text>
+            </Flex>
+            <Divider m={5}/>
+            <Center mt={15}>
+                <Badge size="lg" color="red">Errores</Badge>
+            </Center>
             <ScrollArea style={{ height: 300 }}>
               {selectedLog.errors.map((error, index) => (
                 <div key={index} style={{ marginBottom: "1rem" }}>
-                  <p>
-                    <strong>Columna:</strong> {error.column}
-                  </p>
+                    <List
+                        spacing="xs"
+                        size="sm"
+                        center
+                        icon={
+                            <ThemeIcon color="blue" size={24} radius="xl">
+                            <IconColumnRemove style={{ width: rem(16), height: rem(16) }} />
+                            </ThemeIcon>
+                        }
+                    >
+                        <List.Item>
+                            <Flex gap="xs" align="center">
+                                <Text fw={700}>Columna:</Text><Text>{error.column}</Text>
+                            </Flex>
+                        </List.Item>
+                    </List>
+                    
                   {error.description.map((desc, idx) => (
                     <div
                       key={idx}
-                      style={{ marginLeft: "1rem", marginBottom: "0.5rem" }}
+                      style={{ marginLeft: "1rem", marginBottom: "0.5rem", marginTop: "0.5rem" }}
                     >
-                      <p>
-                        <strong>Registro:</strong> {desc.register}
-                      </p>
-                      <p>
-                        <strong>Valor:</strong> {desc.value}
-                      </p>
-                      <p>
-                        <strong>Mensaje:</strong> {desc.message}
-                      </p>
+                        <List
+                        spacing="xs"
+                        size="sm"
+                        center
+                    >
+                        <List.Item>
+                            <Flex gap="xs" align="center">
+                                <Text fw={700}>Registro:</Text><Text>{desc.register}</Text>
+                            </Flex>
+                        </List.Item>
+                        <List.Item>
+                            <Flex gap="xs" align="center">
+                                <Text fw={700}>Valor:</Text><Text>{desc.value}</Text>
+                            </Flex>
+                        </List.Item>
+                        <List.Item>
+                            <Flex gap="xs" align="center">
+                                <Text fw={700}>Mensaje:</Text><Text>{desc.message}</Text>
+                            </Flex>
+                        </List.Item>
+                    </List>
                     </div>
                   ))}
+                  <Divider/>
                 </div>
               ))}
             </ScrollArea>
