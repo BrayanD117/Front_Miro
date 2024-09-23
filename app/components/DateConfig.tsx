@@ -32,7 +32,7 @@ const dateNow = () => {
   const offset = -5; // GMT-5
   const dateWithOffset = new Date(now.getTime() + offset * 60 * 60 * 1000);
 
-  return new Date(dateWithOffset.setMilliseconds(now.getMilliseconds()));
+  return new Date(new Date(dateWithOffset).toDateString());
 };
 
 export { dateToGMT, dateNow };
