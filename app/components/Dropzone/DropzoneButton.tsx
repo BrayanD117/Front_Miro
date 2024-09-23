@@ -85,10 +85,8 @@ export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneB
 
           if (error.response?.data.details) {
             const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
-            useEffect(() => {
-              localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
-              window.open('/logs', '_blank');
-            }, []);
+            localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
+            window.open('/logs', '_blank');
           
           } else {
             showNotification({
