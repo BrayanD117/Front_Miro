@@ -74,12 +74,17 @@ interface Validator {
   values: any[];
 }
 
+interface Period {
+  name: string;
+  producer_end_date: Date;
+}
+
 interface PublishedTemplate {
   _id: string;
   name: string;
   published_by: any;
   template: Template;
-  period: any;
+  period: Period;
   producers_dep_code: string[];
   completed: boolean;
   createdAt: string;
@@ -95,6 +100,7 @@ const ProducerTemplatesPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [producerEndDate, setProducerEndDate] = useState<Date | undefined>();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
   );
@@ -112,6 +118,7 @@ const ProducerTemplatesPage = () => {
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
+        setProducerEndDate(response.data.templates[0].period.producer_end_date);
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
@@ -234,8 +241,16 @@ const ProducerTemplatesPage = () => {
     saveAs(blob, `${template.file_name}.xlsx`);
   };
 
-  const handleUploadClick = (publishedTemplateId: string) => {
-    setSelectedTemplateId(publishedTemplateId);
+  const handleUploadClick = (publishedTemplate: PublishedTemplate) => {
+    if(handleDisableUpload(publishedTemplate)) {
+      showNotification({
+        title: "Error",
+        message: "El periodo ya se encuentra cerrado",
+        color: "red",
+      })
+      return;
+    }
+    setSelectedTemplateId(publishedTemplate._id);
     openUploadModal();
   };
 
@@ -285,7 +300,7 @@ const ProducerTemplatesPage = () => {
                 <Button
                   variant="outline"
                   color="green"
-                  onClick={() => handleUploadClick(publishedTemplate._id)}
+                  onClick={() => handleUploadClick(publishedTemplate)}
                   disabled={uploadDisable}
                 >
                   <IconUpload size={16} />
@@ -384,6 +399,7 @@ const ProducerTemplatesPage = () => {
         {selectedTemplateId && (
           <DropzoneButton
             pubTemId={selectedTemplateId}
+            endDate={producerEndDate}
             onClose={closeUploadModal}
             onUploadSuccess={refreshTemplates}
           />

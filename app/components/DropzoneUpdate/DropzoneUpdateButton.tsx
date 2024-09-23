@@ -9,20 +9,30 @@ import classes from './DropzoneUpdateButton.module.css';
 import { showNotification } from '@mantine/notifications';
 import Lottie from 'lottie-react';
 import successAnimation from "../../../public/lottie/success.json";
+import { dateNow } from '../DateConfig';
 
 interface DropzoneButtonProps {
   pubTemId: string;
+  endDate: Date | undefined;
   onClose: () => void;
   edit?: boolean;
 }
 
-export function DropzoneUpdateButton({ pubTemId, onClose, edit = false }: DropzoneButtonProps) {
+export function DropzoneUpdateButton({ pubTemId, endDate, onClose, edit = false }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
   const { data: session } = useSession();
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const handleFileDrop = async (files: File[]) => {
+    if(endDate && new Date(endDate) < dateNow()) {
+      showNotification({
+        title: 'Error',
+        message: 'La fecha de carga de plantillas ha culminado.',
+        color: 'red',
+      });
+      return;
+    }
     const file = files[0];
     const reader = new FileReader();
     reader.onload = async (event) => {

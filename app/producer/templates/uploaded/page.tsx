@@ -1,20 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Modal, Tooltip, Title, Group } from "@mantine/core";
+import {
+  Container,
+  Table,
+  Button,
+  Pagination,
+  Center,
+  TextInput,
+  Modal,
+  Tooltip,
+  Title,
+  Group,
+} from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconArrowLeft, IconDownload, IconEdit, IconPencil, IconTrash } from "@tabler/icons-react";
+import {
+  IconArrowLeft,
+  IconDownload,
+  IconEdit,
+  IconPencil,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
-import { saveAs } from 'file-saver';
-import { useDisclosure } from '@mantine/hooks';
-import { format } from 'fecha';
+import { saveAs } from "file-saver";
+import { useDisclosure } from "@mantine/hooks";
+import { format } from "fecha";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
-const DropzoneUpdateButton = dynamic(() => import('@/app/components/DropzoneUpdate/DropzoneUpdateButton').then((mod) => mod.DropzoneUpdateButton), { ssr: false });
+const DropzoneUpdateButton = dynamic(
+  () =>
+    import("@/app/components/DropzoneUpdate/DropzoneUpdateButton").then(
+      (mod) => mod.DropzoneUpdateButton
+    ),
+  { ssr: false }
+);
 
 interface Field {
   name: string;
@@ -46,9 +69,14 @@ interface ProducerData {
   filled_data: FilledFieldData[];
 }
 
-interface Validator { 
+interface Validator {
   name: string;
   values: any[];
+}
+
+interface Period {
+  name: string;
+  producer_end_date: Date;
 }
 
 interface PublishedTemplate {
@@ -56,7 +84,7 @@ interface PublishedTemplate {
   name: string;
   published_by: any;
   template: Template;
-  period: any;
+  period: Period;
   producers_dep_code: string[];
   completed: boolean;
   createdAt: string;
@@ -72,16 +100,25 @@ const ProducerUploadedTemplatesPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [uploadModalOpen, { open: openUploadModal, close: closeUploadModal }] = useDisclosure(false);
+  const [producerEndDate, setProducerEndDate] = useState<Date | undefined>(
+    undefined
+  );
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null
+  );
+  const [uploadModalOpen, { open: openUploadModal, close: closeUploadModal }] =
+    useDisclosure(false);
 
   const fetchTemplates = async (page: number, search: string) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/uploaded`, {
-        params: { email: session?.user?.email, page, limit: 10, search },
-      });
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/uploaded`,
+        {
+          params: { email: session?.user?.email, page, limit: 10, search },
+        }
+      );
       if (response.data) {
-        console.log("Templates: ",response.data.templates)
+        setProducerEndDate(response.data.period.producer_end_date);
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
       }
@@ -108,39 +145,44 @@ const ProducerUploadedTemplatesPage = () => {
   }, [search]);
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
-    console.log("Plantilla: ",publishedTemplate)
+    console.log("Plantilla: ", publishedTemplate);
     const { template, validators } = publishedTemplate;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(template.name);
 
-    const headerRow = worksheet.addRow(template.fields.map(field => field.name));
+    const headerRow = worksheet.addRow(
+      template.fields.map((field) => field.name)
+    );
     headerRow.eachCell((cell, colNumber) => {
-      cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+      cell.font = { bold: true, color: { argb: "FFFFFF" } };
       cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0f1f39' },
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "0f1f39" },
       };
       cell.border = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' },
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
       };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
 
       const field = template.fields[colNumber - 1];
       if (field.comment) {
         cell.note = {
           texts: [
-            { font: { size: 12, color: { argb: 'FF0000' } }, text: field.comment }
+            {
+              font: { size: 12, color: { argb: "FF0000" } },
+              text: field.comment,
+            },
           ],
-          editAs: 'oneCells',
+          editAs: "oneCells",
         };
       }
     });
 
-    worksheet.columns.forEach(column => {
+    worksheet.columns.forEach((column) => {
       column.width = 20;
     });
 
@@ -151,8 +193,10 @@ const ProducerUploadedTemplatesPage = () => {
     if (filledData) {
       const numRows = filledData.filled_data[0].values.length;
       for (let i = 0; i < numRows; i++) {
-        const rowValues = template.fields.map(field => {
-          const fieldData = filledData.filled_data.find((data: FilledFieldData) => data.field_name === field.name);
+        const rowValues = template.fields.map((field) => {
+          const fieldData = filledData.filled_data.find(
+            (data: FilledFieldData) => data.field_name === field.name
+          );
           return fieldData ? fieldData.values[i] : null;
         });
         worksheet.addRow(rowValues);
@@ -160,49 +204,48 @@ const ProducerUploadedTemplatesPage = () => {
     }
 
     // Crear una hoja por cada validador en el array
-    validators.forEach(validator => {
+    validators.forEach((validator) => {
       const validatorSheet = workbook.addWorksheet(validator.name);
-  
+
       // Agregar encabezados basados en las claves del primer objeto de "values"
       const header = Object.keys(validator.values[0]);
       const validatorHeaderRow = validatorSheet.addRow(header);
-  
+
       // Estilizar la fila de encabezado
       validatorHeaderRow.eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+        cell.font = { bold: true, color: { argb: "FFFFFF" } };
         cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: '0f1f39' },
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "0f1f39" },
         };
         cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
         };
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
       });
-  
+
       // Agregar las filas con los valores
-      validator.values.forEach(value => {
+      validator.values.forEach((value) => {
         const row = validatorSheet.addRow(Object.values(value));
         row.eachCell((cell) => {
           cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' },
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
           };
         });
       });
-  
+
       // Ajustar el ancho de las columnas
-      validatorSheet.columns.forEach(column => {
+      validatorSheet.columns.forEach((column) => {
         column.width = 20;
       });
     });
-  
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -216,9 +259,15 @@ const ProducerUploadedTemplatesPage = () => {
 
   const handleDeleteClick = async (publishedTemplateId: string) => {
     try {
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/delete`, {
-        params: { pubTem_id: publishedTemplateId, email: session?.user?.email },
-      });
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/delete`,
+        {
+          params: {
+            pubTem_id: publishedTemplateId,
+            email: session?.user?.email,
+          },
+        }
+      );
       if (response.data) {
         showNotification({
           title: "Información eliminada",
@@ -243,7 +292,7 @@ const ProducerUploadedTemplatesPage = () => {
 
   const truncateString = (str: string, maxLength: number = 20): string => {
     return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
-  }
+  };
 
   const rows = templates.map((publishedTemplate) => {
     return (
@@ -251,25 +300,34 @@ const ProducerUploadedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
-        <Table.Td>{dateToGMT(publishedTemplate.period.producer_end_date)}</Table.Td>
-        <Table.Td>{truncateString(publishedTemplate.loaded_data[0].send_by.full_name)}</Table.Td>
-        <Table.Td>{dateToGMT(publishedTemplate.loaded_data[0].loaded_date)}</Table.Td>
+        <Table.Td>
+          {dateToGMT(publishedTemplate.period.producer_end_date)}
+        </Table.Td>
+        <Table.Td>
+          {truncateString(publishedTemplate.loaded_data[0].send_by.full_name)}
+        </Table.Td>
+        <Table.Td>
+          {dateToGMT(publishedTemplate.loaded_data[0].loaded_date)}
+        </Table.Td>
         <Table.Td>
           <Center>
-            <Group gap={'sm'}>
+            <Group gap={"sm"}>
               <Tooltip
                 label="Descargar información cargada"
                 position="top"
-                transitionProps={{ transition: 'fade-up', duration: 300 }}
+                transitionProps={{ transition: "fade-up", duration: 300 }}
               >
-                <Button variant="outline" onClick={() => handleDownload(publishedTemplate)}>
+                <Button
+                  variant="outline"
+                  onClick={() => handleDownload(publishedTemplate)}
+                >
                   <IconDownload size={16} />
                 </Button>
               </Tooltip>
-              <Tooltip 
-                label="Editar plantilla (archivo Excel)" 
+              <Tooltip
+                label="Editar plantilla (archivo Excel)"
                 position="top"
-                transitionProps={{ transition: 'fade-up', duration: 300 }}
+                transitionProps={{ transition: "fade-up", duration: 300 }}
               >
                 <Button
                   variant="outline"
@@ -279,10 +337,10 @@ const ProducerUploadedTemplatesPage = () => {
                   <IconEdit size={16} />
                 </Button>
               </Tooltip>
-              <Tooltip 
+              <Tooltip
                 label="Edición en línea"
-                position="top" 
-                transitionProps={{ transition: 'fade-up', duration: 300 }}
+                position="top"
+                transitionProps={{ transition: "fade-up", duration: 300 }}
               >
                 <Button
                   variant="outline"
@@ -297,12 +355,16 @@ const ProducerUploadedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Tooltip 
-              label='Eliminar envío'
+            <Tooltip
+              label="Eliminar envío"
               position="top"
-              transitionProps={{ transition: 'fade-up', duration: 200 }}
+              transitionProps={{ transition: "fade-up", duration: 200 }}
             >
-              <Button variant="outline" color="red" onClick={() => handleDeleteClick(publishedTemplate._id)}>
+              <Button
+                variant="outline"
+                color="red"
+                onClick={() => handleDeleteClick(publishedTemplate._id)}
+              >
                 <IconTrash size={16} />
               </Button>
             </Tooltip>
@@ -315,7 +377,9 @@ const ProducerUploadedTemplatesPage = () => {
   return (
     <Container size="xl">
       <DateConfig />
-      <Title ta="center" mb={"md"}>Plantillas Cargadas</Title>
+      <Title ta="center" mb={"md"}>
+        Plantillas Cargadas
+      </Title>
       <TextInput
         placeholder="Buscar plantillas"
         value={search}
@@ -323,8 +387,8 @@ const ProducerUploadedTemplatesPage = () => {
         mb="md"
       />
       <Group>
-        <Button 
-          onClick={() => router.push('/producer/templates')}
+        <Button
+          onClick={() => router.push("/producer/templates")}
           variant="outline"
           leftSection={<IconArrowLeft size={16} />}
         >
@@ -340,8 +404,12 @@ const ProducerUploadedTemplatesPage = () => {
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Cargado por</Table.Th>
             <Table.Th>Fecha de Cargue</Table.Th>
-            <Table.Th><Center>Acciones</Center></Table.Th>
-            <Table.Th><Center>Eliminar Información</Center></Table.Th>
+            <Table.Th>
+              <Center>Acciones</Center>
+            </Table.Th>
+            <Table.Th>
+              <Center>Eliminar Información</Center>
+            </Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -359,7 +427,10 @@ const ProducerUploadedTemplatesPage = () => {
 
       <Modal
         opened={uploadModalOpen}
-        onClose={() => {closeUploadModal(); fetchTemplates(page, search);}}
+        onClose={() => {
+          closeUploadModal();
+          fetchTemplates(page, search);
+        }}
         title="Editar Información"
         overlayProps={{
           backgroundOpacity: 0.55,
@@ -369,7 +440,14 @@ const ProducerUploadedTemplatesPage = () => {
         centered
         withCloseButton={false}
       >
-        {selectedTemplateId && <DropzoneUpdateButton pubTemId={selectedTemplateId} onClose={closeUploadModal} edit />}
+        {selectedTemplateId && (
+          <DropzoneUpdateButton
+            pubTemId={selectedTemplateId}
+            endDate={producerEndDate}
+            onClose={closeUploadModal}
+            edit
+          />
+        )}
       </Modal>
     </Container>
   );
