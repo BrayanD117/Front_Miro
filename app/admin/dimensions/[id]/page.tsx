@@ -45,6 +45,7 @@ const AdminDimensionEditPage = () => {
   const params = useParams();
   const { id } = params;
   const [dimension, setDimension] = useState<Dimension | null>(null);
+  const [dimensionName, setDimensionName] = useState<string>("");
   const [allDependencies, setAllDependencies] = useState<Dependency[]>([]);
   const [producers, setProducers] = useState<string[]>([]);
   const [producerNames, setProducerNames] = useState<{ [key: string]: string }>({});
@@ -61,6 +62,7 @@ const AdminDimensionEditPage = () => {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${id}`);
           const dimensionData = response.data;
           setDimension(dimensionData);
+          setDimensionName(dimensionData.name);
           setProducers(dimensionData.producers);
           setSelectedResponsible(dimensionData.responsible);
 
@@ -110,13 +112,14 @@ const AdminDimensionEditPage = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [page, search]);
 
-  const handleSave = async () => {
+  const handleSave = async (updatedProducers?: string[]) => {
     if (dimension) {
       try {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${dimension._id}`, {
           ...dimension,
+          name: dimensionName,
           responsible: selectedResponsible,
-          producers,
+          producers: updatedProducers || producers,
         });
         showNotification({
           title: "Actualizado",
@@ -166,6 +169,7 @@ const AdminDimensionEditPage = () => {
         console.error("Error fetching producer name:", error);
       }
     }
+    await handleSave(updatedProducers);
   };
 
   const selectedProducerRows = producers.map((dep_code) => (
@@ -199,8 +203,8 @@ const AdminDimensionEditPage = () => {
       <Box mb="lg">
         <TextInput
           label="Nombre de la Dimensión"
-          value={dimension?.name || ""}
-          readOnly
+          value={dimensionName}
+          onChange={(event) => setDimensionName(event.currentTarget.value)}
           mb="md"
         />
         <Select
@@ -215,6 +219,12 @@ const AdminDimensionEditPage = () => {
           searchable
           mb="md"
         />
+        <Group mt="md">
+          <Button onClick={() => handleSave()}>Guardar</Button>
+          <Button variant="outline" onClick={() => router.back()}>
+            Volver
+          </Button>
+        </Group>
       </Box>
       <Divider my="sm" />
       <Grid>
@@ -262,12 +272,6 @@ const AdminDimensionEditPage = () => {
             </Table.Thead>
             <Table.Tbody>{selectedProducerRows}</Table.Tbody>
           </Table>
-          <Group mt="md">
-            <Button onClick={handleSave}>Guardar</Button>
-            <Button variant="outline" onClick={() => router.back()}>
-              Volver
-            </Button>
-          </Group>
         </Grid.Col>
       </Grid>
     </Container>
