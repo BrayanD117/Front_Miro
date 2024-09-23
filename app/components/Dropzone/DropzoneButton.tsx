@@ -9,20 +9,30 @@ import classes from './DropzoneButton.module.css';
 import { showNotification } from '@mantine/notifications';
 import Lottie from 'lottie-react';
 import successAnimation from "../../../public/lottie/success.json";
+import { dateNow } from '../DateConfig';
 
 interface DropzoneButtonProps {
   pubTemId: string;
+  endDate: Date | undefined;
   onClose: () => void;
   onUploadSuccess: () => void;
 }
 
-export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneButtonProps) {
+export function DropzoneButton({ pubTemId, endDate, onClose, onUploadSuccess }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
   const { data: session } = useSession();
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const handleFileDrop = async (files: File[]) => {
+    if(endDate &&   new Date(endDate) < dateNow()) {
+      showNotification({
+        title: 'Error',
+        message: 'La fecha de carga de plantillas ha culminado.',
+        color: 'red',
+      });
+      return;
+    }
     const file = files[0];
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -85,10 +95,8 @@ export function DropzoneButton({ pubTemId, onClose, onUploadSuccess }: DropzoneB
 
           if (error.response?.data.details) {
             const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
-            useEffect(() => {
-              localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
-              window.open('/logs', '_blank');
-            }, []);
+            localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
+            window.open('/logs', '_blank');
           
           } else {
             showNotification({

@@ -904,6 +904,7 @@ const ResponsibleReportsPage = () => {
         }}
         title="Historial de Envíos"
         withCloseButton={true}
+        zIndex={1000} 
       >
         {historyRows}
       </Modal>
