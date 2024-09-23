@@ -26,6 +26,14 @@ const dateToGMT = (date: Date | string | number, formatDate: string = "MMM D, YY
   return format(new Date(validDate.getTime() + 5 * 60 * 60 * 1000), formatDate);
 };
 
+const dateNow = () => {
+  const now = new Date();
 
-export { dateToGMT };
+  const offset = -5; // GMT-5
+  const dateWithOffset = new Date(now.getTime() + offset * 60 * 60 * 1000);
+
+  return new Date(new Date(dateWithOffset).toDateString());
+};
+
+export { dateToGMT, dateNow };
 export default DateConfig;
