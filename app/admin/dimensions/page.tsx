@@ -143,13 +143,6 @@ const AdminDimensionsPage = () => {
     }
   };
 
-  // const handleEdit = (dimension: Dimension) => {
-  //   setSelectedDimension(dimension);
-  //   setName(dimension.name);
-  //   setResponsible(dimension.responsible);
-  //   setOpened(true);
-  // };
-
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${id}`);
@@ -205,9 +198,6 @@ const AdminDimensionsPage = () => {
       <Table.Td>
         <Center>
           <Group gap={5}>
-            {/* <Button variant="outline" onClick={() => handleEdit(dimension)}>
-              <IconEdit size={16} />
-            </Button> */}
             <Button variant="outline" onClick={() => handleConfigureProducers(dimension)}>
             <IconSettings size={16} />
             </Button>

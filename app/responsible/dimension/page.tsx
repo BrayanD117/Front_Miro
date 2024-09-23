@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, TextInput, Group, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid } from "@mantine/core";
+import { Container, Table, Button, TextInput, Title, Divider, Box, Checkbox, ScrollArea, Pagination, Center, Tooltip, Grid } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -30,15 +30,6 @@ const ResponsibleDimensionPage = () => {
   const { data: session } = useSession();
 
   useEffect(() => {
-    const storedProducers = JSON.parse(localStorage.getItem('producers') || '[]');
-    const storedProducerNames = JSON.parse(localStorage.getItem('producerNames') || '{}');
-    const storedPage = parseInt(localStorage.getItem('page') || '1');
-    setProducers(storedProducers);
-    setProducerNames(storedProducerNames);
-    setPage(storedPage);
-  }, []);
-
-  useEffect(() => {
     const fetchDimension = async () => {
       if (!dimension && session?.user?.email) {
         try {
@@ -46,20 +37,23 @@ const ResponsibleDimensionPage = () => {
             params: { email: session.user.email },
           });
           const dimensionData = response.data[0];
-          setDimension(dimensionData);
-          setProducers(dimensionData.producers);
+          if (dimensionData) {
+            setDimension(dimensionData);
+            setProducers(dimensionData.producers);
 
-          const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
-            codes: dimensionData.producers,
-          });
-          const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
-            acc[dep.code] = dep.name;
-            return acc;
-          }, {});
-          setProducerNames(newProducerNames);
-          localStorage.setItem('producerNames', JSON.stringify(newProducerNames));
+            const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
+              codes: dimensionData.producers,
+            });
+            const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
+              acc[dep.code] = dep.name;
+              return acc;
+            }, {});
+            setProducerNames(newProducerNames);
+          } else {
+            console.error("No se encontró una dimensión para el responsable.");
+          }
         } catch (error) {
-          console.error("Error fetching dimension:", error);
+          console.error("Error al obtener la dimensión:", error);
         }
       }
     };
@@ -76,7 +70,7 @@ const ResponsibleDimensionPage = () => {
         setAllDependencies(response.data.dependencies);
         setTotalPages(response.data.pages);
       } catch (error) {
-        console.error("Error fetching dependencies:", error);
+        console.error("Error al obtener las dependencias:", error);
       }
     };
 
@@ -87,18 +81,12 @@ const ResponsibleDimensionPage = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [page, search]);
 
-  useEffect(() => {
-    localStorage.setItem('producers', JSON.stringify(producers));
-    localStorage.setItem('producerNames', JSON.stringify(producerNames));
-    localStorage.setItem('page', page.toString());
-  }, [producers, producerNames, page]);
-
-  const handleSave = async () => {
+  const handleSave = async (updatedProducers?: string[]) => {
     if (dimension) {
       try {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${dimension._id}`, {
           ...dimension,
-          producers,
+          producers: updatedProducers || producers,
         });
         showNotification({
           title: "Actualizado",
@@ -106,7 +94,7 @@ const ResponsibleDimensionPage = () => {
           color: "teal",
         });
       } catch (error) {
-        console.error("Error updating dimension:", error);
+        console.error("Error al actualizar la dimensión:", error);
         showNotification({
           title: "Error",
           message: "Hubo un error al actualizar la dimensión",
@@ -130,16 +118,19 @@ const ResponsibleDimensionPage = () => {
         const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
           codes: [dep_code],
         });
-        const newProducerNames = { ...producerNames, ...response.data.reduce((acc: any, dep: any) => {
-          acc[dep.code] = dep.name;
-          return acc;
-        }, {}) };
+        const newProducerNames = {
+          ...producerNames,
+          ...response.data.reduce((acc: any, dep: any) => {
+            acc[dep.code] = dep.name;
+            return acc;
+          }, {}),
+        };
         setProducerNames(newProducerNames);
-        localStorage.setItem('producerNames', JSON.stringify(newProducerNames));
       } catch (error) {
-        console.error("Error fetching producer name:", error);
+        console.error("Error al obtener el nombre del productor:", error);
       }
     }
+    await handleSave(updatedProducers);
   };
 
   const selectedProducerRows = producers.map((dep_code) => (
@@ -236,9 +227,6 @@ const ResponsibleDimensionPage = () => {
             </Table.Thead>
             <Table.Tbody>{selectedProducerRows}</Table.Tbody>
           </Table>
-          <Group mt="md">
-            <Button onClick={handleSave}>Guardar</Button>
-          </Group>
         </Grid.Col>
       </Grid>
     </Container>
