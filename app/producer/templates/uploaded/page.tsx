@@ -27,7 +27,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "fecha";
-import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
+import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -118,7 +118,7 @@ const ProducerUploadedTemplatesPage = () => {
         }
       );
       if (response.data) {
-        setProducerEndDate(response.data.period.producer_end_date);
+        setProducerEndDate(response.data.templates[0].period.producer_end_date);
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
       }
@@ -145,7 +145,6 @@ const ProducerUploadedTemplatesPage = () => {
   }, [search]);
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
-    console.log("Plantilla: ", publishedTemplate);
     const { template, validators } = publishedTemplate;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(template.name);
@@ -290,11 +289,19 @@ const ProducerUploadedTemplatesPage = () => {
     router.push(`/producer/templates/form/update/${publishedTemplateId}`);
   };
 
+  const handleDisableUpload = (publishedTemplate: PublishedTemplate) => {
+    return (
+      new Date(dateNow().toDateString()) >
+      new Date(publishedTemplate.period.producer_end_date)
+    );
+  };
+
   const truncateString = (str: string, maxLength: number = 20): string => {
     return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
   };
 
   const rows = templates.map((publishedTemplate) => {
+    const uploadDisable = handleDisableUpload(publishedTemplate);
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
@@ -311,7 +318,7 @@ const ProducerUploadedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Group gap={"sm"}>
+            <Group gap={"xs"}>
               <Tooltip
                 label="Descargar información cargada"
                 position="top"
@@ -325,20 +332,29 @@ const ProducerUploadedTemplatesPage = () => {
                 </Button>
               </Tooltip>
               <Tooltip
-                label="Editar plantilla (archivo Excel)"
+                label={
+                  uploadDisable
+                    ? "El periodo ya se encuentra cerrado"
+                    : "Editar plantilla (archivo Excel)"
+                }
                 position="top"
                 transitionProps={{ transition: "fade-up", duration: 300 }}
               >
                 <Button
                   variant="outline"
-                  color="blue"
+                  color="teal"
                   onClick={() => handleEditClick(publishedTemplate._id)}
+                  disabled={uploadDisable}
                 >
                   <IconEdit size={16} />
                 </Button>
               </Tooltip>
               <Tooltip
-                label="Edición en línea"
+                label={
+                  uploadDisable
+                    ? "El periodo ya se encuentra cerrado"
+                    : "Edición en línea"
+                }
                 position="top"
                 transitionProps={{ transition: "fade-up", duration: 300 }}
               >
@@ -346,6 +362,7 @@ const ProducerUploadedTemplatesPage = () => {
                   variant="outline"
                   color="teal"
                   onClick={() => handleDirectEditClick(publishedTemplate._id)}
+                  disabled={uploadDisable}
                 >
                   <IconPencil size={16} />
                 </Button>
@@ -356,7 +373,11 @@ const ProducerUploadedTemplatesPage = () => {
         <Table.Td>
           <Center>
             <Tooltip
-              label="Eliminar envío"
+                label={
+                  uploadDisable
+                    ? "El periodo ya se encuentra cerrado"
+                    : "Eliminar envío"
+                }
               position="top"
               transitionProps={{ transition: "fade-up", duration: 200 }}
             >
@@ -364,6 +385,7 @@ const ProducerUploadedTemplatesPage = () => {
                 variant="outline"
                 color="red"
                 onClick={() => handleDeleteClick(publishedTemplate._id)}
+                disabled={uploadDisable}
               >
                 <IconTrash size={16} />
               </Button>
