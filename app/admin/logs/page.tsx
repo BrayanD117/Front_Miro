@@ -20,8 +20,8 @@ import {
   rem,
 } from "@mantine/core";
 import axios from "axios";
-import dayjs from "dayjs";
 import { IconCircleCheck, IconColumnRemove } from "@tabler/icons-react";
+import { dateToGMT } from "@/app/components/DateConfig";
 
 interface Log {
   _id: string;
@@ -33,7 +33,7 @@ interface Log {
     _id: string;
     name: string;
   };
-  date: string;
+  date: Date;
   errors: ErrorItem[];
 }
 
@@ -83,7 +83,7 @@ const AdminLogsPage = () => {
     <Table.Tr key={log._id}>
       <Table.Td>{log.user.full_name}</Table.Td>
       <Table.Td>{log.published_template.name}</Table.Td>
-      <Table.Td>{dayjs(log.date).format("DD/MM/YYYY HH:mm")}</Table.Td>
+      <Table.Td>{dateToGMT(log.date, 'MMM D, YYYY H:mm')}</Table.Td>
       <Table.Td>{log.errors.length}</Table.Td>
       <Table.Td>
         <Button

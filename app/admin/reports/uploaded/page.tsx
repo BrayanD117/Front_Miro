@@ -406,7 +406,7 @@ const AdminPubReportsPage = () => {
         <Table.Tr key={filledReport.report_file.id}>
           <Table.Td>{filledReport.dimension.name}</Table.Td>
           <Table.Td>
-            {dateToGMT(filledReport.loaded_date, "D/MM/YYYY h:mm")}
+            {dateToGMT(filledReport.loaded_date, "D/MM/YYYY H:mm")}
           </Table.Td>
           <Table.Td>{truncateString(filledReport.send_by.full_name)}</Table.Td>
           <Table.Td>
