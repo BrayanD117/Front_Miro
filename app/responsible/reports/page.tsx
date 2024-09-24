@@ -24,6 +24,7 @@ import {
 } from "@mantine/core";
 import {
   IconCancel,
+  IconChevronsLeft,
   IconCloudUpload,
   IconDeviceFloppy,
   IconDownload,
@@ -42,6 +43,7 @@ import { Dropzone } from "@mantine/dropzone";
 import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
 import dynamic from "next/dynamic";
+import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 
 type LottieProps = {
   animationData: object;
@@ -145,6 +147,7 @@ const ResponsibleReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState<PublishedReport | null>(
     null
   );
+  const [frameFile, setFrameFile] = useState<DriveFile | null>(null);
   const theme = useMantineTheme();
   const router = useRouter();
 
@@ -333,6 +336,7 @@ const ResponsibleReportsPage = () => {
     setLoading(false);
     setDeletedAttachments([]);
     setDeletedReport(null);
+    setFrameFile(null);
   };
 
   const handleSendReport = async () => {
@@ -392,63 +396,64 @@ const ResponsibleReportsPage = () => {
     (filledReport, index) => {
       return (
         <div key={filledReport._id}>
-        <Divider
-          mt={index === 0 ? "0" : "md"}
-          label={`Estado: ${
-            index > 0 && filledReport.status === "En Revisión"
-              ? "Reemplazado"
-              : filledReport.status
-          } - Fecha de Estado: ${dateToGMT(
-            filledReport.status_date,
-            "MMM DD, YYYY HH:mm"
-          )}`}
-        />
-        <Group mt={rem(5)}>
-          <Text size="sm">Reporte: </Text>
-          <Pill
-            onClick={() => {
-              if (typeof window !== "undefined")
-                window.open(filledReport.report_file.view_link);
-            }}
-            bg="gray"
-            c="white"
-            style={{ cursor: "pointer" }}
-          >
-            {filledReport.report_file.name}
-          </Pill>
-        </Group>
-        {filledReport.attachments.length > 0 && (
-          <Group mt={"xs"}>
-            <Text size="sm">Anexos: </Text>
-            <PillGroup>
-              {filledReport.attachments.map((attachment) => (
-                <Pill
-                  key={attachment.id}
-                  onClick={() => {
-                    if (typeof window !== "undefined")
-                      window.open(attachment.view_link);
-                  }}
-                  style={{ cursor: "pointer" }}
-                  bg="gray"
-                  c="white"
-                >
-                  {attachment.name}
-                </Pill>
-              ))}
-            </PillGroup>
+          <Divider
+            mt={index === 0 ? "0" : "md"}
+            label={`Estado: ${
+              index > 0 && filledReport.status === "En Revisión"
+                ? "Reemplazado"
+                : filledReport.status
+            } - Fecha de Estado: ${dateToGMT(
+              filledReport.status_date,
+              "MMM DD, YYYY HH:mm"
+            )}`}
+          />
+          <Group mt={rem(5)}>
+            <Text size="sm">Reporte: </Text>
+            <Pill
+              onClick={() => {
+                setFrameFile(filledReport.report_file);
+              }}
+              bg="gray"
+              c="white"
+              style={{ cursor: "pointer" }}
+            >
+              {filledReport.report_file.name}
+            </Pill>
           </Group>
-        )}
-        {filledReport.observations && (
-          <Text size="sm" mt={"xs"} fw={700}>
-            Observaciones: {filledReport.observations}
-          </Text>
-        )}
-        {filledReport.evaluated_by && (
-            <Text size="sm" c='dimmed'>
-              Evaluado por: <Text tt='capitalize' component="span">{filledReport.evaluated_by.full_name.toLowerCase()}</Text>
+          {filledReport.attachments.length > 0 && (
+            <Group mt={"xs"}>
+              <Text size="sm">Anexos: </Text>
+              <PillGroup>
+                {filledReport.attachments.map((attachment) => (
+                  <Pill
+                    key={attachment.id}
+                    onClick={() => {
+                      setFrameFile(attachment);
+                    }}
+                    style={{ cursor: "pointer" }}
+                    bg="gray"
+                    c="white"
+                  >
+                    {attachment.name}
+                  </Pill>
+                ))}
+              </PillGroup>
+            </Group>
+          )}
+          {filledReport.observations && (
+            <Text size="sm" mt={"xs"} fw={700}>
+              Observaciones: {filledReport.observations}
             </Text>
           )}
-      </div>
+          {filledReport.evaluated_by && (
+            <Text size="sm" c="dimmed">
+              Evaluado por:{" "}
+              <Text tt="capitalize" component="span">
+                {filledReport.evaluated_by.full_name.toLowerCase()}
+              </Text>
+            </Text>
+          )}
+        </div>
       );
     }
   );
@@ -465,7 +470,7 @@ const ResponsibleReportsPage = () => {
             {dateToGMT(pubReport.period.responsible_end_date)}
           </Table.Td>
           <Table.Td>{pubReport.report.name}</Table.Td>
-          <Table.Td >
+          <Table.Td>
             <Center>
               <Badge
                 w={rem(110)}
@@ -492,9 +497,9 @@ const ResponsibleReportsPage = () => {
           <Table.Td>
             <Center>
               <Group gap={"xs"}>
-                <Tooltip 
+                <Tooltip
                   label="Ver detalles del reporte"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
                   <Button
                     variant="outline"
@@ -505,7 +510,7 @@ const ResponsibleReportsPage = () => {
                 </Tooltip>
                 <Tooltip
                   label="Cargar reporte"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
                   <Button
                     variant="outline"
@@ -523,7 +528,7 @@ const ResponsibleReportsPage = () => {
                 </Tooltip>
                 <Tooltip
                   label="Ver historial de envíos del reporte"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+                  transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
                   <Button
                     variant="outline"
@@ -622,147 +627,92 @@ const ResponsibleReportsPage = () => {
         </Button>
       </Modal>
       <Modal
-        key={`${selectedReport?._id ?? ''}_${selectedReport?.filled_reports[0]?.status ?? ''}`}
+        key={`${selectedReport?._id ?? ""}_${
+          selectedReport?.filled_reports[0]?.status ?? ""
+        }`}
         opened={publishing}
         onClose={handleClosePublish}
-        size="md"
+        size={frameFile ? "xl" : "md"}
         overlayProps={{
           backgroundOpacity: 0.55,
           blur: 3,
         }}
         withCloseButton={false}
       >
-        <Text size="xl" mb={"sm"} fw={700} ta={"center"}>
-          {selectedReport?.report.name}
-        </Text>
-        {loading ? (
-          <Center>
-            <Lottie animationData={uploadAnimation} loop={true} />
-          </Center>
-        ) : success ? (
-          <Center>
-            <Lottie animationData={successAnimation} loop={false} />
-          </Center>
+        {frameFile ? (
+          <>
+            <Button
+              mx={"sm"}
+              variant="light"
+              size="compact-md"
+              onClick={() => setFrameFile(null)}
+              mb={"sm"}
+            >
+              <IconChevronsLeft />
+              <Text size="sm" fw={600}>
+                Ir atrás
+              </Text>
+            </Button>
+            <Text component="span" fw={700}>
+              {frameFile.name}
+            </Text>
+            <DriveFileFrame fileId={frameFile.id} fileName={frameFile.name} />
+          </>
         ) : (
           <>
-            <Text 
-              size="sm"
-              c={'blue'}
-              ta={'end'}
-              td={'underline'}
-              onClick={() => {setHistory(true)}}
-              style={{cursor: 'pointer'}}
-            >
-               Ver historial de envíos
+            <Text size="xl" mb={"sm"} fw={700} ta={"center"}>
+              {selectedReport?.report.name}
             </Text>
-            <Text mb={"md"} size="md">
-              Cargar Formato de Reporte:{" "}
-              <Text component="span" c={theme.colors.red[8]}>
-                *
-              </Text>
-            </Text>
-            <Dropzone
-              onDrop={(files) => {
-                if (files.length > 1) {
-                  showNotification({
-                    title: "Solo puedes cargar un archivo",
-                    message: "En el reporte solo puedes cargar un archivo",
-                    color: "red",
-                  });
-                  return;
-                }
-                setReportFile(files[0]);
-                if (selectedReport?.filled_reports[0]?.report_file)
-                  setDeletedReport(
-                    selectedReport?.filled_reports[0].report_file.id
-                  );
-              }}
-              className={classes.dropzone}
-              radius="md"
-              mx={"auto"}
-              mt={"md"}
-            >
-              <div style={{ cursor: "pointer" }}>
-                <Group justify="center" pt={"md"}>
-                  <Dropzone.Accept>
-                    <IconDownload
-                      style={{ width: rem(40), height: rem(40) }}
-                      color={theme.colors.blue[6]}
-                      stroke={1.5}
-                    />
-                  </Dropzone.Accept>
-                  <Dropzone.Reject>
-                    <IconX
-                      style={{ width: rem(40), height: rem(40) }}
-                      color={theme.colors.red[6]}
-                      stroke={1.5}
-                    />
-                  </Dropzone.Reject>
-                  <Dropzone.Idle>
-                    <IconCloudUpload
-                      style={{ width: rem(40), height: rem(40) }}
-                      stroke={1.5}
-                    />
-                  </Dropzone.Idle>
-                </Group>
-                <Text ta="center" fz="sm" c="dimmed" pb={"sm"}>
-                  Selecciona el archivo con tu reporte en formato .pdf o .docx
-                </Text>
-              </div>
-            </Dropzone>
-            {selectedReport?.filled_reports[0]?.status === "En Borrador" &&
-              selectedReport?.filled_reports[0]?.report_file &&
-              !deletedReport && (
-                <Pill
-                  mt={"sm"}
-                  withRemoveButton
-                  onRemove={() =>
-                    setDeletedReport(
-                      selectedReport?.filled_reports[0].report_file.id
-                    )
-                  }
-                  bg={"blue"}
-                  c={"white"}
+            {loading ? (
+              <Center>
+                <Lottie animationData={uploadAnimation} loop={true} />
+              </Center>
+            ) : success ? (
+              <Center>
+                <Lottie animationData={successAnimation} loop={false} />
+              </Center>
+            ) : (
+              <>
+                <Text
+                  size="sm"
+                  c={"blue"}
+                  ta={"end"}
+                  td={"underline"}
                   onClick={() => {
-                    if (typeof window !== "undefined")
-                      window.open(
-                        selectedReport?.filled_reports[0].report_file
-                          .download_link
-                      );
+                    setHistory(true);
                   }}
                   style={{ cursor: "pointer" }}
                 >
-                  {selectedReport?.filled_reports[0].report_file.name}
-                </Pill>
-              )}
-            {reportFile?.name && (
-              <Pill
-                mt={"sm"}
-                withRemoveButton
-                onRemove={() => setReportFile(null)}
-                bg={"gray"}
-                c={"white"}
-              >
-                {reportFile?.name}
-              </Pill>
-            )}
-            {selectedReport?.report.requires_attachment && (
-              <>
-                <Text mt={"md"}>
-                  Anexos:{" "}
+                  Ver historial de envíos
+                </Text>
+                <Text mb={"md"} size="md">
+                  Cargar Formato de Reporte:{" "}
                   <Text component="span" c={theme.colors.red[8]}>
                     *
                   </Text>
                 </Text>
                 <Dropzone
-                  onDrop={addFilesToAttachments}
+                  onDrop={(files) => {
+                    if (files.length > 1) {
+                      showNotification({
+                        title: "Solo puedes cargar un archivo",
+                        message: "En el reporte solo puedes cargar un archivo",
+                        color: "red",
+                      });
+                      return;
+                    }
+                    setReportFile(files[0]);
+                    if (selectedReport?.filled_reports[0]?.report_file)
+                      setDeletedReport(
+                        selectedReport?.filled_reports[0].report_file.id
+                      );
+                  }}
                   className={classes.dropzone}
                   radius="md"
                   mx={"auto"}
                   mt={"md"}
-                  multiple
                 >
-                  <div style={{ cursor: "pointer", marginBottom: "0px" }}>
+                  <div style={{ cursor: "pointer" }}>
                     <Group justify="center" pt={"md"}>
                       <Dropzone.Accept>
                         <IconDownload
@@ -786,127 +736,243 @@ const ResponsibleReportsPage = () => {
                       </Dropzone.Idle>
                     </Group>
                     <Text ta="center" fz="sm" c="dimmed" pb={"sm"}>
-                      Selecciona los anexos de tu reporte (mínimo 1)
+                      Selecciona el archivo con tu reporte en formato .pdf o
+                      .docx
                     </Text>
                   </div>
                 </Dropzone>
-                <PillGroup mt={"sm"} mb={"xs"}>
-                  {attachments.map((attachment, index) => (
+                {selectedReport?.filled_reports[0]?.status === "En Borrador" &&
+                  selectedReport?.filled_reports[0]?.report_file &&
+                  !deletedReport && (
                     <Pill
-                      key={attachment.name}
-                      bg={"gray"}
-                      c={"white"}
+                      mt={"sm"}
                       withRemoveButton
                       onRemove={() =>
-                        setAttachments((prev) =>
-                          prev.filter((_, i) => i !== index)
+                        setDeletedReport(
+                          selectedReport?.filled_reports[0].report_file.id
                         )
                       }
-                    >
-                      {attachment.name}
-                    </Pill>
-                  ))}
-                  {selectedReport?.filled_reports[0]?.status ===
-                    "En Borrador" &&
-                    selectedReport.filled_reports[0]?.attachments.map(
-                      (attachment) => {
-                        return (
-                          !deletedAttachments.includes(attachment.id) && (
-                            <Pill
-                              key={attachment.name}
-                              bg={"blue"}
-                              c={"white"}
-                              withRemoveButton
-                              onRemove={() =>
-                                setDeletedAttachments([
-                                  ...deletedAttachments,
-                                  attachment.id,
-                                ])
-                              }
-                              onClick={() => {
-                                if (typeof window !== "undefined")
-                                  window.open(attachment.download_link);
-                              }}
-                              style={{ cursor: "pointer" }}
-                            >
-                              {attachment.name}
-                            </Pill>
-                          )
+                      bg={"blue"}
+                      c={"white"}
+                      onClick={() => {
+                        setFrameFile(
+                          selectedReport?.filled_reports[0].report_file
                         );
-                      }
-                    )}
-                </PillGroup>
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {selectedReport?.filled_reports[0].report_file.name}
+                    </Pill>
+                  )}
+                {reportFile?.name && (
+                  <Pill
+                    mt={"sm"}
+                    withRemoveButton
+                    onRemove={() => setReportFile(null)}
+                    bg={"gray"}
+                    c={"white"}
+                  >
+                    {reportFile?.name}
+                  </Pill>
+                )}
+                {selectedReport?.report.requires_attachment && (
+                  <>
+                    <Text mt={"md"}>
+                      Anexos:{" "}
+                      <Text component="span" c={theme.colors.red[8]}>
+                        *
+                      </Text>
+                    </Text>
+                    <Dropzone
+                      onDrop={addFilesToAttachments}
+                      className={classes.dropzone}
+                      radius="md"
+                      mx={"auto"}
+                      mt={"md"}
+                      multiple
+                    >
+                      <div style={{ cursor: "pointer", marginBottom: "0px" }}>
+                        <Group justify="center" pt={"md"}>
+                          <Dropzone.Accept>
+                            <IconDownload
+                              style={{ width: rem(40), height: rem(40) }}
+                              color={theme.colors.blue[6]}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Accept>
+                          <Dropzone.Reject>
+                            <IconX
+                              style={{ width: rem(40), height: rem(40) }}
+                              color={theme.colors.red[6]}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Reject>
+                          <Dropzone.Idle>
+                            <IconCloudUpload
+                              style={{ width: rem(40), height: rem(40) }}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Idle>
+                        </Group>
+                        <Text ta="center" fz="sm" c="dimmed" pb={"sm"}>
+                          Selecciona los anexos de tu reporte (mínimo 1)
+                        </Text>
+                      </div>
+                    </Dropzone>
+                    <PillGroup mt={"sm"} mb={"xs"}>
+                      {attachments.map((attachment, index) => (
+                        <Pill
+                          key={attachment.name}
+                          bg={"gray"}
+                          c={"white"}
+                          withRemoveButton
+                          onRemove={() =>
+                            setAttachments((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            )
+                          }
+                        >
+                          {attachment.name}
+                        </Pill>
+                      ))}
+                      {selectedReport?.filled_reports[0]?.status ===
+                        "En Borrador" &&
+                        selectedReport.filled_reports[0]?.attachments.map(
+                          (attachment) => {
+                            return (
+                              !deletedAttachments.includes(attachment.id) && (
+                                <Pill
+                                  key={attachment.name}
+                                  bg={"blue"}
+                                  c={"white"}
+                                  withRemoveButton
+                                  onRemove={() =>
+                                    setDeletedAttachments([
+                                      ...deletedAttachments,
+                                      attachment.id,
+                                    ])
+                                  }
+                                  onClick={() => {
+                                    setFrameFile(attachment);
+                                  }}
+                                  style={{ cursor: "pointer" }}
+                                >
+                                  {attachment.name}
+                                </Pill>
+                              )
+                            );
+                          }
+                        )}
+                    </PillGroup>
+                  </>
+                )}
+                <Group mt="md" grow>
+                  <Button
+                    justify="space-between"
+                    variant="outline"
+                    rightSection={<span />}
+                    leftSection={<IconDeviceFloppy />}
+                    onClick={handleCreate}
+                    disabled={
+                      selectedReport?.filled_reports[0]?.status ===
+                      "En Borrador"
+                        ? (!deletedReport &&
+                            deletedAttachments.length === 0 &&
+                            attachments.length === 0) ||
+                          (deletedReport && reportFile === null) ||
+                          (selectedReport.report.requires_attachment &&
+                            deletedAttachments.length ===
+                              selectedReport?.filled_reports[0].attachments
+                                .length &&
+                            attachments.length === 0)
+                        : !reportFile ||
+                          (selectedReport?.report.requires_attachment &&
+                            attachments.length === 0)
+                    }
+                  >
+                    Guardar Borrador
+                  </Button>
+                  <Button
+                    variant="outline"
+                    color="red"
+                    justify="space-between"
+                    leftSection={<span />}
+                    rightSection={<IconCancel />}
+                    onClick={handleClosePublish}
+                  >
+                    Cancelar
+                  </Button>
+                </Group>
+                <Button
+                  fullWidth
+                  mt={"md"}
+                  disabled={
+                    !(
+                      attachments.length === 0 &&
+                      reportFile === null &&
+                      deletedReport === null &&
+                      deletedAttachments.length === 0 &&
+                      selectedReport?.filled_reports[0]?.status ===
+                        "En Borrador"
+                    )
+                  }
+                  justify="space-between"
+                  leftSection={<span />}
+                  rightSection={<IconMailForward />}
+                  onClick={handleSendReport}
+                >
+                  Enviar
+                </Button>
               </>
             )}
-            <Group mt="md" grow>
-              <Button
-                justify="space-between"
-                variant="outline"
-                rightSection={<span />}
-                leftSection={<IconDeviceFloppy />}
-                onClick={handleCreate}
-                disabled={
-                  selectedReport?.filled_reports[0]?.status === "En Borrador"
-                    ? (!deletedReport &&
-                        deletedAttachments.length === 0 &&
-                        attachments.length === 0) ||
-                      (deletedReport && reportFile === null) ||
-                      (selectedReport.report.requires_attachment && (deletedAttachments.length ===
-                        selectedReport?.filled_reports[0].attachments.length &&
-                        attachments.length === 0))
-                    : !reportFile ||
-                      (selectedReport?.report.requires_attachment &&
-                        attachments.length === 0)
-                }
-              >
-                Guardar Borrador
-              </Button>
-              <Button
-                variant="outline"
-                color="red"
-                justify="space-between"
-                leftSection={<span />}
-                rightSection={<IconCancel />}
-                onClick={handleClosePublish}
-              >
-                Cancelar
-              </Button>
-            </Group>
-            <Button
-              fullWidth
-              mt={"md"}
-              disabled={
-                !(
-                  attachments.length === 0 &&
-                  reportFile === null &&
-                  deletedReport === null &&
-                  deletedAttachments.length === 0 &&
-                  selectedReport?.filled_reports[0]?.status === "En Borrador"
-                )
-              }
-              justify="space-between"
-              leftSection={<span />}
-              rightSection={<IconMailForward />}
-              onClick={handleSendReport}
-            >
-              Enviar
-            </Button>
           </>
         )}
       </Modal>
       <Modal
         opened={history}
-        onClose={() => setHistory(false)}
-        size="md"
+        onClose={() => {
+          setHistory(false);
+          setFrameFile(null);
+        }}
+        size={frameFile ? "xl" : "md"}
         overlayProps={{
           backgroundOpacity: 0.55,
           blur: 3,
         }}
-        title="Historial de Envíos"
+        title={
+          <>
+            {frameFile ? (
+              <>
+                <Button
+                  mx={"sm"}
+                  variant="light"
+                  size="compact-md"
+                  onClick={() => setFrameFile(null)}
+                >
+                  <IconChevronsLeft />
+                  <Text size="sm" fw={600}>
+                    Ir atrás
+                  </Text>
+                </Button>
+                <Text component="span" fw={700}>
+                  {frameFile.name}
+                </Text>
+              </>
+            ) : (
+              <Text component="span" fw={700}>
+                Historial de Envíos
+              </Text>
+            )}
+          </>
+        }
         withCloseButton={true}
-        zIndex={1000} 
+        zIndex={1000}
       >
-        {historyRows}
+        {frameFile ? (
+          <DriveFileFrame fileId={frameFile.id} fileName={frameFile.name} />
+        ) : (
+          historyRows
+        )}
       </Modal>
     </Container>
   );

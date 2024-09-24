@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -236,7 +236,21 @@ const DashboardPage = () => {
                 Ir a Gestión de Usuarios
               </Button>
             </Card>
-          </Grid.Col>,
+            </Grid.Col>,
+              <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-logs">
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Center><IconFilesOff size={80}/></Center>
+                <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>Valida los registros de error</Text>
+                </Group>
+                <Text ta={"center"} size="sm" color="dimmed">
+                  Verifica los registros de error de las plantillas cargadas.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/logs')}>
+                  Ir a los registros de error
+                </Button>
+              </Card>
+            </Grid.Col>,
         );
         break;
       case "Responsable":
