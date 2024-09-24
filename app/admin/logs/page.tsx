@@ -171,7 +171,7 @@ const AdminLogsPage = () => {
                 <Table.Tr>
                   <Table.Th style={{ textAlign: "right" }}>Fecha:</Table.Th>
                   <Table.Td>
-                    {dayjs(selectedLog.date).format("DD/MM/YYYY HH:mm")}
+                    {dateToGMT(selectedLog.date, "DD/MM/YYYY HH:mm")}
                   </Table.Td>
                 </Table.Tr>
               </Table.Tbody>
