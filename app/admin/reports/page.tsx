@@ -25,6 +25,7 @@ import {
   IconArrowRight,
   IconCancel,
   IconCheck,
+  IconChevronsLeft,
   IconCirclePlus,
   IconDeviceFloppy,
   IconEdit,
@@ -40,6 +41,7 @@ import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 
 type LottieProps = {
   animationData: object;
@@ -75,6 +77,11 @@ interface Period {
   name: string;
 }
 
+interface DriveFile {
+  id: string;
+  name: string;
+}
+
 const AdminReportsPage = () => {
   const { data: session } = useSession();
   const [reports, setReports] = useState<Report[]>([]);
@@ -92,6 +99,7 @@ const AdminReportsPage = () => {
   const [fileName, setFileName] = useState("");
   const [requiresAttachment, setRequiresAttachment] = useState<boolean>(false);
   const [reportExample, setReportExample] = useState<File | null>(null);
+  const [frameFile, setFrameFile] = useState<DriveFile | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
@@ -352,10 +360,9 @@ const AdminReportsPage = () => {
             >
               <Button
                 variant="outline"
-                onClick={() => {
-                  if (typeof window !== "undefined")
-                    window.open(report.report_example_link);
-                }}
+                onClick={() => 
+                  setFrameFile({id: report.report_example_id, name: report.file_name})
+                }
               >
                 <IconFileDescription size={16} />
               </Button>
@@ -525,8 +532,7 @@ const AdminReportsPage = () => {
                 </Text>
                 <Pill
                   onClick={() => {
-                    if (typeof window !== "undefined")
-                      window.open(selectedReport.report_example_link);
+                    setFrameFile({id: selectedReport.report_example_id, name: selectedReport.file_name});
                   }}
                   style={{ cursor: "pointer" }}
                   bg={"blue"}
@@ -601,6 +607,35 @@ const AdminReportsPage = () => {
           </Button>
         </Group>
       </Modal>
+      <Modal
+        opened={frameFile !== null}
+        onClose={() => setFrameFile(null)}
+        size={'xl'}
+        title={
+          <>
+            <Button
+              variant="light"
+              onClick={() => setFrameFile(null)}
+              leftSection={<IconChevronsLeft />}
+              size="compact-md"
+              mx={'sm'}
+              fw={600}
+            >
+              Ir atrás
+            </Button>
+            <Text fw={600} component="span" size="sm">
+              {frameFile?.name}
+            </Text>
+          </>
+        }
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+      >
+        <DriveFileFrame fileId={frameFile?.id || ""} fileName={frameFile?.name || ""} />
+      </Modal>
+
     </Container>
   );
 };

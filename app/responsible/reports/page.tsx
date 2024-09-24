@@ -650,7 +650,7 @@ const ResponsibleReportsPage = () => {
             >
               <IconChevronsLeft />
               <Text size="sm" fw={600}>
-                Ir Atrás
+                Ir atrás
               </Text>
             </Button>
             <Text component="span" fw={700}>
@@ -951,7 +951,7 @@ const ResponsibleReportsPage = () => {
                 >
                   <IconChevronsLeft />
                   <Text size="sm" fw={600}>
-                    Ir Atrás
+                    Ir atrás
                   </Text>
                 </Button>
                 <Text component="span" fw={700}>
