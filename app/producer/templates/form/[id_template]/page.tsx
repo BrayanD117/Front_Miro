@@ -25,7 +25,6 @@ import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
 import { ValidatorModal } from "../../../../components/Validators/ValidatorModal";
-import 'dayjs/locale/es';
 
 interface Field {
   name: string;
