@@ -37,7 +37,7 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import classes from "./ResponsibleReportsPage.module.css";
-import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
+import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { showNotification } from "@mantine/notifications";
 import { Dropzone } from "@mantine/dropzone";
 import uploadAnimation from "../../../public/lottie/upload.json";
@@ -182,6 +182,14 @@ const ResponsibleReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreate = async () => {
+    if(selectedReport && handleDisableUpload(selectedReport)){
+      showNotification({
+        title: "Error",
+        message: "El periodo ya ha culminado",
+        color: "red",
+      });
+      return
+    }
     if (selectedReport?.filled_reports[0]) {
       if (deletedReport && !reportFile) {
         showNotification({
@@ -341,6 +349,14 @@ const ResponsibleReportsPage = () => {
 
   const handleSendReport = async () => {
     setLoading(true);
+    if(selectedReport && handleDisableUpload(selectedReport)){
+      showNotification({
+        title: "Error",
+        message: "El periodo ya ha culminado",
+        color: "red",
+      });
+      return
+    }
     try {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/send`,
@@ -390,6 +406,13 @@ const ResponsibleReportsPage = () => {
       return;
     }
     setAttachments([...attachments, ...files]);
+  };
+
+  const handleDisableUpload = (publishedReport: PublishedReport) => {
+    return (
+      new Date(dateNow().toDateString()) >
+      new Date(publishedReport.period.responsible_end_date)
+    );
   };
 
   const historyRows = selectedReport?.filled_reports.map(
@@ -460,6 +483,7 @@ const ResponsibleReportsPage = () => {
 
   const rows = pubReports?.length ? (
     pubReports.map((pubReport: PublishedReport) => {
+      const uploadDisable = handleDisableUpload(pubReport);
       return (
         <Table.Tr key={pubReport._id}>
           <Table.Td>{pubReport.period.name}</Table.Td>
@@ -509,7 +533,7 @@ const ResponsibleReportsPage = () => {
                   </Button>
                 </Tooltip>
                 <Tooltip
-                  label="Cargar reporte"
+                  label={uploadDisable ? "El periodo ya ha culminado" : "Cargar reporte"}
                   transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
                   <Button
@@ -518,6 +542,7 @@ const ResponsibleReportsPage = () => {
                       setPublishing(true);
                       setSelectedReport(pubReport);
                     }}
+                    disabled={uploadDisable}
                   >
                     {pubReport.filled_reports[0]?.status === "En Borrador" ? (
                       <IconEdit size={16} />
