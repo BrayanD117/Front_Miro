@@ -85,7 +85,7 @@ const HomePage = () => {
                 </Title>
                 <div style={{ position: "relative", width: "20%" }}>
                   <Image
-                    src="/assets/ojoMiro.svg"
+                    src="/assets/ojoMiro-light.svg"
                     style={{ width: "100%", height: "auto" }}
                     alt="Logo MIRO"
                     className={styles.rotate}
