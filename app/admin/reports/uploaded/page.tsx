@@ -30,6 +30,7 @@ import {
   IconArrowLeft,
   IconBrandGoogleDrive,
   IconCancel,
+  IconChevronsLeft,
   IconDeviceFloppy,
   IconFileDescription,
   IconFolderOpen,
@@ -41,6 +42,7 @@ import { useRouter } from "next/navigation";
 import { dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
+import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 
 interface Report {
   _id: string;
@@ -114,9 +116,8 @@ const AdminPubReportsPage = () => {
   const [filledReportsHistory, setFilledReportsHistory] = useState<
     FilledReport[]
   >([]);
-  const [dimensions, setDimensions] = useState<Dimension[]>([]);
+  const [frameFile, setFrameFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
@@ -352,10 +353,9 @@ const AdminPubReportsPage = () => {
         <Group mt={rem(5)}>
           <Text size="sm">Reporte: </Text>
           <Pill
-            onClick={() => {
-              if (typeof window !== "undefined")
-                window.open(filledReport.report_file.view_link);
-            }}
+            onClick={() => 
+              setFrameFile(filledReport.report_file)
+            }
             bg="gray"
             c="white"
             style={{ cursor: "pointer" }}
@@ -370,10 +370,9 @@ const AdminPubReportsPage = () => {
               {filledReport.attachments.map((attachment) => (
                 <Pill
                   key={attachment.id}
-                  onClick={() => {
-                    if (typeof window !== "undefined")
-                      window.open(attachment.view_link);
-                  }}
+                  onClick={() => 
+                    setFrameFile(attachment)
+                  }
                   style={{ cursor: "pointer" }}
                   bg="gray"
                   c="white"
@@ -442,11 +441,9 @@ const AdminPubReportsPage = () => {
                   <Button
                     size="compact-lg"
                     variant="outline"
-                    onClick={() => {
-                      if (typeof window !== "undefined") {
-                        window.open(filledReport.report_file.view_link);
-                      }
-                    }}
+                    onClick={() => 
+                      setFrameFile(filledReport.report_file)
+                    }
                   >
                     <IconReportSearch size={16} />
                   </Button>
@@ -649,32 +646,55 @@ const AdminPubReportsPage = () => {
       </Center>
       <Modal
         opened={opened}
-        onClose={() => setOpened(false)}
-        size="auto"
+        onClose={() => {
+          setFrameFile(null)
+          setOpened(false)
+        }}
+        size={frameFile ? "xl" : "auto"}
         overlayProps={{
           backgroundOpacity: 0.55,
           blur: 3,
         }}
         title={
+          frameFile ?
+          <>
+            <Button
+              variant="light"
+              onClick={() => setFrameFile(null)}
+              leftSection={<IconChevronsLeft />}
+              size="compact-md"
+              mx={'sm'}
+              fw={600}
+            >
+              Ir atrás
+            </Button>
+            <Text fw={600} component="span" size="sm">
+              {frameFile?.name}
+            </Text>
+          </> :
           <Title size={"md"}>Reporte: {selectedReport?.report.name}</Title>
         }
       >
-        <Table striped withTableBorder mt="md">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Dimensión</Table.Th>
-              <Table.Th>Carga</Table.Th>
-              <Table.Th>Enviado por</Table.Th>
-              <Table.Th>
-                <Center>Estado</Center>
-              </Table.Th>
-              <Table.Th>
-                <Center>Acciones</Center>
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>{[...selectedReportRows, pendingReports]}</Table.Tbody>
-        </Table>
+        { frameFile ? 
+          <DriveFileFrame fileId={frameFile.id} fileName={frameFile.name} />
+          :
+          <Table striped withTableBorder mt="md">
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Dimensión</Table.Th>
+                <Table.Th>Carga</Table.Th>
+                <Table.Th>Enviado por</Table.Th>
+                <Table.Th>
+                  <Center>Estado</Center>
+                </Table.Th>
+                <Table.Th>
+                  <Center>Acciones</Center>
+                </Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>{[...selectedReportRows, pendingReports]}</Table.Tbody>
+          </Table>
+        }
       </Modal>
       <Modal
         opened={statusOpened}
@@ -739,16 +759,36 @@ const AdminPubReportsPage = () => {
       </Modal>
       <Modal
         opened={filledReportsHistory.length > 0}
-        onClose={() => setFilledReportsHistory([])}
-        size="md"
+        onClose={() => {
+          setFrameFile(null)
+          setFilledReportsHistory([])
+        }}
+        size={frameFile ? "xl" : "md"}
         overlayProps={{
           backgroundOpacity: 0.55,
           blur: 3,
         }}
-        title="Historial de Envíos"
+        title={ frameFile ?
+          <>
+            <Button
+              variant="light"
+              onClick={() => setFrameFile(null)}
+              leftSection={<IconChevronsLeft />}
+              size="compact-md"
+              mx={'sm'}
+              fw={600}
+            >
+              Ir atrás
+            </Button>
+            <Text fw={600} component="span" size="sm">
+              {frameFile?.name}
+            </Text>
+          </> : "Historial de Envíos"}
         withCloseButton={true}
       >
-        {historyRows}
+        { frameFile ? 
+        <DriveFileFrame fileId={frameFile.id} fileName={frameFile.name} />
+        : historyRows }
       </Modal>
     </Container>
   );
