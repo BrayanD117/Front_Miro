@@ -79,13 +79,13 @@ const HomePage = () => {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <Stack align="center" style={{ position: "relative" }}>
+              <Stack align="center" style={{ position: "relative" }} gap={'xs'}>
                 <Title order={1} fw={700}>
                   Bienvenidos a MIRÓ
                 </Title>
                 <div style={{ position: "relative", width: "20%" }}>
                   <Image
-                    src="/assets/logoOjoMiro.webp"
+                    src="/assets/ojoMiro.svg"
                     style={{ width: "100%", height: "auto" }}
                     alt="Logo MIRO"
                     className={styles.rotate}
@@ -97,17 +97,17 @@ const HomePage = () => {
                       style={{
                         zIndex: -1,
                         position: "absolute",
-                        top: 0,
-                        left: -30,
-                        width: "210%",
-                        height: "210%",
+                        top: -5,
+                        left: -40,
+                        width: "250%",
+                        height: "250%",
                         pointerEvents: "none",
                       }}
                     />
                   )}
                 </div>
               </Stack>
-              <Stack mt={5} align="center">
+              <Stack mt={'sm'} align="center">
                 <Text>Inicia sesión con tu cuenta institucional.</Text>
                 <Button
                   variant="filled"
