@@ -15,6 +15,8 @@ import {
   Divider,
   Badge,
   Avatar,
+  Image,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
@@ -77,6 +79,7 @@ export default function Navbar() {
   const { userRole, setUserRole } = useRole();
   const [roleMenuOpened, setRoleMenuOpened] = useState(false);
   const [manageMenuOpened, setManageMenuOpened] = useState(false);
+  const { colorScheme } = useMantineColorScheme();
 
   const titles = session
     ? [{ link: "/dashboard", label: "MIRÓ" }]
@@ -89,7 +92,9 @@ export default function Navbar() {
           params: { email: session.user.email },
         })
         .then((response) => {
-          const roles = response.data.roles.filter((role: string) => role !== "Usuario");
+          const roles = response.data.roles.filter(
+            (role: string) => role !== "Usuario"
+          );
           setAvailableRoles(roles);
           if (response.data.activeRole) {
             setUserRole(response.data.activeRole as Roles);
@@ -163,9 +168,18 @@ export default function Navbar() {
 
   const titleButton = titles.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
-      <Button variant="transparent" size="sm" fw={700}>
-        {link.label}
-      </Button>
+      <Group gap={"xs"}>
+        <Image
+          src={`/assets/ojoMiro-${colorScheme}.svg`}
+          alt="Logo MIRÓ"
+          height={35}
+        />
+        <Image
+          src={`/assets/textoMiro-${colorScheme}.svg`}
+          alt="MIRÓ"
+          height={30}
+        />
+      </Group>
     </Link>
   ));
 
@@ -236,11 +250,7 @@ export default function Navbar() {
                   onOpen={() => setManageMenuOpened(true)}
                 >
                   <Menu.Target>
-                    <Button
-                      variant="light"
-                      size="sm"
-                      fw={700}
-                    >
+                    <Button variant="light" size="sm" fw={700}>
                       Gestionar
                     </Button>
                   </Menu.Target>
