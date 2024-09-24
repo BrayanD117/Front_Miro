@@ -6,7 +6,6 @@ import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
-import 'dayjs/locale/es';
 
 interface Period {
   _id: string;

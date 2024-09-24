@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { IconCheck, IconX, IconArrowLeft } from "@tabler/icons-react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 
 interface RowData {
   [key: string]: any;
@@ -88,7 +89,7 @@ const UploadedTemplatePage = () => {
     if (typeof value === "boolean") {
       return value ? <IconCheck color="green" size={25} /> : <IconX color="red" size={25} />;
     } else if (typeof value === "string" && dayjs(value).isValid()) {
-      return dayjs(value).locale('es').format('DD/MM/YYYY');
+      return dateToGMT(value, 'YYYY/MM/DD');
     }
     return value;
   };
