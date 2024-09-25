@@ -15,9 +15,11 @@ import {
   Stack,
   Table,
   Paper,
+  Group,
+  Tooltip,
 } from '@mantine/core';
 import axios from 'axios';
-import { IconBulb, IconCopy } from '@tabler/icons-react';
+import { IconBulb, IconClipboardCheck, IconCopy } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
 
 interface Validator {
@@ -39,14 +41,13 @@ const ValidationsPage = () => {
   const [selectedValidator, setSelectedValidator] = useState<Validator | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [columnNames, setColumnNames] = useState<string[]>([]);
+  const [columnsInfo, setColumnsInfo] = useState<{ name: string; isValidator: boolean }[]>([]);
   const [tableRows, setTableRows] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchValidators = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/allValidators`);
-        console.log('Validators:', response.data.validators);
         setValidators(response.data.validators);
       } catch (error) {
         console.error("Error al obtener las validaciones:", error);
@@ -64,7 +65,11 @@ const ValidationsPage = () => {
       });
       const validator = response.data.validator;
 
-      const columnNames = validator.columns.map((col: Column) => col.name);
+      const columnsInfo = validator.columns.map((col: Column) => ({
+        name: col.name,
+        isValidator: col.is_validator,
+      }));
+
       const numRows = Math.max(...validator.columns.map((col: Column) => col.values.length));
 
       const rows = [];
@@ -77,7 +82,7 @@ const ValidationsPage = () => {
       }
 
       setSelectedValidator(validator);
-      setColumnNames(columnNames);
+      setColumnsInfo(columnsInfo);
       setTableRows(rows);
     } catch (error) {
       console.error("Error al obtener la validación:", error);
@@ -115,7 +120,7 @@ const ValidationsPage = () => {
             </Text>
             <Paper shadow="xl" withBorder>
               <ScrollArea style={{ height: '100%' }}>
-                <Stack>
+                <Stack gap={0}>
                   {validators.map((validator) => (
                     <NavLink
                       key={validator._id}
@@ -129,7 +134,7 @@ const ValidationsPage = () => {
             </Paper>
           </Box>
         </Grid.Col>
-        <Grid.Col span={9}>
+        <Grid.Col span={{ base: 12, md: 9 }}>
           <div style={{ padding: '1rem' }}>
             {loading ? (
               <Center>
@@ -156,28 +161,42 @@ const ValidationsPage = () => {
                   >
                     <Table.Thead>
                       <Table.Tr>
-                        {columnNames.map((name, index) => (
-                          <Table.Th key={index}>{name}</Table.Th>
+                        {columnsInfo.map((col, index) => (
+                          <Table.Th key={index}>
+                            <Group>
+                              <Text fw={500}>{col.name}</Text>
+                              {col.isValidator && (
+                                <Tooltip label="Columna validadora">
+                                  <IconClipboardCheck size={16} />
+                                </Tooltip>
+                              )}
+                            </Group>
+                          </Table.Th>
                         ))}
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
                       {tableRows.map((row, rowIndex) => (
                         <Table.Tr key={rowIndex}>
-                          {columnNames.map((colName, colIndex) => (
-                            <Table.Td
-                              key={colIndex}
-                              onClick={() => handleCellClick(row[colName])}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {row[colName]}
-                            </Table.Td>
-                          ))}
+                          {columnsInfo.map((col, colIndex) => {
+                            const cellValue = row[col.name];
+                            const isValidator = col.isValidator;
+
+                            return (
+                              <Table.Td
+                                key={colIndex}
+                                onClick={isValidator ? () => handleCellClick(cellValue) : undefined}
+                                style={{ cursor: isValidator ? 'pointer' : 'default' }}
+                              >
+                                {cellValue}
+                              </Table.Td>
+                            );
+                          })}
                         </Table.Tr>
                       ))}
                     </Table.Tbody>
                     <Table.Caption>
-                      Haz clic sobre un valor para copiarlo al portapapeles.
+                      Haz clic sobre un valor validador para copiarlo al portapapeles.
                       <br />
                       <IconCopy size={20} />
                     </Table.Caption>
