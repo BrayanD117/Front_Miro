@@ -122,12 +122,15 @@ const ValidationsPage = () => {
               <ScrollArea style={{ height: '100%' }}>
                 <Stack gap={0}>
                   {validators.map((validator) => (
-                    <NavLink
-                      key={validator._id}
-                      label={validator.name}
-                      active={selectedValidator?._id === validator._id}
-                      onClick={() => handleSelectValidator(validator._id)}
-                    />
+                    <>
+                      <NavLink
+                        key={validator._id}
+                        label={validator.name}
+                        active={selectedValidator?._id === validator._id}
+                        onClick={() => handleSelectValidator(validator._id)}
+                      />
+                      <Divider />
+                    </>
                   ))}
                 </Stack>
               </ScrollArea>
