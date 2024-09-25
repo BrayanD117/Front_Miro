@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -342,7 +342,21 @@ const DashboardPage = () => {
                 Ir a Plantillas Enviadas
               </Button>
             </Card>
-          </Grid.Col>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-validations">
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Center><IconCheckbox size={80}/></Center>
+            <Group mt="md" mb="xs">
+              <Text ta={"center"} w={500}>Validaciones</Text>
+            </Group>
+            <Text ta={"center"} size="sm" color="dimmed">
+              Conoce todas las validaciones que se han asignado a tus plantillas.
+            </Text>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/validations')}>
+              Ir a Validaciones
+            </Button>
+          </Card>
+        </Grid.Col>,
         );
         break;
       case "Usuario":

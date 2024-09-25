@@ -49,6 +49,9 @@ const ValidationsPage = () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/allValidators`);
         setValidators(response.data.validators);
+        if (response.data.validators.length > 0) {
+          handleSelectValidator(response.data.validators[0]._id);
+        }
       } catch (error) {
         console.error("Error al obtener las validaciones:", error);
       }
@@ -122,12 +125,15 @@ const ValidationsPage = () => {
               <ScrollArea style={{ height: '100%' }}>
                 <Stack gap={0}>
                   {validators.map((validator) => (
-                    <NavLink
-                      key={validator._id}
-                      label={validator.name}
-                      active={selectedValidator?._id === validator._id}
-                      onClick={() => handleSelectValidator(validator._id)}
-                    />
+                    <>
+                      <NavLink
+                        key={validator._id}
+                        label={validator.name}
+                        active={selectedValidator?._id === validator._id}
+                        onClick={() => handleSelectValidator(validator._id)}
+                      />
+                      <Divider />
+                    </>
                   ))}
                 </Stack>
               </ScrollArea>
