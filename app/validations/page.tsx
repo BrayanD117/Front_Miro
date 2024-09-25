@@ -49,6 +49,9 @@ const ValidationsPage = () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/allValidators`);
         setValidators(response.data.validators);
+        if (response.data.validators.length > 0) {
+          handleSelectValidator(response.data.validators[0]._id);
+        }
       } catch (error) {
         console.error("Error al obtener las validaciones:", error);
       }
