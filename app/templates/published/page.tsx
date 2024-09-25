@@ -19,7 +19,7 @@ import {
   Stack,
 } from "@mantine/core";
 import axios from "axios";
-import { showNotification } from "@mantine/notifications";
+import { showNotification } from "@mantine/notifications"
 import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
