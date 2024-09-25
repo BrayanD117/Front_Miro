@@ -265,13 +265,12 @@ const PublishedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Stack gap={0}>
+            <Stack gap={0} style={{ cursor: "pointer" }}>
               <Progress.Root
                 mt={"xs"}
                 size={"md"}
                 radius={"md"}
                 w={rem(200)}
-                style={{ cursor: "pointer" }}
               >
                 <Progress.Section
                 value={progress.percentage}
