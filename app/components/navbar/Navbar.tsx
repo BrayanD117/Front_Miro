@@ -32,6 +32,7 @@ import ThemeChangerMobile from "../ThemeChanger/ThemeChangerMobile";
 import classes from "./Navbar.module.css";
 import { IconDoorExit } from "@tabler/icons-react";
 import axios from "axios";
+import MiroEye from "../OjoMiro";
 
 type LinkItem = {
   link: string;
@@ -169,11 +170,7 @@ export default function Navbar() {
   const titleButton = titles.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
       <Group gap={"xs"}>
-        <Image
-          src={`/assets/ojoMiro-${colorScheme}.svg`}
-          alt="Logo MIRÓ"
-          height={35}
-        />
+        <MiroEye/>
         <Image
           src={`/assets/textoMiro-${colorScheme}.svg`}
           alt="MIRÓ"
