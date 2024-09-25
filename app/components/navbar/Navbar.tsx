@@ -32,7 +32,7 @@ import ThemeChangerMobile from "../ThemeChanger/ThemeChangerMobile";
 import classes from "./Navbar.module.css";
 import { IconDoorExit } from "@tabler/icons-react";
 import axios from "axios";
-import MiroEye from "../OjoMiro";
+import MiroEye from "../MiroEye";
 
 type LinkItem = {
   link: string;
