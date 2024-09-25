@@ -17,6 +17,7 @@ import {
   Paper,
 } from '@mantine/core';
 import axios from 'axios';
+import { IconBulb } from '@tabler/icons-react';
 
 interface Validator {
   _id: string;
@@ -71,6 +72,12 @@ const ValidationsPage = () => {
       <Grid>
         <Grid.Col span={3}>
             <Box>
+              <Title m={5} ta={"center"}>Validaciones</Title>
+              <Text c="dimmed" size="md" ta={"center"} m="md" >
+                <IconBulb color="#797979" size={20}></IconBulb>
+                <br/>
+                Selecciona una validacion para ver sus detalles
+              </Text>
                 <Paper shadow="xl" withBorder>
                     <ScrollArea style={{ height: '100%' }}>
                         <Stack>
