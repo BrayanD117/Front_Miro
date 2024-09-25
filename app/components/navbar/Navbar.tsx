@@ -30,7 +30,7 @@ import ThemeChangerMobile from "../ThemeChanger/ThemeChangerMobile";
 
 // Styles
 import classes from "./Navbar.module.css";
-import { IconDoorExit } from "@tabler/icons-react";
+import { IconDoorExit, IconHome, IconSubtask, IconSwitch3 } from "@tabler/icons-react";
 import axios from "axios";
 import MiroEye from "../MiroEye";
 
@@ -148,7 +148,7 @@ export default function Navbar() {
 
   const homeLink = home.map((link: LinkItem) => (
     <Link href={link.link} key={link.label} passHref>
-      <Button variant="light" size="sm" fw={700}>
+      <Button variant="light" size="sm" fw={700} leftSection={<IconHome size={18}/>}>
         {link.label}
       </Button>
     </Link>
@@ -220,8 +220,8 @@ export default function Navbar() {
                     onOpen={() => setRoleMenuOpened(true)}
                   >
                     <Menu.Target>
-                      <Button variant="light" size="sm" fw={700}>
-                        Cambiar rol
+                      <Button variant="light" size="sm" fw={700} leftSection={<IconSwitch3 size={18}/>}>
+                        Rol
                       </Button>
                     </Menu.Target>
                     <Menu.Dropdown>
@@ -247,8 +247,8 @@ export default function Navbar() {
                   onOpen={() => setManageMenuOpened(true)}
                 >
                   <Menu.Target>
-                    <Button variant="light" size="sm" fw={700}>
-                      Gestionar
+                    <Button variant="light" size="sm" fw={700} leftSection={<IconSubtask size={18}/>}>
+                      Gestión
                     </Button>
                   </Menu.Target>
                   <Menu.Dropdown>{actionItems}</Menu.Dropdown>
