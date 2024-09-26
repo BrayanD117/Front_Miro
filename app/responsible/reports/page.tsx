@@ -411,7 +411,7 @@ const ResponsibleReportsPage = () => {
   const handleDisableUpload = (publishedReport: PublishedReport) => {
     return (
       new Date(dateNow().toDateString()) >
-        new Date(publishedReport.period.responsible_end_date)
+      new Date(publishedReport.period.responsible_end_date)
     );
   };
 
@@ -534,9 +534,10 @@ const ResponsibleReportsPage = () => {
                 </Tooltip>
                 <Tooltip
                   label={
-                    uploadDisable ? "El periodo ya ha culminado"
-                      : pubReport.filled_reports[0].status === "Aprobado" 
-                        || pubReport.filled_reports[0].status === "En Revisión"
+                    uploadDisable
+                      ? "El periodo ya ha culminado"
+                      : pubReport.filled_reports[0]?.status === "Aprobado" ||
+                        pubReport.filled_reports[0]?.status === "En Revisión"
                       ? "Tu reporte ya fue enviado"
                       : "Cargar reporte"
                   }
@@ -548,9 +549,11 @@ const ResponsibleReportsPage = () => {
                       setPublishing(true);
                       setSelectedReport(pubReport);
                     }}
-                    disabled={uploadDisable 
-                      || pubReport.filled_reports[0].status === "Aprobado" 
-                      || pubReport.filled_reports[0].status === "En Revisión"}
+                    disabled={
+                      uploadDisable ||
+                      pubReport.filled_reports[0]?.status === "Aprobado" ||
+                      pubReport.filled_reports[0]?.status === "En Revisión"
+                    }
                   >
                     {pubReport.filled_reports[0]?.status === "En Borrador" ? (
                       <IconEdit size={16} />
@@ -852,51 +855,49 @@ const ResponsibleReportsPage = () => {
                         </Text>
                       </div>
                     </Dropzone>
-                    <PillGroup mt={"sm"} mb={"xs"}>
-                      {attachments.map((attachment, index) => (
-                        <Pill
-                          key={attachment.name}
-                          bg={"gray"}
-                          c={"white"}
-                          withRemoveButton
-                          onRemove={() =>
-                            setAttachments((prev) =>
-                              prev.filter((_, i) => i !== index)
+                    {attachments.map((attachment, index) => (
+                      <Pill
+                        key={attachment.name}
+                        bg={"gray"}
+                        c={"white"}
+                        withRemoveButton
+                        onRemove={() =>
+                          setAttachments((prev) =>
+                            prev.filter((_, i) => i !== index)
+                          )
+                        }
+                      >
+                        {attachment.name}
+                      </Pill>
+                    ))}
+                    {selectedReport?.filled_reports[0]?.status ===
+                      "En Borrador" &&
+                      selectedReport.filled_reports[0]?.attachments.map(
+                        (attachment) => {
+                          return (
+                            !deletedAttachments.includes(attachment.id) && (
+                              <Pill
+                                key={attachment.name}
+                                bg={"blue"}
+                                c={"white"}
+                                withRemoveButton
+                                onRemove={() =>
+                                  setDeletedAttachments([
+                                    ...deletedAttachments,
+                                    attachment.id,
+                                  ])
+                                }
+                                onClick={() => {
+                                  setFrameFile(attachment);
+                                }}
+                                style={{ cursor: "pointer" }}
+                              >
+                                {attachment.name}
+                              </Pill>
                             )
-                          }
-                        >
-                          {attachment.name}
-                        </Pill>
-                      ))}
-                      {selectedReport?.filled_reports[0]?.status ===
-                        "En Borrador" &&
-                        selectedReport.filled_reports[0]?.attachments.map(
-                          (attachment) => {
-                            return (
-                              !deletedAttachments.includes(attachment.id) && (
-                                <Pill
-                                  key={attachment.name}
-                                  bg={"blue"}
-                                  c={"white"}
-                                  withRemoveButton
-                                  onRemove={() =>
-                                    setDeletedAttachments([
-                                      ...deletedAttachments,
-                                      attachment.id,
-                                    ])
-                                  }
-                                  onClick={() => {
-                                    setFrameFile(attachment);
-                                  }}
-                                  style={{ cursor: "pointer" }}
-                                >
-                                  {attachment.name}
-                                </Pill>
-                              )
-                            );
-                          }
-                        )}
-                    </PillGroup>
+                          );
+                        }
+                      )}
                   </>
                 )}
                 <Group mt="md" grow>
