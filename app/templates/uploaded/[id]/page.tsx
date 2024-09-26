@@ -3,15 +3,42 @@
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Table, Title, Text, ScrollArea, Center, Tooltip, Button, Group } from "@mantine/core";
+import {
+  Container,
+  Table,
+  Title,
+  Text,
+  ScrollArea,
+  Center,
+  Tooltip,
+  Button,
+  Group,
+} from "@mantine/core";
 import { useSession } from "next-auth/react";
 import { IconCheck, IconX, IconArrowLeft } from "@tabler/icons-react";
-import dayjs from 'dayjs';
-import 'dayjs/locale/es';
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
+import { useSearchParams } from "next/navigation";
 
 interface RowData {
   [key: string]: any;
+}
+
+interface User {
+  full_name: string,
+  email: string
+}
+
+interface Dependency {
+  dep_code: string,
+  name: string,
+  responsible: string
+}
+
+interface ResumeData {
+  dependency: string,
+  send_by: User
 }
 
 const UploadedTemplatePage = () => {
@@ -19,13 +46,22 @@ const UploadedTemplatePage = () => {
   const { id } = useParams();
   const [tableData, setTableData] = useState<RowData[]>([]);
   const [templateName, setTemplateName] = useState("");
+  const [resumeData, setResumeData] = useState<ResumeData[]>()
+  const [dependencies, setDependencies] = useState<Dependency[]>([])
+  const searchParams = useSearchParams();
+  const [resume, setResume] = useState<boolean>(
+    searchParams.get("resume") === "true"
+  );
   const { data: session } = useSession();
 
   const fetchDependenciesNames = async (depCodes: string[]) => {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
-        codes: depCodes,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`,
+        {
+          codes: depCodes,
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching dependency names:", error);
@@ -36,9 +72,17 @@ const UploadedTemplatePage = () => {
   useEffect(() => {
     const fetchTemplateName = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id}`
+        );
         const templateName = response.data.name || "Plantilla sin nombre";
         setTemplateName(templateName);
+        const sentData = response.data.publishedTemplate.loaded_data
+        const sentDepedencies = sentData.map((data:any) => {
+          return {dependency: data.dependency, send_by: data.send_by}
+        })
+        setResumeData(sentDepedencies)
+        setDependencies(await fetchDependenciesNames(response.data.publishedTemplate.producers_dep_code))
       } catch (error) {
         console.error("Error fetching template name:", error);
       }
@@ -64,10 +108,15 @@ const UploadedTemplatePage = () => {
             const dependencyNames = await fetchDependenciesNames(depCodes);
 
             const updatedData = data.map((row: RowData) => {
-              const dependencyName = dependencyNames.find((dep: { code: string, name: string }) => dep.code === row.Dependencia);
+              const dependencyName = dependencyNames.find(
+                (dep: { code: string; name: string }) =>
+                  dep.code === row.Dependencia
+              );
               return {
                 ...row,
-                Dependencia: dependencyName ? dependencyName.name : row.Dependencia,
+                Dependencia: dependencyName
+                  ? dependencyName.name
+                  : row.Dependencia,
               };
             });
 
@@ -85,24 +134,89 @@ const UploadedTemplatePage = () => {
     fetchUploadedData();
   }, [id, session]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("resume", `${resume}`);
+    window.history.pushState(null, "", `?${params.toString()}`);
+  }, [resume]);
+
   const renderCellContent = (value: any) => {
     if (typeof value === "boolean") {
-      return value ? <IconCheck color="green" size={25} /> : <IconX color="red" size={25} />;
+      return value ? (
+        <IconCheck color="green" size={25} />
+      ) : (
+        <IconX color="red" size={25} />
+      );
     } else if (typeof value === "string" && dayjs(value).isValid()) {
-      return dateToGMT(value, 'YYYY/MM/DD');
+      return dateToGMT(value, "YYYY/MM/DD");
     }
     return value;
   };
+
+  const resumeRows = dependencies.map((dependency) => {
+    const hasSentData = resumeData?.some(data => data.dependency===dependency.dep_code)
+    return (
+      <Table.Tr key={dependency.dep_code} c={!hasSentData ? "red" : undefined}>
+        <Table.Td>
+          {dependency.name}
+        </Table.Td>
+        <Table.Td>
+          {dependency.responsible ?? "No tiene un responsable asignado"}
+        </Table.Td>
+        <Table.Td>
+          {hasSentData ? "Enviado 😃" : "No enviado 😥"}
+        </Table.Td>
+      </Table.Tr>
+    )
+  })
 
   return (
     <Container size={"lg"}>
       <Title ta="center">{`Datos Cargados para: ${templateName}`}</Title>
       <Group mb="md">
-        <Button variant="outline" leftSection={<IconArrowLeft />} onClick={() => router.back()}>
+        <Button
+          variant="outline"
+          leftSection={<IconArrowLeft />}
+          onClick={() => router.replace("/templates/published")}
+        >
           Ir atrás
         </Button>
       </Group>
-      {tableData.length === 0 ? (
+      <Group grow mb={"md"}>
+        <Button
+          variant={resume ? "outline" : "light"}
+          onClick={() => setResume(!resume)}
+        >
+          Resumen de Envíos
+        </Button>
+        <Button
+          variant={resume ? "light" : "outline"}
+          onClick={() => setResume(!resume)}
+        >
+          Información Cargada
+        </Button>
+      </Group>
+      
+      {resume ? 
+      <Table mb={"md"} striped withTableBorder>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>
+              Dependencia
+            </Table.Th>
+            <Table.Th>
+              Responsable
+            </Table.Th>
+            <Table.Th>
+              Estado de envío
+            </Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {resumeRows}
+        </Table.Tbody>
+      </Table>
+      : tableData.length === 0 ? (
         <Text ta={"center"}>No hay datos cargados para esta plantilla.</Text>
       ) : (
         <Tooltip

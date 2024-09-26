@@ -320,7 +320,7 @@ const ProducerUploadedTemplatesPage = () => {
           <Center>
             <Group gap={"xs"}>
               <Tooltip
-                label="Descargar información cargada"
+                label="Descargar información enviada"
                 position="top"
                 transitionProps={{ transition: "fade-up", duration: 300 }}
               >

@@ -16,15 +16,17 @@ import {
   Group,
   Progress,
   rem,
+  Stack,
 } from "@mantine/core";
 import axios from "axios";
-import { showNotification } from "@mantine/notifications";
-import { IconArrowLeft, IconDownload } from "@tabler/icons-react";
+import { showNotification } from "@mantine/notifications"
+import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { format } from "fecha";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
+import { DataTable } from 'mantine-datatable';
 import { useRouter } from "next/navigation";
 import { useRole } from "@/app/context/RoleContext";
 
@@ -220,25 +222,16 @@ const PublishedTemplatesPage = () => {
 
   const rows = templates.map((publishedTemplate) => {
     let progress = {
-      value:
+      total: publishedTemplate.producers_dep_code.length,
+      value: publishedTemplate.loaded_data.length,
+      percentage:
         (publishedTemplate.loaded_data.length /
           publishedTemplate.producers_dep_code.length) *
-        100,
-      color: "cyan",
-      tooltip: (
-        <List size="sm">
-          Ya cargaron:
-          {publishedTemplate.loaded_data.map((data) => {
-            return (
-              <List.Item key={data.dependency}>{data.dependency}</List.Item>
-            );
-          })}
-        </List>
-      ),
+        100
     };
 
     let missing = {
-      value: 100 - progress.value,
+      percentage: 100 - progress.percentage,
       color: "gray",
       tooltip: (
         <List size="sm">
@@ -262,59 +255,78 @@ const PublishedTemplatesPage = () => {
         <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>
-          {dateToGMT(publishedTemplate.period.producer_end_date)}
-        </Table.Td>
-        <Table.Td>
-          {dateToGMT(publishedTemplate.updatedAt)}
-        </Table.Td>
-        <Table.Td>
           <Center>
-            <Button
-              variant="outline"
-              onClick={() => {
-                router.push(`/templates/uploaded/${publishedTemplate._id}`);
-              }}
-              disabled={publishedTemplate.loaded_data.length === 0}
-            >
-              Ver Información
-            </Button>
+            {dateToGMT(publishedTemplate.period.producer_end_date)}
           </Center>
         </Table.Td>
         <Table.Td>
           <Center>
-            {/* <Progress.Root
-              mt={"xs"}
-              size={"md"}
-              radius={"md"}
-              w={rem(200)}
-              onClick={() => {
-                setSelectedTemplate(pubReport);
-                setOpened(true);
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <Progress.Section
-                value={giveReportPercentage(pubReport)}
-                striped
-                animated
-              />
-            </Progress.Root> */}
-            <RingProgress
-              size={35}
-              thickness={6}
-              sections={[missing, progress]}
-            />
+            {dateToGMT(publishedTemplate.updatedAt)}
           </Center>
         </Table.Td>
         <Table.Td>
           <Center>
-            <Button
-              variant="outline"
-              onClick={() => handleDownload(publishedTemplate)}
-              disabled={publishedTemplate.loaded_data.length === 0}
+            <Tooltip
+              label="Presiona para ver detalles"
+              transitionProps={{ transition: "slide-up", duration: 300 }}
+              withArrow
             >
-              <IconDownload size={16} />
-            </Button>
+              <Stack
+                gap={0} style={{ cursor: "pointer" }}
+                onClick={()=>router.push(`/templates/uploaded/${publishedTemplate._id}?resume=true`)}
+              >
+                <Progress.Root
+                  mt={"xs"}
+                  size={"md"}
+                  radius={"md"}
+                  w={rem(200)}
+                >
+                  <Progress.Section
+                  value={progress.percentage}
+                  striped
+                  animated
+                  />
+                </Progress.Root>
+                <Text size="sm" ta={"center"} mt={rem(5)}>
+                  {progress.value} de{" "}
+                  {progress.total}
+                </Text>
+              </Stack>
+            </Tooltip>
+          </Center>
+        </Table.Td>
+        <Table.Td>
+          <Center>
+            <Group gap={'xs'}>
+              <Tooltip
+                label="Ver información enviada"
+                transitionProps={{ transition: "slide-up", duration: 300 }}
+                withArrow
+              >
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    router.push(`/templates/uploaded/${publishedTemplate._id}?resume=false`);
+                  }}
+                  disabled={publishedTemplate.loaded_data.length === 0}
+                >
+                  <IconTableRow size={18} />
+                </Button>
+              </Tooltip>
+              <Tooltip
+                label="Descargar información enviada"
+                transitionProps={{ transition: "slide-up", duration: 300 }}
+                withArrow
+              >
+                <Button
+                  variant="outline"
+                  onClick={() => handleDownload(publishedTemplate)}
+                  disabled={publishedTemplate.loaded_data.length === 0}
+                >
+                  <IconDownload size={18} />
+                </Button>
+              </Tooltip>
+            </Group>
           </Center>
         </Table.Td>
       </Table.Tr>
@@ -352,16 +364,13 @@ const PublishedTemplatesPage = () => {
             <Table.Th>Periodo</Table.Th>
             <Table.Th>Dimensión</Table.Th>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Fecha Fin Productor</Table.Th>
-            <Table.Th>Última Modificación</Table.Th>
-            <Table.Th>
-              <Center>Ver informacion Cargada</Center>
-            </Table.Th>
+            <Table.Th><Center>Plazo Máximo</Center></Table.Th>
+            <Table.Th><Center>Última Modificación</Center></Table.Th>
             <Table.Th>
               <Center>Progreso</Center>
             </Table.Th>
             <Table.Th>
-              <Center>Descargar</Center>
+              <Center>Acciones</Center>
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
