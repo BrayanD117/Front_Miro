@@ -26,6 +26,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { format } from "fecha";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
+import { DataTable } from 'mantine-datatable';
 import { useRouter } from "next/navigation";
 import { useRole } from "@/app/context/RoleContext";
 
@@ -265,7 +266,10 @@ const PublishedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Stack gap={0} style={{ cursor: "pointer" }}>
+            <Stack
+              gap={0} style={{ cursor: "pointer" }}
+              onClick={()=>router.push(`/templates/uploaded/${publishedTemplate._id}?resume=true`)}
+            >
               <Progress.Root
                 mt={"xs"}
                 size={"md"}
@@ -296,7 +300,7 @@ const PublishedTemplatesPage = () => {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    router.push(`/templates/uploaded/${publishedTemplate._id}`);
+                    router.push(`/templates/uploaded/${publishedTemplate._id}?resume=false`);
                   }}
                   disabled={publishedTemplate.loaded_data.length === 0}
                 >
