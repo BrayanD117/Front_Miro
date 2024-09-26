@@ -266,27 +266,33 @@ const PublishedTemplatesPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Stack
-              gap={0} style={{ cursor: "pointer" }}
-              onClick={()=>router.push(`/templates/uploaded/${publishedTemplate._id}?resume=true`)}
+            <Tooltip
+              label="Presiona para ver detalles"
+              transitionProps={{ transition: "slide-up", duration: 300 }}
+              withArrow
             >
-              <Progress.Root
-                mt={"xs"}
-                size={"md"}
-                radius={"md"}
-                w={rem(200)}
+              <Stack
+                gap={0} style={{ cursor: "pointer" }}
+                onClick={()=>router.push(`/templates/uploaded/${publishedTemplate._id}?resume=true`)}
               >
-                <Progress.Section
-                value={progress.percentage}
-                striped
-                animated
-                />
-              </Progress.Root>
-              <Text size="sm" ta={"center"} mt={rem(5)}>
-                {progress.value} de{" "}
-                {progress.total}
-              </Text>
-            </Stack>
+                <Progress.Root
+                  mt={"xs"}
+                  size={"md"}
+                  radius={"md"}
+                  w={rem(200)}
+                >
+                  <Progress.Section
+                  value={progress.percentage}
+                  striped
+                  animated
+                  />
+                </Progress.Root>
+                <Text size="sm" ta={"center"} mt={rem(5)}>
+                  {progress.value} de{" "}
+                  {progress.total}
+                </Text>
+              </Stack>
+            </Tooltip>
           </Center>
         </Table.Td>
         <Table.Td>
