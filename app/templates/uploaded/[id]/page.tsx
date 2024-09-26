@@ -183,14 +183,14 @@ const UploadedTemplatePage = () => {
           Ir atrás
         </Button>
       </Group>
-      <Group gap={0}>
+      <Group gap={0} mb={'xs'}>
         <Button
           variant={resume ? "outline" : "light"}
           onClick={() => setResume(!resume)}
           style={{ 
-            borderTopLeftRadius: 10, 
+            borderTopLeftRadius: 50, 
             borderTopRightRadius: 0, 
-            borderBottomLeftRadius: 0, 
+            borderBottomLeftRadius: 50, 
             borderBottomRightRadius: 0
           }}
           leftSection={<IconCheckupList/>}
@@ -202,9 +202,9 @@ const UploadedTemplatePage = () => {
           onClick={() => setResume(!resume)}
           style={{ 
             borderTopLeftRadius: 0, 
-            borderTopRightRadius: 10, 
+            borderTopRightRadius: 50, 
             borderBottomLeftRadius: 0, 
-            borderBottomRightRadius: 0
+            borderBottomRightRadius: 50
           }}
           leftSection={<IconTableRow/>}
         >
