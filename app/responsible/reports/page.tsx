@@ -182,13 +182,13 @@ const ResponsibleReportsPage = () => {
   }, [search, session?.user?.email, page]);
 
   const handleCreate = async () => {
-    if(selectedReport && handleDisableUpload(selectedReport)){
+    if (selectedReport && handleDisableUpload(selectedReport)) {
       showNotification({
         title: "Error",
         message: "El periodo ya ha culminado",
         color: "red",
       });
-      return
+      return;
     }
     if (selectedReport?.filled_reports[0]) {
       if (deletedReport && !reportFile) {
@@ -349,13 +349,13 @@ const ResponsibleReportsPage = () => {
 
   const handleSendReport = async () => {
     setLoading(true);
-    if(selectedReport && handleDisableUpload(selectedReport)){
+    if (selectedReport && handleDisableUpload(selectedReport)) {
       showNotification({
         title: "Error",
         message: "El periodo ya ha culminado",
         color: "red",
       });
-      return
+      return;
     }
     try {
       const response = await axios.put(
@@ -411,7 +411,7 @@ const ResponsibleReportsPage = () => {
   const handleDisableUpload = (publishedReport: PublishedReport) => {
     return (
       new Date(dateNow().toDateString()) >
-      new Date(publishedReport.period.responsible_end_date)
+        new Date(publishedReport.period.responsible_end_date)
     );
   };
 
@@ -533,7 +533,13 @@ const ResponsibleReportsPage = () => {
                   </Button>
                 </Tooltip>
                 <Tooltip
-                  label={uploadDisable ? "El periodo ya ha culminado" : "Cargar reporte"}
+                  label={
+                    uploadDisable ? "El periodo ya ha culminado"
+                      : pubReport.filled_reports[0].status === "Aprobado" 
+                        || pubReport.filled_reports[0].status === "En Revisión"
+                      ? "Tu reporte ya fue enviado"
+                      : "Cargar reporte"
+                  }
                   transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
                   <Button
@@ -542,7 +548,9 @@ const ResponsibleReportsPage = () => {
                       setPublishing(true);
                       setSelectedReport(pubReport);
                     }}
-                    disabled={uploadDisable}
+                    disabled={uploadDisable 
+                      || pubReport.filled_reports[0].status === "Aprobado" 
+                      || pubReport.filled_reports[0].status === "En Revisión"}
                   >
                     {pubReport.filled_reports[0]?.status === "En Borrador" ? (
                       <IconEdit size={16} />
