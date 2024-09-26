@@ -15,7 +15,7 @@ import {
   Group,
 } from "@mantine/core";
 import { useSession } from "next-auth/react";
-import { IconCheck, IconX, IconArrowLeft } from "@tabler/icons-react";
+import { IconCheck, IconX, IconArrowLeft, IconCheckupList, IconTableRow } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
@@ -75,9 +75,10 @@ const UploadedTemplatePage = () => {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${id}`
         );
+        console.log(response.data)
         const templateName = response.data.name || "Plantilla sin nombre";
         setTemplateName(templateName);
-        const sentData = response.data.publishedTemplate.loaded_data
+        const sentData = response.data.publishedTemplate.loaded_data ?? []
         const sentDepedencies = sentData.map((data:any) => {
           return {dependency: data.dependency, send_by: data.send_by}
         })
@@ -182,16 +183,30 @@ const UploadedTemplatePage = () => {
           Ir atrás
         </Button>
       </Group>
-      <Group grow mb={"md"}>
+      <Group gap={0}>
         <Button
           variant={resume ? "outline" : "light"}
           onClick={() => setResume(!resume)}
+          style={{ 
+            borderTopLeftRadius: 10, 
+            borderTopRightRadius: 0, 
+            borderBottomLeftRadius: 0, 
+            borderBottomRightRadius: 0
+          }}
+          leftSection={<IconCheckupList/>}
         >
           Resumen de Envíos
         </Button>
         <Button
           variant={resume ? "light" : "outline"}
           onClick={() => setResume(!resume)}
+          style={{ 
+            borderTopLeftRadius: 0, 
+            borderTopRightRadius: 10, 
+            borderBottomLeftRadius: 0, 
+            borderBottomRightRadius: 0
+          }}
+          leftSection={<IconTableRow/>}
         >
           Información Cargada
         </Button>
