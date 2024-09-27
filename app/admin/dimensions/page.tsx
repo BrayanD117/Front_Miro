@@ -22,7 +22,7 @@ interface User {
 }
 
 interface Dependency {
-  code: string;
+  dep_code: string;
   name: string;
 }
 
@@ -54,6 +54,8 @@ const AdminDimensionsPage = () => {
         setDependencies(dependencies);
         setDimensions(dimensions);
         setTotalPages(response.data.pages || 1);
+        console.log("Dimensions:", dimensions);
+        console.log("Dependencies:", dependencies);
       }
     } catch (error) {
       console.error("Error fetching dimensions:", error);
@@ -163,7 +165,7 @@ const AdminDimensionsPage = () => {
   };
 
   const handleShowProducers = (dimension: Dimension) => {
-    const producerNames = dimension.producers.map(code => dependencies.find(dep => dep.code === code)?.name || code);
+    const producerNames = dimension.producers.map(code => dependencies.find(dep => dep.dep_code === code)?.name || code);
     setSelectedProducers(producerNames);
     setProducersModalOpened(true);
   };
@@ -185,7 +187,7 @@ const AdminDimensionsPage = () => {
       <Table.Td>{dimension.name}</Table.Td>
       <Table.Td>{dimension.responsible}</Table.Td>
       <Table.Td>
-        {dimension.producers.slice(0, 1).map(code => dependencies.find(dep => dep.code === code)?.name || code).join(", ")}
+        {dimension.producers.slice(0, 1).map(code => dependencies.find(dep => dep.dep_code === code)?.name || code).join(", ")}
         {dimension.producers.length > 2 && (
           <>
             , ...
