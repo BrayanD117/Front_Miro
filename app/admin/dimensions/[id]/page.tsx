@@ -153,12 +153,11 @@ const AdminDimensionEditPage = () => {
         });
 
         const producerData = response.data.map((dep: any) => ({
-          dep_code: dep.code,
+          dep_code: dep.dep_code,
           name: dep.name,
         }));
 
         const newProducerNames = {
-          ...producerNames,
           ...producerData.reduce((acc: any, dep: any) => {
             acc[dep.dep_code] = dep.name;
             return acc;
