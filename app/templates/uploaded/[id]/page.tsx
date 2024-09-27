@@ -165,7 +165,7 @@ const UploadedTemplatePage = () => {
           {dependency.responsible ?? "No tiene un responsable asignado"}
         </Table.Td>
         <Table.Td>
-          {hasSentData ? "Enviado 😃" : "No enviado 😥"}
+          {hasSentData ? "✓ Enviado" : "✗ No enviado"}
         </Table.Td>
       </Table.Tr>
     )
