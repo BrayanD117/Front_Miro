@@ -535,8 +535,8 @@ const ResponsibleReportsPage = () => {
                 <Tooltip
                   label={
                     uploadDisable ? "El periodo ya ha culminado"
-                      : pubReport.filled_reports[0].status === "Aprobado" 
-                        || pubReport.filled_reports[0].status === "En Revisión"
+                      : pubReport.filled_reports[0]?.status === "Aprobado" 
+                        || pubReport.filled_reports[0]?.status === "En Revisión"
                       ? "Tu reporte ya fue enviado"
                       : "Cargar reporte"
                   }
@@ -549,8 +549,8 @@ const ResponsibleReportsPage = () => {
                       setSelectedReport(pubReport);
                     }}
                     disabled={uploadDisable 
-                      || pubReport.filled_reports[0].status === "Aprobado" 
-                      || pubReport.filled_reports[0].status === "En Revisión"}
+                      || pubReport.filled_reports[0]?.status === "Aprobado" 
+                      || pubReport.filled_reports[0]?.status === "En Revisión"}
                   >
                     {pubReport.filled_reports[0]?.status === "En Borrador" ? (
                       <IconEdit size={16} />
