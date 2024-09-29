@@ -25,7 +25,6 @@ import { DateInput } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
 import { dateToGMT } from "@/app/components/DateConfig";
-import dayjs from "dayjs";
 
 interface Log {
   _id: string;
@@ -132,7 +131,7 @@ const AdminLogsPage = () => {
     <Table.Tr key={log._id}>
       <Table.Td>{log.user.full_name}</Table.Td>
       <Table.Td>{log.published_template.name}</Table.Td>
-      <Table.Td>{dateToGMT(log.date, 'MMM D, YYYY H:mm')}</Table.Td>
+      <Table.Td>{dateToGMT(log.date, 'DD MMM, YYYY HH:mm')}</Table.Td>
       <Table.Td>{log.errors.length}</Table.Td>
       <Table.Td>
         <Button
@@ -192,6 +191,7 @@ const AdminLogsPage = () => {
           label="Inicio"
           value={startDate}
           onChange={setStartDate}
+          locale="es"
         />
         <DateInput
           placeholder="Fecha de fin"
@@ -199,6 +199,7 @@ const AdminLogsPage = () => {
           label="Fin"
           value={endDate}
           onChange={setEndDate}
+          locale="es"
         />
       </Group>
       <Group justify="center">
@@ -224,7 +225,7 @@ const AdminLogsPage = () => {
         centered
       >
         <Text size="md" mb="md">
-          ¿Estás seguro de que deseas borrar los logs seleccionados entre las fechas especificadas? Esta acción no se puede deshacer.
+          {`¿Estás seguro de que deseas borrar los logs seleccionados entre ${startDate ? dateToGMT(startDate, 'DD MMM, YYYY') : ''} y ${endDate ? dateToGMT(endDate, 'DD MMM, YYYY') : ''}? Esta acción no se puede deshacer.`}
         </Text>
         <Group justify="center">
           <Button variant="outline" onClick={() => setConfirmationModalOpened(false)}>
@@ -274,7 +275,7 @@ const AdminLogsPage = () => {
                 <Table.Tr>
                   <Table.Th style={{ textAlign: "right" }}>Fecha:</Table.Th>
                   <Table.Td>
-                    {dateToGMT(selectedLog.date, "DD/MM/YYYY HH:mm")}
+                    {dateToGMT(selectedLog.date, 'DD MMM, YYYY HH:mm')}
                   </Table.Td>
                 </Table.Tr>
               </Table.Tbody>
