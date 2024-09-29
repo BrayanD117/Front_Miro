@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import {
   Container,
-  Grid,
   Paper,
   Title,
   Text,
@@ -17,22 +15,12 @@ import {
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import dynamic from "next/dynamic";
-import starsAnimation from "@/public/lottie/stars.json";
 import ThemeChanger from "./components/ThemeChanger/ThemeChanger";
 import styles from "./page.module.css";
-
-const Lottie = dynamic(() => import("lottie-react").then((mod) => mod.default), {
-  ssr: false,
-}) as React.FC<{ animationData: object; loop: boolean; style: object }>;
 
 const HomePage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [showStars, setShowStars] = useState(false);
-
-  const handleMouseEnter = () => setShowStars(true);
-  const handleMouseLeave = () => setShowStars(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -76,8 +64,6 @@ const HomePage = () => {
                 position: "relative",
               }}
               shadow="lg"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
             >
               <Stack align="center" style={{ position: "relative" }} gap={'xs'}>
                 <Title order={1} fw={700}>
@@ -90,21 +76,6 @@ const HomePage = () => {
                     alt="Logo MIRO"
                     className={styles.rotate}
                   />
-                  {showStars && (
-                    <Lottie
-                      animationData={starsAnimation}
-                      loop={true}
-                      style={{
-                        zIndex: -1,
-                        position: "absolute",
-                        top: -5,
-                        left: -40,
-                        width: "250%",
-                        height: "250%",
-                        pointerEvents: "none",
-                      }}
-                    />
-                  )}
                 </div>
               </Stack>
               <Stack mt={'sm'} align="center">

@@ -21,19 +21,7 @@
   height: 100vh;
 }
 
-.rotate {
-  animation: rotate 3s linear infinite;
-  animation-timing-function: linear;
-  animation-play-state: paused;
-  transition: animation-play-state 0.2s ease;
-}
-
-.rotate:hover {
-  animation-play-state: running;
-}
-
 .blurBackground {
-  /* background-color: rgba(255, 255, 255, 0.616); */
   backdrop-filter: blur(10px);
   border-radius: 10px;
   color: black;
