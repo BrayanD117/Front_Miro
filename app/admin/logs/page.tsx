@@ -223,6 +223,10 @@ const AdminLogsPage = () => {
         onClose={() => setConfirmationModalOpened(false)}
         title="Confirmación"
         centered
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
       >
         <Text size="md" mb="md">
           {`¿Estás seguro de que deseas borrar los logs seleccionados entre ${startDate ? dateToGMT(startDate, 'DD MMM, YYYY') : ''} y ${endDate ? dateToGMT(endDate, 'DD MMM, YYYY') : ''}? Esta acción no se puede deshacer.`}
