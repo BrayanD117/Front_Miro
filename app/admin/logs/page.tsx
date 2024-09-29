@@ -18,10 +18,13 @@ import {
   List,
   ThemeIcon,
   rem,
+  Group,
 } from "@mantine/core";
+import { IconBulb, IconColumnRemove, IconTrashFilled } from "@tabler/icons-react";
+import { DateInput } from "@mantine/dates";
 import axios from "axios";
-import { IconCircleCheck, IconColumnRemove } from "@tabler/icons-react";
 import { dateToGMT } from "@/app/components/DateConfig";
+import dayjs from "dayjs";
 
 interface Log {
   _id: string;
@@ -55,6 +58,9 @@ const AdminLogsPage = () => {
   const [search, setSearch] = useState("");
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const fetchLogs = async () => {
     try {
@@ -78,6 +84,25 @@ const AdminLogsPage = () => {
   useEffect(() => {
     fetchLogs();
   }, [page, search]);
+
+  const handleDeleteLogs = async () => {
+    if (!startDate || !endDate) return;
+    
+    setLoading(true);
+    try {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/logs`, {
+        params: {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        },
+      });
+      setLoading(false);
+      fetchLogs();
+    } catch (error) {
+      console.error("Error al borrar logs:", error);
+      setLoading(false);
+    }
+  };
 
   const rows = logs.map((log) => (
     <Table.Tr key={log._id}>
@@ -132,7 +157,43 @@ const AdminLogsPage = () => {
           mt="md"
         />
       </Center>
-
+      <Divider mt="md" mb="md" />
+      <Title order={3} ta="center">
+        Eliminar Logs por rango de Fecha
+      </Title>
+      <Group justify="center" mt="md" mb="md">
+        <DateInput
+          placeholder="Fecha de inicio"
+          description="Fecha desde donde borrar"
+          label="Inicio"
+          value={startDate}
+          onChange={setStartDate}
+        />
+        <DateInput
+          placeholder="Fecha de fin"
+          description="Fecha hasta donde borrar"
+          label="Fin"
+          maxDate={dayjs(new Date()).add(1, 'day').toDate()}
+          value={endDate}
+          onChange={setEndDate}
+        />
+      </Group>
+      <Group justify="center">
+        <Button
+            color="red"
+            disabled={!startDate || !endDate || loading}
+            onClick={handleDeleteLogs}
+            loading={loading}
+            leftSection={<IconTrashFilled size={20} />}
+          >
+          Borrar Logs
+        </Button>
+      </Group>
+      <Text c="dimmed" size="xs" ta={"center"} mt="md" >
+        <IconBulb color="#797979" size={20}></IconBulb>
+        <br/>
+        Recuerda que esta acción no se puede deshacer
+      </Text>
       <Modal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
