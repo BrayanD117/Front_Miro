@@ -20,8 +20,9 @@ import {
   rem,
   Group,
 } from "@mantine/core";
-import { IconBulb, IconColumnRemove, IconTrashFilled } from "@tabler/icons-react";
+import { IconBulb, IconColumnRemove, IconTrashFilled, IconCheck, IconX } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
+import { showNotification } from "@mantine/notifications";
 import axios from "axios";
 import { dateToGMT } from "@/app/components/DateConfig";
 import dayjs from "dayjs";
@@ -61,6 +62,7 @@ const AdminLogsPage = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmationModalOpened, setConfirmationModalOpened] = useState(false);
 
   const fetchLogs = async () => {
     try {
@@ -78,6 +80,12 @@ const AdminLogsPage = () => {
       setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error al obtener los logs:", error);
+      showNotification({
+        title: "Error",
+        message: "No se pudieron obtener los logs.",
+        color: "red",
+        icon: <IconX />,
+      });
     }
   };
 
@@ -90,17 +98,33 @@ const AdminLogsPage = () => {
     
     setLoading(true);
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/logs`, {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/logs`, {
         params: {
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
         },
       });
       setLoading(false);
+      setConfirmationModalOpened(false);
       fetchLogs();
+
+      showNotification({
+        title: "Éxito",
+        message: `${response.data.deletedCount} logs eliminados exitosamente.`,
+        color: "teal",
+        icon: <IconCheck />,
+      });
     } catch (error) {
       console.error("Error al borrar logs:", error);
       setLoading(false);
+      setConfirmationModalOpened(false);
+
+      showNotification({
+        title: "Error",
+        message: "No se pudieron eliminar los logs. Inténtalo de nuevo.",
+        color: "red",
+        icon: <IconX />,
+      });
     }
   };
 
@@ -173,19 +197,18 @@ const AdminLogsPage = () => {
           placeholder="Fecha de fin"
           description="Fecha hasta donde borrar"
           label="Fin"
-          maxDate={dayjs(new Date()).add(1, 'day').toDate()}
           value={endDate}
           onChange={setEndDate}
         />
       </Group>
       <Group justify="center">
         <Button
-            color="red"
-            disabled={!startDate || !endDate || loading}
-            onClick={handleDeleteLogs}
-            loading={loading}
-            leftSection={<IconTrashFilled size={20} />}
-          >
+          color="red"
+          disabled={!startDate || !endDate || loading}
+          onClick={() => setConfirmationModalOpened(true)}
+          loading={loading}
+          leftSection={<IconTrashFilled size={20} />}
+        >
           Borrar Logs
         </Button>
       </Group>
@@ -194,6 +217,25 @@ const AdminLogsPage = () => {
         <br/>
         Recuerda que esta acción no se puede deshacer
       </Text>
+      <Modal
+        opened={confirmationModalOpened}
+        onClose={() => setConfirmationModalOpened(false)}
+        title="Confirmación"
+        centered
+      >
+        <Text size="md" mb="md">
+          ¿Estás seguro de que deseas borrar los logs seleccionados entre las fechas especificadas? Esta acción no se puede deshacer.
+        </Text>
+        <Group justify="center">
+          <Button variant="outline" onClick={() => setConfirmationModalOpened(false)}>
+            Cancelar
+          </Button>
+          <Button color="red" onClick={handleDeleteLogs}>
+            Confirmar
+          </Button>
+        </Group>
+      </Modal>
+
       <Modal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
