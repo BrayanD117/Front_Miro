@@ -35,7 +35,7 @@ const options: NextAuthOptions = {
       }
     },
     async redirect({ url, baseUrl }) {
-      return '/dashboard';
+      return process.env.NODE_ENV==='production' ? '/dashboard' : 'dev/dashboard';
     },
     async session({ session }) {
       try {
