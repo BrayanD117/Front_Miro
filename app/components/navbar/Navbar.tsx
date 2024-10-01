@@ -343,7 +343,10 @@ export default function Navbar() {
           <Button
             color="red"
             onClick={async () => {
-              await signOut({ callbackUrl: "/" });
+              await signOut({ 
+                callbackUrl: process.env.APP_ENV==="production" ? 
+                "/" : "/dev"
+                 });
             }}
           >
             Cerrar Sesión
