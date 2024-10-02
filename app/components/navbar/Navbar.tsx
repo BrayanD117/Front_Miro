@@ -344,9 +344,9 @@ export default function Navbar() {
             color="red"
             onClick={async () => {
               await signOut({ 
-                callbackUrl: process.env.APP_ENV==="production" ? 
-                "/" : "/dev"
-                 });
+                callbackUrl: process.env.APP_ENV==="development" ? 
+                "/dev" : "/"
+              });
             }}
           >
             Cerrar Sesión

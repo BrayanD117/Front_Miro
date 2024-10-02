@@ -35,7 +35,7 @@ const options: NextAuthOptions = {
       }
     },
     async redirect({ url, baseUrl }) {
-      return process.env.APP_ENV==='production' ? '/dashboard' : '/dev/dashboard';
+      return process.env.APP_ENV==='development' ? '/dev/dashboard' : '/dashboard';
     },
     async session({ session }) {
       try {

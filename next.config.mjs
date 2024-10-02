@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const nextConfig = {
-  basePath: process.env.APP_ENV==='production' ? '' : '/dev',
+  basePath: process.env.APP_ENV==='development' ? '/dev' : '',
 };
 
 export default nextConfig;
