@@ -96,7 +96,8 @@ export function DropzoneButton({ pubTemId, endDate, onClose, onUploadSuccess }: 
           if (error.response?.data.details) {
             const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
             localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
-            window.open('/logs', '_blank');
+            if(process.env.APP_ENV==='development') window.open('/dev/logs', '_blank')
+            else window.open('/logs', '_blank');
           
           } else {
             showNotification({
