@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, Text, List } from "@mantine/core";
-import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb, IconCirclePlus } from "@tabler/icons-react";
+import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb, IconCirclePlus, IconDeviceFloppy, IconCancel } from "@tabler/icons-react";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -261,14 +261,6 @@ const AdminDimensionsPage = () => {
         onClose={handleModalClose}
         title={selectedDimension ? "Editar Dimensión" : "Crear Nueva Dimensión"}
       >
-        <Group mb="md" grow>
-          <Button onClick={handleCreateOrEdit}>
-            {selectedDimension ? "Actualizar" : "Crear"}
-          </Button>
-          <Button onClick={handleModalClose} variant="outline">
-            Cancelar
-          </Button>
-        </Group>
         <TextInput
           label="Nombre"
           placeholder="Nombre de la dimensión"
@@ -284,6 +276,26 @@ const AdminDimensionsPage = () => {
           searchable
           clearable
         />
+        <Group mt="md" grow>
+          <Button 
+            onClick={handleCreateOrEdit}
+            leftSection={<IconDeviceFloppy/>}
+            rightSection={<span/>}
+            justify="space-between"
+          >
+            {selectedDimension ? "Actualizar" : "Crear"}
+          </Button>
+          <Button
+            onClick={handleModalClose}
+            variant="light"
+            color="red"
+            rightSection={<IconCancel/>}
+            leftSection={<span/>}
+            justify="space-between"
+          >
+            Cancelar
+          </Button>
+        </Group>
       </Modal>
       <Modal
         opened={producersModalOpened}
