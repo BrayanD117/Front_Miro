@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconRefresh } from "@tabler/icons-react";
 import styles from './AdminUsersPage.module.css';
 
 interface User {
@@ -168,7 +168,13 @@ const AdminUsersPage = () => {
           onChange={(event) => setSearch(event.currentTarget.value)}
           className={styles.searchInput}
         />
-        <Button onClick={handleSyncUsers} className={styles.syncButton} loading={isLoading}>
+        <Button
+          variant="light"
+          onClick={handleSyncUsers}
+          className={styles.syncButton}
+          loading={isLoading}
+          leftSection={<IconRefresh />}
+        >
           Sincronizar Usuarios
         </Button>
       </Group>

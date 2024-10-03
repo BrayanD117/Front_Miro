@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconTrash } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import styles from "./AdminDependenciesPage.module.css";
@@ -189,7 +189,13 @@ const AdminDependenciesPage = () => {
           onChange={(event) => setSearch(event.currentTarget.value)}
           className={styles.searchInput}
         />
-        <Button onClick={handleSyncDependencies} className={styles.syncButton} loading={isLoading}>
+        <Button
+          variant="light"
+          onClick={handleSyncDependencies}
+          className={styles.syncButton} 
+          loading={isLoading}
+          leftSection={<IconRefresh/>}
+        >
           Sincronizar Dependencias
         </Button>
       </Group>

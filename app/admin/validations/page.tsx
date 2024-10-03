@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconPlus } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconCirclePlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useDisclosure } from '@mantine/hooks';
 
@@ -105,7 +105,7 @@ const AdminValidationsPage = () => {
         mb="md"
       />
       <Group mb="md">
-        <Button onClick={() => router.push('/admin/validations/create')} leftSection={<IconPlus size={20} />}>
+        <Button onClick={() => router.push('/admin/validations/create')} leftSection={<IconCirclePlus/>}>
           Crear Nueva Validación
         </Button>
       </Group>
