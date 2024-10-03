@@ -21,7 +21,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 
 interface Dimension {
   _id: string;
@@ -219,9 +219,18 @@ const AdminDimensionEditPage = () => {
           mb="md"
         />
         <Group mt="md">
-          <Button onClick={() => handleSave()}>Guardar</Button>
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button
+            variant="outline" 
+            onClick={() => router.back()}
+            leftSection={<IconArrowLeft />}
+          >
             Volver
+          </Button>
+          <Button
+            onClick={() => handleSave()}
+            leftSection={<IconDeviceFloppy />}
+          >
+            Guardar
           </Button>
         </Group>
       </Box>
