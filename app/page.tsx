@@ -11,6 +11,7 @@ import {
   Image,
   BackgroundImage,
   Accordion,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -20,6 +21,7 @@ import styles from "./page.module.css";
 
 const HomePage = () => {
   const router = useRouter();
+  const { colorScheme } = useMantineColorScheme();
   const { data: session, status } = useSession();
 
   useEffect(() => {
@@ -146,10 +148,7 @@ const HomePage = () => {
 
         <Paper p={20} mt={50}>
           <Center>
-            <Image m={10} h={100} src="/assets/unibague.webp"></Image>
-          </Center>
-          <Center>
-            <Title order={3}>Universidad de Ibagué</Title>
+            <Image m={10} h={100} src={`/assets/Logo-Unibagué-Acreditación-${colorScheme}.webp`}></Image>
           </Center>
           <Center>
             <Text>NIT: 890704382-1</Text>

@@ -5,7 +5,7 @@ import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, 
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconEdit, IconTrash } from "@tabler/icons-react";
 
 interface Period {
   _id: string;
@@ -197,10 +197,15 @@ const AdminPeriodsPage = () => {
         mb="md"
       />
       <Group>
-        <Button onClick={() => {
-          setSelectedPeriod(null);
-          setOpened(true);
-        }}>Crear Nuevo Periodo</Button>
+        <Button 
+          onClick={() => {
+            setSelectedPeriod(null);
+            setOpened(true);
+          }}
+          leftSection={<IconCirclePlus/>}
+        >
+          Crear Nuevo Periodo
+        </Button>
       </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
