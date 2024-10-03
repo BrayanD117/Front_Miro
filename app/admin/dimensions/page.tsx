@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, Text, List } from "@mantine/core";
-import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb } from "@tabler/icons-react";
+import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb, IconCirclePlus } from "@tabler/icons-react";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -221,10 +221,15 @@ const AdminDimensionsPage = () => {
         mb="md"
       />
       <Group>
-        <Button onClick={() => {
-          setSelectedDimension(null);
-          setOpened(true);
-        }}>Crear Nueva Dimensión</Button>
+        <Button
+          onClick={() => {
+            setSelectedDimension(null);
+            setOpened(true);
+          }}
+          leftSection={<IconCirclePlus/>}
+        >
+          Crear Nueva Dimensión
+        </Button>
       </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
