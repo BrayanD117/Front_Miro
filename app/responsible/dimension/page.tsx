@@ -40,12 +40,13 @@ const ResponsibleDimensionPage = () => {
           if (dimensionData) {
             setDimension(dimensionData);
             setProducers(dimensionData.producers);
-
+  
             const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
               codes: dimensionData.producers,
             });
+  
             const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
-              acc[dep.code] = dep.name;
+              acc[dep.dep_code] = dep.name;
               return acc;
             }, {});
             setProducerNames(newProducerNames);
@@ -57,9 +58,9 @@ const ResponsibleDimensionPage = () => {
         }
       }
     };
-
+  
     fetchDimension();
-  }, [session, dimension]);
+  }, [session, dimension]);  
 
   useEffect(() => {
     const fetchDependencies = async () => {
@@ -110,28 +111,26 @@ const ResponsibleDimensionPage = () => {
       updatedProducers = producers.filter((producer) => producer !== dep_code);
     } else {
       updatedProducers = [...producers, dep_code];
-    }
-    setProducers(updatedProducers);
-
-    if (!producerNames[dep_code]) {
-      try {
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
-          codes: [dep_code],
-        });
-        const newProducerNames = {
-          ...producerNames,
-          ...response.data.reduce((acc: any, dep: any) => {
-            acc[dep.code] = dep.name;
+  
+      if (!producerNames[dep_code]) {
+        try {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
+            codes: [dep_code],
+          });
+          const newProducerNames = response.data.reduce((acc: any, dep: any) => {
+            acc[dep.dep_code] = dep.name;
             return acc;
-          }, {}),
-        };
-        setProducerNames(newProducerNames);
-      } catch (error) {
-        console.error("Error al obtener el nombre del productor:", error);
+          }, {});
+          setProducerNames((prevNames) => ({ ...prevNames, ...newProducerNames }));
+        } catch (error) {
+          console.error("Error al obtener el nombre del productor:", error);
+        }
       }
     }
+    setProducers(updatedProducers);
+  
     await handleSave(updatedProducers);
-  };
+  };  
 
   const selectedProducerRows = producers.map((dep_code) => (
     <Table.Tr key={dep_code}>
