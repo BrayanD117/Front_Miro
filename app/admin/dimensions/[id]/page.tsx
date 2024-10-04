@@ -73,12 +73,7 @@ const AdminDimensionEditPage = () => {
             codes: dimensionData.producers,
           });
 
-          const producerData = producerResponse.data.map((dep: any) => ({
-            dep_code: dep.code,
-            name: dep.name,
-          }));
-
-          const newProducerNames = producerData.reduce((acc: any, dep: any) => {
+          const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
             acc[dep.dep_code] = dep.name;
             return acc;
           }, {});
@@ -152,16 +147,9 @@ const AdminDimensionEditPage = () => {
           codes: [dep_code],
         });
 
-        const producerData = response.data.map((dep: any) => ({
-          dep_code: dep.dep_code,
-          name: dep.name,
-        }));
-
         const newProducerNames = {
-          ...producerData.reduce((acc: any, dep: any) => {
-            acc[dep.dep_code] = dep.name;
-            return acc;
-          }, {}),
+          ...producerNames,
+          [dep_code]: response.data[0].name,
         };
         setProducerNames(newProducerNames);
       } catch (error) {

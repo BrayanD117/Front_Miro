@@ -41,13 +41,9 @@ const ResponsibleDimensionPage = () => {
             setDimension(dimensionData);
             setProducers(dimensionData.producers);
   
-            console.log('Fetching producer names for:', dimensionData.producers);
-  
             const producerResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, {
               codes: dimensionData.producers,
             });
-  
-            console.log('Producer names received:', producerResponse.data);
   
             const newProducerNames = producerResponse.data.reduce((acc: any, dep: any) => {
               acc[dep.dep_code] = dep.name;
