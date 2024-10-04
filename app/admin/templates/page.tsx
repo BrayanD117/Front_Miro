@@ -4,7 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowsTransferDown, IconArrowBigUpFilled, IconArrowBigDownFilled } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
@@ -421,24 +421,73 @@ const AdminTemplatesPage = () => {
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th onClick={() => handleSort("name")}>
-              Nombre {sortConfig.key === "name" && (sortConfig.direction === "asc" ? "↑" : "↓")}
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("created_by.full_name")}>
-              Creado Por {sortConfig.key === "created_by.full_name" && (sortConfig.direction === "asc" ? "↑" : "↓")}
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("file_description")}>
-              Descripción del Archivo {sortConfig.key === "file_description" && (sortConfig.direction === "asc" ? "↑" : "↓")}
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("active")}>
-              Estado {sortConfig.key === "active" && (sortConfig.direction === "asc" ? "↑" : "↓")}
-            </Table.Th>
-            <Table.Th><Center>Acciones</Center></Table.Th>
-            <Table.Th><Center>Asignar</Center></Table.Th>
-          </Table.Tr>
-        </Table.Thead>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+            <Center inline>
+              Nombre
+              {sortConfig.key === "name" ? (
+                sortConfig.direction === "asc" ? 
+                <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 
+                : 
+                <IconArrowBigDownFilled size={16} style={{ marginLeft: '5px' }} />
+              ) : (
+                <IconArrowsTransferDown size={16} style={{ marginLeft: '5px' }} />
+              )}
+            </Center>
+          </Table.Th>
+
+          <Table.Th onClick={() => handleSort("created_by.full_name")} style={{ cursor: "pointer" }}>
+            <Center inline>
+              Creado Por
+              {sortConfig.key === "created_by.full_name" ? (
+                sortConfig.direction === "asc" ? 
+                <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 
+                : 
+                <IconArrowBigDownFilled size={16} style={{ marginLeft: '5px' }} />
+              ) : (
+                <IconArrowsTransferDown size={16} style={{ marginLeft: '5px' }} />
+              )}
+            </Center>
+          </Table.Th>
+
+          <Table.Th onClick={() => handleSort("file_description")} style={{ cursor: "pointer" }}>
+            <Center inline>
+              Descripción del Archivo
+              {sortConfig.key === "file_description" ? (
+                sortConfig.direction === "asc" ? 
+                <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 
+                : 
+                <IconArrowBigDownFilled size={16} style={{ marginLeft: '5px' }} />
+              ) : (
+                <IconArrowsTransferDown size={16} style={{ marginLeft: '5px' }} />
+              )}
+            </Center>
+          </Table.Th>
+
+          <Table.Th onClick={() => handleSort("active")} style={{ cursor: "pointer" }}>
+            <Center inline>
+              Estado
+              {sortConfig.key === "active" ? (
+                sortConfig.direction === "asc" ? 
+                <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 
+                : 
+                <IconArrowBigDownFilled size={16} style={{ marginLeft: '5px' }} />
+              ) : (
+                <IconArrowsTransferDown size={16} style={{ marginLeft: '5px' }} />
+              )}
+            </Center>
+          </Table.Th>
+
+          <Table.Th>
+            <Center>Acciones</Center>
+          </Table.Th>
+
+          <Table.Th>
+            <Center>Asignar</Center>
+          </Table.Th>
+        </Table.Tr>
+      </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
       </Table>
       <Center>
