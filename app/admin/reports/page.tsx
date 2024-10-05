@@ -22,7 +22,10 @@ import {
   Pill,
 } from "@mantine/core";
 import {
+  IconArrowBigDownFilled,
+  IconArrowBigUpFilled,
   IconArrowRight,
+  IconArrowsTransferDown,
   IconCancel,
   IconCheck,
   IconChevronsLeft,
@@ -42,6 +45,7 @@ import successAnimation from "../../../public/lottie/success.json";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
+import { useSort } from "../../hooks/useSort";
 
 type LottieProps = {
   animationData: object;
@@ -104,6 +108,7 @@ const AdminReportsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const { sortedItems: sortedReports, handleSort, sortConfig } = useSort<Report>(reports, { key: null, direction: "asc" });
 
   const fetchReports = async (page: number, search: string) => {
     try {
@@ -323,7 +328,7 @@ const AdminReportsPage = () => {
     return true;
   }
 
-  const rows = reports.map((report: Report) => (
+  const rows = sortedReports.map((report: Report) => (
     <Table.Tr key={report._id}>
       <Table.Td>{report.name}</Table.Td>
       <Table.Td>{report.description}</Table.Td>
@@ -423,10 +428,62 @@ const AdminReportsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Descripción</Table.Th>
-            <Table.Th>Nombre de Archivo</Table.Th>
-            <Table.Th>Creado Por</Table.Th>
+            <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("description")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Descripción
+                {sortConfig.key === "description" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("file_name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre de Archivo
+                {sortConfig.key === "file_name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("created_by.full_name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Creado Por
+                {sortConfig.key === "created_by.full_name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>
               <Center>Acciones</Center>
             </Table.Th>

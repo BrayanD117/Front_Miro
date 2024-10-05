@@ -33,7 +33,10 @@ import {
   IconHistoryToggle,
   IconMailForward,
   IconUpload,
-  IconX,
+  IconX, 
+  IconArrowBigUpFilled, 
+  IconArrowBigDownFilled, 
+  IconArrowsTransferDown,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import classes from "./ResponsibleReportsPage.module.css";
@@ -44,6 +47,7 @@ import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
 import dynamic from "next/dynamic";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
+import { useSort } from "../../hooks/useSort";
 
 type LottieProps = {
   animationData: object;
@@ -150,6 +154,7 @@ const ResponsibleReportsPage = () => {
   const [frameFile, setFrameFile] = useState<DriveFile | null>(null);
   const theme = useMantineTheme();
   const router = useRouter();
+  const { sortedItems: sortedReports, handleSort, sortConfig } = useSort<PublishedReport>(pubReports, { key: null, direction: "asc" });
 
   const fetchReports = async (page: number, search: string) => {
     try {
@@ -481,8 +486,8 @@ const ResponsibleReportsPage = () => {
     }
   );
 
-  const rows = pubReports?.length ? (
-    pubReports.map((pubReport: PublishedReport) => {
+  const rows = sortedReports?.length ? (
+    sortedReports.map((pubReport: PublishedReport) => {
       const uploadDisable = handleDisableUpload(pubReport);
       return (
         <Table.Tr key={pubReport._id}>
@@ -600,15 +605,89 @@ const ResponsibleReportsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Periodo</Table.Th>
-            <Table.Th>Fecha Inicio</Table.Th>
-            <Table.Th>Fecha Límite</Table.Th>
-            <Table.Th>Reporte</Table.Th>
-            <Table.Th w={rem(20)}>
-              <Center>Estado</Center>
+          <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Periodo
+                {sortConfig.key === "period.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
             </Table.Th>
-            <Table.Th>
-              <Center>Fecha de Estado</Center>
+            <Table.Th onClick={() => handleSort("period.responsible_start_date")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Fecha Inicio
+                {sortConfig.key === "period.responsible_start_date" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("period.responsible_end_date")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Fecha Límite
+                {sortConfig.key === "period.responsible_end_date" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("report.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Reporte
+                {sortConfig.key === "report.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("filled_reports[0].status")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Estado
+                {sortConfig.key === "filled_reports[0].status" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("filled_reports[0].status_date")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Fecha de Estado
+                {sortConfig.key === "filled_reports[0].status_date" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
             </Table.Th>
             <Table.Td fw={700}>
               <Center>Acciones</Center>

@@ -5,7 +5,8 @@ import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, 
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconCirclePlus, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconArrowBigDownFilled, IconArrowBigUpFilled, IconArrowsTransferDown, IconCirclePlus, IconEdit, IconTrash } from "@tabler/icons-react";
+import { useSort } from "../../hooks/useSort";
 
 interface Period {
   _id: string;
@@ -35,6 +36,7 @@ const AdminPeriodsPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const { sortedItems: sortedPeriods, handleSort, sortConfig } = useSort<Period>(periods, { key: null, direction: "asc" });
 
   const fetchPeriods = async (page: number, search: string) => {
     try {
@@ -163,7 +165,7 @@ const AdminPeriodsPage = () => {
     setSelectedPeriod(null);
   };
 
-  const rows = periods.map((period) => (
+  const rows = sortedPeriods.map((period) => (
     <Table.Tr key={period._id}>
       <Table.Td><Center>{period.name}</Center></Table.Td>
       <Table.Td><Center>{new Date(period.start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
@@ -210,7 +212,20 @@ const AdminPeriodsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th><Center>Nombre</Center></Table.Th>
+          <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th><Center>Inicio Periodo</Center></Table.Th>
             <Table.Th><Center>Fin Periodo</Center></Table.Th>
             <Table.Th><Center>Inicio Productor</Center></Table.Th>

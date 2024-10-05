@@ -4,12 +4,13 @@ import { useEffect, useState, FormEvent } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { useDisclosure } from '@mantine/hooks';
+import { useSort } from "../../hooks/useSort";
 
 interface Field {
   name: string;
@@ -59,6 +60,8 @@ const ResponsibleTemplatePage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
   const [publicationName, setPublicationName] = useState<string>('');
+  const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<Template>(templates, { key: null, direction: "asc" });
+
 
   const fetchTemplates = async (page: number, search: string) => {
     if (!session?.user?.email) return;
@@ -342,7 +345,7 @@ const ResponsibleTemplatePage = () => {
     }
   };
 
-  const rows = templates.map((template) => (
+  const rows = sortedTemplates.map((template) => (
     <Table.Tr key={template._id}>
       <Table.Td>{template.name}</Table.Td>
       <Table.Td>{template.file_name}</Table.Td>
@@ -438,9 +441,48 @@ const ResponsibleTemplatePage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Nombre del Archivo</Table.Th>
-            <Table.Th>Descripción del Archivo</Table.Th>
+          <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("file_name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre del Archivo
+                {sortConfig.key === "file_name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("file_description")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Descripción del Archivo
+                {sortConfig.key === "file_description" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>Estado</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
             <Table.Th><Center>Asignar</Center></Table.Th>
