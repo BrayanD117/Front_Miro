@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconCirclePlus } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconCirclePlus, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useDisclosure } from '@mantine/hooks';
+import { useSort } from "../../hooks/useSort";
 
 interface Validation {
   _id: string;
@@ -25,6 +26,8 @@ const AdminValidationsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const { sortedItems: sortedValidations, handleSort, sortConfig } = useSort<Validation>(validations, { key: null, direction: "asc" });
+
 
   const fetchValidations = async (page: number, search: string) => {
     try {
@@ -74,7 +77,7 @@ const AdminValidationsPage = () => {
     }
   };
 
-  const rows = validations.map((validation) => (
+  const rows = sortedValidations.map((validation) => (
     <Table.Tr key={validation._id}>
       <Table.Td>{validation.name}</Table.Td>
       <Table.Td>{validation.columns.map(col => col.name).join(', ')}</Table.Td>
@@ -112,7 +115,20 @@ const AdminValidationsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Nombre</Table.Th>
+          <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>Columnas</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>

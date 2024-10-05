@@ -20,11 +20,12 @@ import {
   rem,
   Group,
 } from "@mantine/core";
-import { IconBulb, IconColumnRemove, IconTrashFilled, IconCheck, IconX } from "@tabler/icons-react";
+import { IconBulb, IconColumnRemove, IconTrashFilled, IconCheck, IconX, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
 import { dateToGMT } from "@/app/components/DateConfig";
+import { useSort } from "../../hooks/useSort";
 
 interface Log {
   _id: string;
@@ -62,6 +63,8 @@ const AdminLogsPage = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmationModalOpened, setConfirmationModalOpened] = useState(false);
+  const { sortedItems: sortedLogs, handleSort, sortConfig } = useSort<Log>(logs, { key: null, direction: "asc" });
+
 
   const fetchLogs = async () => {
     try {
@@ -127,7 +130,7 @@ const AdminLogsPage = () => {
     }
   };
 
-  const rows = logs.map((log) => (
+  const rows = sortedLogs.map((log) => (
     <Table.Tr key={log._id}>
       <Table.Td>{log.user.full_name}</Table.Td>
       <Table.Td>{log.published_template.name}</Table.Td>
@@ -162,9 +165,48 @@ const AdminLogsPage = () => {
         <Table striped highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Usuario</Table.Th>
-              <Table.Th>Plantilla</Table.Th>
-              <Table.Th>Fecha</Table.Th>
+              <Table.Th onClick={() => handleSort("user.full_name")} style={{ cursor: "pointer" }}>
+                <Center inline>
+                  Usuario
+                  {sortConfig.key === "user.full_name" ? (
+                    sortConfig.direction === "asc" ? (
+                      <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                    ) : (
+                      <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                    )
+                  ) : (
+                    <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                  )}
+                </Center>
+              </Table.Th>
+              <Table.Th onClick={() => handleSort("published_template.name")} style={{ cursor: "pointer" }}>
+                <Center inline>
+                  Plantilla
+                  {sortConfig.key === "published_template.name" ? (
+                    sortConfig.direction === "asc" ? (
+                      <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                    ) : (
+                      <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                    )
+                  ) : (
+                    <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                  )}
+                </Center>
+              </Table.Th>
+              <Table.Th onClick={() => handleSort("date")} style={{ cursor: "pointer" }}>
+                <Center inline>
+                  Fecha
+                  {sortConfig.key === "date" ? (
+                    sortConfig.direction === "asc" ? (
+                      <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                    ) : (
+                      <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                    )
+                  ) : (
+                    <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                  )}
+                </Center>
+              </Table.Th>
               <Table.Th>Número de Errores</Table.Th>
               <Table.Th>Acciones</Table.Th>
             </Table.Tr>

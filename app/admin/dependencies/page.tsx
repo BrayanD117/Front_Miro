@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text } from "@mantine/core";
-import { IconEdit, IconRefresh, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconTrash, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import styles from "./AdminDependenciesPage.module.css";
+import { useSort } from "../../hooks/useSort";
 
 interface Dependency {
   _id: string;
@@ -35,6 +36,8 @@ const AdminDependenciesPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { sortedItems: sortedDependencies, handleSort, sortConfig } = useSort<Dependency>(dependencies, { key: null, direction: "asc" });
+
 
   const fetchDependencies = async (page: number, search: string) => {
     try {
@@ -162,7 +165,7 @@ const AdminDependenciesPage = () => {
     setMembers([]);
   };
 
-  const rows = dependencies.map((dependency) => (
+  const rows = sortedDependencies.map((dependency) => (
     <Table.Tr key={dependency._id}>
       <Table.Td>{dependency.dep_code}</Table.Td>
       <Table.Td>{dependency.name}</Table.Td>
@@ -202,9 +205,48 @@ const AdminDependenciesPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Código</Table.Th>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Responsable</Table.Th>
+          <Table.Th onClick={() => handleSort("dep_code")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Código
+                {sortConfig.key === "dep_code" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("responsible")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Responsable
+                {sortConfig.key === "responsible" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             {/* <Table.Th>Dependencia Padre</Table.Th> */}
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>

@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconRefresh } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import styles from './AdminUsersPage.module.css';
+import { useSort } from "../../hooks/useSort";
 
 interface User {
   _id: string;
@@ -26,6 +27,8 @@ const AdminUsersPage = () => {
   const [modalOpened, setModalOpened] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { sortedItems: sortedUsers, handleSort, sortConfig } = useSort<User>(users, { key: null, direction: "asc" });
+
 
   const fetchUsers = async (page: number, search: string) => {
     try {
@@ -131,7 +134,7 @@ const AdminUsersPage = () => {
     }
   };
 
-  const rows = users.map((user) => (
+  const rows = sortedUsers.map((user) => (
     <Table.Tr key={user._id}>
       <Table.Td>{user.identification}</Table.Td>
       <Table.Td>{user.full_name}</Table.Td>
@@ -181,8 +184,34 @@ const AdminUsersPage = () => {
       <Table striped withTableBorder>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>ID</Table.Th>
-            <Table.Th>Nombre Completo</Table.Th>
+          <Table.Th onClick={() => handleSort("identification")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                ID
+                {sortConfig.key === "identification" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("full_name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre Completo
+                {sortConfig.key === "full_name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>Posición</Table.Th>
             <Table.Th>Email</Table.Th>
             <Table.Th>Roles</Table.Th>

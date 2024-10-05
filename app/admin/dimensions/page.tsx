@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, Text, List } from "@mantine/core";
-import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb, IconCirclePlus, IconDeviceFloppy, IconCancel } from "@tabler/icons-react";
+import { IconSettings, IconEdit, IconTrash, IconEye, IconBulb, IconCirclePlus, IconDeviceFloppy, IconCancel, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
+import { useSort } from "../../hooks/useSort";
 
 interface Dimension {
   _id: string;
@@ -40,6 +41,7 @@ const AdminDimensionsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const { sortedItems: sortedDimensions, handleSort, sortConfig } = useSort<Dimension>(dimensions, { key: null, direction: "asc" });
 
   const fetchDimensions = async (page: number, search: string) => {
     try {
@@ -182,7 +184,7 @@ const AdminDimensionsPage = () => {
     router.push(`/admin/dimensions/${dimension._id}`);
   };
   
-  const rows = dimensions.map((dimension: Dimension) => (
+  const rows = sortedDimensions.map((dimension: Dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
       <Table.Td>{dimension.responsible}</Table.Td>
@@ -234,8 +236,34 @@ const AdminDimensionsPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Responsable</Table.Th>
+          <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("responsible")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Responsable
+                {sortConfig.key === "responsible" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>Productores</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
