@@ -27,7 +27,10 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import {
+  IconArrowBigDownFilled,
+  IconArrowBigUpFilled,
   IconArrowLeft,
+  IconArrowsTransferDown,
   IconBrandGoogleDrive,
   IconCancel,
   IconChevronsLeft,
@@ -43,6 +46,7 @@ import { dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
+import { useSort } from "../../../hooks/useSort";
 
 interface Report {
   _id: string;
@@ -123,6 +127,7 @@ const AdminPubReportsPage = () => {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const theme = useMantineTheme();
+  const { sortedItems: sortedReports, handleSort, sortConfig } = useSort<PublishedReport>(pubReports, { key: null, direction: "asc" });
 
   const options = [
     {
@@ -425,10 +430,10 @@ const AdminPubReportsPage = () => {
                   input: {
                     borderColor: options.find(
                       (option) => option.value === filledReport.status
-                    )?.color, // Change the border color
+                    )?.color,
                     color: options.find(
                       (option) => option.value === filledReport.status
-                    )?.color, // Change the text color
+                    )?.color,
                   },
                 }}
               />
@@ -617,13 +622,50 @@ const AdminPubReportsPage = () => {
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
-        <Table.Thead>
+      <Table.Thead>
           <Table.Tr>
-            <Table.Th w={rem(100)}>
-              <Center>Periodo</Center>
+            <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Periodo
+                {sortConfig.key === "period.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
             </Table.Th>
-            <Table.Th>Reporte</Table.Th>
-            <Table.Th>Nombre de Archivo</Table.Th>
+            <Table.Th onClick={() => handleSort("report.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Reporte
+                {sortConfig.key === "report.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("report.file_name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre de Archivo
+                {sortConfig.key === "report.file_name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>
               <Center>Progreso</Center>
             </Table.Th>
