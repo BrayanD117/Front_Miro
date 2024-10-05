@@ -16,7 +16,10 @@ import {
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import {
+  IconArrowBigDownFilled,
+  IconArrowBigUpFilled,
   IconArrowLeft,
+  IconArrowsTransferDown,
   IconDownload,
   IconEdit,
   IconPencil,
@@ -30,6 +33,7 @@ import { format } from "fecha";
 import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { useSort } from "../../../hooks/useSort";
 
 const DropzoneUpdateButton = dynamic(
   () =>
@@ -108,6 +112,7 @@ const ProducerUploadedTemplatesPage = () => {
   );
   const [uploadModalOpen, { open: openUploadModal, close: closeUploadModal }] =
     useDisclosure(false);
+  const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<PublishedTemplate>(templates, { key: null, direction: "asc" });
 
   const fetchTemplates = async (page: number, search: string) => {
     try {
@@ -300,7 +305,7 @@ const ProducerUploadedTemplatesPage = () => {
     return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
   };
 
-  const rows = templates.map((publishedTemplate) => {
+  const rows = sortedTemplates.map((publishedTemplate) => {
     const uploadDisable = handleDisableUpload(publishedTemplate);
     return (
       <Table.Tr key={publishedTemplate._id}>
@@ -420,12 +425,77 @@ const ProducerUploadedTemplatesPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Periodo</Table.Th>
-            <Table.Th>Dimensión</Table.Th>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th>Fecha Límite</Table.Th>
+          <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Periodo
+                {sortConfig.key === "period.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("template.dimension.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Dimensión
+                {sortConfig.key === "template.dimension.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("period.producer_end_date")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Fecha Límite
+                {sortConfig.key === "period.producer_end_date" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>Cargado por</Table.Th>
-            <Table.Th>Fecha de Cargue</Table.Th>
+            <Table.Th onClick={() => handleSort("loaded_data[0].loaded_date")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Fecha de Cargue
+                {sortConfig.key === "loaded_data[0].loaded_date" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>
               <Center>Acciones</Center>
             </Table.Th>
