@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications"
-import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow } from "@tabler/icons-react";
+import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -29,6 +29,7 @@ import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { DataTable } from 'mantine-datatable';
 import { useRouter } from "next/navigation";
 import { useRole } from "@/app/context/RoleContext";
+import { useSort } from "../../hooks/useSort";
 
 interface Field {
   name: string;
@@ -77,6 +78,7 @@ const PublishedTemplatesPage = () => {
   const [search, setSearch] = useState("");
   const [opened, setOpened] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PublishedTemplate | null>(null)
+  const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<PublishedTemplate>(templates, { key: null, direction: "asc" });
 
   const fetchTemplates = async (page: number, search: string) => {
     try {
@@ -220,7 +222,7 @@ const PublishedTemplatesPage = () => {
     );
   };
 
-  const rows = templates.map((publishedTemplate) => {
+  const rows = sortedTemplates.map((publishedTemplate) => {
     let progress = {
       total: publishedTemplate.producers_dep_code.length,
       value: publishedTemplate.loaded_data.length,
@@ -361,11 +363,76 @@ const PublishedTemplatesPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Periodo</Table.Th>
-            <Table.Th>Dimensión</Table.Th>
-            <Table.Th>Nombre</Table.Th>
-            <Table.Th><Center>Plazo Máximo</Center></Table.Th>
-            <Table.Th><Center>Última Modificación</Center></Table.Th>
+          <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Periodo
+                {sortConfig.key === "period.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("template.dimension.name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Dimensión
+                {sortConfig.key === "template.dimension.name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Nombre
+                {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("period.producer_end_date")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Plazo Máximo
+                {sortConfig.key === "period.producer_end_date" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("updatedAt")} style={{ cursor: "pointer" }}>
+              <Center inline>
+                Última Modificación
+                {sortConfig.key === "updatedAt" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
             <Table.Th>
               <Center>Progreso</Center>
             </Table.Th>
