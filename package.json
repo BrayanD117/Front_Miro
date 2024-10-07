@@ -10,6 +10,7 @@
     "release": "semantic-release"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^17.0.0",
     "@mantine/core": "^7.11.0",
     "@mantine/dates": "^7.11.0",
     "@mantine/dropzone": "^7.11.0",

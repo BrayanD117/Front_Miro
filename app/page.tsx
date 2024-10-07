@@ -15,19 +15,37 @@ import {
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ThemeChanger from "./components/ThemeChanger/ThemeChanger";
 import styles from "./page.module.css";
+import axios from "axios";
+
+interface AccordionSection {
+  _id: string;
+  title: string;
+  description: string;
+}
 
 const HomePage = () => {
   const router = useRouter();
   const { colorScheme } = useMantineColorScheme();
   const { data: session, status } = useSession();
+  const [sections, setSections] = useState<AccordionSection[]>([]);
+
+  const fetchAccordionSections = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo`);
+      setSections(response.data);
+    } catch (error) {
+      console.error("Error fetching accordion sections:", error);
+    }
+  };
 
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/dashboard");
     }
+    fetchAccordionSections();
   }, [status]);
 
   const handleLogin = () => {
@@ -104,7 +122,7 @@ const HomePage = () => {
         <Center mt={10}>
           <ThemeChanger/>
         </Center>
-        <Accordion
+        <Accordion 
           m={30}
           mt={30}
           variant="separated"
@@ -113,38 +131,14 @@ const HomePage = () => {
             root: styles.root,
             item: styles.item,
             chevron: styles.chevron,
-          }}
-        >
-          <Accordion.Item value="que-es-miro">
-            <Accordion.Control>¿Qué es MIRÓ? 👀</Accordion.Control>
-            <Accordion.Panel>
-              MIRÓ es el Mecanismo de Información y Reporte Oficial de la
-              Universidad de Ibagué. Es una herramienta diseñada para mejorar
-              la gestión y acceso a la información institucional de manera
-              efectiva y centralizada.
-            </Accordion.Panel>
+          }}>
+          {sections.map((section, index) => (
+          <Accordion.Item key={section._id} value={`section-${index}`}>
+            <Accordion.Control>{section.title}</Accordion.Control>
+            <Accordion.Panel>{section.description}</Accordion.Panel>
           </Accordion.Item>
-
-          <Accordion.Item value="proposito-miro">
-            <Accordion.Control>Propósito de MIRÓ 🚀</Accordion.Control>
-            <Accordion.Panel>
-              El propósito de MIRÓ es consolidar la información de la
-              Universidad de Ibagué y proporcionar una plataforma donde los
-              usuarios puedan acceder a reportes y datos relevantes de manera
-              eficiente y segura.
-            </Accordion.Panel>
-          </Accordion.Item>
-
-          <Accordion.Item value="beneficios-miro">
-            <Accordion.Control>Beneficios de MIRÓ 📖</Accordion.Control>
-            <Accordion.Panel>
-              Los beneficios de MIRÓ incluyen la centralización de la
-              información, reducción de tiempos en la generación de reportes,
-              seguridad en el manejo de datos y mejora en la toma de
-              decisiones a nivel institucional.
-            </Accordion.Panel>
-          </Accordion.Item>
-        </Accordion>
+        ))}
+      </Accordion>
 
         <Paper p={20} mt={50}>
           <Center>
