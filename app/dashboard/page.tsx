@@ -251,6 +251,20 @@ const DashboardPage = () => {
                 </Button>
               </Card>
             </Grid.Col>,
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-homeSettings">
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Center><IconHexagon3d size={80}/></Center>
+                <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>Ajustes Pagina Inicial</Text>
+                </Group>
+                <Text ta={"center"} size="sm" color="dimmed">
+                  Ajusta la información de la pagina de inicio.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/homeSettings')}>
+                  Ir a los ajustes de inicio
+                </Button>
+              </Card>
+            </Grid.Col>,
         );
         break;
       case "Responsable":
