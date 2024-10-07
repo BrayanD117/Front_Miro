@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 
@@ -253,7 +253,7 @@ const DashboardPage = () => {
             </Grid.Col>,
             <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-homeSettings">
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Center><IconHexagon3d size={80}/></Center>
+                <Center><IconHomeCog size={80}/></Center>
                 <Group mt="md" mb="xs">
                   <Text ta={"center"} w={500}>Ajustes Pagina Inicial</Text>
                 </Group>
