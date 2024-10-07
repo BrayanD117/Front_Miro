@@ -31,8 +31,10 @@ const AdminDimensionsPage = () => {
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [opened, setOpened] = useState(false);
+  const [confirmDeleteModalOpened, setConfirmDeleteModalOpened] = useState(false);
   const [producersModalOpened, setProducersModalOpened] = useState(false);
   const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
+  const [dimensionToDelete, setDimensionToDelete] = useState<Dimension | null>(null);
   const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [responsible, setResponsible] = useState<string | null>(null);
@@ -148,6 +150,7 @@ const AdminDimensionsPage = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!dimensionToDelete) return;
     try {
       await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${id}`);
       showNotification({
@@ -156,6 +159,7 @@ const AdminDimensionsPage = () => {
         color: "teal",
       });
       fetchDimensions(page, search);
+      setConfirmDeleteModalOpened(false);
     } catch (error) {
       console.error("Error eliminando dimensión:", error);
       showNotification({
@@ -170,6 +174,11 @@ const AdminDimensionsPage = () => {
     const producerNames = dimension.producers.map(code => dependencies.find(dep => dep.dep_code === code)?.name || code);
     setSelectedProducers(producerNames);
     setProducersModalOpened(true);
+  };
+
+  const openConfirmDeleteModal = (dimension: Dimension) => {
+    setDimensionToDelete(dimension);
+    setConfirmDeleteModalOpened(true);
   };
 
   const handleModalClose = () => {
@@ -205,7 +214,7 @@ const AdminDimensionsPage = () => {
             <Button variant="outline" onClick={() => handleConfigureProducers(dimension)}>
             <IconSettings size={16} />
             </Button>
-            <Button color="red" variant="outline" onClick={() => handleDelete(dimension._id)}>
+            <Button color="red" variant="outline" onClick={() => openConfirmDeleteModal(dimension)}>
               <IconTrash size={16} />
             </Button>
           </Group>
@@ -280,6 +289,26 @@ const AdminDimensionsPage = () => {
           boundaries={3}
         />
       </Center>
+      <Modal
+        opened={confirmDeleteModalOpened}
+        onClose={() => setConfirmDeleteModalOpened(false)}
+        title="Confirmación de Eliminación"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        centered
+      >
+        <Text>¿Estás seguro de que deseas eliminar esta dimensión? Esta acción no se puede deshacer.</Text>
+        <Group mt="md">
+          <Button onClick={() => setConfirmDeleteModalOpened(false)} variant="light" color="gray">
+            Cancelar
+          </Button>
+          <Button onClick={() => handleDelete(dimensionToDelete?._id || "")} color="red">
+            Confirmar Eliminación
+          </Button>
+        </Group>
+      </Modal>
       <Modal
         opened={opened}
         overlayProps={{
