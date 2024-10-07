@@ -11,18 +11,19 @@ import {
   Card,
   Paper,
   Grid,
-  useMantineTheme,
   Box,
+  Text
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import axios from "axios";
-import { IconEdit, IconTrash, IconDeviceFloppy } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDeviceFloppy, IconBulb } from "@tabler/icons-react";
 
 interface AccordionSection {
   _id: string;
   title: string;
   description: string;
+  order: number;
 }
 
 const AdminHomeSections = () => {
@@ -30,9 +31,7 @@ const AdminHomeSections = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedSection, setSelectedSection] = useState<AccordionSection | null>(null);
-  const theme = useMantineTheme();
 
-  // Fetch sections from the backend
   const fetchSections = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo`);
@@ -58,14 +57,15 @@ const AdminHomeSections = () => {
 
     try {
       if (selectedSection) {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo/${selectedSection._id}`, { title, description });
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo/${selectedSection._id}`, { title, description, order: selectedSection.order });
         showNotification({
           title: "Actualizado",
           message: "Sección actualizada correctamente",
           color: "green",
         });
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo`, { title, description });
+        const newOrder = sections.length + 1;
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo`, { title, description, order: newOrder });
         showNotification({
           title: "Creado",
           message: "Sección creada correctamente",
@@ -110,14 +110,43 @@ const AdminHomeSections = () => {
   };
 
   const handleDragEnd = async (result: any) => {
-    console.log("Drag result:", result); // Debugging log
+    console.log("Drag result:", result);
     if (!result.destination) return;
 
     const updatedSections = Array.from(sections);
     const [reorderedItem] = updatedSections.splice(result.source.index, 1);
     updatedSections.splice(result.destination.index, 0, reorderedItem);
 
-    setSections(updatedSections);
+    const reorderedSections = updatedSections.map((section, index) => ({
+      ...section,
+      order: index + 1,
+    }));
+
+    setSections(reorderedSections);
+
+    try {
+      await Promise.all(
+        reorderedSections.map(async (section) => {
+          await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/homeInfo/${section._id}`, {
+            title: section.title,
+            description: section.description,
+            order: section.order,
+          });
+        })
+      );
+      showNotification({
+        title: "Orden actualizado",
+        message: "El orden de las secciones ha sido guardado.",
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Error actualizando el orden:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al actualizar el orden.",
+        color: "red",
+      });
+    }
   };
 
   return (
@@ -154,6 +183,11 @@ const AdminHomeSections = () => {
                 Limpiar
               </Button>
             </Group>
+            <Text c="dimmed" size="xs" ta={"center"} mt="md" >
+                <IconBulb color="#797979" size={20}></IconBulb>
+                <br/>
+                Puedes reorganizar las secciones arrastrando y soltando.
+            </Text>
           </Paper>
         </Grid.Col>
 
