@@ -1,26 +1,11 @@
 .wrapper {
   position: relative;
   margin-bottom: rem(30px);
-  cursor: pointer;
-}
-
-.animationWrapper {
-  max-width: 500px;
-  max-height: 500px;
-  margin: 0 auto;
-  padding: 0%;
 }
 
 .dropzone {
-  border-width: 1px;
-  padding: 1rem;
-  border-radius: var(--mantine-radius-md);
-  padding-bottom: 50px;
-  border-style: dashed;
-  background-color: light-dark(
-    var(--mantine-color-gray-3),
-    var(--mantine-color-dark-5)
-  );
+  border-width: rem(1px);
+  padding-bottom: rem(50px);
 }
 
 .icon {
@@ -29,7 +14,14 @@
 
 .control {
   position: absolute;
-  width: 250px;
-  left: calc(50% - 125px);
-  bottom: -20px;
+  width: rem(250px);
+  left: calc(50% - rem(125px));
+  bottom: rem(-20px);
+}
+
+.animationWrapper {
+  max-width: 500px;
+  max-height: 500px;
+  margin: 0 auto;
+  padding: 0%;
 }
