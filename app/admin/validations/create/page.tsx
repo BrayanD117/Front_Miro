@@ -22,6 +22,8 @@ import { showNotification } from "@mantine/notifications";
 import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
 import axios from "axios";
 import styles from './AdminValidationCreatePage.module.css';
+import '@mantine/dropzone/styles.css';
+import { ValidationDropzone } from "@/app/components/ValidationDropzone/ValidationDropzone";
 
 interface Column {
   name: string;
@@ -41,6 +43,20 @@ const AdminValidationCreatePage = () => {
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+
+  const handleFileProcessed = (data: any[]) => {
+    const processedColumns = data.map((column) => {
+      const validValues = column.values.filter((value: any) => typeof value === 'number' || typeof value === 'string');
+      return {
+        name: column.name || '',
+        is_validator: false,
+        type: validValues.every((val: any) => typeof val === 'number') ? 'Número' : 'Texto',
+        values: validValues,
+      };
+    });
+    setColumns(processedColumns);
+    console.log("processedColumns", processedColumns);
+  };
 
   const handleAddColumn = () => {
     const newColumns = [...columns, { name: "", is_validator: false, type: "", values: [] }];
@@ -198,6 +214,7 @@ const AdminValidationCreatePage = () => {
             required
             mb="md"
           />
+          <ValidationDropzone onFileProcessed={handleFileProcessed} />
           <Center mb="md" mt="md">
             <Button onClick={handleAddColumn} leftSection={<IconPlus size={20} />}>
               Agregar Columna

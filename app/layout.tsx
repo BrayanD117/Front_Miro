@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import '@mantine/dates/styles.css';
 import 'mantine-datatable/styles.layer.css';
+import '@mantine/dropzone/styles.css';
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./Providers";
