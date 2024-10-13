@@ -7,6 +7,8 @@ import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconArrowBigDownFilled, IconArrowBigUpFilled, IconArrowsTransferDown, IconCirclePlus, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useSort } from "../../hooks/useSort";
+import DateConfig, { dateToGMT, dateNow } from "@/app/components/DateConfig";
+import "dayjs/locale/es";
 
 interface Period {
   _id: string;
@@ -168,12 +170,12 @@ const AdminPeriodsPage = () => {
   const rows = sortedPeriods.map((period) => (
     <Table.Tr key={period._id}>
       <Table.Td><Center>{period.name}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.producer_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.producer_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.responsible_start_date).toLocaleDateString('es-CO')}</Center></Table.Td>
-      <Table.Td><Center>{new Date(period.responsible_end_date).toLocaleDateString('es-CO')}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.start_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.end_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.producer_start_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.producer_end_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.responsible_start_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.responsible_end_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{period.is_active ? "Activo" : "Inactivo"}</Center></Table.Td>
       <Table.Td>
         <Center>
@@ -192,6 +194,7 @@ const AdminPeriodsPage = () => {
 
   return (
     <Container size="xl">
+      <DateConfig />
       <TextInput
         placeholder="Buscar en todos los periodos"
         value={search}
