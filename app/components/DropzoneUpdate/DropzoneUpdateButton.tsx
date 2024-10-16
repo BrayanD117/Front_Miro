@@ -97,12 +97,9 @@ export function DropzoneUpdateButton({ pubTemId, endDate, onClose, edit = false 
 
           if (error.response?.data.details) {
             const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
-            useEffect(() => {
-              localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
-              if(process.env.APP_ENV==='development') window.open('/dev/logs', '_blank')
-              else window.open('/logs', '_blank');
-            }, []);
-          
+            localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
+            if(typeof window !== 'undefined')
+              window.open('/logs', '_blank');          
           } else {
             showNotification({
               title: 'Error',
