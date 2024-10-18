@@ -3,9 +3,10 @@
 import { use, useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Button, Center, Container, Group, rem, Table, TextInput, Title, Tooltip } from "@mantine/core";
+import { Badge, Button, Center, Container, Group, rem, Table, TextInput, Title, Tooltip } from "@mantine/core";
 import { dateToGMT } from "@/app/components/DateConfig";
 import { IconHistory, IconReportAnalytics } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 interface Report {
   _id: string;
@@ -69,7 +70,16 @@ interface PublishedReport {
   folder_id: string;
 }
 
+const StatusColor: Record<string, string> = {
+  Pendiente: "orange",
+  "En Borrador": "grape",
+  "En Revisión": "cyan",
+  Aprobado: "lime",
+  Rechazado: "red",
+};
+
 const ResponsibleReportsPage = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -111,13 +121,19 @@ const ResponsibleReportsPage = () => {
       <Table.Td>{dateToGMT(pReport.period.responsible_start_date)}</Table.Td>
       <Table.Td>{dateToGMT(pReport.period.responsible_end_date)}</Table.Td>
       <Table.Td>
-        <a href={pReport.report.report_example_download} target="_blank">
           {pReport.report.name}
-        </a>
       </Table.Td>
       <Table.Td>
         <Center>
+          <Badge
+            w={rem(110)}
+            color={
+              StatusColor[pReport.filled_reports[0]?.status] ?? "orange"
+            }
+            variant={"light"}
+          >
             {pReport.filled_reports[0]?.status ?? "Pendiente"}
+          </Badge>
         </Center>
       </Table.Td>
       <Table.Td>
@@ -134,7 +150,7 @@ const ResponsibleReportsPage = () => {
             >
               <Button
                 onClick={() => {
-
+                  router.push(`${pReport._id}`);
                 }}
                 variant="outline"
                 color="blue"
