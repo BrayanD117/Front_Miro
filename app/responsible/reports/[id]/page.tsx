@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { Button, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloudUpload, IconDownload, IconEdit, IconEye, IconX } from "@tabler/icons-react";
+import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
@@ -188,6 +188,20 @@ const ResponsibleReportPage = () => {
         </Group>
         <Divider mb='md'/>
         <Collapse in={opened}>
+          <Group grow gap={'xl'}>
+            <Button leftSection={<IconDeviceFloppy/>} mb={'md'} variant="outline">
+              Guardar borrador
+            </Button>
+            <Button
+              rightSection={<IconSend2/>}
+              mb={'md'}
+              color="blue"
+              variant="filled"
+              autoContrast
+            >
+              Enviar reporte 
+            </Button>
+          </Group>
           <Text fw={700} mb={'xs'}>Carga tu archivo de reporte a continuación: {" "}
             {(publishedReport?.filled_reports[0]?.report_file && !deletedReport) ? (
               <Pill
@@ -231,7 +245,7 @@ const ResponsibleReportPage = () => {
           )}
           {publishedReport?.report.requires_attachment && (
             <>
-              <Divider mt='md' mb='md'/>
+              <Divider mt='md' mb='md' variant="dashed"/>
               <Text fw={700} mt='md'>Carga tus anexos y sus descripciones:</Text>
               {(publishedReport?.filled_reports[0]?.attachments.length > 0 || attachments.length > 0) ? (
                 <Table
