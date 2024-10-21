@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Button, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
@@ -253,9 +253,12 @@ const ResponsibleReportPage = () => {
                   style={{ width: "100%" }}
                   mt="md"
                   mb="md"
+                  withColumnBorders
+                  withTableBorder
                 >
                   <Table.Thead>
                     <Table.Tr>
+                      <Table.Th maw={rem(5)}/>
                       <Table.Th maw={rem(400)}>Nombre</Table.Th>
                       <Table.Th miw={rem(700)}>Descripción</Table.Th>
                     </Table.Tr>
@@ -263,6 +266,11 @@ const ResponsibleReportPage = () => {
                   <Table.Tbody>
                     {publishedReport?.filled_reports[0]?.attachments.map((attachment) => (
                       <Table.Tr key={attachment.id}>
+                        <Table.Td w={1}>
+                          <Center>
+                            <IconX size={16}/>
+                          </Center>
+                        </Table.Td>
                         <Table.Td>
                           <Text
                             onClick={() => setFrameFile(attachment)}
