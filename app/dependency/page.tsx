@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Container, TextInput, Table, Switch, Button, Group, Select, Title } from "@mantine/core";
 import { useSession } from "next-auth/react";
 import axios from "axios";
@@ -13,6 +14,7 @@ interface Member {
 }
 
 const DependencyPage = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [dependency, setDependency] = useState({
     dep_code: "",
@@ -176,6 +178,12 @@ const DependencyPage = () => {
 
       <Group mt="md">
         <Button onClick={handleSave}>Guardar</Button>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard")}
+        >
+          Cancelar
+        </Button>
       </Group>
     </Container>
   );
