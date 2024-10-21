@@ -82,6 +82,14 @@ const AdminUpdateDependencyPage = () => {
         .map((member) => member.email);
 
       await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/dependencies/setResponsible`,
+        {
+          dep_code: dependency.dep_code,
+          email: dependency.responsible,
+        }
+      );
+
+      await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/users/updateProducer`,
         [
           ...producers.map((email) => ({
@@ -134,7 +142,9 @@ const AdminUpdateDependencyPage = () => {
 
   return (
     <Container size="md">
-      <Title ta={"center"} order={2}>Gestionar Dependencia</Title>
+      <Title ta={"center"} order={2}>
+        Gestionar Dependencia
+      </Title>
       <TextInput label="Código" value={dependency.dep_code} readOnly mb="md" />
       <TextInput
         label="Dependencia Padre"
