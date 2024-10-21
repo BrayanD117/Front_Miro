@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
@@ -170,20 +170,28 @@ const ResponsibleReportPage = () => {
           </Group>
         </Text>
         </Group>
-        <Group grow>
+        <Group grow mb='md'>
           <Text size={'md'} mb='md'>
             <Text fw="700">Descripción:</Text>
             {publishedReport?.report.description ?? "Sin descripción"}
           </Text>
-          <span/>
+          <Select
+            label={<Text fw={700}>Historial de envíos:</Text>}
+            placeholder="Selecciona un envío"
+            data={['Fecha 1', 'Fecha 2']}
+            searchable
+            nothingFoundMessage="No encontrado"
+          />
           <Button
             onClick={toggle}
-            mb='md' maw={280}
+            mt={'xl'}
+            mb='md'
+            maw={220}
             variant="outline"
             leftSection={<IconEdit/>}
           >
             {(publishedReport?.filled_reports[0]?.status === "En Borrador") ? 
-              "Modificar borrador de reporte" : "Diligenciar reporte"}
+              "Modificar borrador" : "Diligenciar reporte"}
           </Button>
         </Group>
         <Divider mb='md'/>
