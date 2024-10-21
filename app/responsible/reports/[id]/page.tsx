@@ -5,22 +5,21 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Button, Collapse, Container, Divider, Group, rem, Stack, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import { IconCheck, IconCloudUpload, IconDownload, IconEye, IconX } from "@tabler/icons-react";
+import { Button, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloudUpload, IconDownload, IconEdit, IconEye, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
 import { useDisclosure } from "@mantine/hooks";
+import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 
 interface Report {
   _id: string;
   name: string;
   description: string;
   report_example_id: string;
-  report_example_link: string;
   report_example_download: string;
   requires_attachment: boolean;
-  file_name: string;
   created_by: {
     email: string;
     full_name: string;
@@ -40,15 +39,14 @@ interface Period {
 }
 
 interface AttachmentFile extends File {
-  description: string;
+  description?: string;
 }
 
 interface DriveFile {
   id: string;
   name: string;
-  view_link: string;
   download_link: string;
-  folder_id: string;
+  description?: string;
 }
 
 interface User {
@@ -86,7 +84,9 @@ const ResponsibleReportPage = () => {
   const [publishedReport, setPublishedReport] = useState<PublishedReport>();
   const [reportFile, setReportFile] = useState<File>();
   const [deletedReport, setDeletedReport] = useState<string>();
-  const [frameOpen, setFrameOpen] = useState<boolean>(false);
+  const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
+  const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
+  const [frameFile, setFrameFile] = useState<DriveFile | null>();
   const [opened, { toggle }] = useDisclosure(false);
 
   const fetchReport = async () => {
@@ -117,86 +117,249 @@ const ResponsibleReportPage = () => {
   }, []);
 
   return (
-    <Container size={'xl'} ml={'md'}>
-      <Title ta={'center'} mb={'md'}>{publishedReport?.report.name}</Title>
-      <Group grow>
-        <Text size={'md'} mb={'md'}>
-          <Text fw="700">Periodo:</Text> 
-          {publishedReport?.period.name}
-        </Text>
-        <Text size={'md'}>
-          <Text fw="700">Necesita anexos:</Text>
-          {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
-        </Text>
-        <Text size={'md'} mb='md'>
-        <Text fw="700">Formato de reporte:</Text>
-        <Group>
-          <Tooltip 
-            label="Ver formato"
-            transitionProps={{ transition: "fade-up", duration: 300 }}
-          >
-            <Button
-              variant="light"
-              size="sm"
-              onClick={() => setFrameOpen(true)}
+    <>
+      <Container size={'xl'} ml={'md'}>
+        <Title ta={'center'} mb={'md'}>{publishedReport?.report.name}</Title>
+        <Group grow>
+          <Text size={'md'} mb={'md'}>
+            <Text fw="700">Periodo:</Text> 
+            {publishedReport?.period.name}
+          </Text>
+          <Text size={'md'}>
+            <Text fw="700">Necesita anexos:</Text>
+            {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
+          </Text>
+          <Text size={'md'} mb='md'>
+          <Text fw="700">Formato de reporte:</Text>
+          <Group>
+            <Tooltip 
+              label="Ver formato"
+              transitionProps={{ transition: "fade-up", duration: 300 }}
             >
-              <IconEye/>
-            </Button>
-          </Tooltip>
-          <Tooltip 
-            label="Descargar formato"
-            transitionProps={{ transition: "fade-up", duration: 300 }}
-          >
-            <Button variant="light" size="sm"><IconDownload/></Button>
-          </Tooltip>
+              <Button
+                variant="light"
+                size="sm"
+                onClick={() => {
+                  if(publishedReport)
+                    setFrameFile({
+                      id: publishedReport.report.report_example_id,
+                      name: publishedReport.report.name,
+                      download_link: publishedReport.report.report_example_download,
+                      description: publishedReport?.report.description,
+                    })
+                }}
+              >
+                <IconEye/>
+              </Button>
+            </Tooltip>
+            <Tooltip 
+              label="Descargar formato"
+              transitionProps={{ transition: "fade-up", duration: 300 }}
+            >
+              <Button
+                variant="light"
+                size="sm"
+                onClick={() => {
+                  if (typeof window !== "undefined")
+                    window.open(publishedReport?.report.report_example_download);
+                }}
+              >
+                <IconDownload/>
+              </Button>
+            </Tooltip>
+          </Group>
+        </Text>
         </Group>
-      </Text>
-      </Group>
-      <Text size={'md'} mb='md'>
-        <Text fw="700">Descripción:</Text>
-        {publishedReport?.report.description ?? "Sin descripción"}
-      </Text>
-      <Divider mb='md'/>
-
-      <Button onClick={toggle} mb='md'>
-        {(publishedReport?.filled_reports && 
-          publishedReport.filled_reports[0].status === "En Borrador") ? 
-          "Modificar borrador de reporte" : "Crear borrador de reporte"}
-      </Button>
-
-      <Collapse in={opened}>
-        <Text fw={700} mb={'xs'}>Carga tu archivo de reporte a continuación:</Text>
-        <DropzoneCustomComponent
-          onDrop={(files) => {
-            if (files.length > 1) {
-              showNotification({
-                title: "Solo puedes cargar un archivo",
-                message: "En el reporte solo puedes cargar un archivo",
-                color: "red",
-              });
-              return;
-            }
-            setReportFile(files[0]);
-            if (publishedReport?.filled_reports[0]?.report_file)
-              setDeletedReport(
-                publishedReport?.filled_reports[0].report_file.id
-              );
-          }}
-          text="Arrastra o selecciona el archivo con tu reporte"
-        />
-        {publishedReport?.report.requires_attachment && (
-          <>
-            <Text fw={700} mt='md'>Carga tus anexos y sus descripciones:</Text>
+        <Group grow>
+          <Text size={'md'} mb='md'>
+            <Text fw="700">Descripción:</Text>
+            {publishedReport?.report.description ?? "Sin descripción"}
+          </Text>
+          <span/>
+          <Button
+            onClick={toggle}
+            mb='md' maw={280}
+            variant="outline"
+            leftSection={<IconEdit/>}
+          >
+            {(publishedReport?.filled_reports[0]?.status === "En Borrador") ? 
+              "Modificar borrador de reporte" : "Diligenciar reporte"}
+          </Button>
+        </Group>
+        <Divider mb='md'/>
+        <Collapse in={opened}>
+          <Text fw={700} mb={'xs'}>Carga tu archivo de reporte a continuación: {" "}
+            {(publishedReport?.filled_reports[0]?.report_file && !deletedReport) ? (
+              <Pill
+                withRemoveButton
+                size="md"
+                className={classes.pillDrive}
+                onRemove={() => setDeletedReport(publishedReport?.filled_reports[0].report_file.id)}
+                onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+                style={{ cursor: "pointer" }}
+              >{publishedReport.filled_reports[0].report_file.name}</Pill>
+            ): reportFile && (
+              <Pill
+                withRemoveButton
+                size="md"
+                className={classes.pillFile}
+                onRemove={() => setReportFile(undefined)}
+              >
+                {reportFile?.name}
+              </Pill>
+            )}
+          </Text>
+          {!((publishedReport?.filled_reports[0]?.report_file && !deletedReport) || reportFile) && (
             <DropzoneCustomComponent
               onDrop={(files) => {
-
+                if (files.length > 1) {
+                  showNotification({
+                    title: "Solo puedes cargar un archivo",
+                    message: "En el reporte solo puedes cargar un archivo",
+                    color: "red",
+                  });
+                  return;
+                }
+                setReportFile(files[0]);
+                if (publishedReport?.filled_reports[0]?.report_file)
+                  setDeletedReport(
+                    publishedReport?.filled_reports[0].report_file.id
+                  );
               }}
-              text="Arrastra o selecciona los anexos"
+              text="Arrastra o selecciona el archivo con tu reporte"
             />
-          </>
-        )}
-      </Collapse>
-    </Container>
+          )}
+          {publishedReport?.report.requires_attachment && (
+            <>
+              <Divider mt='md' mb='md'/>
+              <Text fw={700} mt='md'>Carga tus anexos y sus descripciones:</Text>
+              {(publishedReport?.filled_reports[0]?.attachments.length > 0 || attachments.length > 0) ? (
+                <Table
+                  striped
+                  style={{ width: "100%" }}
+                  mt="md"
+                  mb="md"
+                >
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th maw={rem(400)}>Nombre</Table.Th>
+                      <Table.Th miw={rem(700)}>Descripción</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {publishedReport?.filled_reports[0]?.attachments.map((attachment) => (
+                      <Table.Tr key={attachment.id}>
+                        <Table.Td>
+                          <Text
+                            onClick={() => setFrameFile(attachment)}
+                            style={{ cursor: "pointer" }}
+                            size="sm"
+                          >
+                            {attachment.name}
+                          </Text>
+                          </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                            value={attachment.description}
+                            onChange={(event) => {
+                              const updatedFilledReports = [...(publishedReport?.filled_reports || [])];
+                              const attachmentIndex = updatedFilledReports[0].attachments.findIndex(
+                                (att) => att.id === attachment.id
+                              );
+                              if (attachmentIndex !== -1) {
+                                updatedFilledReports[0].attachments[attachmentIndex].description = event.currentTarget.value;
+                                setPublishedReport({ ...publishedReport, filled_reports: updatedFilledReports });
+                              }
+                            }}
+                          />
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                    {attachments.map((attachment, index) => (
+                      <Table.Tr key={index}>
+                        <Table.Td>
+                          <Text size="sm">
+                            {attachment.name}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                          value={attachment.description}
+                          onChange={(event) => {
+                            const newAttachments = [...attachments];
+                            newAttachments[index].description = event.currentTarget.value;
+                            setAttachments(newAttachments);
+                          }}
+                          />
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                    <Table.Tr>
+                      <Table.Td colSpan={3}>
+                        <FileButton
+                          onChange={(files) => {
+                            setAttachments([...attachments, ...files]);
+                          }}
+                          accept="*"
+                          multiple
+                        >
+                          {(props) => 
+                            <Button 
+                            {...props} 
+                            variant="light" 
+                            fullWidth
+                            leftSection={<IconCirclePlus/>}
+                            >
+                              Añadir anexo(s)
+                            </Button>
+                          }
+                        </FileButton>
+                      </Table.Td>
+                    </Table.Tr>
+                  </Table.Tbody>
+                </Table>
+              ) : 
+              <DropzoneCustomComponent
+                onDrop={(files) => {
+                  setAttachments(files);
+                }}
+                text="Arrastra o selecciona los anexos"
+              />
+              }
+            </>
+          )}
+        </Collapse>
+      </Container>
+      <Modal
+        opened={Boolean(frameFile)}
+        onClose={() => setFrameFile(null)}
+        size="xl"
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+        withCloseButton={false}
+      >
+        <>
+          <Button
+            mx={"sm"}
+            variant="light"
+            size="compact-md"
+            onClick={() => setFrameFile(null)}
+            mb={"sm"}
+          >
+            <IconChevronsLeft />
+            <Text size="sm" fw={600}>
+              Ir atrás
+            </Text>
+          </Button>
+          <Text component="span" fw={700}>
+            {frameFile?.name}
+          </Text>
+          <DriveFileFrame fileId={frameFile?.id || ""} fileName={frameFile?.name || ""} />
+        </>
+      </Modal>
+    </>
   )
 }
 
