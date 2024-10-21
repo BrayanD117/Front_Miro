@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text } from "@mantine/core";
 import { IconEdit, IconRefresh, IconTrash, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import axios from "axios";
+import { useRouter } from 'next/navigation';
 import { showNotification } from "@mantine/notifications";
 import styles from "./AdminDependenciesPage.module.css";
 import { useSort } from "../../hooks/useSort";
@@ -37,7 +38,7 @@ const AdminDependenciesPage = () => {
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { sortedItems: sortedDependencies, handleSort, sortConfig } = useSort<Dependency>(dependencies, { key: null, direction: "asc" });
-
+  const router = useRouter();
 
   const fetchDependencies = async (page: number, search: string) => {
     try {
@@ -106,14 +107,7 @@ const AdminDependenciesPage = () => {
   };
 
   const handleEdit = (dependency: Dependency) => {
-    setSelectedDependency(dependency);
-    setDepCode(dependency.dep_code);
-    setName(dependency.name);
-    setResponsible(dependency.responsible);
-    setDepFather(dependency.dep_father);
-    setSelectedProducers(dependency.members);
-    fetchMembers(dependency.dep_code);
-    setOpened(true);
+    router.push(`/admin/dependencies/update/${dependency._id}`);
   };
 
   const handleSave = async () => {

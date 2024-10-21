@@ -1,9 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Container, TextInput, Table, Switch, Button, Group, Select, Title } from "@mantine/core";
-import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Container,
+  TextInput,
+  Button,
+  Group,
+  Select,
+  Table,
+  Switch,
+  Title,
+} from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 
@@ -13,9 +21,11 @@ interface Member {
   isProducer: boolean;
 }
 
-const DependencyPage = () => {
+const AdminUpdateDependencyPage = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const params = useParams();
+  const { id } = params;
+
   const [dependency, setDependency] = useState({
     dep_code: "",
     name: "",
@@ -27,40 +37,39 @@ const DependencyPage = () => {
   const [selectAllProducers, setSelectAllProducers] = useState(false);
 
   useEffect(() => {
-    const fetchDependency = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/responsible`,
-          { params: { email: session?.user?.email } }
-        );
-        setDependency(response.data);
+    if (id) {
+      const fetchDependency = async () => {
+        try {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}`
+          );
+          setDependency(response.data);
+          const membersResponse = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${response.data.dep_code}/members`
+          );
 
-        const membersResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${response.data.dep_code}/members`
-        );
+          const updatedMembers = await Promise.all(
+            membersResponse.data.map(async (member: any) => {
+              const rolesResponse = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/users/roles?email=${member.email}`
+              );
+              const isProducer = rolesResponse.data.roles.includes("Productor");
+              return {
+                email: member.email,
+                full_name: member.full_name,
+                isProducer,
+              };
+            })
+          );
 
-        const updatedMembers = await Promise.all(
-          membersResponse.data.map(async (member: any) => {
-            const rolesResponse = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/users/roles?email=${member.email}`
-            );
-            const isProducer = rolesResponse.data.roles.includes("Productor");
-            return {
-              email: member.email,
-              full_name: member.full_name,
-              isProducer,
-            };
-          })
-        );
-
-        setMembers(updatedMembers);
-      } catch (error) {
-        console.error("Error fetching dependency or members:", error);
-      }
-    };
-
-    fetchDependency();
-  }, []);
+          setMembers(updatedMembers);
+        } catch (error) {
+          console.error("Error fetching dependency or members:", error);
+        }
+      };
+      fetchDependency();
+    }
+  }, [id]);
 
   const handleSave = async () => {
     try {
@@ -91,6 +100,8 @@ const DependencyPage = () => {
         message: "Dependencia actualizada exitosamente",
         color: "teal",
       });
+
+      router.push("/admin/dependencies");
     } catch (error) {
       console.error("Error updating dependency:", error);
       showNotification({
@@ -123,7 +134,7 @@ const DependencyPage = () => {
 
   return (
     <Container size="md">
-      <Title ta={"center"} order={2}>Gestionar Mi Dependencia</Title>
+      <Title ta={"center"} order={2}>Gestionar Dependencia</Title>
       <TextInput label="Código" value={dependency.dep_code} readOnly mb="md" />
       <TextInput
         label="Dependencia Padre"
@@ -132,6 +143,7 @@ const DependencyPage = () => {
         mb="md"
       />
       <TextInput label="Nombre" value={dependency.name} readOnly mb="md" />
+
       <Select
         label="Responsable"
         value={dependency.responsible}
@@ -143,7 +155,9 @@ const DependencyPage = () => {
           label: member.full_name,
         }))}
         mb="md"
-        readOnly        
+        allowDeselect={false}
+        searchable
+        nothingFoundMessage="No existe ningún miembro con ese nombre."
       />
       <Switch
         label="Activar todos los productores"
@@ -151,7 +165,6 @@ const DependencyPage = () => {
         onChange={toggleAllProducers}
         mb="md"
       />
-
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
@@ -180,7 +193,7 @@ const DependencyPage = () => {
         <Button onClick={handleSave}>Guardar</Button>
         <Button
           variant="outline"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/admin/dependencies")}
         >
           Cancelar
         </Button>
@@ -189,4 +202,4 @@ const DependencyPage = () => {
   );
 };
 
-export default DependencyPage;
+export default AdminUpdateDependencyPage;
