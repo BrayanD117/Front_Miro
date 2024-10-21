@@ -10,6 +10,7 @@ import {
   Select,
   Table,
   Switch,
+  Title,
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -133,6 +134,7 @@ const AdminUpdateDependencyPage = () => {
 
   return (
     <Container size="md">
+      <Title ta={"center"} order={2}>Gestionar Dependencia</Title>
       <TextInput label="Código" value={dependency.dep_code} readOnly mb="md" />
       <TextInput
         label="Dependencia Padre"
