@@ -5,13 +5,14 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
+import { Button, Center, Collapse, Container, Divider, FileButton, Flex, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
 import { useDisclosure } from "@mantine/hooks";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
+import { dateToGMT } from "@/app/components/DateConfig";
 
 interface Report {
   _id: string;
@@ -87,6 +88,8 @@ const ResponsibleReportPage = () => {
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
   const [frameFile, setFrameFile] = useState<DriveFile | null>();
+  const [selectedReportIndex, setSelectedReportIndex] = useState<Number>(0);
+  const [canSend, setCanSend] = useState<boolean>(true);
   const [opened, { toggle }] = useDisclosure(false);
 
   const fetchReport = async () => {
@@ -116,79 +119,169 @@ const ResponsibleReportPage = () => {
     fetchReport();
   }, []);
 
+  const loadDraft = async () => {
+
+    try {
+      const formData = new FormData();
+
+      formData.append("email", session?.user?.email ?? "");
+      formData.append("publishedReportId", publishedReport?._id ?? "");
+      formData.append("filledDraft", publishedReport?.filled_reports[0]?._id ?? "");
+      if (reportFile) {
+        formData.append("reportFile", reportFile);
+      }
+      if (deletedReport) {
+        formData.append("deletedReport", deletedReport);
+      }
+      attachments.forEach((attachment) => {
+        formData.append("attachments", attachment);
+      });
+      deletedAttachments.forEach((attachment) => {
+        formData.append("deletedAttachments", attachment);
+      });
+
+
+      axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/loadDraft`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+
+      setAttachments([]);
+      setDeletedAttachments([]);
+      setDeletedReport(undefined);
+      setReportFile(undefined);
+      setCanSend(true);
+
+      showNotification({
+        title: "Borrador guardado",
+        message: "El borrador se ha guardado correctamente",
+        color: "green",
+      });
+    } catch (error) {
+      console.error(error);
+      showNotification({
+        title: "Error",
+        message: "No se pudo guardar el borrador",
+        color: "red",
+      });
+    }
+  }
+
+  const sendReport = async () => {
+    if (!publishedReport?.filled_reports[0]?.report_file && !reportFile) {
+      showNotification({
+        title: "Error",
+        message: "Debes cargar un archivo de reporte",
+        color: "red",
+      });
+      return;
+    }
+
+    if (publishedReport?.report.requires_attachment && publishedReport?.filled_reports[0].attachments.length === 0) {
+      showNotification({
+        title: "Error",
+        message: "Debes cargar al menos un anexo",
+        color: "red",
+      });
+      return;
+    }
+
+    if (publishedReport?.report.requires_attachment) {
+      if (!publishedReport?.filled_reports[0].attachments.every(attachment => attachment.description && attachment.description.trim() !== "")) {
+      showNotification({
+        title: "Error",
+        message: "Todos los anexos deben tener una descripción",
+        color: "red",
+      });
+      return;
+      }
+    }
+  }
+
+  const historyReports = publishedReport?.filled_reports.filter((report) => report.status !== "En Borrador");
+
   return (
     <>
-      <Container size={'xl'} ml={'md'}>
+      <Container size={'xl'} ml={'md'} fluid>
         <Title ta={'center'} mb={'md'}>{publishedReport?.report.name}</Title>
-        <Group grow>
-          <Text size={'md'} mb={'md'}>
-            <Text fw="700">Periodo:</Text> 
-            {publishedReport?.period.name}
-          </Text>
+        <Group align="flex-start" grow>
+            <Text size={'md'}>
+              <Text fw="700">Periodo:</Text> 
+              {publishedReport?.period.name}
+            </Text>
           <Text size={'md'}>
             <Text fw="700">Necesita anexos:</Text>
             {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
           </Text>
           <Text size={'md'} mb='md'>
           <Text fw="700">Formato de reporte:</Text>
-          <Group>
-            <Tooltip 
-              label="Ver formato"
-              transitionProps={{ transition: "fade-up", duration: 300 }}
-            >
-              <Button
-                variant="light"
-                size="sm"
-                onClick={() => {
-                  if(publishedReport)
-                    setFrameFile({
-                      id: publishedReport.report.report_example_id,
-                      name: publishedReport.report.name,
-                      download_link: publishedReport.report.report_example_download,
-                      description: publishedReport?.report.description,
-                    })
-                }}
+            <Group>
+              <Tooltip 
+                label="Ver formato"
+                transitionProps={{ transition: "fade-up", duration: 300 }}
               >
-                <IconEye/>
-              </Button>
-            </Tooltip>
-            <Tooltip 
-              label="Descargar formato"
-              transitionProps={{ transition: "fade-up", duration: 300 }}
-            >
-              <Button
-                variant="light"
-                size="sm"
-                onClick={() => {
-                  if (typeof window !== "undefined")
-                    window.open(publishedReport?.report.report_example_download);
-                }}
+                <Button
+                  variant="light"
+                  size="sm"
+                  onClick={() => {
+                    if(publishedReport)
+                      setFrameFile({
+                        id: publishedReport.report.report_example_id,
+                        name: publishedReport.report.name,
+                        download_link: publishedReport.report.report_example_download,
+                        description: publishedReport?.report.description,
+                      })
+                  }}
+                >
+                  <IconEye/>
+                </Button>
+              </Tooltip>
+              <Tooltip 
+                label="Descargar formato"
+                transitionProps={{ transition: "fade-up", duration: 300 }}
               >
-                <IconDownload/>
-              </Button>
-            </Tooltip>
-          </Group>
-        </Text>
+                <Button
+                  variant="light"
+                  size="sm"
+                  onClick={() => {
+                    if (typeof window !== "undefined")
+                      window.open(publishedReport?.report.report_example_download);
+                  }}
+                >
+                  <IconDownload/>
+                </Button>
+              </Tooltip>
+            </Group>
+          </Text>
         </Group>
-        <Group grow mb='md'>
+        <Group grow mb='md' align="flex-start">
           <Text size={'md'} mb='md'>
             <Text fw="700">Descripción:</Text>
             {publishedReport?.report.description ?? "Sin descripción"}
           </Text>
           <Select
-            label={<Text fw={700}>Historial de envíos:</Text>}
-            placeholder="Selecciona un envío"
-            data={['Fecha 1', 'Fecha 2']}
+            label={<Text fw={700} size="md">Necesita anexos:</Text>}
+            placeholder={(historyReports?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
+            data={
+              historyReports?.map((report, index) => ({
+                value: `${index}`,
+                label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
+              })) || []
+            }
+            onChange={(value) => setSelectedReportIndex(Number(value))}
+            disabled={(historyReports?.length ?? 0) < 1}
             searchable
-            nothingFoundMessage="No encontrado"
+            nothingFoundMessage="···"
           />
           <Button
             onClick={toggle}
-            mt={'xl'}
-            mb='md'
-            maw={220}
             variant="outline"
             leftSection={<IconEdit/>}
+            mt={25}
           >
             {(publishedReport?.filled_reports[0]?.status === "En Borrador") ? 
               "Modificar borrador" : "Diligenciar reporte"}
@@ -197,18 +290,37 @@ const ResponsibleReportPage = () => {
         <Divider mb='md'/>
         <Collapse in={opened}>
           <Group grow gap={'xl'}>
-            <Button leftSection={<IconDeviceFloppy/>} mb={'md'} variant="outline">
-              Guardar borrador
-            </Button>
-            <Button
-              rightSection={<IconSend2/>}
-              mb={'md'}
-              color="blue"
-              variant="filled"
-              autoContrast
+            <Tooltip
+              label="No has hecho cambios"
+              transitionProps={{ transition: "fade-up", duration: 300 }}
+              disabled={!canSend}
             >
-              Enviar reporte 
-            </Button>
+              <Button
+                leftSection={<IconCloudUpload/>}
+                mb={'md'}
+                variant="outline"
+                disabled={canSend}
+                onClick={loadDraft}
+              >
+                Guardar borrador
+              </Button>
+            </Tooltip>
+            <Tooltip
+              label="Primero debes guardar el borrador"
+              transitionProps={{ transition: "fade-up", duration: 300 }}
+              disabled={canSend}
+            >
+              <Button
+                leftSection={<IconSend2/>}
+                mb={'md'}
+                variant="outline"
+                color="blue"
+                disabled={!canSend}
+                onClick={sendReport}
+              >
+                Enviar reporte 
+              </Button>
+            </Tooltip>
           </Group>
           <Text fw={700} mb={'xs'}>Carga tu archivo de reporte a continuación: {" "}
             {(publishedReport?.filled_reports[0]?.report_file && !deletedReport) ? (
@@ -219,7 +331,9 @@ const ResponsibleReportPage = () => {
                 onRemove={() => setDeletedReport(publishedReport?.filled_reports[0].report_file.id)}
                 onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
                 style={{ cursor: "pointer" }}
-              >{publishedReport.filled_reports[0].report_file.name}</Pill>
+              >
+                {publishedReport.filled_reports[0].report_file.name}
+              </Pill>
             ): reportFile && (
               <Pill
                 withRemoveButton
@@ -243,6 +357,7 @@ const ResponsibleReportPage = () => {
                   return;
                 }
                 setReportFile(files[0]);
+                setCanSend(false)
                 if (publishedReport?.filled_reports[0]?.report_file)
                   setDeletedReport(
                     publishedReport?.filled_reports[0].report_file.id
@@ -272,26 +387,36 @@ const ResponsibleReportPage = () => {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {publishedReport?.filled_reports[0]?.attachments.map((attachment) => (
+                    {publishedReport?.filled_reports[0]?.attachments.map((attachment, index) => (
                       <Table.Tr key={attachment.id}>
                         <Table.Td w={1}>
                           <Center>
-                            <IconX size={16}/>
+                            <IconX size={16} color="red" onClick={() => {
+                              setDeletedAttachments([...deletedAttachments, attachment.id]);
+                              publishedReport.filled_reports[0].attachments = publishedReport.filled_reports[0].attachments
+                                .filter((att) => att.id !== attachment.id);
+                              setCanSend(false)
+                            }}/>
                           </Center>
                         </Table.Td>
                         <Table.Td>
-                          <Text
+                          <Group
+                            gap="xs"
                             onClick={() => setFrameFile(attachment)}
                             style={{ cursor: "pointer" }}
+                          >
+                          <IconCloud size={16} color="gray" />
+                          <Text
                             size="sm"
                           >
                             {attachment.name}
                           </Text>
-                          </Table.Td>
+                          </Group>
+                        </Table.Td>
                         <Table.Td>
                           <TextInput
-                            value={attachment.description}
-                            onChange={(event) => {
+                          value={attachment.description}
+                          onChange={(event) => {
                               const updatedFilledReports = [...(publishedReport?.filled_reports || [])];
                               const attachmentIndex = updatedFilledReports[0].attachments.findIndex(
                                 (att) => att.id === attachment.id
@@ -300,6 +425,7 @@ const ResponsibleReportPage = () => {
                                 updatedFilledReports[0].attachments[attachmentIndex].description = event.currentTarget.value;
                                 setPublishedReport({ ...publishedReport, filled_reports: updatedFilledReports });
                               }
+                              setCanSend(false)
                             }}
                           />
                         </Table.Td>
@@ -307,6 +433,16 @@ const ResponsibleReportPage = () => {
                     ))}
                     {attachments.map((attachment, index) => (
                       <Table.Tr key={index}>
+                        <Table.Td w={1}>
+                          <Center>
+                            <IconX size={16} color="red" onClick={() => {
+                              const newAttachments = [...attachments];
+                              newAttachments.splice(index, 1);
+                              setAttachments(newAttachments);
+                              setCanSend(false)
+                            }}/>
+                          </Center>
+                        </Table.Td>
                         <Table.Td>
                           <Text size="sm">
                             {attachment.name}
@@ -314,12 +450,13 @@ const ResponsibleReportPage = () => {
                         </Table.Td>
                         <Table.Td>
                           <TextInput
-                          value={attachment.description}
-                          onChange={(event) => {
-                            const newAttachments = [...attachments];
-                            newAttachments[index].description = event.currentTarget.value;
-                            setAttachments(newAttachments);
-                          }}
+                            value={attachment.description}
+                            onChange={(event) => {
+                              setCanSend(false)
+                              const newAttachments = [...attachments];
+                              newAttachments[index].description = event.currentTarget.value;
+                              setAttachments(newAttachments);
+                            }}
                           />
                         </Table.Td>
                       </Table.Tr>
@@ -352,6 +489,7 @@ const ResponsibleReportPage = () => {
               <DropzoneCustomComponent
                 onDrop={(files) => {
                   setAttachments(files);
+                  setCanSend(false)
                 }}
                 text="Arrastra o selecciona los anexos"
               />
