@@ -91,6 +91,7 @@ const ResponsibleReportPage = () => {
   const [selectedReportIndex, setSelectedReportIndex] = useState<Number>(0);
   const [canSend, setCanSend] = useState<boolean>(true);
   const [opened, { toggle }] = useDisclosure(false);
+  const [saving, setSaving] = useState<boolean>(false);
 
   const fetchReport = async () => {
     try {
@@ -126,7 +127,7 @@ const ResponsibleReportPage = () => {
 
       formData.append("email", session?.user?.email ?? "");
       formData.append("publishedReportId", publishedReport?._id ?? "");
-      formData.append("filledDraft", publishedReport?.filled_reports[0]?._id ?? "");
+      formData.append("filledDraft", JSON.stringify(publishedReport?.filled_reports[0] ?? ""));
       if (reportFile) {
         formData.append("reportFile", reportFile);
       }
@@ -135,13 +136,14 @@ const ResponsibleReportPage = () => {
       }
       attachments.forEach((attachment) => {
         formData.append("attachments", attachment);
+        formData.append(`newAttachmentsDescriptions`, attachment.description ?? "");
       });
       deletedAttachments.forEach((attachment) => {
         formData.append("deletedAttachments", attachment);
       });
+      
 
-
-      axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/loadDraft`,
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/loadDraft`,
         formData,
         {
           headers: {
@@ -149,12 +151,14 @@ const ResponsibleReportPage = () => {
           },
         }
       )
-
+      
       setAttachments([]);
       setDeletedAttachments([]);
       setDeletedReport(undefined);
       setReportFile(undefined);
       setCanSend(true);
+
+      await fetchReport()
 
       showNotification({
         title: "Borrador guardado",
@@ -264,7 +268,7 @@ const ResponsibleReportPage = () => {
             {publishedReport?.report.description ?? "Sin descripción"}
           </Text>
           <Select
-            label={<Text fw={700} size="md">Necesita anexos:</Text>}
+            label={<Text fw={700} size="md">Historial de envíos:</Text>}
             placeholder={(historyReports?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
             data={
               historyReports?.map((report, index) => ({
