@@ -388,7 +388,7 @@ const ResponsibleReportPage = () => {
                   <Table.Thead>
                     <Table.Tr>
                       <Table.Th maw={rem(5)}/>
-                      <Table.Th maw={rem(400)}>Nombre</Table.Th>
+                      <Table.Th maw={rem(400)}>Archivo</Table.Th>
                       <Table.Th miw={rem(700)}>Descripción</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
