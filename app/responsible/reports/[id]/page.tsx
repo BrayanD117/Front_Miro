@@ -121,7 +121,7 @@ const ResponsibleReportPage = () => {
   }, []);
 
   const loadDraft = async () => {
-
+    setSaving(true);
     try {
       const formData = new FormData();
 
@@ -156,16 +156,17 @@ const ResponsibleReportPage = () => {
       setDeletedAttachments([]);
       setDeletedReport(undefined);
       setReportFile(undefined);
-      setCanSend(true);
-
+      
       await fetchReport()
-
+      setSaving(false);
+      setCanSend(true);
       showNotification({
         title: "Borrador guardado",
         message: "El borrador se ha guardado correctamente",
         color: "green",
       });
     } catch (error) {
+      setSaving(false);
       console.error(error);
       showNotification({
         title: "Error",
@@ -305,6 +306,7 @@ const ResponsibleReportPage = () => {
                 variant="outline"
                 disabled={canSend}
                 onClick={loadDraft}
+                loading={saving}
               >
                 Guardar borrador
               </Button>
