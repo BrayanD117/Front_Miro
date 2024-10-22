@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Button, Center, Collapse, Container, Divider, FileButton, Flex, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Flex, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
@@ -77,6 +77,14 @@ interface PublishedReport {
   folder_id: string;
 }
 
+const StatusColor: Record<string, string> = {
+  Pendiente: "orange",
+  "En Borrador": "grape",
+  "En Revisión": "cyan",
+  Aprobado: "lime",
+  Rechazado: "red",
+};
+
 const ResponsibleReportPage = () => {
   const router = useRouter();
   const theme = useMantineTheme();
@@ -92,6 +100,7 @@ const ResponsibleReportPage = () => {
   const [canSend, setCanSend] = useState<boolean>(true);
   const [opened, { toggle }] = useDisclosure(false);
   const [saving, setSaving] = useState<boolean>(false);
+  const [sending, setSending] = useState<boolean>(false);
 
   const fetchReport = async () => {
     try {
@@ -177,6 +186,15 @@ const ResponsibleReportPage = () => {
   }
 
   const sendReport = async () => {
+    setSending(true)
+    if (!publishedReport) {
+      showNotification({
+        title: "Error",
+        message: "No se ha cargado el reporte",
+        color: "red",
+      });
+      return;
+    }
     if (!publishedReport?.filled_reports[0]?.report_file && !reportFile) {
       showNotification({
         title: "Error",
@@ -205,6 +223,37 @@ const ResponsibleReportPage = () => {
       return;
       }
     }
+
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/sendReport`, {
+        email: session?.user?.email,
+        publishedReportId: publishedReport?._id,
+        filledDraftId: publishedReport?.filled_reports[0]._id,
+      });
+
+      setAttachments([]);
+      setDeletedAttachments([]);
+      setDeletedReport(undefined);
+      setReportFile(undefined);
+      setSending(false);
+
+      await fetchReport();
+
+      showNotification({
+        title: "Reporte enviado",
+        message: "El reporte se ha enviado correctamente",
+        color: "green",
+      });
+
+    } catch (error) {
+      setSending(false);
+      console.error(error);
+      showNotification({
+        title: "Error",
+        message: "No se pudo enviar el reporte",
+        color: "red",
+      });
+    } 
   }
 
   const historyReports = publishedReport?.filled_reports.filter((report) => report.status !== "En Borrador");
@@ -221,6 +270,18 @@ const ResponsibleReportPage = () => {
           <Text size={'md'}>
             <Text fw="700">Necesita anexos:</Text>
             {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
+          </Text>
+          <Text size={'md'}>
+            <Text fw="700">Último estado:</Text>
+            <Badge
+              w={rem(110)}
+              color={
+                StatusColor[publishedReport?.filled_reports[0]?.status ?? ""] ?? "orange"
+              }
+              variant={"light"}
+            >
+              {publishedReport?.filled_reports[0]?.status ?? "Pendiente"}
+            </Badge>
           </Text>
           <Text size={'md'} mb='md'>
           <Text fw="700">Formato de reporte:</Text>
@@ -287,6 +348,9 @@ const ResponsibleReportPage = () => {
             variant="outline"
             leftSection={<IconEdit/>}
             mt={25}
+            disabled={publishedReport?.filled_reports[0]?.status === "Aceptado" 
+              || publishedReport?.filled_reports[0]?.status === "En Revisión"
+            }
           >
             {(publishedReport?.filled_reports[0]?.status === "En Borrador") ? 
               "Modificar borrador" : "Diligenciar reporte"}
@@ -312,7 +376,7 @@ const ResponsibleReportPage = () => {
               </Button>
             </Tooltip>
             <Tooltip
-              label="Primero debes guardar el borrador"
+              label={publishedReport?.filled_reports[0]?.status !== "En Borrador" ? "Este reporte ya fue enviado" : "Primero debes guardar el borrador"}
               transitionProps={{ transition: "fade-up", duration: 300 }}
               disabled={canSend}
             >
@@ -321,10 +385,11 @@ const ResponsibleReportPage = () => {
                 mb={'md'}
                 variant="outline"
                 color="blue"
-                disabled={!canSend}
+                disabled={!canSend || publishedReport?.filled_reports[0]?.status !== "En Borrador"}
                 onClick={sendReport}
+                loading={sending}
               >
-                Enviar reporte 
+                Enviar reporte
               </Button>
             </Tooltip>
           </Group>
