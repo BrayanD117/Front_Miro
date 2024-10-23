@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Flex, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { Badge, Button, Center, Collapse, ComboboxItem, Container, Divider, FileButton, Flex, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
 import { Dropzone } from "@mantine/dropzone";
 import classes from "../ResponsibleReportsPage.module.css";
@@ -91,14 +91,16 @@ const ResponsibleReportPage = () => {
   const { id } = useParams();
   const { data: session } = useSession();
   const [publishedReport, setPublishedReport] = useState<PublishedReport>();
+  const [sendsHistory, setSendsHistory] = useState<FilledReport[]>([]);
   const [reportFile, setReportFile] = useState<File>();
   const [deletedReport, setDeletedReport] = useState<string>();
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
   const [frameFile, setFrameFile] = useState<DriveFile | null>();
-  const [selectedReportIndex, setSelectedReportIndex] = useState<Number>(0);
+  const [selectedHistoryReport, setSelectedHistoryReport] = useState<ComboboxItem | null>(null);
   const [canSend, setCanSend] = useState<boolean>(true);
-  const [opened, { toggle }] = useDisclosure(false);
+  const [opened, setOpened] = useState(false);
+  const toggle = () => setOpened((prev) => !prev);
   const [saving, setSaving] = useState<boolean>(false);
   const [sending, setSending] = useState<boolean>(false);
 
@@ -113,6 +115,7 @@ const ResponsibleReportPage = () => {
         }
       )
       if (response.data) {
+        setSendsHistory(response.data.filled_reports);
         setPublishedReport(response.data);
       }
     } catch (error) {
@@ -186,7 +189,6 @@ const ResponsibleReportPage = () => {
   }
 
   const sendReport = async () => {
-    setSending(true)
     if (!publishedReport) {
       showNotification({
         title: "Error",
@@ -225,6 +227,7 @@ const ResponsibleReportPage = () => {
     }
 
     try {
+      setSending(true)
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible/sendReport`, {
         email: session?.user?.email,
         publishedReportId: publishedReport?._id,
@@ -256,7 +259,18 @@ const ResponsibleReportPage = () => {
     } 
   }
 
-  const historyReports = publishedReport?.filled_reports.filter((report) => report.status !== "En Borrador");
+  const onHistoryChange = (value: string | null, option?: ComboboxItem) => {
+    if (publishedReport) {
+      const updatedPublishedReport = { ...publishedReport };
+      updatedPublishedReport.filled_reports = [sendsHistory[Number(value)]];
+      setPublishedReport(updatedPublishedReport);
+      setOpened(true)
+    }
+    if(!option){
+      setSelectedHistoryReport(null);
+      toggle()
+    }
+  }
 
   return (
     <>
@@ -276,11 +290,11 @@ const ResponsibleReportPage = () => {
             <Badge
               w={rem(110)}
               color={
-                StatusColor[publishedReport?.filled_reports[0]?.status ?? ""] ?? "orange"
+                StatusColor[sendsHistory[0]?.status ?? ""] ?? "orange"
               }
               variant={"light"}
             >
-              {publishedReport?.filled_reports[0]?.status ?? "Pendiente"}
+              {sendsHistory[0]?.status ?? "Pendiente"}
             </Badge>
           </Text>
           <Text size={'md'} mb='md'>
@@ -329,32 +343,49 @@ const ResponsibleReportPage = () => {
             <Text fw="700">Descripción:</Text>
             {publishedReport?.report.description ?? "Sin descripción"}
           </Text>
-          <Select
-            label={<Text fw={700} size="md">Historial de envíos:</Text>}
-            placeholder={(historyReports?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
-            data={
-              historyReports?.map((report, index) => ({
+            <Select
+              label={<Text fw={700} size="md">Historial de reportes:</Text>}
+              placeholder={(sendsHistory?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
+              data={
+                sendsHistory?.map((report, index) => ({
                 value: `${index}`,
                 label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
-              })) || []
-            }
-            onChange={(value) => setSelectedReportIndex(Number(value))}
-            disabled={(historyReports?.length ?? 0) < 1}
-            searchable
-            nothingFoundMessage="···"
-          />
-          <Button
-            onClick={toggle}
-            variant="outline"
-            leftSection={<IconEdit/>}
-            mt={25}
-            disabled={publishedReport?.filled_reports[0]?.status === "Aceptado" 
-              || publishedReport?.filled_reports[0]?.status === "En Revisión"
-            }
+                })) || []
+              }
+              onChange={(value, option) => {
+                  onHistoryChange(value, option)
+              }}
+              value={selectedHistoryReport ? selectedHistoryReport.value : undefined}
+              disabled={(sendsHistory?.length ?? 0) < 1}
+              searchable
+              nothingFoundMessage="···"
+            />
+          <Tooltip
+            label="No puedes modificar el reporte si ya fue aprobado o está en revisión"
+            transitionProps={{ transition: "fade-up", duration: 300 }}
+            disabled={!sendsHistory.some((report) => report.status === "Aprobado" 
+              || report.status === "En Revisión")}
           >
-            {(publishedReport?.filled_reports[0]?.status === "En Borrador") ? 
-              "Modificar borrador" : "Diligenciar reporte"}
-          </Button>
+            <Button
+              onClick={() => {
+                if(sendsHistory[0]?.status === "Rechazado" && publishedReport) {
+                  publishedReport.filled_reports = []
+                } else {
+                  onHistoryChange("0")
+                }
+                toggle()
+              }}
+              variant="outline"
+              leftSection={<IconEdit/>}
+              mt={25}
+              disabled={sendsHistory.some((report) => report.status === "Aprobado" 
+                || report.status === "En Revisión")
+              }
+            >
+              {(sendsHistory[0]?.status === "En Borrador") ? 
+                "Modificar borrador" : "Diligenciar reporte"}
+            </Button>
+          </Tooltip>
         </Group>
         <Divider mb='md'/>
         <Collapse in={opened}>
@@ -368,7 +399,10 @@ const ResponsibleReportPage = () => {
                 leftSection={<IconCloudUpload/>}
                 mb={'md'}
                 variant="outline"
-                disabled={canSend}
+                disabled={canSend || publishedReport?.filled_reports[0]?.status === "Rechazado" ||
+                  sendsHistory.some((report) => report.status === "Aprobado" 
+                  || report.status === "En Revisión")
+                }
                 onClick={loadDraft}
                 loading={saving}
               >
@@ -385,7 +419,9 @@ const ResponsibleReportPage = () => {
                 mb={'md'}
                 variant="outline"
                 color="blue"
-                disabled={!canSend || publishedReport?.filled_reports[0]?.status !== "En Borrador"}
+                disabled={!canSend || publishedReport?.filled_reports[0]?.status !== "En Borrador" || 
+                  sendsHistory.some((report) => report.status === "Aprobado" || report.status === "En Revisión")
+                }
                 onClick={sendReport}
                 loading={sending}
               >
@@ -396,7 +432,8 @@ const ResponsibleReportPage = () => {
           <Text fw={700} mb={'xs'}>Carga tu archivo de reporte a continuación: {" "}
             {(publishedReport?.filled_reports[0]?.report_file && !deletedReport) ? (
               <Pill
-                withRemoveButton
+                withRemoveButton={!(publishedReport?.filled_reports[0]?.status !== "En Borrador" 
+                  || !publishedReport?.filled_reports[0]?.status)}
                 size="md"
                 className={classes.pillDrive}
                 onRemove={() => setDeletedReport(publishedReport?.filled_reports[0].report_file.id)}
@@ -462,12 +499,24 @@ const ResponsibleReportPage = () => {
                       <Table.Tr key={attachment.id}>
                         <Table.Td w={1}>
                           <Center>
-                            <IconX size={16} color="red" onClick={() => {
-                              setDeletedAttachments([...deletedAttachments, attachment.id]);
-                              publishedReport.filled_reports[0].attachments = publishedReport.filled_reports[0].attachments
-                                .filter((att) => att.id !== attachment.id);
-                              setCanSend(false)
-                            }}/>
+                            <Button
+                              variant="transparent"
+                              size="compact-xs"
+                              w={35}
+                              onClick={() => {
+                                setDeletedAttachments([...deletedAttachments, attachment.id]);
+                                publishedReport.filled_reports[0].attachments = publishedReport.filled_reports[0].attachments
+                                  .filter((att) => att.id !== attachment.id);
+                                setCanSend(false)
+                              }}
+                              disabled={publishedReport?.filled_reports[0]?.status !== "En Borrador" 
+                                || !publishedReport?.filled_reports[0]?.status}
+                            >
+                              <IconX 
+                                size={16}
+                                color="red"
+                              />
+                            </Button>
                           </Center>
                         </Table.Td>
                         <Table.Td>
@@ -486,8 +535,10 @@ const ResponsibleReportPage = () => {
                         </Table.Td>
                         <Table.Td>
                           <TextInput
-                          value={attachment.description}
-                          onChange={(event) => {
+                            disabled={publishedReport?.filled_reports[0]?.status !== "En Borrador" 
+                              || !publishedReport?.filled_reports[0]?.status}
+                            value={attachment.description}
+                            onChange={(event) => {
                               const updatedFilledReports = [...(publishedReport?.filled_reports || [])];
                               const attachmentIndex = updatedFilledReports[0].attachments.findIndex(
                                 (att) => att.id === attachment.id
@@ -537,6 +588,7 @@ const ResponsibleReportPage = () => {
                         <FileButton
                           onChange={(files) => {
                             setAttachments([...attachments, ...files]);
+                            setCanSend(false)
                           }}
                           accept="*"
                           multiple
@@ -547,6 +599,9 @@ const ResponsibleReportPage = () => {
                             variant="light" 
                             fullWidth
                             leftSection={<IconCirclePlus/>}
+                            disabled={publishedReport?.filled_reports[0]?.status !== "En Borrador" 
+                              || !publishedReport?.filled_reports[0]?.status}
+
                             >
                               Añadir anexo(s)
                             </Button>
