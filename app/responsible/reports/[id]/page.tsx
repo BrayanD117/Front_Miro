@@ -5,12 +5,12 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import { IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconSend2, IconX } from "@tabler/icons-react";
+import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { IconArrowLeft, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconX } from "@tabler/icons-react";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
-import { dateToGMT } from "@/app/components/DateConfig";
+import { dateNow, dateToGMT } from "@/app/components/DateConfig";
 
 interface Report {
   _id: string;
@@ -281,14 +281,23 @@ const ResponsibleReportPage = () => {
     <>
       <Container size={'xl'} ml={'md'} fluid>
         <Title ta={'center'} mb={'md'}>{publishedReport?.report.name}</Title>
+          <Group mb="md">
+          <Button
+            variant="outline"
+            leftSection={<IconArrowLeft />}
+            onClick={() => router.back()}
+          >
+            Ir atrás
+          </Button>
+        </Group>
         <Group align="flex-start" grow>
-            <Text size={'md'}>
-              <Text fw="700">Periodo:</Text> 
-              {publishedReport?.period.name}
-            </Text>
           <Text size={'md'}>
-            <Text fw="700">Necesita anexos:</Text>
-            {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
+            <Text fw="700">Periodo:</Text> 
+            {publishedReport?.period.name}
+          </Text>
+          <Text size={'md'}>
+            <Text fw="700">Plazo máximo:</Text>
+            {publishedReport?.period.responsible_end_date ? dateToGMT(publishedReport.period.responsible_end_date) : "Fecha no disponible"}
           </Text>
           <Text size={'md'}>
             <Text fw="700">Último estado:</Text>
@@ -348,22 +357,26 @@ const ResponsibleReportPage = () => {
             <Text fw="700">Descripción:</Text>
             {publishedReport?.report.description ?? "Sin descripción"}
           </Text>
-            <Select
-              label={<Text fw={700} size="md">Historial de reportes:</Text>}
-              placeholder={(sendsHistory?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
-              data={
-                sendsHistory?.map((report, index) => ({
-                  value: `${index}`,
-                  label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
-                })) || []
-              }
-              onChange={onHistoryChange}
-              value={selectedHistoryReport}
-              disabled={(sendsHistory?.length ?? 0) < 1}
-              searchable
-              clearable
-              
-            />
+          <Text size={'md'}>
+            <Text fw="700">Necesita anexos:</Text>
+            {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
+          </Text>
+          <Select
+            label={<Text fw={700} size="md">Historial de reportes:</Text>}
+            placeholder={(sendsHistory?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
+            data={
+              sendsHistory?.map((report, index) => ({
+                value: `${index}`,
+                label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
+              })) || []
+            }
+            onChange={onHistoryChange}
+            value={selectedHistoryReport}
+            disabled={(sendsHistory?.length ?? 0) < 1}
+            searchable
+            clearable
+            
+          />
           <Tooltip
             label="No puedes modificar el reporte si ya fue aprobado o está en revisión"
             transitionProps={{ transition: "fade-up", duration: 300 }}
@@ -389,7 +402,7 @@ const ResponsibleReportPage = () => {
               mt={25}
               disabled={sendsHistory.some(
                 (report) => report.status === "Aprobado" || report.status === "En Revisión"
-              )}
+              ) || (publishedReport?.period.responsible_end_date ?? new Date()) < dateNow()}
             >
               {sendsHistory[0]?.status === "En Borrador"
                 ? "Modificar borrador"
@@ -637,17 +650,23 @@ const ResponsibleReportPage = () => {
           )}
         </Collapse>
         <Collapse in={openedHistoryReport}>
-            <Text fw={700} mb={'xs'}>Archivo de reporte:</Text>
-            {publishedReport?.filled_reports[0]?.report_file && (
-              <Pill
-                size="md"
-                className={classes.pillDrive}
-                onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
-                style={{ cursor: "pointer" }}
-              >
-                {publishedReport.filled_reports[0].report_file.name}
-              </Pill>
-            )}
+          {
+            publishedReport?.filled_reports[0]?.status === "Rechazado" && (
+              <Text size="md" fw={700} mb='md' c='red'>Observaciones de rechazo: {publishedReport?.filled_reports[0].observations}</Text>
+            )
+          }
+          <Text fw={700} mb={'xs'}>Archivo de reporte:{" "}</Text>
+          {publishedReport?.filled_reports[0]?.report_file && (
+            <Pill
+              fw={700}
+              size="md"
+              className={classes.pillDrive}
+              onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+              style={{ cursor: "pointer" }}
+            >
+              {publishedReport.filled_reports[0].report_file.name}
+            </Pill>
+          )}
           {(publishedReport?.filled_reports[0]?.attachments?.length ?? 0) > 0 && (
             <>
               <Divider mt='md' mb='md' variant="dashed"/>

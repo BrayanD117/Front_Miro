@@ -3,9 +3,9 @@
 import { use, useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Badge, Button, Center, Container, Group, rem, Table, TextInput, Title, Tooltip } from "@mantine/core";
+import { Badge, Button, Center, Container, Group, rem, Table, Text, TextInput, Title, Tooltip } from "@mantine/core";
 import { dateToGMT } from "@/app/components/DateConfig";
-import { IconHistory, IconReportAnalytics } from "@tabler/icons-react";
+import { IconBulb, IconHistory, IconReportAnalytics } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
 interface Report {
@@ -143,20 +143,15 @@ const ResponsibleReportsPage = () => {
       </Table.Td>
       <Table.Td>
         <Center>
-            <Tooltip
-              label="Ver reporte"
-              transitionProps={{ transition: "fade-up", duration: 300 }}
-            >
-              <Button
-                onClick={() => {
-                  router.push(`reports/${pReport._id}`);
-                }}
-                variant="outline"
-                color="blue"
-              >
-                <IconReportAnalytics size={18} />
-              </Button>
-            </Tooltip>
+          <Button
+            onClick={() => {
+              router.push(`reports/${pReport._id}`);
+            }}
+            variant="outline"
+            color="blue"
+          >
+            <IconReportAnalytics size={18} />
+          </Button>
         </Center>
       </Table.Td>
     </Table.Tr>
@@ -187,7 +182,7 @@ const ResponsibleReportsPage = () => {
               <Center>Fecha de Estado</Center>
             </Table.Th>
             <Table.Td fw={700}>
-              <Center>Acciones</Center>
+              <Center>Ver reporte</Center>
             </Table.Td>
           </Table.Tr>
         </Table.Thead>
@@ -199,7 +194,11 @@ const ResponsibleReportsPage = () => {
           }
         </Table.Tbody>
       </Table>
-
+      <Text c="dimmed" size="xs" ta="center" mt="md" >
+        <IconBulb color="#797979" size={20}></IconBulb>
+        <br/>
+        Si quieres ver el detalle, historial o cargar un reporte, toca el botón de "Ver reporte". 
+      </Text>
     </Container>
   )
 }
