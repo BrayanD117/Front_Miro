@@ -374,6 +374,10 @@ const ResponsibleReportPage = () => {
               onClick={() => {
                 setOpenedReportForm((prev) => !prev);
                 setOpenedHistoryReport(false);
+                if (publishedReport) {
+                  const updatedPublishedReport = { ...publishedReport, filled_reports: [sendsHistory[0]] };
+                  setPublishedReport(updatedPublishedReport);
+                }
                 clearSelect();
                 if (sendsHistory[0]?.status === "Rechazado" && publishedReport) {
                   const updatedPublishedReport = { ...publishedReport, filled_reports: [] };
@@ -442,7 +446,10 @@ const ResponsibleReportPage = () => {
                   || !publishedReport?.filled_reports[0]?.status)}
                 size="md"
                 className={classes.pillDrive}
-                onRemove={() => setDeletedReport(publishedReport?.filled_reports[0].report_file.id)}
+                onRemove={() => {
+                  setDeletedReport(publishedReport?.filled_reports[0].report_file.id)
+                  setCanSend(false)
+                }}
                 onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
                 style={{ cursor: "pointer" }}
               >
@@ -630,7 +637,6 @@ const ResponsibleReportPage = () => {
           )}
         </Collapse>
         <Collapse in={openedHistoryReport}>
-          <Group grow gap={'xl'}>
             <Text fw={700} mb={'xs'}>Archivo de reporte:</Text>
             {publishedReport?.filled_reports[0]?.report_file && (
               <Pill
@@ -642,7 +648,6 @@ const ResponsibleReportPage = () => {
                 {publishedReport.filled_reports[0].report_file.name}
               </Pill>
             )}
-          </Group>
           {(publishedReport?.filled_reports[0]?.attachments?.length ?? 0) > 0 && (
             <>
               <Divider mt='md' mb='md' variant="dashed"/>
@@ -679,7 +684,7 @@ const ResponsibleReportPage = () => {
                         </Group>
                       </Table.Td>
                       <Table.Td>
-                        <Text>{attachment.description}</Text>
+                        <Text size="sm">{attachment.description}</Text>
                       </Table.Td>
                     </Table.Tr>
                   ))}
