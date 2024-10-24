@@ -143,14 +143,13 @@ const ResponsibleReportsPage = () => {
       </Table.Td>
       <Table.Td>
         <Center>
-          <Group>
             <Tooltip
               label="Ver reporte"
               transitionProps={{ transition: "fade-up", duration: 300 }}
             >
               <Button
                 onClick={() => {
-                  router.push(`${pReport._id}`);
+                  router.push(`reports/${pReport._id}`);
                 }}
                 variant="outline"
                 color="blue"
@@ -158,21 +157,6 @@ const ResponsibleReportsPage = () => {
                 <IconReportAnalytics size={18} />
               </Button>
             </Tooltip>
-            <Tooltip
-              label="Ver historial de envíos"
-              transitionProps={{ transition: "fade-up", duration: 300 }}
-            >
-              <Button
-                onClick={() => {
-
-                }}
-                variant="outline"
-                color="gray"
-              >
-                <IconHistory size={18} />
-              </Button>
-            </Tooltip>
-          </Group>
         </Center>
       </Table.Td>
     </Table.Tr>
