@@ -360,7 +360,7 @@ const AdminPubReportsPage = () => {
             c="white"
             style={{ cursor: "pointer" }}
           >
-            {filledReport.report_file.name}
+            {filledReport.report_file?.name}
           </Pill>
         </Group>
         {filledReport.attachments.length > 0 && (
@@ -517,8 +517,6 @@ const AdminPubReportsPage = () => {
                 >
                   <Progress.Section
                     value={giveReportPercentage(pubReport)}
-                    striped
-                    animated
                   />
                 </Progress.Root>
                 <Text size="sm" ta={"center"} mt={rem(5)}>
@@ -567,6 +565,9 @@ const AdminPubReportsPage = () => {
                     <IconBrandGoogleDrive size={20} />
                   </Button>
                 </Tooltip>
+                <Button onClick={() => router.push(`uploaded/${pubReport._id}`)}>
+                  Reporte
+                </Button>
                 <Tooltip
                   label={
                     pubReport.filled_reports.length > 0
