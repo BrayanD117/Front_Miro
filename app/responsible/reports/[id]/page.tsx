@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import { IconArrowLeft, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconX } from "@tabler/icons-react";
+import { IconArrowLeft, IconBulb, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconX } from "@tabler/icons-react";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
@@ -367,7 +367,7 @@ const ResponsibleReportPage = () => {
             data={
               sendsHistory?.map((report, index) => ({
                 value: `${index}`,
-                label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
+                label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM D, YYYY HH:mm')}`,
               })) || []
             }
             onChange={onHistoryChange}
@@ -410,6 +410,11 @@ const ResponsibleReportPage = () => {
             </Button>
           </Tooltip>
         </Group>
+        <Text c="dimmed" size="xs" ta="center" my="md" >
+          <IconBulb color="#797979" size={20}></IconBulb>
+          <br/>
+          Recuerda que tu reporte no será revisado si se encuentra "En Borrador"
+        </Text>
         <Divider mb='md'/>
         <Collapse in={openedReportForm}>
           <Group grow gap={'xl'}>
@@ -650,11 +655,43 @@ const ResponsibleReportPage = () => {
           )}
         </Collapse>
         <Collapse in={openedHistoryReport}>
-          {
-            publishedReport?.filled_reports[0]?.status === "Rechazado" && (
-              <Text size="md" fw={700} mb='md' c='red'>Observaciones de rechazo: {publishedReport?.filled_reports[0].observations}</Text>
-            )
-          }
+          <Table withColumnBorders withTableBorder w={'auto'} mb={'md'}>
+            <Table.Tbody>
+              <Table.Tr>
+                <Table.Td>
+                  <Text size="sm" fw={700}>Estado</Text>
+                </Table.Td>
+                <Table.Td>
+                  {publishedReport?.filled_reports[0]?.status ?? "Pendiente"}
+                </Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>
+                  <Text size="sm" fw={700}>Fecha de estado</Text>
+                </Table.Td>
+                <Table.Td>
+                  {publishedReport?.filled_reports[0]?.status_date ? dateToGMT(publishedReport.filled_reports[0].status_date) : "Sin fecha"}
+                </Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td fw={700}>
+                  Observaciones
+                </Table.Td>
+                <Table.Td>
+                  {publishedReport?.filled_reports[0]?.observations || "Sin observaciones"}
+                </Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td fw={700}>
+                  Evaluador
+                </Table.Td>
+                <Table.Td tt={'capitalize'}>
+                  {(publishedReport?.filled_reports[0]?.evaluated_by?.full_name ?? "Sin evaluador").toLowerCase()}
+                </Table.Td>
+              </Table.Tr>
+
+            </Table.Tbody>
+          </Table>
           <Text fw={700} mb={'xs'}>Archivo de reporte:{" "}</Text>
           {publishedReport?.filled_reports[0]?.report_file && (
             <Pill
