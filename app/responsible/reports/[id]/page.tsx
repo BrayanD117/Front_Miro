@@ -1,16 +1,14 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { Badge, Button, Center, Collapse, ComboboxItem, Container, Divider, FileButton, Flex, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
-import { IconCheck, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDeviceFloppy, IconDownload, IconEdit, IconEye, IconSend2, IconX } from "@tabler/icons-react";
-import { Dropzone } from "@mantine/dropzone";
+import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Space, Stack, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconSend2, IconX } from "@tabler/icons-react";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
-import { useDisclosure } from "@mantine/hooks";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 import { dateToGMT } from "@/app/components/DateConfig";
 
@@ -97,12 +95,18 @@ const ResponsibleReportPage = () => {
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
   const [frameFile, setFrameFile] = useState<DriveFile | null>();
-  const [selectedHistoryReport, setSelectedHistoryReport] = useState<ComboboxItem | null>(null);
+  const [selectedHistoryReport, setSelectedHistoryReport] = useState<string | null>(null);
   const [canSend, setCanSend] = useState<boolean>(true);
   const [opened, setOpened] = useState(false);
+  const [openedReportForm, setOpenedReportForm] = useState(false);
+  const [openedHistoryReport, setOpenedHistoryReport] = useState(false);
   const toggle = () => setOpened((prev) => !prev);
   const [saving, setSaving] = useState<boolean>(false);
   const [sending, setSending] = useState<boolean>(false);
+
+  const clearSelect = () => {
+    setSelectedHistoryReport(null);
+  };
 
   const fetchReport = async () => {
     try {
@@ -259,18 +263,19 @@ const ResponsibleReportPage = () => {
     } 
   }
 
-  const onHistoryChange = (value: string | null, option?: ComboboxItem) => {
-    if (publishedReport) {
+  const onHistoryChange = (value: string | null) => {
+    if (value !== null && publishedReport) {
       const updatedPublishedReport = { ...publishedReport };
       updatedPublishedReport.filled_reports = [sendsHistory[Number(value)]];
       setPublishedReport(updatedPublishedReport);
-      setOpened(true)
-    }
-    if(!option){
+      setSelectedHistoryReport(value);
+      setOpenedHistoryReport(true);
+      setOpenedReportForm(false);
+    } else {
       setSelectedHistoryReport(null);
-      toggle()
+      setOpenedHistoryReport(false);
     }
-  }
+  };
 
   return (
     <>
@@ -348,17 +353,16 @@ const ResponsibleReportPage = () => {
               placeholder={(sendsHistory?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
               data={
                 sendsHistory?.map((report, index) => ({
-                value: `${index}`,
-                label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
+                  value: `${index}`,
+                  label: `${report.status} - ${dateToGMT(report.loaded_date, 'MMM dd, YYYY HH:mm')}`,
                 })) || []
               }
-              onChange={(value, option) => {
-                  onHistoryChange(value, option)
-              }}
-              value={selectedHistoryReport ? selectedHistoryReport.value : undefined}
+              onChange={onHistoryChange}
+              value={selectedHistoryReport}
               disabled={(sendsHistory?.length ?? 0) < 1}
               searchable
-              nothingFoundMessage="···"
+              clearable
+              
             />
           <Tooltip
             label="No puedes modificar el reporte si ya fue aprobado o está en revisión"
@@ -368,27 +372,29 @@ const ResponsibleReportPage = () => {
           >
             <Button
               onClick={() => {
-                if(sendsHistory[0]?.status === "Rechazado" && publishedReport) {
-                  publishedReport.filled_reports = []
-                } else {
-                  onHistoryChange("0")
+                setOpenedReportForm((prev) => !prev);
+                setOpenedHistoryReport(false);
+                clearSelect();
+                if (sendsHistory[0]?.status === "Rechazado" && publishedReport) {
+                  const updatedPublishedReport = { ...publishedReport, filled_reports: [] };
+                  setPublishedReport(updatedPublishedReport);
                 }
-                toggle()
               }}
               variant="outline"
-              leftSection={<IconEdit/>}
+              leftSection={<IconEdit />}
               mt={25}
-              disabled={sendsHistory.some((report) => report.status === "Aprobado" 
-                || report.status === "En Revisión")
-              }
+              disabled={sendsHistory.some(
+                (report) => report.status === "Aprobado" || report.status === "En Revisión"
+              )}
             >
-              {(sendsHistory[0]?.status === "En Borrador") ? 
-                "Modificar borrador" : "Diligenciar reporte"}
+              {sendsHistory[0]?.status === "En Borrador"
+                ? "Modificar borrador"
+                : "Diligenciar reporte"}
             </Button>
           </Tooltip>
         </Group>
         <Divider mb='md'/>
-        <Collapse in={opened}>
+        <Collapse in={openedReportForm}>
           <Group grow gap={'xl'}>
             <Tooltip
               label="No has hecho cambios"
@@ -415,7 +421,7 @@ const ResponsibleReportPage = () => {
               disabled={canSend}
             >
               <Button
-                leftSection={<IconSend2/>}
+                leftSection={<IconSend/>}
                 mb={'md'}
                 variant="outline"
                 color="blue"
@@ -623,6 +629,65 @@ const ResponsibleReportPage = () => {
             </>
           )}
         </Collapse>
+        <Collapse in={openedHistoryReport}>
+          <Group grow gap={'xl'}>
+            <Text fw={700} mb={'xs'}>Archivo de reporte:</Text>
+            {publishedReport?.filled_reports[0]?.report_file && (
+              <Pill
+                size="md"
+                className={classes.pillDrive}
+                onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+                style={{ cursor: "pointer" }}
+              >
+                {publishedReport.filled_reports[0].report_file.name}
+              </Pill>
+            )}
+          </Group>
+          {(publishedReport?.filled_reports[0]?.attachments?.length ?? 0) > 0 && (
+            <>
+              <Divider mt='md' mb='md' variant="dashed"/>
+              <Text fw={700} mt='md'>Anexos:</Text>
+              <Table
+                striped
+                style={{ width: "100%" }}
+                mt="md"
+                mb="md"
+                withColumnBorders
+                withTableBorder
+              >
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th maw={rem(400)}>Archivo</Table.Th>
+                    <Table.Th miw={rem(700)}>Descripción</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {publishedReport?.filled_reports[0]?.attachments.map((attachment) => (
+                    <Table.Tr key={attachment.id}>
+                      <Table.Td>
+                        <Group
+                          gap="xs"
+                          onClick={() => setFrameFile(attachment)}
+                          style={{ cursor: "pointer" }}
+                        >
+                        <IconCloud size={16} color="gray" />
+                        <Text
+                          size="sm"
+                        >
+                          {attachment.name}
+                        </Text>
+                        </Group>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text>{attachment.description}</Text>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </>
+          )}
+        </Collapse>
       </Container>
       <Modal
         opened={Boolean(frameFile)}
@@ -654,7 +719,7 @@ const ResponsibleReportPage = () => {
         </>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default ResponsibleReportPage;
