@@ -216,19 +216,15 @@ const UploadedReportsPage = () => {
                   >
                     Evaluar
                   </Button>
-                  {filledReport.attachments.map((attachment) => (
-                    <Button
-                      key={attachment.id}
-                      variant="light"
-                      size="sm"
-                      onClick={() => setFrameFile(attachment)}
-                      color="gray"
-                      leftSection={<IconHistory size={18} />}
-                      disabled
-                    >
-                      Historial
-                    </Button>
-                  ))}
+                  <Button
+                    variant="light"
+                    size="sm"
+                    color="gray"
+                    leftSection={<IconHistory size={18} />}
+                    disabled
+                  >
+                    Historial
+                  </Button>
                 </Group>
               </Text>
             </Center>
