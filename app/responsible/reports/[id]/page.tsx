@@ -85,7 +85,6 @@ const StatusColor: Record<string, string> = {
 
 const ResponsibleReportPage = () => {
   const router = useRouter();
-  const theme = useMantineTheme();
   const { id } = useParams();
   const { data: session } = useSession();
   const [publishedReport, setPublishedReport] = useState<PublishedReport>();

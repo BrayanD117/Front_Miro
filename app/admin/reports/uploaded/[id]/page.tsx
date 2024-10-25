@@ -2,8 +2,9 @@
 
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
-import { Accordion, Badge, Button, Center, Collapse, Container, Group, Modal, Paper, rem, Select, Table, Text, Title, Tooltip } from "@mantine/core";
-import { IconArrowLeft, IconCancel, IconCheckupList, IconChevronsLeft, IconHistory } from "@tabler/icons-react";
+import { Accordion, Badge, Button, Center, Collapse, Container, Group, Modal, Paper, rem, Select, Table, Text, Textarea, TextInput, Title, Tooltip, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
+import { IconArrowLeft, IconCancel, IconCheckupList, IconChevronsLeft, IconDeviceFloppy, IconHistory } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -32,10 +33,6 @@ interface Period {
   name: string;
   responsible_start_date: Date;
   responsible_end_date: Date;
-}
-
-interface AttachmentFile extends File {
-  description?: string;
 }
 
 interface DriveFile {
@@ -87,6 +84,12 @@ const UploadedReportsPage = () => {
   const [publishedReport, setPublishedReport] = useState<PublishedReport>();
   const [frameFile, setFrameFile] = useState<DriveFile | null>();
   const [collapseOpened, setCollapseOpened] = useState(false);
+  const [status, setStatus] = useState<string | null>("");
+  const [observations, setObservations] = useState<string>("");
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+  const [loading, setLoading] = useState(false);
+
 
   const fetchReport = async () => {
     try {
@@ -107,6 +110,58 @@ const UploadedReportsPage = () => {
   useEffect(() => {
     fetchReport();
   }, []);
+
+  const changeFilledReportStatus = async (filledReportId: string) => {
+    setLoading(true);
+    if(!status) {
+      showNotification({
+        title: "Error",
+        message: "Por favor seleccione un estado",
+        color: "red",
+      });
+      setLoading(false);
+      return;
+    }
+    if (status === "Rechazado" && !observations) {
+      showNotification({
+        title: "Error",
+        message: "Por favor ingrese una razón de rechazo",
+        color: "red",
+      });
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/pReports/status`,
+        {
+          reportId: publishedReport?._id,
+          filledRepId: filledReportId,
+          status,
+          observations,
+          email: session?.user?.email,
+        }
+      );
+      if (response.data) {
+        setCollapseOpened(false);
+        await fetchReport();
+        setStatus(null);
+        showNotification({
+          title: "Éxito",
+          message: "Estado actualizado correctamente",
+          color: "green",
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      showNotification({
+        title: "Error",
+        message: "Ocurrió un error al actualizar el estado",
+        color: "red",
+      });
+    }
+  }
 
   console.log(publishedReport);
 
@@ -156,7 +211,7 @@ const UploadedReportsPage = () => {
                   <Button
                     variant="light"
                     size="sm"
-                    onClick={() => {setCollapseOpened(true)}}
+                    onClick={() => {setCollapseOpened(!collapseOpened)}}
                     leftSection={<IconCheckupList size={18} />}
                   >
                     Evaluar
@@ -177,15 +232,48 @@ const UploadedReportsPage = () => {
               </Text>
             </Center>
           </Group>
-          <Collapse in={collapseOpened}>
-            <Paper shadow="lg" p={'md'}>
-              <Group>
-                <Select data={["Aprobado", "Rechazado", "En Revisón"]}/>
-                <Text>
-                  {filledReport.observations}
-                </Text>
-              </Group>
-            </Paper>
+          <Collapse 
+            in={collapseOpened}
+            color="red" 
+            style={{ backgroundColor: 
+              colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1]
+            }}
+            tabIndex={1}
+          >
+            <Group grow align="flex-start" m={'md'} pb={'md'} pt={'xs'} justify="center">
+              <Select
+                maw={rem(350)}
+                data={["Aprobado", "Rechazado", "En Revisón"]}
+                placeholder="Seleccionar estado"
+                label="Estado"
+                onChange={(value) => setStatus(value ?? null)} 
+                value={status}
+                defaultValue={filledReport.status}
+              />
+              {
+                status === "Rechazado" && (
+                  <Textarea
+                    label="Observaciones"
+                    placeholder="Escribe aquí la razón de tu rechazo"
+                    value={observations}
+                    onChange={(event) => setObservations(event.currentTarget.value)}
+                    required
+                    autosize
+                  />
+                )
+              }
+              <Button
+                maw={rem(350)}
+                mt={25}
+                variant="filled"
+                leftSection={<IconDeviceFloppy />}
+                onClick={async () => {
+                  await changeFilledReportStatus(filledReport._id);
+                }}
+              >
+                Guardar cambios
+              </Button>
+            </Group>
           </Collapse>
           <Table withColumnBorders withTableBorder striped>
             <Table.Thead>
