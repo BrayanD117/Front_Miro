@@ -508,11 +508,7 @@ const AdminPubReportsPage = () => {
                   size={"md"}
                   radius={"md"}
                   w={rem(200)}
-                  onClick={() => {
-                    setSelectedReport(pubReport);
-                    setFilledReportRows(pubReport.filled_reports);
-                    setOpened(true);
-                  }}
+                  onClick={() => router.push(`uploaded/${pubReport._id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <Progress.Section
@@ -535,11 +531,7 @@ const AdminPubReportsPage = () => {
                 >
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSelectedReport(pubReport);
-                      setFilledReportRows(pubReport.filled_reports);
-                      setOpened(true);
-                    }}
+                    onClick={() => router.push(`uploaded/${pubReport._id}`)}
                   >
                     <IconFileDescription size={20} />
                   </Button>
@@ -565,9 +557,6 @@ const AdminPubReportsPage = () => {
                     <IconBrandGoogleDrive size={20} />
                   </Button>
                 </Tooltip>
-                <Button onClick={() => router.push(`uploaded/${pubReport._id}`)}>
-                  Reporte
-                </Button>
                 <Tooltip
                   label={
                     pubReport.filled_reports.length > 0
