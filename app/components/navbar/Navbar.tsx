@@ -210,7 +210,7 @@ export default function Navbar() {
                   {userRole}
                 </Badge>
                 {homeLink}
-                {availableRoles.length > 1 && (
+                {availableRoles.length > 0 && (
                   <Menu
                     shadow="md"
                     width={200}
