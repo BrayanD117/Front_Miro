@@ -365,7 +365,7 @@ const AdminPubReportsPage = () => {
             c="white"
             style={{ cursor: "pointer" }}
           >
-            {filledReport.report_file.name}
+            {filledReport.report_file?.name}
           </Pill>
         </Group>
         {filledReport.attachments.length > 0 && (
@@ -513,17 +513,11 @@ const AdminPubReportsPage = () => {
                   size={"md"}
                   radius={"md"}
                   w={rem(200)}
-                  onClick={() => {
-                    setSelectedReport(pubReport);
-                    setFilledReportRows(pubReport.filled_reports);
-                    setOpened(true);
-                  }}
+                  onClick={() => router.push(`uploaded/${pubReport._id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <Progress.Section
                     value={giveReportPercentage(pubReport)}
-                    striped
-                    animated
                   />
                 </Progress.Root>
                 <Text size="sm" ta={"center"} mt={rem(5)}>
@@ -542,11 +536,7 @@ const AdminPubReportsPage = () => {
                 >
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSelectedReport(pubReport);
-                      setFilledReportRows(pubReport.filled_reports);
-                      setOpened(true);
-                    }}
+                    onClick={() => router.push(`uploaded/${pubReport._id}`)}
                   >
                     <IconFileDescription size={20} />
                   </Button>
