@@ -224,6 +224,7 @@ const UploadedReportsPage = () => {
                       onClick={() => setFrameFile(attachment)}
                       color="gray"
                       leftSection={<IconHistory size={18} />}
+                      disabled
                     >
                       Historial
                     </Button>
