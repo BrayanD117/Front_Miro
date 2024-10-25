@@ -310,9 +310,13 @@ const UploadedReportsPage = () => {
               </Table.Tr>
               {filledReport.attachments.map((attachment, index) => (
                 <Table.Tr key={attachment.id}>
-                  <Table.Td fw={700} rowSpan={100}>
-                    Anexos
-                  </Table.Td>
+                  {
+                    index === 0 && (
+                      <Table.Td fw={700} rowSpan={100}>
+                        Anexos
+                      </Table.Td>
+                    )
+                  }
                   <Table.Td ta={'center'}>
                     {index + 1}
                   </Table.Td>
