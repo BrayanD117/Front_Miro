@@ -26,13 +26,15 @@ import { IconArrowLeft, IconDeviceFloppy, IconTrash } from "@tabler/icons-react"
 interface Dimension {
   _id: string;
   name: string;
-  responsible: string;
+  responsible: Dependency;
   producers: string[];
 }
 
 interface Dependency {
+  _id: string
   dep_code: string;
   name: string;
+  responsible: string;
 }
 
 interface User {
@@ -47,6 +49,7 @@ const AdminDimensionEditPage = () => {
   const [dimension, setDimension] = useState<Dimension | null>(null);
   const [dimensionName, setDimensionName] = useState<string>("");
   const [allDependencies, setAllDependencies] = useState<Dependency[]>([]);
+  const [selectedDependencie, setSelectedDependencie] = useState<Dependency>();
   const [producers, setProducers] = useState<string[]>([]);
   const [producerNames, setProducerNames] = useState<{ [key: string]: string }>({});
   const [search, setSearch] = useState("");
@@ -54,6 +57,7 @@ const AdminDimensionEditPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [responsibles, setResponsibles] = useState<User[]>([]);
   const [selectedResponsible, setSelectedResponsible] = useState<string>("");
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
 
   useEffect(() => {
     const fetchDimension = async () => {
@@ -102,7 +106,7 @@ const AdminDimensionEditPage = () => {
 
     const delayDebounceFn = setTimeout(() => {
       fetchDependencies();
-    }, 500);
+    }, 150);
 
     return () => clearTimeout(delayDebounceFn);
   }, [page, search]);
@@ -197,28 +201,26 @@ const AdminDimensionEditPage = () => {
         <Select
           label="Responsable"
           placeholder="Selecciona un responsable"
-          value={selectedResponsible}
+          value={selectedDependencie?.name}
+          onSearchChange={(value) => setSearch(value)}
           onChange={(value) => setSelectedResponsible(value!)}
-          data={responsibles.map((user) => ({
-            value: user.email,
-            label: `${user.full_name} (${user.email})`,
-          }))}
+          data={allDependencies.map((dep) => ({ value: dep._id, label: dep.name }))}
           searchable
           mb="md"
         />
         <Group mt="md">
           <Button
-            variant="outline" 
-            onClick={() => router.back()}
-            leftSection={<IconArrowLeft />}
+        variant="outline" 
+        onClick={() => router.back()}
+        leftSection={<IconArrowLeft />}
           >
-            Volver
+        Volver
           </Button>
           <Button
-            onClick={() => handleSave()}
-            leftSection={<IconDeviceFloppy />}
+        onClick={() => handleSave()}
+        leftSection={<IconDeviceFloppy />}
           >
-            Guardar
+        Guardar
           </Button>
         </Group>
       </Box>

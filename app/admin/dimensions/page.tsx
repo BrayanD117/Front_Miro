@@ -11,7 +11,7 @@ import { useSort } from "../../hooks/useSort";
 interface Dimension {
   _id: string;
   name: string;
-  responsible: string;
+  responsible: Dependency;
   producers: string[];
 }
 
@@ -25,6 +25,7 @@ interface User {
 interface Dependency {
   dep_code: string;
   name: string;
+  responsible: string;
 }
 
 const AdminDimensionsPage = () => {
@@ -196,7 +197,7 @@ const AdminDimensionsPage = () => {
   const rows = sortedDimensions.map((dimension: Dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
-      <Table.Td>{dimension.responsible}</Table.Td>
+      <Table.Td>{dimension.responsible.name}</Table.Td>
       <Table.Td>
         {dimension.producers.slice(0, 1).map(code => dependencies.find(dep => dep.dep_code === code)?.name || code).join(", ")}
         {dimension.producers.length > 2 && (

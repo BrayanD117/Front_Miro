@@ -285,7 +285,6 @@ const PublishedTemplatesPage = () => {
                 >
                   <Progress.Section
                   value={progress.percentage}
-                  striped
                   />
                 </Progress.Root>
                 <Text size="sm" ta={"center"} mt={rem(5)}>
