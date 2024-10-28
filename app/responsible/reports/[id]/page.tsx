@@ -412,7 +412,10 @@ const ResponsibleReportPage = () => {
         <Text c="dimmed" size="xs" ta="center" my="md" >
           <IconBulb color="#797979" size={20}></IconBulb>
           <br/>
-          Recuerda que tu reporte no será revisado si se encuentra "En Borrador"
+          {sendsHistory[0]?.status === "En Revisión" ? 
+            'Tu reporte está en revisión no puedes realizar modificaciones ni generar nuevos envíos' : 
+            'Recuerda que tu reporte no será revisado si se encuentra "En Borrador"'
+          }
         </Text>
         <Divider mb='md'/>
         <Collapse in={openedReportForm}>
