@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, MultiSelect } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -26,7 +26,6 @@ const allowedDataTypes = [
   "Texto Largo",
   "True/False",
   "Fecha",
-  "Fecha Inicial / Fecha Final",
   "Link"
 ];
 
@@ -48,7 +47,7 @@ const CreateTemplatePage = () => {
     { name: "", datatype: "", required: true, validate_with: "", comment: "" },
   ]);
   const [active, setActive] = useState(true);
-  const [dimension, setDimension] = useState<string | null>(null);
+  const [selectedDimensions, setSelectedDimensions] = useState<Dimension[]>();
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>(
     []
@@ -67,18 +66,6 @@ const CreateTemplatePage = () => {
             `${process.env.NEXT_PUBLIC_API_URL}/dimensions`
           );
           setDimensions(response.data);
-        } else if (userRole === "Responsable") {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`,
-            {
-              params: { email: userEmail },
-            }
-          );
-          const userDimensions = response.data;
-          setDimensions(userDimensions);
-          if (userDimensions.length > 0) {
-            setDimension(userDimensions[0]._id);
-          }
         }
       } catch (error) {
         console.error("Error fetching dimensions:", error);
@@ -111,6 +98,11 @@ const CreateTemplatePage = () => {
       fetchValidatorOptions();
     }
   }, [session, userRole]);
+
+
+  useEffect(() => {
+    console.log(selectedDimensions);
+  }, [selectedDimensions]);  
 
   const handleFieldChange = (index: number, field: FieldKey, value: any) => {
     const updatedFields = [...fields];
@@ -159,7 +151,7 @@ const CreateTemplatePage = () => {
       !fileName ||
       !fileDescription ||
       fields.length === 0 ||
-      !dimension
+      selectedDimensions?.length === 0
     ) {
       showNotification({
         title: "Error",
@@ -187,7 +179,7 @@ const CreateTemplatePage = () => {
       fields,
       active,
       email: userEmail,
-      dimension,
+      dimensions: selectedDimensions?.map((dim) => dim._id),
     };
 
     try {
@@ -227,153 +219,143 @@ const CreateTemplatePage = () => {
   return (
     <Container size="xl">
       <TextInput
-        label="Nombre"
-        placeholder="Nombre de la plantilla"
-        value={name}
-        onChange={(event) => setName(event.currentTarget.value)}
-        mb="md"
+      label="Nombre"
+      placeholder="Nombre de la plantilla"
+      value={name}
+      onChange={(event) => setName(event.currentTarget.value)}
+      mb="md"
       />
       <TextInput
-        label="Nombre del Archivo"
-        placeholder="Nombre del archivo"
-        value={fileName}
-        onChange={(event) => setFileName(event.currentTarget.value)}
-        mb="md"
+      label="Nombre del Archivo"
+      placeholder="Nombre del archivo"
+      value={fileName}
+      onChange={(event) => setFileName(event.currentTarget.value)}
+      mb="md"
       />
       <TextInput
-        label="Descripción del Archivo"
-        placeholder="Descripción del archivo"
-        value={fileDescription}
-        onChange={(event) => setFileDescription(event.currentTarget.value)}
-        mb="md"
+      label="Descripción del Archivo"
+      placeholder="Descripción del archivo"
+      value={fileDescription}
+      onChange={(event) => setFileDescription(event.currentTarget.value)}
+      mb="sm"
       />
       {userRole === "Administrador" && (
-        <Select
-          label="Dimensión"
-          placeholder="Seleccionar dimensión"
-          data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
-          value={dimension}
-          onChange={(value) => setDimension(value || null)}
-          mb="md"
-        />
-      )}
-      {userRole === "Responsable" && (
-        <TextInput
-          label="Dimensión"
-          value={dimensions.find((dim) => dim._id === dimension)?.name || ""}
-          readOnly
-          mb="md"
-        />
-      )}
-      <Switch
-        label="Activo"
-        checked={active}
-        onChange={(event) => setActive(event.currentTarget.checked)}
-        mb="md"
+      <MultiSelect
+        mb={'xl'}
+        label="Dimensiones"
+        placeholder="Seleccionar dimensiones"
+        data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
+        onChange={(value) => {
+          const dims = dimensions.filter(dim => value.includes(dim._id));
+          setSelectedDimensions(dims);
+        }}
+        value={selectedDimensions?.map((dim) => dim._id)}
+        searchable
       />
+      )}
       <Table stickyHeader withTableBorder>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Nombre Campo</Table.Th>
-            <Table.Th>Tipo de Campo</Table.Th>
-            <Table.Th>¿Obligatorio?</Table.Th>
-            <Table.Th>Validar con Base de Datos</Table.Th>
-            <Table.Th>Comentario del Campo / Pista</Table.Th>
-            <Table.Th>Acciones</Table.Th>
+      <Table.Thead>
+        <Table.Tr>
+        <Table.Th>Nombre Campo</Table.Th>
+        <Table.Th>Tipo de Campo</Table.Th>
+        <Table.Th>¿Obligatorio?</Table.Th>
+        <Table.Th>Validar con Base de Datos</Table.Th>
+        <Table.Th>Comentario del Campo / Pista</Table.Th>
+        <Table.Th>Acciones</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>
+        {fields.map((field, index) => {
+        return (
+          <Table.Tr key={index}>
+          <Table.Td>
+            <TextInput
+            placeholder="Nombre del campo"
+            value={field.name}
+            onChange={(event) =>
+              handleFieldChange(
+              index,
+              "name",
+              event.currentTarget.value
+              )
+            }
+            />
+          </Table.Td>
+          <Table.Td>
+            <Select
+            placeholder="Seleccionar"
+            data={allowedDataTypes.map((type) => ({
+              value: type,
+              label: type,
+            }))}
+            value={field.datatype}
+            onChange={(value) =>
+              handleFieldChange(index, "datatype", value || "")
+            }
+            readOnly={!!field.validate_with}
+            />
+          </Table.Td>
+          <Table.Td>
+            <Checkbox
+            label=""
+            checked={field.required}
+            onChange={(event) =>
+              handleFieldChange(
+              index,
+              "required",
+              event.currentTarget.checked
+              )
+            }
+            />
+          </Table.Td>
+          <Table.Td>
+            <Select
+            placeholder="Validar con"
+            data={validatorOptions.map((option) => ({
+              value: option.name,
+              label: option.name,
+            }))}
+            value={field.validate_with}
+            onChange={(value) =>
+              handleFieldChange(index, "validate_with", value || "")
+            }
+            maxDropdownHeight={200}
+            searchable
+            clearable
+            nothingFoundMessage="La validación no existe"
+            />
+          </Table.Td>
+          <Table.Td>
+            <TextInput
+            placeholder="Comentario"
+            value={field.comment}
+            onChange={(event) =>
+              handleFieldChange(
+              index,
+              "comment",
+              event.currentTarget.value
+              )
+            }
+            />
+          </Table.Td>
+          <Table.Td>
+            <Button color="red" onClick={() => removeField(index)}>
+            Eliminar
+            </Button>
+          </Table.Td>
           </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {fields.map((field, index) => {
-            return (
-              <Table.Tr key={index}>
-                <Table.Td>
-                  <TextInput
-                    placeholder="Nombre del campo"
-                    value={field.name}
-                    onChange={(event) =>
-                      handleFieldChange(
-                        index,
-                        "name",
-                        event.currentTarget.value
-                      )
-                    }
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Select
-                    placeholder="Seleccionar"
-                    data={allowedDataTypes.map((type) => ({
-                      value: type,
-                      label: type,
-                    }))}
-                    value={field.datatype}
-                    onChange={(value) =>
-                      handleFieldChange(index, "datatype", value || "")
-                    }
-                    readOnly={!!field.validate_with}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Checkbox
-                    label=""
-                    checked={field.required}
-                    onChange={(event) =>
-                      handleFieldChange(
-                        index,
-                        "required",
-                        event.currentTarget.checked
-                      )
-                    }
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Select
-                    placeholder="Validar con"
-                    data={validatorOptions.map((option) => ({
-                      value: option.name,
-                      label: option.name,
-                    }))}
-                    value={field.validate_with}
-                    onChange={(value) =>
-                      handleFieldChange(index, "validate_with", value || "")
-                    }
-                    maxDropdownHeight={200}
-                    searchable
-                    clearable
-                    nothingFoundMessage="La validación no existe"
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <TextInput
-                    placeholder="Comentario"
-                    value={field.comment}
-                    onChange={(event) =>
-                      handleFieldChange(
-                        index,
-                        "comment",
-                        event.currentTarget.value
-                      )
-                    }
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Button color="red" onClick={() => removeField(index)}>
-                    Eliminar
-                  </Button>
-                </Table.Td>
-              </Table.Tr>
-            );
-          })}
-        </Table.Tbody>
+        );
+        })}
+      </Table.Tbody>
       </Table>
       <Group mt="md">
-        <Button onClick={addField}>Añadir Campo</Button>
+      <Button onClick={addField}>Añadir Campo</Button>
       </Group>
       <Group mt="md">
-        <Button onClick={handleSave}>Guardar</Button>
-        <Button variant="outline" onClick={() => router.back()}>
-          Cancelar
-        </Button>
+      <Button onClick={handleSave}>Guardar</Button>
+      <Button variant="outline" onClick={() => router.back()}>
+        Cancelar
+      </Button>
       </Group>
     </Container>
   );

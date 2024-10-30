@@ -201,7 +201,7 @@ const AdminDimensionEditPage = () => {
         <Select
           label="Responsable"
           placeholder="Selecciona un responsable"
-          value={selectedDependencie?.name}
+          value={selectedDependencie?.name ?? dimension?.responsible?.name}
           onSearchChange={(value) => setSearch(value)}
           onChange={(value) => setSelectedResponsible(value!)}
           data={allDependencies.map((dep) => ({ value: dep._id, label: dep.name }))}

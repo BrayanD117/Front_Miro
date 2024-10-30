@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSort } from "../../hooks/useSort";
+import { useSession } from "next-auth/react";
 
 interface Dimension {
   _id: string;
@@ -23,23 +24,22 @@ interface User {
 }
 
 interface Dependency {
+  _id: string;
   dep_code: string;
   name: string;
   responsible: string;
 }
 
 const AdminDimensionsPage = () => {
+  const { data: session } = useSession();
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
-  const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [opened, setOpened] = useState(false);
   const [confirmDeleteModalOpened, setConfirmDeleteModalOpened] = useState(false);
-  const [producersModalOpened, setProducersModalOpened] = useState(false);
   const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
   const [dimensionToDelete, setDimensionToDelete] = useState<Dimension | null>(null);
-  const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
+  const [allDependencies, setAllDependencies] = useState<Dependency[]>([]);
   const [name, setName] = useState("");
-  const [responsible, setResponsible] = useState<string | null>(null);
-  const [responsiblesOptions, setResponsiblesOptions] = useState<{ value: string, label: string }[]>([]);
+  const [responsible, setResponsible] = useState<Dependency | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
@@ -53,14 +53,10 @@ const AdminDimensionsPage = () => {
       });
       if (response.data) {
         const dimensions = response.data.dimensions || [];
-        const producerCodes = dimensions.flatMap((dimension: { producers: any; }) => dimension.producers);
-        const dependenciesResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/names`, { codes: producerCodes });
-        const dependencies = dependenciesResponse.data;
-        setDependencies(dependencies);
         setDimensions(dimensions);
         setTotalPages(response.data.pages || 1);
-        console.log("Dimensions:", dimensions);
-        console.log("Dependencies:", dependencies);
+        console.log(dimensions);
+
       }
     } catch (error) {
       console.error("Error fetching dimensions:", error);
@@ -68,25 +64,20 @@ const AdminDimensionsPage = () => {
     }
   };
 
-  const fetchResponsibles = async () => {
+  const fetchDependencies = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/responsibles`);
-      if (response.data) {
-        setResponsiblesOptions(
-          response.data.map((user: User) => ({
-            value: user.email,
-            label: `${user.full_name} (${user.email})`,
-          }))
-        );
-      }
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/${session?.user?.email}`)
+      console.log(response.data)
+      setAllDependencies(response.data);
+      setTotalPages(response.data.pages);
     } catch (error) {
-      console.error("Error fetching responsibles:", error);
+      console.error("Error fetching dependencies:", error);
     }
   };
 
   useEffect(() => {
     fetchDimensions(page, search);
-    fetchResponsibles();
+    fetchDependencies();
   }, [page]);
 
   useEffect(() => {
@@ -110,7 +101,7 @@ const AdminDimensionsPage = () => {
     try {
       const dimensionData = {
         name,
-        responsible,
+        responsible: responsible._id,
       };
 
       if (selectedDimension) {
@@ -171,12 +162,6 @@ const AdminDimensionsPage = () => {
     }
   };
 
-  const handleShowProducers = (dimension: Dimension) => {
-    const producerNames = dimension.producers.map(code => dependencies.find(dep => dep.dep_code === code)?.name || code);
-    setSelectedProducers(producerNames);
-    setProducersModalOpened(true);
-  };
-
   const openConfirmDeleteModal = (dimension: Dimension) => {
     setDimensionToDelete(dimension);
     setConfirmDeleteModalOpened(true);
@@ -187,33 +172,26 @@ const AdminDimensionsPage = () => {
     setName("");
     setResponsible(null);
     setSelectedDimension(null);
-    setSelectedProducers([]);
   };
 
-  const handleConfigureProducers = (dimension: Dimension) => {
-    router.push(`/admin/dimensions/${dimension._id}`);
+  const handleConfigureDimension = (dimension: Dimension) => {
+    setSelectedDimension(dimension);
+    setResponsible(dimension.responsible);
+    setOpened(true);
+    setName(dimension.name);
+    console.log(responsible)
   };
   
   const rows = sortedDimensions.map((dimension: Dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
       <Table.Td>{dimension.responsible.name}</Table.Td>
-      <Table.Td>
-        {dimension.producers.slice(0, 1).map(code => dependencies.find(dep => dep.dep_code === code)?.name || code).join(", ")}
-        {dimension.producers.length > 2 && (
-          <>
-            , ...
-            <Button variant="subtle" ml={'5px'} onClick={() => handleShowProducers(dimension)}>
-              <IconEye size={16} />
-            </Button>
-          </>
-        )}
-      </Table.Td>
+      <Table.Td>{dimension.responsible?.responsible ?? "Sin responsable asignado"}</Table.Td>
       <Table.Td>
         <Center>
           <Group gap={5}>
-            <Button variant="outline" onClick={() => handleConfigureProducers(dimension)}>
-            <IconSettings size={16} />
+            <Button variant="outline" onClick={() => handleConfigureDimension(dimension)}>
+              <IconSettings size={16} />
             </Button>
             <Button color="red" variant="outline" onClick={() => openConfirmDeleteModal(dimension)}>
               <IconTrash size={16} />
@@ -262,7 +240,7 @@ const AdminDimensionsPage = () => {
             </Table.Th>
             <Table.Th onClick={() => handleSort("responsible")} style={{ cursor: "pointer" }}>
               <Center inline>
-                Responsable
+                Dependencia responsable
                 {sortConfig.key === "responsible" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
@@ -274,7 +252,7 @@ const AdminDimensionsPage = () => {
                 )}
               </Center>
             </Table.Th>
-            <Table.Th>Productores</Table.Th>
+            <Table.Th>Responsable dependencia</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -328,9 +306,12 @@ const AdminDimensionsPage = () => {
         <Select
           label="Responsable"
           placeholder="Selecciona un responsable"
-          data={responsiblesOptions}
-          value={responsible}
-          onChange={(value) => setResponsible(value)}
+          data={allDependencies?.map((dep) => ({ value: dep._id, label: dep.name }))}
+          value={responsible ? responsible._id : ""}
+          onChange={(value) => {
+            const selectedDep = allDependencies?.find((dep) => dep._id === value) || null;
+            setResponsible(selectedDep);
+          }}
           searchable
           clearable
         />
@@ -354,22 +335,6 @@ const AdminDimensionsPage = () => {
             Cancelar
           </Button>
         </Group>
-      </Modal>
-      <Modal
-        opened={producersModalOpened}
-        onClose={() => setProducersModalOpened(false)}
-        title="Productores"
-      >
-        <List withPadding>
-          {selectedProducers.map((producer, index) => (
-            <List.Item key={index}>{producer}</List.Item>
-          ))}
-        </List>
-          <Text c="dimmed" size="xs" ta={"center"} mt="md" >
-            <IconBulb color="#797979" size={20}></IconBulb>
-            <br/>
-            Recuerda que los productores se asignan en la gestión de la dimensión
-          </Text>
       </Modal>
     </Container>
   );
