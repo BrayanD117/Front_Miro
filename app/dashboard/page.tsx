@@ -143,32 +143,53 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-reports">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconClipboardData size={80}/></Center>
+               <Center style={{ position: "relative" }}>
+                <IconClipboard size={80}/>
+                <IconHexagon3d size={36} style={{ position: "absolute", top: "57%", left: "50%", transform: "translate(-50%, -50%)" }}/>
+              </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Crear | Editar Reportes</Text>
+                <Text ta={"center"} w={500}>Configurar Informes Dimensiones</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Genera reportes de las plantillas cargadas.
+                Crea, edita y asigna los informes que generarán las dimensiones.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports')}>
-                Ir a Gestión de Reportes
+                Ir a Configuración de Informes
               </Button>
             </Card>
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="uploaded-reports">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconReportSearch size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Reportes Cargados</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Gestiona el proceso de cargue de los reportes por parte de las dimensiones.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
-              Ir a Reportes Cargados
-            </Button>
-          </Card>
-        </Grid.Col>,
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconReportSearch size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Gestión Informes Dimensiones</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Gestiona el proceso de cargue de los informes por parte de las dimensiones.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
+                Ir a Gestión de Informes
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producers-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconClipboardData size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Configurar Informes Dependencias</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                 Crea, edita y asigna los informes que generarán los productores.
+                </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
+                Ir a Configuración de Informes
+              </Button>
+            </Card>
+          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconCalendarMonth size={80}/></Center>
