@@ -185,7 +185,7 @@ const AdminDimensionsPage = () => {
   const rows = sortedDimensions.map((dimension: Dimension) => (
     <Table.Tr key={dimension._id}>
       <Table.Td>{dimension.name}</Table.Td>
-      <Table.Td>{dimension.responsible?.name}</Table.Td>
+      <Table.Td>{dimension.responsible?.name ?? "Sin dependencia asignada"}</Table.Td>
       <Table.Td>{dimension.responsible?.responsible ?? "Sin responsable asignado"}</Table.Td>
       <Table.Td>
         <Center>
@@ -252,7 +252,7 @@ const AdminDimensionsPage = () => {
                 )}
               </Center>
             </Table.Th>
-            <Table.Th>Responsable dependencia</Table.Th>
+            <Table.Th>Responsable de dependencia</Table.Th>
             <Table.Th><Center>Acciones</Center></Table.Th>
           </Table.Tr>
         </Table.Thead>
