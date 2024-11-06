@@ -279,8 +279,8 @@ const CreateTemplatePage = () => {
       )}
       <MultiSelect
         mb={'xl'}
-        label="Dependencias"
-        placeholder="Seleccionar dependencias"
+        label="Productores"
+        placeholder="Seleccionar productores"
         data={dependencies?.map((dep) => ({ value: dep._id, label: dep.name }))}
         onChange={setSelectedDependencies}
         value={selectedDependencies}
