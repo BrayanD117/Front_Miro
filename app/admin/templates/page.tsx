@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect, Tooltip } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, MultiSelect, Tooltip, Text } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowsTransferDown, IconArrowBigUpFilled, IconArrowBigDownFilled } from "@tabler/icons-react";
@@ -25,6 +25,19 @@ interface Validator {
   values: any[];
 }
 
+interface Dependency {
+  _id: string;
+  dep_code: string;
+  name: string;
+  responsible: string;
+}
+
+interface Dimension {
+  _id: string;
+  name: string;
+  responsible: Dependency;
+}
+
 interface Template {
   _id: string;
   name: string;
@@ -32,7 +45,7 @@ interface Template {
   file_description: string;
   fields: Field[];
   active: boolean;
-  dimension_id: string;
+  dimensions: [Dimension];
   created_by: {
     email: string;
     full_name: string;
@@ -319,7 +332,7 @@ const AdminTemplatesPage = () => {
         template_id: selectedTemplate?._id,
         period_id: selectedPeriod,
         producers_dep_code: selectedProducers,
-        dimension_id: selectedTemplate?.dimension_id,
+//        dimension_id: selectedTemplate?.dimension_id,
         user_email: session?.user?.email,
       });
       console.log('Template successfully published');
@@ -342,8 +355,12 @@ const AdminTemplatesPage = () => {
   const rows = sortedTemplates.map((template) => (
     <Table.Tr key={template._id}>
       <Table.Td>{template.name}</Table.Td>
-      <Table.Td>{template.created_by.full_name}</Table.Td>
-      <Table.Td>{template.file_description}</Table.Td>
+      <Table.Td>
+        <Text size="sm">{template.created_by.full_name}</Text>
+      </Table.Td>
+      <Table.Td>
+        <Text size="sm">{template?.dimensions?.map(dim => dim.name).join(", ")}</Text>
+      </Table.Td>
       <Table.Td>{template.active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
         <Center>
@@ -453,7 +470,7 @@ const AdminTemplatesPage = () => {
 
           <Table.Th onClick={() => handleSort("file_description")} style={{ cursor: "pointer" }}>
             <Center inline>
-              Descripción del Archivo
+              Dimensiones
               {sortConfig.key === "file_description" ? (
                 sortConfig.direction === "asc" ? 
                 <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 

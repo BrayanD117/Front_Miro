@@ -13,7 +13,6 @@ interface Dimension {
   _id: string;
   name: string;
   responsible: Dependency;
-  producers: string[];
 }
 
 interface User {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center, MultiSelect } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -30,9 +30,16 @@ const allowedDataTypes = [
   "Link"
 ];
 
+interface Dependency {
+  _id: string;
+  name: string;
+  responsible: string
+}
+
 interface Dimension {
   _id: string;
   name: string;
+  responsible: Dependency
 }
 
 interface ValidatorOption {
@@ -48,6 +55,9 @@ const UpdateTemplatePage = () => {
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
+  const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
+  const [selectedDependencies, setSelectedDependencies] = useState<string[]>([]);
   const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -66,7 +76,8 @@ const UpdateTemplatePage = () => {
             setFileDescription(response.data.file_description);
             setFields(response.data.fields);
             setActive(response.data.active);
-            setDimension(response.data.dimension);
+            setSelectedDimensions(response.data.dimensions);
+            setSelectedDependencies(response.data.producers);
           }
         } catch (error) {
           console.error("Error fetching template:", error);
@@ -84,15 +95,6 @@ const UpdateTemplatePage = () => {
         if (userRole === 'Administrador') {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions`);
           setDimensions(response.data);
-        } else if (userRole === 'Responsable') {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/responsible`, {
-            params: { email: userEmail }
-          });
-          const userDimensions = response.data;
-          setDimensions(userDimensions);
-          if (userDimensions.length > 0) {
-            setDimension(userDimensions[0]._id);
-          }
         }
       } catch (error) {
         console.error("Error fetching dimensions:", error);
@@ -103,6 +105,22 @@ const UpdateTemplatePage = () => {
         });
       }
     };
+
+    const fetchDependencies = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${session?.user?.email}`
+        );
+        setDependencies(response.data);
+      } catch (error) {
+        console.error("Error fetching dependencies:", error);
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al obtener las dependencias",
+          color: "red",
+        });
+      }
+    }
 
     const fetchValidatorOptions = async () => {
       try {
@@ -118,8 +136,9 @@ const UpdateTemplatePage = () => {
       }
     };
 
-    fetchTemplate();
+    fetchDependencies();
     fetchDimensions();
+    fetchTemplate();
     fetchValidatorOptions();
   }, [id, session, userRole]);
 
@@ -237,24 +256,26 @@ const UpdateTemplatePage = () => {
         onChange={(event) => setFileDescription(event.currentTarget.value)}
         mb="md"
       />
-      {userRole === 'Administrador' && (
-        <Select
-          label="Dimensión"
-          placeholder="Seleccionar dimensión"
-          data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
-          value={dimension}
-          onChange={(value) => setDimension(value || null)}
-          mb="md"
-        />
+      {userRole === "Administrador" && (
+      <MultiSelect
+        mb={'xs'}
+        label="Dimensiones"
+        placeholder="Seleccionar dimensiones"
+        data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
+        onChange={setSelectedDimensions}
+        value={selectedDimensions}
+        searchable
+      />
       )}
-      {userRole === 'Responsable' && (
-        <TextInput
-          label="Dimensión"
-          value={dimensions.find(dim => dim._id === dimension)?.name || ""}
-          readOnly
-          mb="md"
-        />
-      )}
+      <MultiSelect
+        mb={'xl'}
+        label="Productores"
+        placeholder="Seleccionar productores"
+        data={dependencies?.map((dep) => ({ value: dep._id, label: dep.name }))}
+        onChange={setSelectedDependencies}
+        value={selectedDependencies}
+        searchable
+      />
       <Switch
         label="Activo"
         checked={active}
