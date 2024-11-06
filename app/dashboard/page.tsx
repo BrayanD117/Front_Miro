@@ -117,13 +117,13 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconFileAnalytics size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Crear | Editar Plantillas</Text>
+                <Text ta={"center"} w={500}>Configurar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Crea, edita o elimina las Plantillas disponibles.
+                Crea, edita, elimina o asigna plantillas a los productores.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/templates')}>
-                Ir a Gestión de Plantillas
+                Ir a Configurar Plantillas
               </Button>
             </Card>
           </Grid.Col>,
@@ -131,13 +131,51 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Plantillas Cargadas</Text>
+                  <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Administra las plantillas cargadas por los productores.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/published')}>
-                Ir a Plantillas Cargadas
+                Ir a Gestión de Plantillas
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producers-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconClipboardData size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Configurar Informes Productores</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Crea, edita y asigna los informes que generarán los productores.
+                </Text>
+              <Button
+                variant="light"
+                fullWidth
+                mt="md"
+                radius="md"
+                onClick={() => router.push('/admin/reports/uploaded')}
+              >
+                Ir a Configuración de Informes
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="uploaded-reports-producers">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconReportSearch size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Gestiona el proceso de cargue de los informes por parte de los productores.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
+                Ir a Gestión de Informes
               </Button>
             </Card>
           </Grid.Col>,
@@ -164,29 +202,13 @@ const DashboardPage = () => {
                 <IconReportSearch size={80}/>
               </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestión Informes Dimensiones</Text>
+                <Text ta={"center"} w={500}>Gestionar Informes Dimensiones</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona el proceso de cargue de los informes por parte de las dimensiones.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
                 Ir a Gestión de Informes
-              </Button>
-            </Card>
-          </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producers-reports">
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center>
-                <IconClipboardData size={80}/>
-              </Center>
-              <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Configurar Informes Dependencias</Text>
-              </Group>
-              <Text ta={"center"} size="sm" color="dimmed">
-                 Crea, edita y asigna los informes que generarán los productores.
-                </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
-                Ir a Configuración de Informes
               </Button>
             </Card>
           </Grid.Col>,
@@ -264,7 +286,7 @@ const DashboardPage = () => {
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Center><IconFilesOff size={80}/></Center>
                 <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Valida los registros de error</Text>
+                  <Text ta={"center"} w={500}>Valida los Registros de Error</Text>
                 </Group>
                 <Text ta={"center"} size="sm" color="dimmed">
                   Verifica los registros de error de las plantillas cargadas.
@@ -310,7 +332,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Gestión de Plantillas</Text>
+                  <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Administra las plantillas cargadas por los productores.
@@ -327,7 +349,7 @@ const DashboardPage = () => {
                 <IconHexagon3d size={36} style={{ position: "absolute", top: "57%", left: "50%", transform: "translate(-50%, -50%)" }}/>
                 </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Informes de Dimensión</Text>
+                <Text ta={"center"} w={500}>Gestionar Informes Dimensión</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona los informes de la dimensión en que eres responsable.
@@ -429,7 +451,7 @@ const DashboardPage = () => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconUserStar size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Administrar mi Dependencia</Text>
+              <Text ta={"center"} w={500}>Administrar Mi Dependencia</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
               Administra la dependencia de la cual eres responsable.
