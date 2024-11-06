@@ -363,13 +363,13 @@ const DashboardPage = () => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconClipboardData size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Informes de Dependencias</Text>
+              <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
               Revisa los informes que rindieron los productores a tu dimensión.
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('')}>
-              Ir a Informes de Dependencias
+              Ir a Informes de Productores
             </Button>
           </Card>
         </Grid.Col>,
