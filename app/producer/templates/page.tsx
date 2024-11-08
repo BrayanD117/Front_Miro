@@ -51,11 +51,16 @@ interface Field {
   comment?: string;
 }
 
+interface Dimension {
+  _id: string;
+  name: string;
+}
+
 interface Template {
   _id: string;
   name: string;
   file_name: string;
-  dimension: any;
+  dimensions: [Dimension];
   file_description: string;
   fields: Field[];
   active: boolean;
@@ -272,7 +277,7 @@ const ProducerTemplatesPage = () => {
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
+        <Table.Td>{publishedTemplate.template.dimensions.map(dim => dim.name).join(', ')}</Table.Td>
         <Table.Td fw={700}>
           {dateToGMT(publishedTemplate.period.producer_end_date)}
         </Table.Td>

@@ -83,7 +83,7 @@ const UploadedTemplatePage = () => {
           return {dependency: data.dependency, send_by: data.send_by}
         })
         setResumeData(sentDepedencies)
-        setDependencies(await fetchDependenciesNames(response.data.publishedTemplate.producers_dep_code))
+        setDependencies(response.data.publishedTemplate.template.producers)
       } catch (error) {
         console.error("Error fetching template name:", error);
       }

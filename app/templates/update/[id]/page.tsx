@@ -173,7 +173,7 @@ const UpdateTemplatePage = () => {
   };
 
   const handleSave = async () => {
-    if (!name || !fileName || !fileDescription || fields.length === 0 || !dimension) {
+    if (!name || !fileName || !fileDescription || fields.length === 0 || selectedDimensions.length === 0 || selectedDependencies.length === 0) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -188,7 +188,8 @@ const UpdateTemplatePage = () => {
       file_description: fileDescription,
       fields,
       active,
-      dimension,
+      dimensions: selectedDimensions,
+      producers: selectedDependencies
     };
 
     try {

@@ -331,8 +331,6 @@ const AdminTemplatesPage = () => {
         name: publicationName,
         template_id: selectedTemplate?._id,
         period_id: selectedPeriod,
-        producers_dep_code: selectedProducers,
-//        dimension_id: selectedTemplate?.dimension_id,
         user_email: session?.user?.email,
       });
       console.log('Template successfully published');
@@ -535,13 +533,6 @@ const AdminTemplatesPage = () => {
             data={periods.map(period => ({ value: period._id, label: period.name }))}
             value={selectedPeriod}
             onChange={(value) => setSelectedPeriod(value || '')}
-          />
-          <MultiSelect
-            label="Productores"
-            placeholder="Seleccione productores"
-            data={producers.map(producer => ({ value: producer.dep_code, label: producer.name }))}
-            value={selectedProducers}
-            onChange={setSelectedProducers}
           />
           <Group justify="flex-end" mt="md">
             <Button type="submit">Asignar</Button>

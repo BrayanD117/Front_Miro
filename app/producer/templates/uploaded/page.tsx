@@ -55,7 +55,7 @@ interface Template {
   _id: string;
   name: string;
   file_name: string;
-  dimension: any;
+  dimensions: [any];
   file_description: string;
   fields: Field[];
   active: boolean;
@@ -310,7 +310,7 @@ const ProducerUploadedTemplatesPage = () => {
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
+        <Table.Td>{publishedTemplate.template.dimensions.map(dim => dim.name).join(', ')}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>
           {dateToGMT(publishedTemplate.period.producer_end_date)}
