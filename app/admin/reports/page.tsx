@@ -179,7 +179,6 @@ const AdminReportsPage = () => {
     formData.append("email", session?.user?.email || "");
     if(reportExample)
       formData.append("report_example", reportExample);
-
     setLoading(true);
 
     try {
@@ -340,8 +339,8 @@ const AdminReportsPage = () => {
         <Center>
           <Group gap={5}>
             <Tooltip
-                  label="Editar reporte"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+              label="Editar reporte"
+              transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
               <Button variant="outline" onClick={() => handleEdit(report)}>
                 <IconEdit size={16} />

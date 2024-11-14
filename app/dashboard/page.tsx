@@ -157,7 +157,7 @@ const DashboardPage = () => {
                 fullWidth
                 mt="md"
                 radius="md"
-                onClick={() => router.push('/admin/reports/uploaded')}
+                onClick={() => router.push('/admin/reports/producers')}
               >
                 Ir a Configuración de Informes
               </Button>
