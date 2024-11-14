@@ -123,7 +123,7 @@ const ProducerReportPage = () => {
         <Center>
           <Group gap={'xs'}>
             <Tooltip
-              label="Ver Formato Informe"
+              label="Ver formato informe"
               position="top"
               withArrow
               transitionProps={{ transition: 'fade-up', duration: 300 }}
@@ -139,7 +139,7 @@ const ProducerReportPage = () => {
               </Button>
             </Tooltip>
             <Tooltip
-              label="Editar Informe"
+              label="Editar informe"
               position="top"
               withArrow
               transitionProps={{ transition: 'fade-up', duration: 300 }}
@@ -153,7 +153,7 @@ const ProducerReportPage = () => {
               </Button>
             </Tooltip>
             <Tooltip
-              label="Borrar Informe"
+              label="Borrar informe"
               position="top"
               withArrow
               transitionProps={{ transition: 'fade-up', duration: 300 }}
@@ -171,7 +171,7 @@ const ProducerReportPage = () => {
       <Table.Td>
         <Center>
           <Tooltip
-            label="Asignar Informe a Periodo"
+            label="Asignar informe a periodo"
             position="top"
             withArrow
             transitionProps={{ transition: 'fade-up', duration: 300 }}
@@ -287,7 +287,7 @@ const ProducerReportPage = () => {
             <Checkbox
               mt={'sm'}
               mb={'xs'}
-              label="¿Plazo inferior al establecido en el periodo?"
+              label="Establecer un plazo inferior al establecido en el periodo"
               checked={customDeadline}
               onChange={(event) => setCustomDeadline(event.currentTarget.checked)}
             />
