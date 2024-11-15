@@ -174,7 +174,7 @@ const DashboardPage = () => {
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona el proceso de cargue de los informes por parte de los productores.
               </Text>
-              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
                 Ir a Gestión de Informes
               </Button>
             </Card>
@@ -342,6 +342,20 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+             <Center><IconClipboardData size={80}/></Center>
+             <Group mt="md" mb="xs">
+               <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
+             </Group>
+             <Text ta={"center"} size="sm" color="dimmed">
+               Revisa los informes que rindieron los productores a tu dimensión.
+             </Text>
+             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
+               Ir a Informes de Productores
+             </Button>
+            </Card>
+         </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="dimension-reports">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Center style={{ position: "relative" }}>
@@ -359,20 +373,6 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconClipboardData size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Revisa los informes que rindieron los productores a tu dimensión.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('')}>
-              Ir a Informes de Productores
-            </Button>
-          </Card>
-        </Grid.Col>,
         // <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-dimensions">
         //   <Card shadow="sm" padding="lg" radius="md" withBorder>
         //     <Center><IconHexagon3d size={80}/></Center>
@@ -419,6 +419,20 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-reports">
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Center><IconClipboardData size={80}/></Center>
+            <Group mt="md" mb="xs">
+              <Text ta={"center"} w={500}>Gestionar Informes</Text>
+            </Group>
+            <Text ta={"center"} size="sm" color="dimmed">
+              Envía los informes que fueron asignados a la dependencia donde te encuentras
+            </Text>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
+              Ir a Informes de Productores
+            </Button>
+          </Card>
+        </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-validations">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconCheckbox size={80}/></Center>

@@ -94,6 +94,35 @@ const ProducerReportPage = () => {
     }
   }
 
+  const handlePublish = async (reportId: string) => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/publish`, {
+        reportId,
+        deadline: customDeadline ? deadline : selectedPeriod ?
+          new Date(periods.find(period => period._id === selectedPeriod)?.producer_end_date || '') : null,
+        period: selectedPeriod,
+        email: session?.user?.email
+      });
+      showNotification({
+        title: "Éxito",
+        message: "Informe publicado correctamente",
+        color: "green",
+      });
+      setOpened(false);
+      setSelectedReport(null);
+      setSelectedPeriod(null);
+      setDeadline(null);
+      setCustomDeadline(false);
+    } catch (error) {
+      console.error("Error publishing report:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al publicar el informe",
+        color: "red",
+      });
+    }
+  }
+
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchReports();
@@ -206,7 +235,7 @@ const ProducerReportPage = () => {
         </Button>
         <Button
           ml={"auto"}
-          onClick={() => router.push("reports/uploaded")}
+          onClick={() => router.push("/reports")}
           variant="outline"
           rightSection={<IconArrowRight size={16} />}
         >
@@ -321,6 +350,7 @@ const ProducerReportPage = () => {
           <Button
             leftSection={<IconSend />}
             variant="light"
+            onClick={() => handlePublish(selectedReport?._id || '')}
           >
             Asignar
           </Button>
