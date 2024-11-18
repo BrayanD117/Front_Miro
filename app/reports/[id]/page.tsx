@@ -1,7 +1,8 @@
 "use client";
 
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
-import { Accordion, Badge, Button, Center, Collapse, Container, Group, Modal, Paper, rem, Select, Table, Text, Textarea, TextInput, Title, Tooltip, useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { useRole } from "@/app/context/RoleContext";
+import { Accordion, Badge, Button, Center, Collapse, Container, Group, Modal, rem, Select, Table, Text, Textarea, Title, Tooltip, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { IconArrowLeft, IconCancel, IconCheckupList, IconChevronsLeft, IconDeviceFloppy, IconHistory } from "@tabler/icons-react";
 import axios from "axios";
@@ -46,6 +47,7 @@ interface DriveFile {
   id: string;
   name: string;
   download_link: string;
+  view_link: string;
   description?: string;
 }
 
@@ -86,9 +88,9 @@ const StatusColor: Record<string, string> = {
 const UploadedReportsPage = () => {
   const router = useRouter();
   const { data: session } = useSession();
+  const { userRole, setUserRole } = useRole();
   const { id } = useParams<{ id: string }>();
   const [publishedReport, setPublishedReport] = useState<PublishedReport>();
-  const [frameFile, setFrameFile] = useState<DriveFile | null>();
   const [collapseOpened, setCollapseOpened] = useState(false);
   const [status, setStatus] = useState<string | null>("");
   const [observations, setObservations] = useState<string>("");
@@ -138,7 +140,7 @@ const UploadedReportsPage = () => {
     }
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/pReports/status`,
+        `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/status`,
         {
           reportId: publishedReport?._id,
           filledRepId: filledReportId,
@@ -218,6 +220,7 @@ const UploadedReportsPage = () => {
                     size="sm"
                     onClick={() => {setCollapseOpened(!collapseOpened)}}
                     leftSection={<IconCheckupList size={18} />}
+                    disabled={userRole === "Responsable"}
                   >
                     Evaluar
                   </Button>
@@ -272,6 +275,7 @@ const UploadedReportsPage = () => {
                 onClick={async () => {
                   await changeFilledReportStatus(filledReport._id);
                 }}
+                disabled={userRole === "Responsable"}
               >
                 Guardar cambios
               </Button>
@@ -294,7 +298,11 @@ const UploadedReportsPage = () => {
                 <Table.Td/>
                 <Table.Td>
                   <Button
-                    onClick={() => setFrameFile(filledReport.report_file)}
+                    onClick={() => {
+                      if(typeof window !== 'undefined') {
+                        window.open(filledReport.report_file.view_link, '_blank');
+                      }
+                    }}
                     variant="light"
                     size="compact-xs"
                     color="green"
@@ -323,7 +331,11 @@ const UploadedReportsPage = () => {
                   </Table.Td>
                   <Table.Td>
                     <Button
-                      onClick={() => setFrameFile(attachment)}
+                      onClick={() => {
+                        if(typeof window !== 'undefined') {
+                          window.open(attachment.view_link, '_blank');
+                        }
+                      }}
                       variant="light"
                       size="compact-xs"
                     >
@@ -393,34 +405,6 @@ const UploadedReportsPage = () => {
         {items}
         {missingItems}
       </Accordion>
-      <Modal
-        opened={Boolean(frameFile)}
-        onClose={() => setFrameFile(null)}
-        size="xl"
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
-        withCloseButton={false}
-      >
-        <>
-          <Button
-            mx={"sm"}
-            variant="light"
-            size="compact-md"
-            onClick={() => setFrameFile(null)}
-            mb={"sm"}
-          >
-            <IconChevronsLeft />
-            <Text size="sm" fw={600}>
-              Ir atrás
-            </Text>
-          </Button>
-          <Text component="span" fw={700}>
-            {frameFile?.name}
-          </Text>
-        </>
-      </Modal>
     </Container>
   );
 }

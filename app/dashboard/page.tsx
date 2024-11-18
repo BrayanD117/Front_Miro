@@ -426,9 +426,9 @@ const DashboardPage = () => {
               <Text ta={"center"} w={500}>Gestionar Informes</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
-              Envía los informes que fueron asignados a la dependencia donde te encuentras
+              Revisa los informes asignados a la dependencia donde te encuentras
             </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/reports')}>
               Ir a Informes de Productores
             </Button>
           </Card>
