@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 import { dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
+import { useRole } from "../context/RoleContext";
 
 interface Report {
   _id: string;
@@ -99,6 +100,7 @@ interface PublishedReport {
 
 const AdminPubReportsPage = () => {
   const { data: session } = useSession();
+  const { userRole, setUserRole } = useRole();
   const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
   const [selectedReport, setSelectedReport] = useState<
     PublishedReport | null | undefined
@@ -329,6 +331,7 @@ const AdminPubReportsPage = () => {
                 </Tooltip>
                 <Tooltip
                   label={
+                    userRole !== "Administrador" ? "No tienes permiso para borrar" :
                     pubReport.filled_reports.length > 0
                       ? "No puedes borrar porque hay informes cargados"
                       : "Borrar publicación del informe"
@@ -338,7 +341,7 @@ const AdminPubReportsPage = () => {
                   <Button
                     variant="outline"
                     color="red"
-                    disabled={pubReport.filled_reports.length > 0}
+                    disabled={pubReport.filled_reports.length > 0 || userRole !== "Administrador"}
                     onClick={() => handleDeletePubReport(pubReport._id)}
                   >
                     <IconTrash size={16} />
