@@ -26,8 +26,7 @@ const AdminPeriodsPage = () => {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [opened, setOpened] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
-  const [year, setYear] = useState("");
-  const [semester, setSemester] = useState<"A" | "B" | "">("");
+  const [name, setName] = useState("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [productorStartDate, setProductorStartDate] = useState<Date | null>(null);
@@ -69,9 +68,7 @@ const AdminPeriodsPage = () => {
 
   const handleEdit = (period: Period) => {
     setSelectedPeriod(period);
-    const [year, semester] = period.name.split(" - ");
-    setYear(year);
-    setSemester(semester as "A" | "B");
+    setName(period.name);
     setStartDate(new Date(period.start_date));
     setEndDate(new Date(period.end_date));
     setProductorStartDate(new Date(period.producer_start_date));
@@ -83,7 +80,7 @@ const AdminPeriodsPage = () => {
   };
 
   const handleSave = async () => {
-    if (!year || !semester || !startDate || !endDate || !productorStartDate || !productorEndDate || !responsibleStartDate || !responsibleEndDate) {
+    if (!name || name.length > 6  || !startDate || !endDate || !productorStartDate || !productorEndDate || !responsibleStartDate || !responsibleEndDate) {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -91,8 +88,6 @@ const AdminPeriodsPage = () => {
       });
       return;
     }
-
-    const name = `${year} - ${semester}`;
 
     try {
       const periodData = {
@@ -155,8 +150,7 @@ const AdminPeriodsPage = () => {
 
   const handleModalClose = () => {
     setOpened(false);
-    setYear("");
-    setSemester("");
+    setName("");
     setStartDate(null);
     setEndDate(null);
     setProductorStartDate(null);
@@ -262,27 +256,15 @@ const AdminPeriodsPage = () => {
         title={selectedPeriod ? "Editar Periodo" : "Crear Nuevo Periodo"}
       >
         <TextInput
-          label="Año"
-          placeholder="Ingresa el año"
-          value={year}
-          onChange={(event) => setYear(event.currentTarget.value.replace(/\D/, ""))}
-          inputMode="numeric"
-          mb="md"
-        />
-        <Select
-          label="Semestre"
-          placeholder="Selecciona el semestre"
-          data={[
-            { value: "A", label: "A" },
-            { value: "B", label: "B" },
-          ]}
-          value={semester}
-          onChange={(value) => setSemester(value as "A" | "B")}
+          label="Nombre del Periodo"
+          placeholder="Máximo 6 caracteres"
+          value={name}
+          onChange={(event) => setName(event.currentTarget.value.slice(0, 6))}
           mb="md"
         />
         <Stack mb="md">
-          <Text>Fecha de Inicio</Text>
           <DateInput
+            label="Fecha de Inicio"
             locale="es"
             placeholder="Selecciona una fecha"
             value={startDate}
@@ -290,8 +272,8 @@ const AdminPeriodsPage = () => {
           />
         </Stack>
         <Stack mb="md">
-          <Text>Fecha de Fin</Text>
           <DateInput
+            label="Fecha de fin"
             locale="es"
             placeholder="Selecciona una fecha"
             value={endDate}
@@ -299,8 +281,8 @@ const AdminPeriodsPage = () => {
           />
         </Stack>
         <Stack mb="md">
-          <Text>Inicio de Productor</Text>
           <DateInput
+            label="Inicio de Productor"
             locale="es"
             placeholder="Selecciona una fecha"
             value={productorStartDate}
@@ -308,8 +290,8 @@ const AdminPeriodsPage = () => {
           />
         </Stack>
         <Stack mb="md">
-          <Text>Fin de Productor</Text>
           <DateInput
+            label="Fin de Productor"
             locale="es"
             placeholder="Selecciona una fecha"
             value={productorEndDate}
@@ -317,8 +299,8 @@ const AdminPeriodsPage = () => {
           />
         </Stack>
         <Stack mb="md">
-          <Text>Inicio de Responsable</Text>
           <DateInput
+            label="Inicio de Responsable"
             locale="es"
             placeholder="Selecciona una fecha"
             value={responsibleStartDate}
@@ -326,8 +308,8 @@ const AdminPeriodsPage = () => {
           />
         </Stack>
         <Stack mb="md">
-          <Text>Fin de Responsable</Text>
           <DateInput
+            label="Fin de Responsable"
             locale="es"
             placeholder="Selecciona una fecha"
             value={responsibleEndDate}
