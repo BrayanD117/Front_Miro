@@ -1,12 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator} from "@mantine/core";
+import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
 import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
+import { useColorScheme } from "@mantine/hooks";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
@@ -18,6 +19,7 @@ const DashboardPage = () => {
   const { userRole, setUserRole } = useRole();
   const [notificationShown, setNotificationShown] = useState(false);
   const [isResponsible, setIsResponsible] = useState(false);
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
     const fetchUserRoles = async () => {
@@ -115,13 +117,13 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconFileAnalytics size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Crear | Editar Plantillas</Text>
+                <Text ta={"center"} w={500}>Configurar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Crea, edita o elimina las Plantillas disponibles.
+                Crea, edita, elimina o asigna plantillas a los productores.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/templates')}>
-                Ir a Gestión de Plantillas
+                Ir a Configurar Plantillas
               </Button>
             </Card>
           </Grid.Col>,
@@ -129,44 +131,87 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Plantillas Cargadas</Text>
+                  <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Administra las plantillas cargadas por los productores.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/published')}>
-                Ir a Plantillas Cargadas
+                Ir a Gestión de Plantillas
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producers-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconClipboardData size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Configurar Informes Productores</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Crea, edita y asigna los informes que generarán los productores.
+                </Text>
+              <Button
+                variant="light"
+                fullWidth
+                mt="md"
+                radius="md"
+                onClick={() => router.push('/admin/reports/producers')}
+              >
+                Ir a Configuración de Informes
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="uploaded-reports-producers">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconReportSearch size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Gestiona el proceso de cargue de los informes por parte de los productores.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
+                Ir a Gestión de Informes
               </Button>
             </Card>
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-reports">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconClipboardData size={80}/></Center>
+               <Center style={{ position: "relative" }}>
+                <IconClipboard size={80}/>
+                <IconHexagon3d size={36} style={{ position: "absolute", top: "57%", left: "50%", transform: "translate(-50%, -50%)" }}/>
+              </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Crear | Editar Reportes</Text>
+                <Text ta={"center"} w={500}>Configurar Informes Dimensiones</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Genera reportes de las plantillas cargadas.
+                Crea, edita y asigna los informes que generarán las dimensiones.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports')}>
-                Ir a Gestión de Reportes
+                Ir a Configuración de Informes
               </Button>
             </Card>
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="uploaded-reports">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconReportSearch size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Reportes Cargados</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Gestiona el proceso de cargue de los reportes por parte de las dimensiones.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
-              Ir a Reportes Cargados
-            </Button>
-          </Card>
-        </Grid.Col>,
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconReportSearch size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Gestionar Informes Dimensiones</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Gestiona el proceso de cargue de los informes por parte de las dimensiones.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
+                Ir a Gestión de Informes
+              </Button>
+            </Card>
+          </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconCalendarMonth size={80}/></Center>
@@ -241,7 +286,7 @@ const DashboardPage = () => {
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Center><IconFilesOff size={80}/></Center>
                 <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Valida los registros de error</Text>
+                  <Text ta={"center"} w={500}>Valida los Registros de Error</Text>
                 </Group>
                 <Text ta={"center"} size="sm" color="dimmed">
                   Verifica los registros de error de las plantillas cargadas.
@@ -287,7 +332,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Gestión de Plantillas</Text>
+                  <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Administra las plantillas cargadas por los productores.
@@ -299,18 +344,26 @@ const DashboardPage = () => {
           </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center>
-                <Indicator
-                  size="40"
-                  color="transparent"
-                  position="middle-center"
-                  label={<IconHexagon3d color="black" size={38}/>}
-                >
-                  <IconClipboard size={80}/>
-                </Indicator>
-              </Center>
+             <Center><IconClipboardData size={80}/></Center>
+             <Group mt="md" mb="xs">
+               <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
+             </Group>
+             <Text ta={"center"} size="sm" color="dimmed">
+               Revisa los informes que rindieron los productores a tu dimensión.
+             </Text>
+             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
+               Ir a Informes de Productores
+             </Button>
+            </Card>
+         </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="dimension-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Center style={{ position: "relative" }}>
+                <IconClipboard size={80}/>
+                <IconHexagon3d size={36} style={{ position: "absolute", top: "57%", left: "50%", transform: "translate(-50%, -50%)" }}/>
+                </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Informes de Dimensión</Text>
+                <Text ta={"center"} w={500}>Gestionar Informes Dimensión</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Gestiona los informes de la dimensión en que eres responsable.
@@ -320,20 +373,6 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-reports">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconClipboardData size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Informes de Dependencias</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Gestiona los informes de la dimensión en que eres responsable.
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
-              Ir a Informes de Dependencias
-            </Button>
-          </Card>
-        </Grid.Col>,
         // <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="responsible-dimensions">
         //   <Card shadow="sm" padding="lg" radius="md" withBorder>
         //     <Center><IconHexagon3d size={80}/></Center>
@@ -380,6 +419,20 @@ const DashboardPage = () => {
               </Button>
             </Card>
           </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-reports">
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Center><IconClipboardData size={80}/></Center>
+            <Group mt="md" mb="xs">
+              <Text ta={"center"} w={500}>Gestionar Informes</Text>
+            </Group>
+            <Text ta={"center"} size="sm" color="dimmed">
+              Revisa los informes asignados a la dependencia donde te encuentras
+            </Text>
+            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/reports')}>
+              Ir a Informes de Productores
+            </Button>
+          </Card>
+        </Grid.Col>,
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="producer-validations">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconCheckbox size={80}/></Center>
@@ -412,7 +465,7 @@ const DashboardPage = () => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Center><IconUserStar size={80}/></Center>
             <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Administrar mi Dependencia</Text>
+              <Text ta={"center"} w={500}>Administrar Mi Dependencia</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
               Administra la dependencia de la cual eres responsable.

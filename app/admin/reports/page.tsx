@@ -179,7 +179,6 @@ const AdminReportsPage = () => {
     formData.append("email", session?.user?.email || "");
     if(reportExample)
       formData.append("report_example", reportExample);
-
     setLoading(true);
 
     try {
@@ -195,7 +194,7 @@ const AdminReportsPage = () => {
         );
         showNotification({
           title: "Actualizado",
-          message: "Reporte actualizado exitosamente",
+          message: "Informe actualizado exitosamente",
           color: "teal",
         });
       } else {
@@ -210,7 +209,7 @@ const AdminReportsPage = () => {
         );
         showNotification({
           title: "Creado",
-          message: "Reporte creado exitosamente",
+          message: "Informe creado exitosamente",
           color: "teal",
         });
       }
@@ -222,17 +221,17 @@ const AdminReportsPage = () => {
         fetchReports(page, search);
       }, 3000);
     } catch (error: any) {
-      console.error("Error creando o actualizando reporte:", error);
+      console.error("Error creando o actualizando informe:", error);
       if(error.response.data.message){
         showNotification({
           title: "Error",
-          message: "Este reporte ya se encuentra publicado y con reporte(s) cargado(s), no se puede modificar",
+          message: "Este informe ya se encuentra publicado y con información cargada, no se puede modificar",
           color: "red",
         });
       } else {
         showNotification({
           title: "Error",
-          message: "Hubo un error al crear o actualizar el reporte",
+          message: "Hubo un error al crear o actualizar el informe",
           color: "red",
         });
       }
@@ -255,15 +254,15 @@ const AdminReportsPage = () => {
       await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/reports/delete/${id}`);
       showNotification({
         title: "Eliminado",
-        message: "Reporte eliminado exitosamente",
+        message: "Informe eliminado exitosamente",
         color: "teal",
       });
       fetchReports(page, search);
     } catch (error) {
-      console.error("Error eliminando reporte:", error);
+      console.error("Error eliminando informe:", error);
       showNotification({
         title: "Error",
-        message: "Hubo un error al eliminar el reporte",
+        message: "Hubo un error al eliminar el informe",
         color: "red",
       });
     }
@@ -299,15 +298,15 @@ const AdminReportsPage = () => {
       });
       showNotification({
         title: "Publicación Exitosa",
-        message: "El reporte ha sido publicado exitosamente",
+        message: "El informe ha sido publicado exitosamente",
         color: "teal",
       });
       handlePublishModalClose();
     } catch (error) {
-      console.error("Error asignando reporte:", error);
+      console.error("Error asignando informe:", error);
       showNotification({
         title: "Error",
-        message: "Hubo un error al asignar el reporte",
+        message: "Hubo un error al asignar el informe",
         color: "red",
       });
     }
@@ -331,8 +330,6 @@ const AdminReportsPage = () => {
   const rows = sortedReports.map((report: Report) => (
     <Table.Tr key={report._id}>
       <Table.Td>{report.name}</Table.Td>
-      <Table.Td>{report.description}</Table.Td>
-      <Table.Td>{report.file_name}</Table.Td>
       <Table.Td>
         {report.created_by?.full_name || report.created_by?.email}
       </Table.Td>
@@ -340,15 +337,15 @@ const AdminReportsPage = () => {
         <Center>
           <Group gap={5}>
             <Tooltip
-                  label="Editar reporte"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+              label="Editar informe"
+              transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
               <Button variant="outline" onClick={() => handleEdit(report)}>
                 <IconEdit size={16} />
               </Button>
             </Tooltip>
             <Tooltip
-                  label="Eliminar reporte"
+                  label="Eliminar informe"
                   transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
               <Button
@@ -399,9 +396,9 @@ const AdminReportsPage = () => {
 
   return (
     <Container size="xl">
-      <Title>Gestión de Reportes</Title>
+      <Title>Gestión de Informes</Title>
       <TextInput
-        placeholder="Buscar en todos los reportes"
+        placeholder="Buscar en todos los informes"
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
@@ -414,7 +411,7 @@ const AdminReportsPage = () => {
           }}
           leftSection={<IconCirclePlus/>}
         >
-          Crear Nuevo Reporte
+          Crear Nuevo Informe
         </Button>
         <Button
           ml={"auto"}
@@ -422,7 +419,7 @@ const AdminReportsPage = () => {
           variant="outline"
           rightSection={<IconArrowRight size={16} />}
         >
-          Ir a Reportes Publicados
+          Ir a Informes Publicados
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
@@ -432,34 +429,6 @@ const AdminReportsPage = () => {
               <Center inline>
                 Nombre
                 {sortConfig.key === "name" ? (
-                  sortConfig.direction === "asc" ? (
-                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
-                  ) : (
-                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
-                  )
-                ) : (
-                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
-                )}
-              </Center>
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("description")} style={{ cursor: "pointer" }}>
-              <Center inline>
-                Descripción
-                {sortConfig.key === "description" ? (
-                  sortConfig.direction === "asc" ? (
-                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
-                  ) : (
-                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
-                  )
-                ) : (
-                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
-                )}
-              </Center>
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("file_name")} style={{ cursor: "pointer" }}>
-              <Center inline>
-                Nombre de Archivo
-                {sortConfig.key === "file_name" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
                   ) : (
@@ -511,7 +480,7 @@ const AdminReportsPage = () => {
           blur: 3,
         }}
         onClose={handleModalClose}
-        title={selectedReport ? "Editar Reporte" : "Crear Nuevo Reporte"}
+        title={selectedReport ? "Editar Informe" : "Crear Nuevo Informe"}
       >
         {loading ? (
           <Center>
@@ -527,13 +496,13 @@ const AdminReportsPage = () => {
               required={true}
               withAsterisk={true}
               label="Nombre"
-              placeholder="Nombre del reporte"
+              placeholder="Nombre del informe"
               value={name}
               onChange={(event) => setName(event.currentTarget.value)}
             />
             <Textarea
               label="Descripción"
-              placeholder="Descripción del reporte"
+              placeholder="Descripción del informe"
               required={false}
               value={description}
               onChange={(event) => setDescription(event.currentTarget.value)}
@@ -585,7 +554,7 @@ const AdminReportsPage = () => {
             {selectedReport && (
               <Group mt="sm">
                 <Text size="sm">
-                  Reporte cargado:{" "}
+                  Informe cargado:{" "}
                 </Text>
                 <Pill
                   onClick={() => {
@@ -608,7 +577,7 @@ const AdminReportsPage = () => {
                 rightSection={<span/>}
                 leftSection={<IconDeviceFloppy />}
               >
-                {selectedReport ? "Actualizar" : "Crear Reporte"}
+                {selectedReport ? "Actualizar" : "Crear Informe"}
               </Button>
               <Button
                 onClick={handleModalClose}
@@ -631,7 +600,7 @@ const AdminReportsPage = () => {
           blur: 3,
         }}
         onClose={handlePublishModalClose}
-        title="Asignar Reporte a Dimension(es)"
+        title="Asignar Informe a Dimension(es)"
       >
         <MultiSelect
           data={dimensions.map((dimension) => ({

@@ -17,14 +17,6 @@ const DropzoneCustomComponent = ({ onDrop, text }: DropzoneComponentProps) => {
   return (
     <Dropzone
       onDrop={(files) => {
-        if (files.length > 1) {
-          showNotification({
-            title: "Solo puedes cargar un archivo",
-            message: "En el reporte solo puedes cargar un archivo",
-            color: "red",
-          });
-          return;
-        }
         onDrop(files); // Usar la función onDrop pasada por props
       }}
       className={classes.dropzone} // Mantener el uso de clases

@@ -34,6 +34,11 @@ interface Dimension {
   name: string;
 }
 
+interface Dependency {
+  _id: string;
+  name: string;
+}
+
 interface ValidatorOption {
   name: string;
   type: string;
@@ -47,7 +52,9 @@ const CreateTemplatePage = () => {
     { name: "", datatype: "", required: true, validate_with: "", comment: "" },
   ]);
   const [active, setActive] = useState(true);
+  const [selectedDependencies, setSelectedDependencies] = useState<string[]>();
   const [selectedDimensions, setSelectedDimensions] = useState<Dimension[]>();
+  const [dependencies, setDependencies] = useState<Dependency[]>();
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [validatorOptions, setValidatorOptions] = useState<ValidatorOption[]>(
     []
@@ -77,6 +84,22 @@ const CreateTemplatePage = () => {
       }
     };
 
+    const fetchDependencies = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${session?.user?.email}`
+        );
+        setDependencies(response.data);
+      } catch (error) {
+        console.error("Error fetching dependencies:", error);
+        showNotification({
+          title: "Error",
+          message: "Hubo un error al obtener las dependencias",
+          color: "red",
+        });
+      }
+    }
+
     const fetchValidatorOptions = async () => {
       try {
         const response = await axios.get(
@@ -95,6 +118,7 @@ const CreateTemplatePage = () => {
 
     if (session) {
       fetchDimensions();
+      fetchDependencies();
       fetchValidatorOptions();
     }
   }, [session, userRole]);
@@ -171,7 +195,6 @@ const CreateTemplatePage = () => {
       });
       return;
     }
-
     const templateData = {
       name,
       file_name: fileName,
@@ -180,6 +203,7 @@ const CreateTemplatePage = () => {
       active,
       email: userEmail,
       dimensions: selectedDimensions?.map((dim) => dim._id),
+      producers: selectedDependencies
     };
 
     try {
@@ -241,7 +265,7 @@ const CreateTemplatePage = () => {
       />
       {userRole === "Administrador" && (
       <MultiSelect
-        mb={'xl'}
+        mb={'xs'}
         label="Dimensiones"
         placeholder="Seleccionar dimensiones"
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
@@ -253,6 +277,15 @@ const CreateTemplatePage = () => {
         searchable
       />
       )}
+      <MultiSelect
+        mb={'xl'}
+        label="Productores"
+        placeholder="Seleccionar productores"
+        data={dependencies?.map((dep) => ({ value: dep._id, label: dep.name }))}
+        onChange={setSelectedDependencies}
+        value={selectedDependencies}
+        searchable
+      />
       <Table stickyHeader withTableBorder>
       <Table.Thead>
         <Table.Tr>

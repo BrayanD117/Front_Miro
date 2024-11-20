@@ -39,13 +39,24 @@ interface Field {
   comment?: string;
 }
 
+interface Dimension {
+  _id: string;
+  name: string;
+}
+
+interface Dependency {
+  _id: string;
+  name: string;
+}
+
 interface Template {
   _id: string;
   name: string;
   file_name: string;
-  dimension: any;
+  dimensions: [Dimension];
   file_description: string;
   fields: Field[];
+  producers: [Dependency]
   active: boolean;
 }
 
@@ -224,37 +235,18 @@ const PublishedTemplatesPage = () => {
 
   const rows = sortedTemplates.map((publishedTemplate) => {
     let progress = {
-      total: publishedTemplate.producers_dep_code.length,
+      total: publishedTemplate.template.producers.length,
       value: publishedTemplate.loaded_data.length,
       percentage:
         (publishedTemplate.loaded_data.length /
-          publishedTemplate.producers_dep_code.length) *
+          publishedTemplate.template.producers.length) *
         100
-    };
-
-    let missing = {
-      percentage: 100 - progress.percentage,
-      color: "gray",
-      tooltip: (
-        <List size="sm">
-          Pendientes:
-          {publishedTemplate.producers_dep_code.map((dep) => {
-            if (
-              !publishedTemplate.loaded_data.find(
-                (data) => data.dependency === dep
-              )
-            ) {
-              return <List.Item key={dep}>{dep}</List.Item>;
-            }
-          })}
-        </List>
-      ),
     };
 
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.dimension.name}</Table.Td>
+        <Table.Td>{publishedTemplate.template.dimensions.map(dim => dim.name).join(', ')}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>
           <Center>
