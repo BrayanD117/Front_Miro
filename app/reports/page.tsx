@@ -285,7 +285,7 @@ const AdminPubReportsPage = () => {
     pubReports.map((pubReport: PublishedReport) => {
       return (
         <Table.Tr key={pubReport._id}>
-          <Table.Td maw={rem(55)}>
+          <Table.Td w={rem(70)}>
             <Center>
               <Badge size={rem(12)} h={rem(8)} variant="light" p={"xs"}>
                 {pubReport.period.name}
@@ -295,12 +295,12 @@ const AdminPubReportsPage = () => {
           <Table.Td>{pubReport.report.name}</Table.Td>
           <Table.Td>
             <Center>
-              <Stack gap={0}>
+              <Stack gap={0} w={"100%"}>
                 <Progress.Root
                   mt={"xs"}
                   size={"md"}
                   radius={"md"}
-                  w={rem(250)}
+                  w={"100%"}
                   onClick={() => router.push(`reports/${pubReport._id}`)}
                   style={{ cursor: "pointer" }}
                 >
@@ -313,6 +313,16 @@ const AdminPubReportsPage = () => {
                   {pubReport.report.producers.length}
                 </Text>
               </Stack>
+            </Center>
+          </Table.Td>
+          <Table.Td>
+            <Center>
+              {pubReport.filled_reports.reduce((acc, filledReport) => {
+                if (filledReport.status === "En Revisión") {
+                  return acc + 1;
+                }
+                return acc;
+              }, 0)}
             </Center>
           </Table.Td>
           <Table.Td>
@@ -382,7 +392,7 @@ const AdminPubReportsPage = () => {
       <Table striped withTableBorder mt="md">
       <Table.Thead>
           <Table.Tr>
-            <Table.Th maw={rem(60)}>
+            <Table.Th miw={rem(60)}>
               <Center>
                 Periodo
               </Center>
@@ -393,10 +403,13 @@ const AdminPubReportsPage = () => {
               </Center>
             </Table.Th>
             <Table.Th>
-              <Center>Progreso</Center>
+              <Center>Progreso de Envíos</Center>
             </Table.Th>
             <Table.Th>
-              <Center>Acciones</Center>
+              <Center>Pendientes por Evaluar</Center>
+            </Table.Th>
+            <Table.Th>
+              <Center miw={rem(130)}>Acciones</Center>
             </Table.Th>
           </Table.Tr>
         </Table.Thead>

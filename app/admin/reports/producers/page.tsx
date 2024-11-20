@@ -137,16 +137,11 @@ const ProducerReportPage = () => {
 
   const rows = reports?.map((report: Report) => (
     <Table.Tr key={report._id}>
-      <Table.Td>
+      <Table.Td maw={rem(500)}>
         {report.name}
       </Table.Td>
-      <Table.Td maw={rem(400)}>
-        <Text size="sm" lineClamp={1}>
-          {report.description}
-        </Text>
-      </Table.Td>
       <Table.Td>
-        {report.created_by.full_name}
+        <Text size="sm" lineClamp={1}>{report.created_by.full_name}</Text>
       </Table.Td>
       <Table.Td>
         <Center>
@@ -253,9 +248,6 @@ const ProducerReportPage = () => {
           <Table.Tr>
             <Table.Th>
               Nombre
-            </Table.Th>
-            <Table.Th>
-              Descripción
             </Table.Th>
             <Table.Th>
               Creado Por

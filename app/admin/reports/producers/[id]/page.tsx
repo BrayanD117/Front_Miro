@@ -5,7 +5,7 @@ import { showNotification } from "@mantine/notifications";
 import { IconCancel, IconCheck, IconDeviceFloppy, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Dimension {
@@ -18,10 +18,26 @@ interface Dependency {
   name: string;
 }
 
+interface DriveFile {
+  id: string;
+  name: string;
+  view_link: string;
+}
+
+interface Report {
+  _id: string;
+  name: string;
+  description: string;
+  report_example: DriveFile;
+  dependencies: Dependency[];
+  dimensions: Dimension[];
+  requires_attachment: boolean;
+}
+
 const ProducerReportCreatePage = () => {
   const { data: session } = useSession();
   const router = useRouter();
-
+  const { id } = useParams<{ id: string }>();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [file, setFile] = useState<File | undefined>();
