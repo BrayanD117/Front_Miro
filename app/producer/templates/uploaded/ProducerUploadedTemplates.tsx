@@ -12,6 +12,7 @@ import {
   Tooltip,
   Title,
   Group,
+  Divider,
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -403,6 +404,7 @@ const ProducerUploadedTemplatesPage = () => {
 
   return (
     <Container size="xl">
+      <Divider label="Proceso de cargue de plantillas" mt={20} mb={10}/>
       <DateConfig />
       <Title ta="center" mb={"md"}>
         Plantillas Cargadas
@@ -413,15 +415,6 @@ const ProducerUploadedTemplatesPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <Group>
-        <Button
-          onClick={() => router.push("/producer/templates")}
-          variant="outline"
-          leftSection={<IconArrowLeft size={16} />}
-        >
-          Ver Plantillas Pendientes
-        </Button>
-      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>

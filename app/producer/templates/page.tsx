@@ -34,6 +34,7 @@ import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSort } from "../../hooks/useSort";
+import ProducerUploadedTemplatesPage from "./uploaded/ProducerUploadedTemplates";
 
 const DropzoneButton = dynamic(
   () =>
@@ -356,16 +357,6 @@ const ProducerTemplatesPage = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <Group>
-        <Button
-          ml={"auto"}
-          onClick={() => router.push("/producer/templates/uploaded")}
-          variant="outline"
-          rightSection={<IconArrowRight size={16} />}
-        >
-          Ver Plantillas Enviadas
-        </Button>
-      </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
@@ -467,6 +458,7 @@ const ProducerTemplatesPage = () => {
           />
         )}
       </Modal>
+      <ProducerUploadedTemplatesPage></ProducerUploadedTemplatesPage>
     </Container>
   );
 };
