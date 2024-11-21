@@ -340,7 +340,7 @@ const ProducerUploadedTemplatesPage = () => {
                 label={
                   uploadDisable
                     ? "El periodo ya se encuentra cerrado"
-                    : "Editar plantilla (archivo Excel)"
+                    : "Editar plantilla (Hoja de cálculo)"
                 }
                 position="top"
                 transitionProps={{ transition: "fade-up", duration: 300 }}
