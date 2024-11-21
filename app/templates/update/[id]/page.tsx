@@ -109,7 +109,7 @@ const UpdateTemplatePage = () => {
     const fetchDependencies = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${session?.user?.email}`
+          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/all/${session?.user?.email}`
         );
         setDependencies(response.data);
       } catch (error) {
