@@ -1,7 +1,6 @@
 "use client";
 
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
-import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 import { Accordion, Badge, Button, Center, Collapse, Container, Group, Modal, Paper, rem, Select, Table, Text, Textarea, TextInput, Title, Tooltip, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { IconArrowLeft, IconCancel, IconCheckupList, IconChevronsLeft, IconDeviceFloppy, IconHistory } from "@tabler/icons-react";
@@ -414,7 +413,6 @@ const UploadedReportsPage = () => {
           <Text component="span" fw={700}>
             {frameFile?.name}
           </Text>
-          <DriveFileFrame fileId={frameFile?.id || ""} fileName={frameFile?.name || ""} />
         </>
       </Modal>
     </Container>

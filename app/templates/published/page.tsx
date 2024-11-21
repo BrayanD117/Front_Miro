@@ -329,7 +329,7 @@ const PublishedTemplatesPage = () => {
     <Container size="xl">
       <DateConfig />
       <Title ta="center" mb={"md"}>
-        Proceso de Cargue de Plantillas
+        Gestión de Plantillas
       </Title>
       <TextInput
         placeholder="Buscar plantillas"
@@ -338,17 +338,19 @@ const PublishedTemplatesPage = () => {
         mb="md"
       />
       <Group>
-        <Button
-          onClick={() =>
-            userRole === "Administrador"
-              ? router.push("/admin/templates/")
-              : router.push("/responsible/templates/")
-          }
-          variant="outline"
-          leftSection={<IconArrowLeft size={16} />}
-        >
-          Ir a Gestión de Plantillas
-        </Button>
+        {
+          userRole === "Administrador" && ( 
+            <Button
+              onClick={() =>
+                router.push("/admin/templates/")
+              }
+              variant="outline"
+              leftSection={<IconArrowLeft size={16} />}
+            >
+              Ir a Gestión de Plantillas
+            </Button>
+          )
+        }
       </Group>
       <Table striped withTableBorder mt="md">
         <Table.Thead>

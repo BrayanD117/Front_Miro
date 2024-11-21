@@ -68,6 +68,7 @@ interface PublishedReport {
   period: Period;
   filled_reports: FilledReport[];
   folder_id: string;
+  deadline: Date;
 }
 
 const StatusColor: Record<string, string> = {
@@ -119,8 +120,7 @@ const ResponsibleReportsPage = () => {
   const rows = publishedReports.map((pReport) => (
     <Table.Tr key={pReport._id}>
       <Table.Td>{pReport.period.name}</Table.Td>
-      <Table.Td>{dateToGMT(pReport.period.responsible_start_date)}</Table.Td>
-      <Table.Td>{dateToGMT(pReport.period.responsible_end_date)}</Table.Td>
+      <Table.Td>{dateToGMT(pReport.deadline)}</Table.Td>
       <Table.Td>
           {pReport.report.name}
       </Table.Td>
@@ -173,7 +173,6 @@ const ResponsibleReportsPage = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Periodo</Table.Th>
-            <Table.Th>Fecha Inicio</Table.Th>
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Nombre de Informe</Table.Th>
             <Table.Th w={rem(20)}>

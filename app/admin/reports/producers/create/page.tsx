@@ -22,6 +22,7 @@ const ProducerReportCreatePage = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
+  const [loading, setLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [file, setFile] = useState<File | undefined>();
@@ -69,6 +70,7 @@ const ProducerReportCreatePage = () => {
   };
 
   const handleCreate = async () => {
+    setLoading(true);
     const newErrors = {
       name: !name,
       description: !description,
@@ -122,8 +124,10 @@ const ProducerReportCreatePage = () => {
         message: "Hubo un error al crear el informe",
         color: "red",
       });
+    } finally {
+      setLoading(false);
     }
-  };
+  } 
 
   useEffect(() => {
     fetchDimensions();

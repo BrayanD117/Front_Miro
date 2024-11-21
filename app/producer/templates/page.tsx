@@ -352,7 +352,7 @@ const ProducerTemplatesPage = () => {
         Plantillas Pendientes
       </Title>
       <TextInput
-        placeholder="Buscar plantillas"
+        placeholder="Buscar plantillas  "
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"

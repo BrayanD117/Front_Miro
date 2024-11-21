@@ -407,7 +407,7 @@ const ProducerUploadedTemplatesPage = () => {
       <Divider label="Proceso de cargue de plantillas" mt={20} mb={10}/>
       <DateConfig />
       <Title ta="center" mb={"md"}>
-        Plantillas Cargadas
+        Plantillas con Información
       </Title>
       <TextInput
         placeholder="Buscar plantillas"

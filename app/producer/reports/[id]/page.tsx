@@ -9,7 +9,6 @@ import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group,
 import { IconArrowLeft, IconBulb, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconX } from "@tabler/icons-react";
 import classes from "../../../responsible/reports/ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
-import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 
 interface Report {
@@ -93,7 +92,6 @@ const ResponsibleReportPage = () => {
   const [deletedReport, setDeletedReport] = useState<string>();
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
-  const [frameFile, setFrameFile] = useState<DriveFile | null>();
   const [selectedHistoryReport, setSelectedHistoryReport] = useState<string | null>(null);
   const [canSend, setCanSend] = useState<boolean>(true);
   const [opened, setOpened] = useState(false);
@@ -373,7 +371,9 @@ const ResponsibleReportPage = () => {
             
           />
           <Tooltip
-            label="No puedes modificar el informe si ya fue aprobado o está en revisión"
+            label={(new Date(publishedReport?.deadline || "") < dateNow()) ?
+              "El plazo para enviar el informe ha expirado" :
+              "No puedes modificar el informe si ya fue aprobado o está en revisión"}
             transitionProps={{ transition: "fade-up", duration: 300 }}
             disabled={!sendsHistory.some((report) => report.status === "Aprobado" 
               || report.status === "En Revisión")}
@@ -397,11 +397,11 @@ const ResponsibleReportPage = () => {
               mt={25}
               disabled={sendsHistory.some(
                 (report) => report.status === "Aprobado" || report.status === "En Revisión"
-              ) || (publishedReport?.period.responsible_end_date ?? new Date()) < dateNow()}
+              ) || (new Date(publishedReport?.deadline || "") < dateNow())}
             >
               {sendsHistory[0]?.status === "En Borrador"
                 ? "Modificar borrador"
-                : "Diligenciar informe"}
+                : "Cargar informe"}
             </Button>
           </Tooltip>
         </Group>
@@ -417,7 +417,9 @@ const ResponsibleReportPage = () => {
         <Collapse in={openedReportForm}>
           <Group grow gap={'xl'}>
             <Tooltip
-              label="No has hecho cambios"
+              label={(new Date(publishedReport?.deadline || "") < dateNow()) ? 
+                "El plazo para enviar el informe ha expirado" :
+                "No has hecho cambios"}
               transitionProps={{ transition: "fade-up", duration: 300 }}
               disabled={!canSend}
             >
@@ -427,7 +429,7 @@ const ResponsibleReportPage = () => {
                 variant="outline"
                 disabled={canSend || publishedReport?.filled_reports[0]?.status === "Rechazado" ||
                   sendsHistory.some((report) => report.status === "Aprobado" 
-                  || report.status === "En Revisión")
+                  || report.status === "En Revisión" || (new Date(publishedReport?.deadline || "") < dateNow()))
                 }
                 onClick={loadDraft}
                 loading={saving}
@@ -447,6 +449,7 @@ const ResponsibleReportPage = () => {
                 color="blue"
                 disabled={!canSend || publishedReport?.filled_reports[0]?.status !== "En Borrador" || 
                   sendsHistory.some((report) => report.status === "Aprobado" || report.status === "En Revisión")
+                  || (new Date(publishedReport?.deadline || "") < dateNow())
                 }
                 onClick={sendReport}
                 loading={sending}
@@ -466,7 +469,10 @@ const ResponsibleReportPage = () => {
                   setDeletedReport(publishedReport?.filled_reports[0].report_file.id)
                   setCanSend(false)
                 }}
-                onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+                onClick={() => {
+                  if(typeof window !== "undefined")
+                    window.open(publishedReport?.filled_reports[0].report_file.view_link)
+                }}
                 style={{ cursor: "pointer" }}
               >
                 {publishedReport.filled_reports[0].report_file.name}
@@ -551,7 +557,10 @@ const ResponsibleReportPage = () => {
                         <Table.Td>
                           <Group
                             gap="xs"
-                            onClick={() => setFrameFile(attachment)}
+                            onClick={() => {
+                              if(typeof window !== "undefined")
+                                window.open(attachment.view_link)
+                            }}
                             style={{ cursor: "pointer" }}
                           >
                           <IconCloud size={16} color="gray" />
@@ -696,7 +705,10 @@ const ResponsibleReportPage = () => {
               fw={700}
               size="md"
               className={classes.pillDrive}
-              onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+              onClick={() => {
+                if(typeof window !== "undefined")
+                  window.open(publishedReport?.filled_reports[0].report_file.view_link)
+              }}
               style={{ cursor: "pointer" }}
             >
               {publishedReport.filled_reports[0].report_file.name}
@@ -726,7 +738,10 @@ const ResponsibleReportPage = () => {
                       <Table.Td>
                         <Group
                           gap="xs"
-                          onClick={() => setFrameFile(attachment)}
+                          onClick={() => {
+                            if(typeof window !== "undefined")
+                              window.open(attachment.view_link)
+                          }}
                           style={{ cursor: "pointer" }}
                         >
                         <IconCloud size={16} color="gray" />
@@ -748,35 +763,6 @@ const ResponsibleReportPage = () => {
           )}
         </Collapse>
       </Container>
-      <Modal
-        opened={Boolean(frameFile)}
-        onClose={() => setFrameFile(null)}
-        size="xl"
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
-        withCloseButton={false}
-      >
-        <>
-          <Button
-            mx={"sm"}
-            variant="light"
-            size="compact-md"
-            onClick={() => setFrameFile(null)}
-            mb={"sm"}
-          >
-            <IconChevronsLeft />
-            <Text size="sm" fw={600}>
-              Ir atrás
-            </Text>
-          </Button>
-          <Text component="span" fw={700}>
-            {frameFile?.name}
-          </Text>
-          <DriveFileFrame fileId={frameFile?.id || ""} fileName={frameFile?.name || ""} />
-        </>
-      </Modal>
     </>
   );
 };

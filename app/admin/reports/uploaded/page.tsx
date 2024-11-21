@@ -45,7 +45,6 @@ import { useRouter } from "next/navigation";
 import { dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 import { useSort } from "../../../hooks/useSort";
 
 interface Report {
@@ -684,26 +683,22 @@ const AdminPubReportsPage = () => {
           <Title size={"md"}>Informe: {selectedReport?.report.name}</Title>
         }
       >
-        { frameFile ? 
-          <DriveFileFrame fileId={frameFile.id} fileName={frameFile.name} />
-          :
-          <Table striped withTableBorder mt="md">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Dimensión</Table.Th>
-                <Table.Th>Carga</Table.Th>
-                <Table.Th>Enviado por</Table.Th>
-                <Table.Th>
-                  <Center>Estado</Center>
-                </Table.Th>
-                <Table.Th>
-                  <Center>Acciones</Center>
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{[...selectedReportRows, pendingReports]}</Table.Tbody>
-          </Table>
-        }
+        <Table striped withTableBorder mt="md">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Dimensión</Table.Th>
+              <Table.Th>Carga</Table.Th>
+              <Table.Th>Enviado por</Table.Th>
+              <Table.Th>
+                <Center>Estado</Center>
+              </Table.Th>
+              <Table.Th>
+                <Center>Acciones</Center>
+              </Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{[...selectedReportRows, pendingReports]}</Table.Tbody>
+        </Table>
       </Modal>
       <Modal
         opened={statusOpened}
@@ -795,9 +790,6 @@ const AdminPubReportsPage = () => {
           </> : "Historial de Envíos"}
         withCloseButton={true}
       >
-        { frameFile ? 
-        <DriveFileFrame fileId={frameFile.id} fileName={frameFile.name} />
-        : historyRows }
       </Modal>
     </Container>
   );

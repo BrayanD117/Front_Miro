@@ -45,7 +45,6 @@ import uploadAnimation from "../../../public/lottie/upload.json";
 import successAnimation from "../../../public/lottie/success.json";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 import { useSort } from "../../hooks/useSort";
 import { DateInput, DatePickerInput } from "@mantine/dates";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
@@ -316,7 +315,7 @@ const AdminReportsPage = () => {
   return (
     <Container size="xl">
       <DateConfig />
-      <Title>Gestión de Informes</Title>
+      <Title mb={'md'} ta={'center'}>Configuración Informes de Dimensiones</Title>
       <TextInput
         placeholder="Buscar en todos los informes"
         value={search}
@@ -338,7 +337,7 @@ const AdminReportsPage = () => {
           variant="outline"
           rightSection={<IconArrowRight size={16} />}
         >
-          Ir a Informes Publicados
+          Ir a Gestión de Informes
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">

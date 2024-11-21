@@ -74,6 +74,7 @@ interface PublishedReport {
   period: Period;
   filled_reports: FilledReport[];
   folder_id: string;
+  deadline: Date;
 }
 
 const StatusColor: Record<string, string> = {
@@ -125,7 +126,7 @@ const ResponsibleReportPage = () => {
       console.error(error);
       showNotification({
         title: "Error",
-        message: "No se pudo cargar el reporte",
+        message: "No se pudo cargar el informe",
         color: "red",
       });
     }
@@ -195,7 +196,7 @@ const ResponsibleReportPage = () => {
     if (!publishedReport) {
       showNotification({
         title: "Error",
-        message: "No se ha cargado el reporte",
+        message: "No se ha cargado el informe",
         color: "red",
       });
       return;
@@ -203,7 +204,7 @@ const ResponsibleReportPage = () => {
     if (!publishedReport?.filled_reports[0]?.report_file && !reportFile) {
       showNotification({
         title: "Error",
-        message: "Debes cargar un archivo de reporte",
+        message: "Debes cargar un archivo de informe",
         color: "red",
       });
       return;
@@ -246,8 +247,8 @@ const ResponsibleReportPage = () => {
       await fetchReport();
 
       showNotification({
-        title: "Reporte enviado",
-        message: "El reporte se ha enviado correctamente",
+        title: "Informe enviado",
+        message: "El informe se ha enviado correctamente",
         color: "green",
       });
 
@@ -256,7 +257,7 @@ const ResponsibleReportPage = () => {
       console.error(error);
       showNotification({
         title: "Error",
-        message: "No se pudo enviar el reporte",
+        message: "No se pudo enviar el informe",
         color: "red",
       });
     } 
@@ -275,7 +276,8 @@ const ResponsibleReportPage = () => {
       setOpenedHistoryReport(false);
     }
   };
-
+  
+  console.log("Aquí va:", (new Date(publishedReport?.deadline || "")) < dateNow())
   return (
     <>
       <Container size={'xl'} ml={'md'} fluid>
@@ -312,7 +314,7 @@ const ResponsibleReportPage = () => {
             </Badge>
           </Text>
           <Text size={'md'} mb='md'>
-          <Text fw="700">Formato de reporte:</Text>
+          <Text fw="700">Formato de informe:</Text>
             <Group>
               <Tooltip 
                 label="Ver formato"
@@ -358,7 +360,7 @@ const ResponsibleReportPage = () => {
             {publishedReport?.report.requires_attachment ? "✔ Sí" : "✗ No"}
           </Text>
           <Select
-            label={<Text fw={700} size="md">Historial de reportes:</Text>}
+            label={<Text fw={700} size="md">Historial de informes:</Text>}
             placeholder={(sendsHistory?.length ?? 0) < 1 ? "Sin envíos" : "Selecciona un envío"}
             data={
               sendsHistory?.map((report, index) => ({
@@ -374,35 +376,37 @@ const ResponsibleReportPage = () => {
             
           />
           <Tooltip
-            label="No puedes modificar el reporte si ya fue aprobado o está en revisión"
+            label={new Date(publishedReport?.deadline || "") < dateNow() 
+              ? "El plazo para enviar el informe ha vencido"
+              : "No puedes modificar el informe si ya fue aprobado o está en revisión"}
             transitionProps={{ transition: "fade-up", duration: 300 }}
             disabled={!sendsHistory.some((report) => report.status === "Aprobado" 
-              || report.status === "En Revisión")}
+              || report.status === "En Revisión") && (new Date(publishedReport?.deadline || "") >= dateNow()) }
           >
             <Button
               onClick={() => {
-                setOpenedReportForm((prev) => !prev);
-                setOpenedHistoryReport(false);
-                if (publishedReport) {
-                  const updatedPublishedReport = { ...publishedReport, filled_reports: [sendsHistory[0]] };
-                  setPublishedReport(updatedPublishedReport);
-                }
-                clearSelect();
-                if (sendsHistory[0]?.status === "Rechazado" && publishedReport) {
-                  const updatedPublishedReport = { ...publishedReport, filled_reports: [] };
-                  setPublishedReport(updatedPublishedReport);
-                }
+              setOpenedReportForm((prev) => !prev);
+              setOpenedHistoryReport(false);
+              if (publishedReport) {
+                const updatedPublishedReport = { ...publishedReport, filled_reports: [sendsHistory[0]] };
+                setPublishedReport(updatedPublishedReport);
+              }
+              clearSelect();
+              if (sendsHistory[0]?.status === "Rechazado" && publishedReport) {
+                const updatedPublishedReport = { ...publishedReport, filled_reports: [] };
+                setPublishedReport(updatedPublishedReport);
+              }
               }}
               variant="outline"
               leftSection={<IconEdit />}
               mt={25}
               disabled={sendsHistory.some(
-                (report) => report.status === "Aprobado" || report.status === "En Revisión"
-              ) || (publishedReport?.period.responsible_end_date ?? new Date()) < dateNow()}
+              (report) => report.status === "Aprobado" || report.status === "En Revisión"
+              ) || (new Date(publishedReport?.deadline || "") < dateNow())}
             >
               {sendsHistory[0]?.status === "En Borrador"
-                ? "Modificar borrador"
-                : "Diligenciar reporte"}
+              ? "Modificar borrador"
+              : "Cargar informe"}
             </Button>
           </Tooltip>
         </Group>
@@ -410,17 +414,19 @@ const ResponsibleReportPage = () => {
           <IconBulb color="#797979" size={20}></IconBulb>
           <br/>
           {sendsHistory[0]?.status === "En Revisión" ? 
-            'Tu reporte está en revisión no puedes realizar modificaciones ni generar nuevos envíos' : 
-            'Recuerda que tu reporte no será revisado si se encuentra "En Borrador"'
+            'Tu informe está en revisión no puedes realizar modificaciones ni generar nuevos envíos' : 
+            'Recuerda que tu informe no será revisado si se encuentra "En Borrador"'
           }
         </Text>
         <Divider mb='md'/>
         <Collapse in={openedReportForm}>
           <Group grow gap={'xl'}>
             <Tooltip
-              label="No has hecho cambios"
+              label={(new Date(publishedReport?.deadline || "") < dateNow())
+                ? "El plazo para enviar el informe ha vencido"
+                : "No has hecho cambios"}
               transitionProps={{ transition: "fade-up", duration: 300 }}
-              disabled={!canSend}
+              disabled={!canSend && (new Date(publishedReport?.deadline || "") >= dateNow())}
             >
               <Button
                 leftSection={<IconCloudUpload/>}
@@ -437,9 +443,12 @@ const ResponsibleReportPage = () => {
               </Button>
             </Tooltip>
             <Tooltip
-              label={publishedReport?.filled_reports[0]?.status !== "En Borrador" ? "Este reporte ya fue enviado" : "Primero debes guardar el borrador"}
+              label={ (new Date(publishedReport?.deadline || "") < dateNow()) 
+                ? "El plazo para enviar el informe ha vencido"
+                : publishedReport?.filled_reports[0]?.status !== "En Borrador" 
+                ? "Este informe ya fue enviado" : "Primero debes guardar el borrador"}
               transitionProps={{ transition: "fade-up", duration: 300 }}
-              disabled={canSend}
+              disabled={canSend && (new Date(publishedReport?.deadline || "") >= dateNow())}
             >
               <Button
                 leftSection={<IconSend/>}
@@ -447,16 +456,16 @@ const ResponsibleReportPage = () => {
                 variant="outline"
                 color="blue"
                 disabled={!canSend || publishedReport?.filled_reports[0]?.status !== "En Borrador" || 
-                  sendsHistory.some((report) => report.status === "Aprobado" || report.status === "En Revisión")
+                  sendsHistory.some((report) => report.status === "Aprobado" || report.status === "En Revisión" || (new Date(publishedReport?.deadline || "") < dateNow()))
                 }
                 onClick={sendReport}
                 loading={sending}
               >
-                Enviar reporte
+                Enviar informe
               </Button>
             </Tooltip>
           </Group>
-          <Text fw={700} mb={'xs'}>Carga tu archivo de reporte a continuación: {" "}
+          <Text fw={700} mb={'xs'}>Carga tu archivo de informe a continuación: {" "}
             {(publishedReport?.filled_reports[0]?.report_file && !deletedReport) ? (
               <Pill
                 withRemoveButton={!(publishedReport?.filled_reports[0]?.status !== "En Borrador" 
@@ -493,7 +502,7 @@ const ResponsibleReportPage = () => {
                 if (files.length > 1) {
                   showNotification({
                     title: "Solo puedes cargar un archivo",
-                    message: "En el reporte solo puedes cargar un archivo",
+                    message: "En el informe solo puedes cargar un archivo",
                     color: "red",
                   });
                   return;
@@ -505,7 +514,7 @@ const ResponsibleReportPage = () => {
                     publishedReport?.filled_reports[0].report_file.id
                   );
               }}
-              text="Arrastra o selecciona el archivo con tu reporte"
+              text="Arrastra o selecciona el archivo con tu informe"
             />
           )}
           {publishedReport?.report.requires_attachment && (
@@ -699,7 +708,7 @@ const ResponsibleReportPage = () => {
 
             </Table.Tbody>
           </Table>
-          <Text fw={700} mb={'xs'}>Archivo de reporte:{" "}</Text>
+          <Text fw={700} mb={'xs'}>Archivo de informe:{" "}</Text>
           {publishedReport?.filled_reports[0]?.report_file && (
             <Pill
               fw={700}

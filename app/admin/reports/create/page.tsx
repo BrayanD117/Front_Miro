@@ -108,7 +108,7 @@ const ReportCreatePage = () => {
 
   return (
     <Container size={'lg'}>
-      <Title ta={'center'}>Creación de Informe para Productores</Title>
+      <Title ta={'center'}>Creación de Informe para Dimensiones</Title>
       <Divider m={'md'}/>
 
       <TextInput
@@ -168,7 +168,7 @@ const ReportCreatePage = () => {
 
       <MultiSelect
         mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Dimensiones con acceso al informe</Text>}
+        label={<Text fw={700} size="sm" component="span">Dimensiones que diligenciarán el reporte:</Text>}
         placeholder="Selecciona las dimensiones que podrán usar el informe"
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
         value={selectedDimensions.map((dim) => dim._id)}
