@@ -9,8 +9,7 @@ import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group,
 import { IconArrowLeft, IconBulb, IconChevronsLeft, IconCirclePlus, IconCloud, IconCloudUpload, IconDownload, IconEdit, IconEye, IconSend, IconX } from "@tabler/icons-react";
 import classes from "../ResponsibleReportsPage.module.css";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
-import { DriveFileFrame } from "@/app/components/DriveFileFrame";
-import { dateNow, dateToGMT } from "@/app/components/DateConfig";
+import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 
 interface Report {
   _id: string;
@@ -18,6 +17,7 @@ interface Report {
   description: string;
   report_example_id: string;
   report_example_download: string;
+  report_example_link: string;
   requires_attachment: boolean;
   created_by: {
     email: string;
@@ -45,6 +45,7 @@ interface DriveFile {
   id: string;
   name: string;
   download_link: string;
+  view_link: string;
   description?: string;
 }
 
@@ -93,7 +94,6 @@ const ResponsibleReportPage = () => {
   const [deletedReport, setDeletedReport] = useState<string>();
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [deletedAttachments, setDeletedAttachments] = useState<string[]>([]);
-  const [frameFile, setFrameFile] = useState<DriveFile | null>();
   const [selectedHistoryReport, setSelectedHistoryReport] = useState<string | null>(null);
   const [canSend, setCanSend] = useState<boolean>(true);
   const [opened, setOpened] = useState(false);
@@ -279,6 +279,7 @@ const ResponsibleReportPage = () => {
   return (
     <>
       <Container size={'xl'} ml={'md'} fluid>
+        <DateConfig />
         <Title ta={'center'} mb={'md'}>{publishedReport?.report.name}</Title>
           <Group mb="md">
           <Button
@@ -322,12 +323,8 @@ const ResponsibleReportPage = () => {
                   size="sm"
                   onClick={() => {
                     if(publishedReport)
-                      setFrameFile({
-                        id: publishedReport.report.report_example_id,
-                        name: publishedReport.report.name,
-                        download_link: publishedReport.report.report_example_download,
-                        description: publishedReport?.report.description,
-                      })
+                      if(typeof window !== "undefined")
+                        window.open(publishedReport.report.report_example_link);
                   }}
                 >
                   <IconEye/>
@@ -470,7 +467,11 @@ const ResponsibleReportPage = () => {
                   setDeletedReport(publishedReport?.filled_reports[0].report_file.id)
                   setCanSend(false)
                 }}
-                onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+                onClick={() => {
+                  if(publishedReport)
+                    if(typeof window !== "undefined")
+                      window.open(publishedReport.filled_reports[0].report_file.view_link);
+                }}
                 style={{ cursor: "pointer" }}
               >
                 {publishedReport.filled_reports[0].report_file.name}
@@ -555,7 +556,11 @@ const ResponsibleReportPage = () => {
                         <Table.Td>
                           <Group
                             gap="xs"
-                            onClick={() => setFrameFile(attachment)}
+                            onClick={() => {
+                              if(publishedReport)
+                                if(typeof window !== "undefined")
+                                  window.open(attachment.view_link);
+                            }}
                             style={{ cursor: "pointer" }}
                           >
                           <IconCloud size={16} color="gray" />
@@ -700,7 +705,11 @@ const ResponsibleReportPage = () => {
               fw={700}
               size="md"
               className={classes.pillDrive}
-              onClick={() => setFrameFile(publishedReport?.filled_reports[0].report_file)}
+              onClick={() => {
+                if(publishedReport)
+                  if(typeof window !== "undefined")
+                    window.open(publishedReport.filled_reports[0].report_file.view_link);
+              }}
               style={{ cursor: "pointer" }}
             >
               {publishedReport.filled_reports[0].report_file.name}
@@ -730,7 +739,11 @@ const ResponsibleReportPage = () => {
                       <Table.Td>
                         <Group
                           gap="xs"
-                          onClick={() => setFrameFile(attachment)}
+                          onClick={() => {
+                            if(publishedReport)
+                              if(typeof window !== "undefined")
+                                window.open(attachment.view_link);
+                          }}
                           style={{ cursor: "pointer" }}
                         >
                         <IconCloud size={16} color="gray" />
@@ -752,35 +765,6 @@ const ResponsibleReportPage = () => {
           )}
         </Collapse>
       </Container>
-      <Modal
-        opened={Boolean(frameFile)}
-        onClose={() => setFrameFile(null)}
-        size="xl"
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
-        withCloseButton={false}
-      >
-        <>
-          <Button
-            mx={"sm"}
-            variant="light"
-            size="compact-md"
-            onClick={() => setFrameFile(null)}
-            mb={"sm"}
-          >
-            <IconChevronsLeft />
-            <Text size="sm" fw={600}>
-              Ir atrás
-            </Text>
-          </Button>
-          <Text component="span" fw={700}>
-            {frameFile?.name}
-          </Text>
-          <DriveFileFrame fileId={frameFile?.id || ""} fileName={frameFile?.name || ""} />
-        </>
-      </Modal>
     </>
   );
 };

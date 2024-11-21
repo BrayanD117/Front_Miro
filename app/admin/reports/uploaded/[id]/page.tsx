@@ -21,6 +21,7 @@ interface Report {
     email: string;
     full_name: string;
   };
+  dimensions: Dimension[];
 }
 
 interface Dimension {
@@ -63,7 +64,6 @@ interface FilledReport {
 interface PublishedReport {
   _id: string;
   report: Report;
-  dimensions: Dimension[];
   period: Period;
   filled_reports: FilledReport[];
   folder_id: string;
@@ -338,7 +338,7 @@ const UploadedReportsPage = () => {
       </Accordion.Item>
     )
   })
-  const missingItems = publishedReport?.dimensions?.map((dimension) => {
+  const missingItems = publishedReport?.report.dimensions?.map((dimension) => {
     if (
       !publishedReport?.filled_reports?.some(
         (filledReport: FilledReport) =>

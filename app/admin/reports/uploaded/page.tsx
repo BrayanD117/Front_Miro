@@ -61,6 +61,7 @@ interface Report {
     email: string;
     full_name: string;
   };
+  dimensions: Dimension[];
 }
 
 interface Dimension {
@@ -99,7 +100,6 @@ interface FilledReport {
 interface PublishedReport {
   _id: string;
   report: Report;
-  dimensions: Dimension[];
   period: Period;
   filled_reports: FilledReport[];
   folder_id: string;
@@ -219,7 +219,7 @@ const AdminPubReportsPage = () => {
 
   const giveReportPercentage = (pubReport: PublishedReport) => {
     return (
-      (pubReport.filled_reports.length / pubReport.dimensions.length) * 100
+      (pubReport.filled_reports.length / pubReport.report.dimensions.length) * 100
     );
   };
 
@@ -301,7 +301,7 @@ const AdminPubReportsPage = () => {
       if (response.data) {
         showNotification({
           title: "Éxito",
-          message: "Reporte eliminado correctamente",
+          message: "Informe eliminado correctamente",
           color: "green",
         });
         fetchReports(page, search);
@@ -310,14 +310,14 @@ const AdminPubReportsPage = () => {
       if (error.response.status === 400) {
         showNotification({
           title: "Error",
-          message: "Ocurrió un error al eliminar el reporte",
+          message: "Ocurrió un error al eliminar el informe",
           color: "red",
           autoClose: 1200,
         });
         showNotification({
           title: "Error",
           message:
-            "El reporte que intentas borrar tiene borradores de envío de los responsables",
+            "El informe que intentas borrar tiene borradores de envío de los responsables",
           color: "red",
           autoClose: 4000,
         });
@@ -325,7 +325,7 @@ const AdminPubReportsPage = () => {
     }
   };
 
-  const pendingReports = selectedReport?.dimensions.map((dimension) => {
+  const pendingReports = selectedReport?.report.dimensions.map((dimension) => {
     if (
       !filledReportRows.some(
         (filledReport: FilledReport) =>
@@ -356,7 +356,7 @@ const AdminPubReportsPage = () => {
           )}`}
         />
         <Group mt={rem(5)}>
-          <Text size="sm">Reporte: </Text>
+          <Text size="sm">Informe: </Text>
           <Pill
             onClick={() => 
               setFrameFile(filledReport.report_file)
@@ -442,7 +442,7 @@ const AdminPubReportsPage = () => {
           <Table.Td>
             <Center>
               <Group gap={'xs'}>
-                <Tooltip label="Ver reporte">
+                <Tooltip label="Ver informe">
                   <Button
                     size="compact-lg"
                     variant="outline"
@@ -453,7 +453,7 @@ const AdminPubReportsPage = () => {
                     <IconReportSearch size={16} />
                   </Button>
                 </Tooltip>
-                <Tooltip label="Ver carpeta de reporte">
+                <Tooltip label="Ver carpeta de informe">
                   <Button
                     size="compact-lg"
                     variant="outline"
@@ -496,23 +496,22 @@ const AdminPubReportsPage = () => {
     pubReports.map((pubReport: PublishedReport) => {
       return (
         <Table.Tr key={pubReport._id}>
-          <Table.Td maw={rem(55)}>
+          <Table.Td w={rem(70)}>
             <Center>
               <Badge size={rem(12)} h={rem(8)} variant="light" p={"xs"}>
                 {pubReport.period.name}
               </Badge>
             </Center>
           </Table.Td>
-          <Table.Td>{pubReport.report.name}</Table.Td>
-          <Table.Td>{pubReport.report.file_name}</Table.Td>
-          <Table.Td>
+          <Table.Td maw={rem(300)}>{pubReport.report.name}</Table.Td>
+          <Table.Td miw={rem(150)}>
             <Center>
-              <Stack gap={0}>
+              <Stack gap={0} w={"100%"}>
                 <Progress.Root
                   mt={"xs"}
                   size={"md"}
                   radius={"md"}
-                  w={rem(200)}
+                  w={"100%"}
                   onClick={() => router.push(`uploaded/${pubReport._id}`)}
                   style={{ cursor: "pointer" }}
                 >
@@ -522,16 +521,26 @@ const AdminPubReportsPage = () => {
                 </Progress.Root>
                 <Text size="sm" ta={"center"} mt={rem(5)}>
                   {pubReport.filled_reports.length} de{" "}
-                  {pubReport.dimensions.length}
+                  {pubReport.report.dimensions.length}
                 </Text>
               </Stack>
             </Center>
           </Table.Td>
           <Table.Td>
             <Center>
+              {pubReport.filled_reports.reduce((acc, filledReport) => {
+                if (filledReport.status === "En Revisión") {
+                  return acc + 1;
+                }
+                return acc;
+              }, 0)}
+            </Center>
+          </Table.Td>
+          <Table.Td>
+            <Center>
               <Group>
                 <Tooltip
-                  label="Ver reportes cargados"
+                  label="Ver informes cargados"
                   transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
                   <Button
@@ -542,31 +551,10 @@ const AdminPubReportsPage = () => {
                   </Button>
                 </Tooltip>
                 <Tooltip
-                  label="Ver carpeta de reportes"
-                  transitionProps={{ transition: "fade-up", duration: 300 }}
-                >
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      if (typeof window !== "undefined") {
-                        window.open(
-                          `https://drive.google.com/drive/folders/${pubReport.folder_id}`
-                        );
-                      }
-                    }}
-                    disabled={
-                      !pubReport.folder_id ||
-                      pubReport.filled_reports.length === 0
-                    }
-                  >
-                    <IconBrandGoogleDrive size={20} />
-                  </Button>
-                </Tooltip>
-                <Tooltip
                   label={
                     pubReport.filled_reports.length > 0
-                      ? "No puedes borrar porque hay reportes cargados"
-                      : "Borrar publicación del reporte"
+                      ? "No puedes borrar porque hay informes cargados"
+                      : "Borrar publicación del informe"
                   }
                   transitionProps={{ transition: "fade-up", duration: 300 }}
                 >
@@ -587,17 +575,17 @@ const AdminPubReportsPage = () => {
     })
   ) : (
     <Table.Tr>
-      <Table.Td colSpan={10}>No se encontraron reportes publicados</Table.Td>
+      <Table.Td colSpan={10}>No se encontraron informes publicados</Table.Td>
     </Table.Tr>
   );
 
   return (
     <Container size="xl">
       <Title ta="center" mb={"md"}>
-        Proceso Cargue de Reportes
+        Gestión de Informes de Dimensiones
       </Title>
       <TextInput
-        placeholder="Buscar en los reportes publicados"
+        placeholder="Buscar en los informes publicados"
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
@@ -608,13 +596,13 @@ const AdminPubReportsPage = () => {
           variant="outline"
           leftSection={<IconArrowLeft size={16} />}
         >
-          Ir a Gestión de Reportes
+          Ir a Gestión de Informes
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
       <Table.Thead>
           <Table.Tr>
-            <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
+            <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }} miw={rem(60)}>
               <Center inline>
                 Periodo
                 {sortConfig.key === "period.name" ? (
@@ -630,22 +618,8 @@ const AdminPubReportsPage = () => {
             </Table.Th>
             <Table.Th onClick={() => handleSort("report.name")} style={{ cursor: "pointer" }}>
               <Center inline>
-                Reporte
+                Informe
                 {sortConfig.key === "report.name" ? (
-                  sortConfig.direction === "asc" ? (
-                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
-                  ) : (
-                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
-                  )
-                ) : (
-                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
-                )}
-              </Center>
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("report.file_name")} style={{ cursor: "pointer" }}>
-              <Center inline>
-                Nombre de Archivo
-                {sortConfig.key === "report.file_name" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
                   ) : (
@@ -658,6 +632,9 @@ const AdminPubReportsPage = () => {
             </Table.Th>
             <Table.Th>
               <Center>Progreso</Center>
+            </Table.Th>
+            <Table.Th>
+              <Center>Pendientes por Evaluar</Center>
             </Table.Th>
             <Table.Th>
               <Center>Acciones</Center>
@@ -704,7 +681,7 @@ const AdminPubReportsPage = () => {
               {frameFile?.name}
             </Text>
           </> :
-          <Title size={"md"}>Reporte: {selectedReport?.report.name}</Title>
+          <Title size={"md"}>Informe: {selectedReport?.report.name}</Title>
         }
       >
         { frameFile ? 

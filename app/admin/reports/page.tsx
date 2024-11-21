@@ -20,6 +20,7 @@ import {
   Tooltip,
   Title,
   Pill,
+  Checkbox,
 } from "@mantine/core";
 import {
   IconArrowBigDownFilled,
@@ -46,6 +47,8 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { DriveFileFrame } from "@/app/components/DriveFileFrame";
 import { useSort } from "../../hooks/useSort";
+import { DateInput, DatePickerInput } from "@mantine/dates";
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 
 type LottieProps = {
   animationData: object;
@@ -79,6 +82,7 @@ interface Dimension {
 interface Period {
   _id: string;
   name: string;
+  responsible_end_date: Date;
 }
 
 interface DriveFile {
@@ -108,6 +112,8 @@ const AdminReportsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const [customDeadline, setCustomDeadline] = useState(false);
+  const [deadline, setDeadline] = useState<Date | null>(null);
   const { sortedItems: sortedReports, handleSort, sortConfig } = useSort<Report>(reports, { key: null, direction: "asc" });
 
   const fetchReports = async (page: number, search: string) => {
@@ -161,85 +167,6 @@ const AdminReportsPage = () => {
     }
   }, [search, session?.user?.email, page]);
 
-  const handleCreateOrEdit = async () => {
-    if ((!name || !reportExample) && !selectedReport) {
-      showNotification({
-        title: "Error",
-        message: "El nombre y el formato de ejemplo son requeridos",
-        color: "red",
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("requires_attachment", requiresAttachment.toString());
-    formData.append("file_name", fileName);
-    formData.append("email", session?.user?.email || "");
-    if(reportExample)
-      formData.append("report_example", reportExample);
-    setLoading(true);
-
-    try {
-      if (selectedReport) {
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}/reports/update/${selectedReport._id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        showNotification({
-          title: "Actualizado",
-          message: "Informe actualizado exitosamente",
-          color: "teal",
-        });
-      } else {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/reports/create`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        showNotification({
-          title: "Creado",
-          message: "Informe creado exitosamente",
-          color: "teal",
-        });
-      }
-
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        handleModalClose();
-        fetchReports(page, search);
-      }, 3000);
-    } catch (error: any) {
-      console.error("Error creando o actualizando informe:", error);
-      if(error.response.data.message){
-        showNotification({
-          title: "Error",
-          message: "Este informe ya se encuentra publicado y con información cargada, no se puede modificar",
-          color: "red",
-        });
-      } else {
-        showNotification({
-          title: "Error",
-          message: "Hubo un error al crear o actualizar el informe",
-          color: "red",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleEdit = (report: Report) => {
     setSelectedReport(report);
     setName(report.name);
@@ -268,18 +195,6 @@ const AdminReportsPage = () => {
     }
   };
 
-  const handleModalClose = () => {
-    setOpened(false);
-    setName("");
-    setDescription("");
-    setRequiresAttachment(false);
-    setReportExample(null);
-    setSelectedReport(null);
-    setFileName("");
-    setLoading(false);
-    setSuccess(false);
-  };
-
   const handlePublishModalClose = () => {
     setSelectedReport(null);
     setPublishing(false);
@@ -287,30 +202,34 @@ const AdminReportsPage = () => {
     setPeriods([]);
     setSelectedDimensions([]);
     setSelectedPeriod(null);
+    setCustomDeadline(false);
+    setDeadline(null);
   };
 
-  const handleSubmitPublish = async () => {
+  const handleSubmitPublish = async (reportId: string) => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pReports/publish`, {
-        reportId: selectedReport?._id,
+        reportId,
+        deadline: customDeadline ? deadline : selectedPeriod ?
+          new Date(periods.find(period => period._id === selectedPeriod)?.responsible_end_date || '') : null,
         periodId: selectedPeriod,
-        dimensionsId: selectedDimensions,
+        email: session?.user?.email
       });
       showNotification({
-        title: "Publicación Exitosa",
-        message: "El informe ha sido publicado exitosamente",
-        color: "teal",
+        title: "Éxito",
+        message: "Informe publicado correctamente",
+        color: "green",
       });
       handlePublishModalClose();
     } catch (error) {
-      console.error("Error asignando informe:", error);
+      console.error("Error publishing report:", error);
       showNotification({
         title: "Error",
-        message: "Hubo un error al asignar el informe",
+        message: "Hubo un error al publicar el informe",
         color: "red",
       });
     }
-  };
+  }
 
   const checkIfChanges = () => {
     if(!selectedReport) return false
@@ -396,6 +315,7 @@ const AdminReportsPage = () => {
 
   return (
     <Container size="xl">
+      <DateConfig />
       <Title>Gestión de Informes</Title>
       <TextInput
         placeholder="Buscar en todos los informes"
@@ -406,8 +326,7 @@ const AdminReportsPage = () => {
       <Group>
         <Button
           onClick={() => {
-            setSelectedReport(null);
-            setOpened(true);
+            router.push(`reports/create`);
           }}
           leftSection={<IconCirclePlus/>}
         >
@@ -474,126 +393,6 @@ const AdminReportsPage = () => {
         />
       </Center>
       <Modal
-        opened={opened}
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
-        onClose={handleModalClose}
-        title={selectedReport ? "Editar Informe" : "Crear Nuevo Informe"}
-      >
-        {loading ? (
-          <Center>
-            <Lottie animationData={uploadAnimation} loop={true} />
-          </Center>
-        ) : success ? (
-          <Center>
-            <Lottie animationData={successAnimation} loop={false} />
-          </Center>
-        ) : (
-          <>
-            <TextInput
-              required={true}
-              withAsterisk={true}
-              label="Nombre"
-              placeholder="Nombre del informe"
-              value={name}
-              onChange={(event) => setName(event.currentTarget.value)}
-            />
-            <Textarea
-              label="Descripción"
-              placeholder="Descripción del informe"
-              required={false}
-              value={description}
-              onChange={(event) => setDescription(event.currentTarget.value)}
-              minRows={2}
-              maxRows={5}
-            />
-            <TextInput
-              required={true}
-              withAsterisk={true}
-              label="Nombre de archivo"
-              placeholder="Ingrese el nombre del archivo"
-              value={fileName}
-              onChange={(event) => setFileName(event.currentTarget.value)}
-            />
-            <FileInput
-              required={true}
-              withAsterisk={true}
-              label="Archivo de ejemplo"
-              placeholder="Seleccione el archivo de ejemplo"
-              value={reportExample}
-              onChange={setReportExample}
-            />
-            <Group my={"xs"}>
-              <Text size="sm">¿Necesita Anexos?</Text>
-              <Switch
-                checked={requiresAttachment}
-                onChange={(event) =>
-                  setRequiresAttachment(event.currentTarget.checked)
-                }
-                color="rgba(25, 113, 194, 1)"
-                size="md"
-                thumbIcon={
-                  requiresAttachment ? (
-                    <IconCheck
-                      style={{ width: rem(12), height: rem(12) }}
-                      color={"rgba(25, 113, 194, 1)"}
-                      stroke={3}
-                    />
-                  ) : (
-                    <IconX
-                      style={{ width: rem(12), height: rem(12) }}
-                      color={"red"}
-                      stroke={3}
-                    />
-                  )
-                }
-              />
-            </Group>
-            {selectedReport && (
-              <Group mt="sm">
-                <Text size="sm">
-                  Informe cargado:{" "}
-                </Text>
-                <Pill
-                  onClick={() => {
-                    setFrameFile({id: selectedReport.report_example_id, name: selectedReport.file_name});
-                  }}
-                  style={{ cursor: "pointer" }}
-                  bg={"blue"}
-                  c={"white"}
-                  size="xs"
-                >
-                  {selectedReport.file_name}
-                </Pill>
-              </Group>
-            )}
-            <Group mt="lg" grow>
-              <Button
-                onClick={handleCreateOrEdit} 
-                disabled={checkIfChanges()}
-                justify="space-between"
-                rightSection={<span/>}
-                leftSection={<IconDeviceFloppy />}
-              >
-                {selectedReport ? "Actualizar" : "Crear Informe"}
-              </Button>
-              <Button
-                onClick={handleModalClose}
-                variant="light"
-                color="red"
-                justify="space-between"
-                rightSection={<IconCancel/>}
-                leftSection={<span/>}
-              >
-                Cancelar
-              </Button>
-            </Group>
-          </>
-        )}
-      </Modal>
-      <Modal
         opened={publishing}
         overlayProps={{
           backgroundOpacity: 0.55,
@@ -602,66 +401,55 @@ const AdminReportsPage = () => {
         onClose={handlePublishModalClose}
         title="Asignar Informe a Dimension(es)"
       >
-        <MultiSelect
-          data={dimensions.map((dimension) => ({
-            value: dimension._id,
-            label: dimension.name,
-          }))}
-          value={selectedDimensions}
-          onChange={setSelectedDimensions}
-          searchable
-          placeholder="Selecciona las dimensiones"
-          label="Dimensiones"
-          required
-        />
         <Select
           data={periods.map((period) => ({
             value: period._id,
             label: period.name,
           }))}
           value={selectedPeriod}
-          onChange={(value) => setSelectedPeriod(value || null)}
+          onChange={(value) => {
+            setSelectedPeriod(value || null)
+            const selectedPeriod = periods.find((period) => period._id === value);
+            console.log(selectedPeriod);
+            setDeadline(selectedPeriod ? new Date(selectedPeriod.responsible_end_date) : null);
+          }}
           searchable
           placeholder="Selecciona el periodo"
           label="Periodo"
           required
         />
+        {
+          selectedPeriod &&
+          <>
+            <Text size="sm" mt={'xs'} c='dimmed'>Fecha Límite: {deadline ? dateToGMT(deadline) : "No disponible"}</Text>
+            <Checkbox
+              mt={'sm'}
+              mb={'xs'}
+              label="Establecer un plazo inferior al establecido en el periodo"
+              checked={customDeadline}
+              onChange={(event) => setCustomDeadline(event.currentTarget.checked)}
+            />
+          </>
+        }
+        {
+          customDeadline &&
+          <DatePickerInput
+            locale="es"
+            label="Fecha Límite"
+            value={deadline}
+            onChange={setDeadline}
+            maxDate={selectedPeriod ? 
+                new Date(periods.find(period => period._id === selectedPeriod)?.responsible_end_date 
+                || "") : undefined}
+          />
+        }
         <Group mt="md" grow>
-          <Button onClick={handleSubmitPublish}>Asignar</Button>
+          <Button onClick={() => selectedReport && handleSubmitPublish(selectedReport._id)}>Asignar</Button>
           <Button variant="outline" onClick={handlePublishModalClose}>
             Cancelar
           </Button>
         </Group>
       </Modal>
-      <Modal
-        opened={frameFile !== null}
-        onClose={() => setFrameFile(null)}
-        size={'xl'}
-        title={
-          <>
-            <Button
-              variant="light"
-              onClick={() => setFrameFile(null)}
-              leftSection={<IconChevronsLeft />}
-              size="compact-md"
-              mx={'sm'}
-              fw={600}
-            >
-              Ir atrás
-            </Button>
-            <Text fw={600} component="span" size="sm">
-              {frameFile?.name}
-            </Text>
-          </>
-        }
-        overlayProps={{
-          backgroundOpacity: 0.55,
-          blur: 3,
-        }}
-      >
-        <DriveFileFrame fileId={frameFile?.id || ""} fileName={frameFile?.name || ""} />
-      </Modal>
-
     </Container>
   );
 };

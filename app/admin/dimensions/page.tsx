@@ -54,8 +54,6 @@ const AdminDimensionsPage = () => {
         const dimensions = response.data.dimensions || [];
         setDimensions(dimensions);
         setTotalPages(response.data.pages || 1);
-        console.log(dimensions);
-
       }
     } catch (error) {
       console.error("Error fetching dimensions:", error);
@@ -65,8 +63,7 @@ const AdminDimensionsPage = () => {
 
   const fetchDependencies = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/${session?.user?.email}`)
-      console.log(response.data)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/all/${session?.user?.email}`)
       setAllDependencies(response.data);
       setTotalPages(response.data.pages);
     } catch (error) {

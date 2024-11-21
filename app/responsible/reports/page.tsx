@@ -97,9 +97,10 @@ const ResponsibleReportsPage = () => {
             email: session?.user?.email,
           },
         }
-      );
+      );  
       if (response.data) {
         setPublishedReports(response.data.publishedReports);
+        console.log(response.data);
       }
     } catch (error) {
       console.error(error);
@@ -160,10 +161,10 @@ const ResponsibleReportsPage = () => {
   return (
     <Container size="xl">
       <Title ta="center" mb={"md"}>
-        Gestión de Reportes
+        Gestión de Informes
       </Title>
       <TextInput
-        placeholder="Buscar en los reportes publicados"
+        placeholder="Buscar en los informes publicados"
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
@@ -174,7 +175,7 @@ const ResponsibleReportsPage = () => {
             <Table.Th>Periodo</Table.Th>
             <Table.Th>Fecha Inicio</Table.Th>
             <Table.Th>Fecha Límite</Table.Th>
-            <Table.Th>Reporte</Table.Th>
+            <Table.Th>Nombre de Informe</Table.Th>
             <Table.Th w={rem(20)}>
               <Center>Estado</Center>
             </Table.Th>
@@ -182,14 +183,14 @@ const ResponsibleReportsPage = () => {
               <Center>Fecha de Estado</Center>
             </Table.Th>
             <Table.Td fw={700}>
-              <Center>Ver reporte</Center>
+              <Center>Ver informe</Center>
             </Table.Td>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {rows.length > 0 ? rows :
             <Table.Tr>
-              <Table.Td colSpan={10}>No se encontraron reportes pendientes</Table.Td>
+              <Table.Td colSpan={10}>No se encontraron informes pendientes</Table.Td>
             </Table.Tr>
           }
         </Table.Tbody>
@@ -197,7 +198,7 @@ const ResponsibleReportsPage = () => {
       <Text c="dimmed" size="xs" ta="center" mt="md" >
         <IconBulb color="#797979" size={20}></IconBulb>
         <br/>
-        Si quieres ver el detalle, historial o cargar un reporte, toca el botón de "Ver reporte". 
+        Si quieres ver el detalle, historial o cargar un informe, toca el botón de "Ver informe". 
       </Text>
     </Container>
   )

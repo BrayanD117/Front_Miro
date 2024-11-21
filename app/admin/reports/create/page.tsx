@@ -5,7 +5,7 @@ import { showNotification } from "@mantine/notifications";
 import { IconCancel, IconCheck, IconDeviceFloppy, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Dimension {
@@ -13,47 +13,24 @@ interface Dimension {
   name: string;
 }
 
-interface Dependency {
-  _id: string;
-  name: string;
-}
-
-interface DriveFile {
-  id: string;
-  name: string;
-  view_link: string;
-}
-
-interface Report {
-  _id: string;
-  name: string;
-  description: string;
-  report_example: DriveFile;
-  dependencies: Dependency[];
-  dimensions: Dimension[];
-  requires_attachment: boolean;
-}
-
-const ProducerReportCreatePage = () => {
+const ReportCreatePage = () => {
   const { data: session } = useSession();
   const router = useRouter();
-  const { id } = useParams<{ id: string }>();
+
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [file, setFile] = useState<File | undefined>();
   const [fileName, setFileName] = useState<string>("");
-  const [selectedDependencies, setSelectedDependencies] = useState<string[]>([]);
   const [selectedDimensions, setSelectedDimensions] = useState<Dimension[]>([]);
-  const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [requiresAttachment, setRequiresAttachment] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState({
     name: false,
     description: false,
     file: false,
     fileName: false,
     dimensions: false,
-    producers: false,
   });
 
   const fetchDimensions = async () => {
@@ -70,28 +47,14 @@ const ProducerReportCreatePage = () => {
     }
   };
 
-  const fetchDependencies = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/all/${session?.user?.email}`);
-      setDependencies(response.data);
-    } catch (error) {
-      console.error("Error fetching dependencies:", error);
-      showNotification({
-        title: "Error",
-        message: "Hubo un error al obtener las dependencias",
-        color: "red",
-      });
-    }
-  };
-
   const handleCreate = async () => {
+    setLoading(true);
     const newErrors = {
       name: !name,
       description: !description,
       file: !file,
       fileName: !fileName,
       dimensions: selectedDimensions.length === 0,
-      producers: selectedDependencies.length === 0,
     };
 
     setErrors(newErrors);
@@ -115,13 +78,10 @@ const ProducerReportCreatePage = () => {
     selectedDimensions.forEach((dim) => {
       formData.append("dimensions[]", dim._id);
     });
-    selectedDependencies.forEach((dep) => {
-      formData.append("producers[]", dep);
-    })
     formData.append("requires_attachment", requiresAttachment.toString());
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/producerReports/create`, formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reports/create`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       showNotification({
@@ -137,12 +97,13 @@ const ProducerReportCreatePage = () => {
         message: "Hubo un error al crear el informe",
         color: "red",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchDimensions();
-    fetchDependencies();
   }, []);
 
   return (
@@ -220,21 +181,6 @@ const ProducerReportCreatePage = () => {
         searchable
         required
       />
-
-      <MultiSelect
-        mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Productores</Text>}
-        placeholder="Selecciona los productores que deberán realizar el informe"
-        data={dependencies.map((dep) => ({ value: dep._id, label: dep.name }))}
-        value={selectedDependencies}
-        onChange={(value) => {
-          setSelectedDependencies(value);
-          setErrors((prev) => ({ ...prev, selectedDependencies: value.length === 0 }));
-        }}
-        error={errors.producers && "Este campo es requerido"}
-        searchable
-        required
-      />
       <Group my={"md"}>
         <Text size="sm" fw={700}>¿Requiere Anexos?</Text>
         <Switch
@@ -275,6 +221,7 @@ const ProducerReportCreatePage = () => {
           mx={'xl'}
           leftSection={<IconDeviceFloppy />}
           onClick={handleCreate}
+          loading={loading}
         >
           Guardar
         </Button>
@@ -283,4 +230,4 @@ const ProducerReportCreatePage = () => {
   );
 };
 
-export default ProducerReportCreatePage;
+export default ReportCreatePage;
