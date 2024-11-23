@@ -117,7 +117,7 @@ export default function Navbar() {
     if (tempPeriod) {
       setSelectedPeriod(tempPeriod);
     }
-    setModalOpened(false);
+    setPeriodModalOpened(false);
   };
 
   const handleRoleChange = async (role: string) => {
@@ -219,7 +219,7 @@ export default function Navbar() {
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
-              <Button onClick={() => setModalOpened(true)} variant="light" fw={700}>
+              <Button onClick={() => setPeriodModalOpened(true)} variant="light" fw={700}>
                 Periodo: {selectedPeriod || "Seleccionar"}
               </Button>
                 <Badge m={20} variant="light">
@@ -370,7 +370,7 @@ export default function Navbar() {
         </Group>
       </Modal>
       <Modal
-        opened={modalOpened}
+        opened={periodModalOpened}
         onClose={() => setPeriodModalOpened(false)}
         title="Selecciona un Periodo"
       >
