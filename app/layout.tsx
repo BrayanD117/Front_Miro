@@ -11,6 +11,7 @@ import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { RoleProvider } from "./context/RoleContext";
 import { AppInitializer } from "./context/AppInitializer";
 import ClientLayout from "./ClientLayout";
+import { PeriodProvider } from "./context/PeriodContext";
 
 export const metadata: Metadata = {
   title: "MIRÓ",
@@ -31,10 +32,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Providers>
           <MantineProvider>
             <RoleProvider initialRole="Usuario">
-              <AppInitializer>
-                <Notifications />
-                <ClientLayout>{children}</ClientLayout>
-              </AppInitializer>
+              <PeriodProvider>
+                <AppInitializer>
+                  <Notifications />
+                  <ClientLayout>{children}</ClientLayout>
+                </AppInitializer>
+              </PeriodProvider>
             </RoleProvider>
           </MantineProvider>
         </Providers>

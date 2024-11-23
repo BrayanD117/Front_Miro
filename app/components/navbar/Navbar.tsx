@@ -17,12 +17,14 @@ import {
   Avatar,
   Image,
   useMantineColorScheme,
+  Select,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
 import { useRole } from "@/app/context/RoleContext";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 // Components
 import ThemeChanger from "../ThemeChanger/ThemeChanger";
@@ -81,6 +83,10 @@ export default function Navbar() {
   const [roleMenuOpened, setRoleMenuOpened] = useState(false);
   const [manageMenuOpened, setManageMenuOpened] = useState(false);
   const { colorScheme } = useMantineColorScheme();
+  const { selectedPeriod, setSelectedPeriod, availablePeriods } = usePeriod();
+  const [tempPeriod, setTempPeriod] = useState(selectedPeriod);
+  const [periodModalOpened, setPeriodModalOpened] = useState(false);
+
 
   const titles = session
     ? [{ link: "/dashboard", label: "MIRÓ" }]
@@ -106,6 +112,13 @@ export default function Navbar() {
         });
     }
   }, [session]);
+
+  const handlePeriodChange = () => {
+    if (tempPeriod) {
+      setSelectedPeriod(tempPeriod);
+    }
+    setModalOpened(false);
+  };
 
   const handleRoleChange = async (role: string) => {
     if (!session?.user?.email) return;
@@ -206,6 +219,9 @@ export default function Navbar() {
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
+              <Button onClick={() => setModalOpened(true)} variant="light" fw={700}>
+                Periodo: {selectedPeriod || "Seleccionar"}
+              </Button>
                 <Badge m={20} variant="light">
                   {userRole}
                 </Badge>
@@ -352,6 +368,27 @@ export default function Navbar() {
             Cerrar Sesión
           </Button>
         </Group>
+      </Modal>
+      <Modal
+        opened={modalOpened}
+        onClose={() => setPeriodModalOpened(false)}
+        title="Selecciona un Periodo"
+      >
+        <Select
+          label="Periodo"
+          placeholder="Selecciona un periodo"
+          value={tempPeriod}
+          onChange={setTempPeriod}
+          searchable
+          allowDeselect={false}
+          data={availablePeriods.map((period: any) => ({
+            value: period,
+            label: period,
+          }))}
+        />
+        <Button fullWidth mt="md" onClick={handlePeriodChange}>
+          Confirmar
+        </Button>
       </Modal>
     </>
   );
