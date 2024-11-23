@@ -419,7 +419,7 @@ const ProducerTemplateUpdatePage = ({
         <Button
           color={"red"}
           variant="outline"
-          onClick={() => router.push('/producer/templates/uploaded')}
+          onClick={() => router.push('/producer/templates')}
           leftSection={<IconCancel/>}
         >
           Cancelar

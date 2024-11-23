@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSort } from "../../hooks/useSort";
 import ProducerUploadedTemplatesPage from "./uploaded/ProducerUploadedTemplates";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 const DropzoneButton = dynamic(
   () =>
@@ -104,6 +105,7 @@ interface PublishedTemplate {
 }
 
 const ProducerTemplatesPage = () => {
+  const { selectedPeriodId } = usePeriod();
   const router = useRouter();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
@@ -123,19 +125,31 @@ const ProducerTemplatesPage = () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
         {
-          params: { email: session?.user?.email, page, limit: 10, search },
+          params: {
+            email: session?.user?.email,
+            page,
+            limit: 10,
+            search,
+            periodId: selectedPeriodId,
+          },
         }
       );
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
-        setProducerEndDate(response.data.templates[0].period.producer_end_date);
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
       setTemplates([]);
     }
   };
+
+  useEffect(() => {
+    console.log("ID de período seleccionado en la page:", selectedPeriodId);
+    if (session?.user?.email && selectedPeriodId) {
+      fetchTemplates(page, search);
+    }
+  }, [page, search, session, selectedPeriodId]);  
 
   const refreshTemplates = () => {
     if (session?.user?.email) {

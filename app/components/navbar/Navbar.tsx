@@ -67,7 +67,6 @@ const linksByRole: Record<Roles, LinkItem[]> = {
   Productor: [
     { link: "/dashboard", label: "Inicio" },
     { link: "/producer/templates", label: "Plantillas pendientes" },
-    { link: "/producer/templates/uploaded", label: "Plantillas cargadas" },
   ],
 };
 
@@ -83,8 +82,8 @@ export default function Navbar() {
   const [roleMenuOpened, setRoleMenuOpened] = useState(false);
   const [manageMenuOpened, setManageMenuOpened] = useState(false);
   const { colorScheme } = useMantineColorScheme();
-  const { selectedPeriod, setSelectedPeriod, availablePeriods } = usePeriod();
-  const [tempPeriod, setTempPeriod] = useState(selectedPeriod);
+  const { selectedPeriodId, setSelectedPeriodId, availablePeriods } = usePeriod();
+  const [tempPeriod, setTempPeriod] = useState<string>(selectedPeriodId || "");
   const [periodModalOpened, setPeriodModalOpened] = useState(false);
 
 
@@ -113,12 +112,12 @@ export default function Navbar() {
     }
   }, [session]);
 
-  const handlePeriodChange = () => {
-    if (tempPeriod) {
-      setSelectedPeriod(tempPeriod);
+  useEffect(() => {
+    if (periodModalOpened) {
+      setTempPeriod(selectedPeriodId || "");
     }
-    setPeriodModalOpened(false);
-  };
+  }, [periodModalOpened, selectedPeriodId]);
+  
 
   const handleRoleChange = async (role: string) => {
     if (!session?.user?.email) return;
@@ -220,7 +219,7 @@ export default function Navbar() {
             <>
               <Group gap={8} visibleFrom="xs">
               <Button onClick={() => setPeriodModalOpened(true)} variant="light" fw={700}>
-                Periodo: {selectedPeriod || "Seleccionar"}
+                Periodo: {availablePeriods.find((p) => p._id === selectedPeriodId)?.name || "Seleccionar"}
               </Button>
                 <Badge m={20} variant="light">
                   {userRole}
@@ -378,15 +377,27 @@ export default function Navbar() {
           label="Periodo"
           placeholder="Selecciona un periodo"
           value={tempPeriod}
-          onChange={setTempPeriod}
+          onChange={(value) =>{
+            console.log("Periodo seleccionado en navbar:", value);
+            setTempPeriod(value || "")
+          }}
           searchable
           allowDeselect={false}
-          data={availablePeriods.map((period: any) => ({
-            value: period,
-            label: period,
+          data={availablePeriods.map((period) => ({
+            value: period._id,
+            label: period.name,
           }))}
         />
-        <Button fullWidth mt="md" onClick={handlePeriodChange}>
+        <Button
+          fullWidth
+          mt="md"
+          onClick={() => {
+            if (tempPeriod) {
+              setSelectedPeriodId(tempPeriod);
+              setPeriodModalOpened(false);
+            }
+          }}
+        >
           Confirmar
         </Button>
       </Modal>
