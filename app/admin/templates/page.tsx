@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
-import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, Tooltip, Text } from "@mantine/core";
+import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, Tooltip, Text, Checkbox } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowsTransferDown, IconArrowBigUpFilled, IconArrowBigDownFilled } from "@tabler/icons-react";
@@ -11,6 +11,8 @@ import ExcelJS from "exceljs";
 import { saveAs } from 'file-saver';
 import { useDisclosure } from '@mantine/hooks';
 import { useSort } from "../../hooks/useSort";
+import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
+import { DatePickerInput } from "@mantine/dates";
 
 interface Field {
   name: string;
@@ -56,6 +58,8 @@ interface Template {
 interface Period {
   _id: string;
   name: string;
+  producer_start_date: Date;
+  producer_end_date: Date;
 }
 
 interface Producer {
@@ -77,6 +81,8 @@ const AdminTemplatesPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [selectedProducers, setSelectedProducers] = useState<string[]>([]);
   const [publicationName, setPublicationName] = useState<string>('');
+  const [deadline, setDeadline] = useState<Date | null>();
+  const [customDeadline, setCustomDeadline] = useState<boolean>(false);
 
   const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<Template>(templates, { key: null, direction: "asc" });
 
@@ -332,6 +338,7 @@ const AdminTemplatesPage = () => {
         template_id: selectedTemplate?._id,
         period_id: selectedPeriod,
         user_email: session?.user?.email,
+        deadline: customDeadline ? deadline : periods.find(period => period._id === selectedPeriod)?.producer_end_date,
       });
       console.log('Template successfully published');
       showNotification({
@@ -396,11 +403,12 @@ const AdminTemplatesPage = () => {
       <Table.Td>
         <Center>
           <Tooltip
-                  label="Asignar plantilla a productores"
+                  label="Asignar plantilla a periodo"
                   transitionProps={{ transition: 'fade-up', duration: 300 }}
           >
             <Button variant="outline" onClick={() => { 
-              setSelectedTemplate(template); 
+              setSelectedTemplate(template);
+              setPublicationName(template.name)
               open(); 
               console.log("Modal open state:", modalOpen);
             }}>
@@ -414,6 +422,7 @@ const AdminTemplatesPage = () => {
 
   return (
     <Container size="xl">
+      <DateConfig/>
       <TextInput
         placeholder="Buscar en todas las plantillas"
         value={search}
@@ -517,7 +526,13 @@ const AdminTemplatesPage = () => {
       </Center>
       <Modal
         opened={modalOpen}
-        onClose={close}
+        onClose={() => {
+          close()
+          setSelectedTemplate(null)
+          setSelectedPeriod('')
+          setCustomDeadline(false)
+          setDeadline(null)
+        }}
         title="Asignar Plantilla"
         overlayProps={{
           backgroundOpacity: 0.55,
@@ -528,12 +543,44 @@ const AdminTemplatesPage = () => {
           <TextInput label="Nombre de la Publicación" placeholder="Ingrese el nombre de la publicación" value={publicationName} onChange={(e) => setPublicationName(e.currentTarget.value)} />
           <TextInput label="Nombre de la Plantilla" value={selectedTemplate?.name || ''} disabled />
           <Select
-            label="Período"
-            placeholder="Seleccione un período"
+            label="Periodo"
+            placeholder="Seleccione un periodo"
             data={periods.map(period => ({ value: period._id, label: period.name }))}
             value={selectedPeriod}
-            onChange={(value) => setSelectedPeriod(value || '')}
+            onChange={(value) => {
+              setSelectedPeriod(value || '')
+              setDeadline(new Date(periods.find(period => period._id === value)?.producer_end_date || ""))
+            }}
           />
+          {
+          selectedPeriod &&
+          <>
+            <Text size="sm" mt={'xs'} c='dimmed'>Fecha Límite: {deadline ? dateToGMT(deadline) : "No disponible"}</Text>
+            <Checkbox
+              mt={'sm'}
+              mb={'xs'}
+              label="Establecer un plazo inferior al establecido en el periodo"
+              checked={customDeadline}
+              onChange={(event) => setCustomDeadline(event.currentTarget.checked)}
+            />
+          </>
+          }
+          {
+            customDeadline &&
+            <DatePickerInput
+              locale="es"
+              label="Fecha Límite"
+              value={deadline}
+              onChange={setDeadline}
+              maxDate={selectedPeriod ? 
+                  new Date(periods.find(period => period._id === selectedPeriod)?.producer_end_date 
+                  || "") : undefined}
+              minDate={selectedPeriod ?
+                  new Date(periods.find(period => period._id === selectedPeriod)?.producer_start_date 
+                  || "") : undefined 
+              }
+            />
+          }
           <Group justify="flex-end" mt="md">
             <Button type="submit">Asignar</Button>
           </Group>

@@ -77,6 +77,7 @@ interface PublishedTemplate {
   updatedAt: string;
   loaded_data: any[];
   validators: Validator[];
+  deadline: Date;
 }
 
 const PublishedTemplatesPage = () => {
@@ -246,11 +247,10 @@ const PublishedTemplatesPage = () => {
     return (
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
-        <Table.Td>{publishedTemplate.template.dimensions.map(dim => dim.name).join(', ')}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>
           <Center>
-            {dateToGMT(publishedTemplate.period.producer_end_date)}
+            {dateToGMT(publishedTemplate.deadline ?? publishedTemplate.period.producer_end_date)}
           </Center>
         </Table.Td>
         <Table.Td>
@@ -359,20 +359,6 @@ const PublishedTemplatesPage = () => {
               <Center inline>
                 Periodo
                 {sortConfig.key === "period.name" ? (
-                  sortConfig.direction === "asc" ? (
-                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
-                  ) : (
-                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
-                  )
-                ) : (
-                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
-                )}
-              </Center>
-            </Table.Th>
-            <Table.Th onClick={() => handleSort("template.dimension.name")} style={{ cursor: "pointer" }}>
-              <Center inline>
-                Dimensión
-                {sortConfig.key === "template.dimension.name" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
                   ) : (

@@ -89,7 +89,7 @@ const ProducerReportCreatePage = () => {
         message: "Por favor, completa todos los campos requeridos.",
         color: "red",
       });
-      return;
+      setLoading(false);
     }
 
     const formData = new FormData();
@@ -197,7 +197,9 @@ const ProducerReportCreatePage = () => {
       <MultiSelect
         mb={'xs'}
         label={<Text fw={700} size="sm" component="span">Dimensiones con acceso al informe</Text>}
-        placeholder="Selecciona las dimensiones que podrán usar el informe"
+        placeholder={ dimensions.length > 0 
+          ? "Selecciona las dimensiones que podrán usar el informe"
+          : "No hay dimensiones disponibles"}
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
         value={selectedDimensions.map((dim) => dim._id)}
         onChange={(value) => {
@@ -213,7 +215,9 @@ const ProducerReportCreatePage = () => {
       <MultiSelect
         mb={'xs'}
         label={<Text fw={700} size="sm" component="span">Productores</Text>}
-        placeholder="Selecciona los productores que deberán realizar el informe"
+        placeholder={dependencies.length > 0 
+          ? "Selecciona los productores que deberán realizar el informe"
+        : "No hay productores disponibles"}
         data={dependencies.map((dep) => ({ value: dep._id, label: dep.name }))}
         value={selectedDependencies}
         onChange={(value) => {
@@ -257,6 +261,7 @@ const ProducerReportCreatePage = () => {
           color="red"
           leftSection={<IconCancel />}
           onClick={() => router.back()}
+          loading={loading}
         >
           Cancelar
         </Button>
@@ -264,6 +269,7 @@ const ProducerReportCreatePage = () => {
           mx={'xl'}
           leftSection={<IconDeviceFloppy />}
           onClick={handleCreate}
+          loading={loading}
         >
           Guardar
         </Button>

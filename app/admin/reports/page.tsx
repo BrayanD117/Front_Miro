@@ -258,7 +258,7 @@ const AdminReportsPage = () => {
               label="Editar informe"
               transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
-              <Button variant="outline" onClick={() => handleEdit(report)}>
+              <Button variant="outline" onClick={() => router.push(`reports/${report._id}`)}>
                 <IconEdit size={16} />
               </Button>
             </Tooltip>

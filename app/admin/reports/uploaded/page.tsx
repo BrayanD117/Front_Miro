@@ -42,7 +42,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { dateToGMT } from "@/app/components/DateConfig";
+import { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
 import { useSort } from "../../../hooks/useSort";
@@ -102,6 +102,7 @@ interface PublishedReport {
   period: Period;
   filled_reports: FilledReport[];
   folder_id: string;
+  deadline: Date;
 }
 
 const AdminPubReportsPage = () => {
@@ -306,13 +307,7 @@ const AdminPubReportsPage = () => {
         fetchReports(page, search);
       }
     } catch (error: any) {
-      if (error.response.status === 400) {
-        showNotification({
-          title: "Error",
-          message: "Ocurrió un error al eliminar el informe",
-          color: "red",
-          autoClose: 1200,
-        });
+      if (error.response.status === 401) {
         showNotification({
           title: "Error",
           message:
@@ -321,6 +316,12 @@ const AdminPubReportsPage = () => {
           autoClose: 4000,
         });
       }
+      showNotification({
+        title: "Error",
+        message: "Ocurrió un error al eliminar el informe",
+        color: "red",
+        autoClose: 1200,
+      });
     }
   };
 
@@ -550,7 +551,7 @@ const AdminPubReportsPage = () => {
                   </Button>
                 </Tooltip>
                 <Tooltip
-                  label={
+                  label={ new Date(pubReport.deadline) < dateNow() ? "No puedes borrar informes que ya culminaron" :
                     pubReport.filled_reports.length > 0
                       ? "No puedes borrar porque hay informes cargados"
                       : "Borrar publicación del informe"
@@ -560,7 +561,7 @@ const AdminPubReportsPage = () => {
                   <Button
                     variant="outline"
                     color="red"
-                    disabled={pubReport.filled_reports.length > 0}
+                    disabled={pubReport.filled_reports.length > 0 || new Date(pubReport.deadline) < dateNow()}
                     onClick={() => handleDeletePubReport(pubReport._id)}
                   >
                     <IconTrash size={20} />

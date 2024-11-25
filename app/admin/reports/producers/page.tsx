@@ -170,6 +170,7 @@ const ProducerReportPage = () => {
             >
               <Button
                 onClick={ () => {
+                  router.push(`producers/${report._id}`);
                 }}
                 variant="outline"
               >

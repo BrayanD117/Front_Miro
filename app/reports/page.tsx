@@ -382,7 +382,7 @@ const AdminPubReportsPage = () => {
       />
       <Group>
         <Button
-          onClick={() => router.push("admin/reports")}
+          onClick={() => router.push("admin/reports/producers")}
           variant="outline"
           leftSection={<IconArrowLeft size={16} />}
         >

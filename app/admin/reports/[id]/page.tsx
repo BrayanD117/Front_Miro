@@ -28,10 +28,11 @@ interface Report {
   _id: string;
   name: string;
   description: string;
-  report_example: DriveFile;
+  report_example_link: string;
   producers: Dependency[];
   dimensions: Dimension[];
   requires_attachment: boolean;
+  file_name: string;
 }
 
 const ProducerReportCreatePage = () => {
@@ -43,11 +44,9 @@ const ProducerReportCreatePage = () => {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [file, setFile] = useState<File | undefined>();
-  const [uploadedFile, setUploadedFile] = useState<DriveFile | undefined>();
+  const [uploadedFile, setUploadedFile] = useState<string | undefined>();
   const [fileName, setFileName] = useState<string>("");
-  const [selectedDependencies, setSelectedDependencies] = useState<string[]>([]);
   const [selectedDimensions, setSelectedDimensions] = useState<Dimension[]>([]);
-  const [producers, setProducers] = useState<Dependency[]>([]);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
   const [requiresAttachment, setRequiresAttachment] = useState<boolean>(false);
   const [errors, setErrors] = useState({
@@ -56,23 +55,21 @@ const ProducerReportCreatePage = () => {
     file: false,
     fileName: false,
     dimensions: false,
-    producers: false,
   });
 
   const fetchReport = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/producerReports/${id}`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reports/${id}`, {
         params: { email: session?.user?.email }
       });
       const report: Report = response.data;
       console.log(report);
       setName(report.name);
       setDescription(report.description);
-      setFileName(report.report_example.name);
-      setSelectedDependencies(report.producers.map((dep) => dep._id));
+      setFileName(report.file_name);
       setSelectedDimensions(report.dimensions);
       setRequiresAttachment(report.requires_attachment);
-      setUploadedFile(report.report_example);
+      setUploadedFile(report.report_example_link);
     } catch (error) {
       console.error("Error fetching report:", error);
       showNotification({
@@ -97,20 +94,6 @@ const ProducerReportCreatePage = () => {
     }
   };
 
-  const fetchDependencies = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/all/${session?.user?.email}`);
-      setProducers(response.data);
-    } catch (error) {
-      console.error("Error fetching dependencies:", error);
-      showNotification({
-        title: "Error",
-        message: "Hubo un error al obtener las dependencias",
-        color: "red",
-      });
-    }
-  };
-
   const handleUpdate = async () => {
     setLoading(true);
     const newErrors = {
@@ -119,7 +102,6 @@ const ProducerReportCreatePage = () => {
       file: !file && !uploadedFile,
       fileName: !fileName,
       dimensions: selectedDimensions.length === 0,
-      producers: selectedDependencies.length === 0,
     };
 
     setErrors(newErrors);
@@ -145,13 +127,10 @@ const ProducerReportCreatePage = () => {
     selectedDimensions.forEach((dim) => {
       formData.append("dimensions[]", dim._id);
     });
-    selectedDependencies.forEach((dep) => {
-      formData.append("producers[]", dep);
-    })
     formData.append("requires_attachment", requiresAttachment.toString());
 
     try {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/producerReports/`, formData, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/reports/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       showNotification({
@@ -162,6 +141,14 @@ const ProducerReportCreatePage = () => {
       router.back();
     } catch (error) {
       console.error("Error creating report:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        showNotification({
+          title: "Error",
+          message: "Para este informe ya han realizado cargues de información en el periodo en curso, no es posible modificarlo",
+          color: "red",
+          timeout: 10000
+        });
+      }
       showNotification({
         title: "Error",
         message: "Hubo un error al actualizar el informe",
@@ -174,13 +161,12 @@ const ProducerReportCreatePage = () => {
 
   useEffect(() => {
     fetchDimensions();
-    fetchDependencies();
     if (id) fetchReport();
   }, []);
 
   return (
     <Container size={'lg'}>
-      <Title ta={'center'}>Edición de Informe para Productores</Title>
+      <Title ta={'center'}>Edición de Informe para Dimension(es)</Title>
       <Divider m={'md'}/>
 
       <TextInput
@@ -228,10 +214,10 @@ const ProducerReportCreatePage = () => {
                   }}
                   onClick={() => {
                     if(typeof window !== 'undefined') 
-                      window.open(uploadedFile.view_link, "_blank")
+                      window.open(uploadedFile, "_blank")
                   }}
               >
-                {uploadedFile?.name}
+                {fileName}
               </Pill>
             )}
           </Text>
@@ -261,7 +247,7 @@ const ProducerReportCreatePage = () => {
 
       <MultiSelect
         mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Dimensiones con acceso al informe</Text>}
+        label={<Text fw={700} size="sm" component="span">Dimensiones que diligenciarán el informe</Text>}
         placeholder="Selecciona las dimensiones que podrán usar el informe"
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
         value={selectedDimensions.map((dim) => dim._id)}
@@ -271,21 +257,6 @@ const ProducerReportCreatePage = () => {
           setErrors((prev) => ({ ...prev, selectedDimensions: dims.length === 0 }));
         }}
         error={errors.dimensions && "Este campo es requerido"}
-        searchable
-        required
-      />
-
-      <MultiSelect
-        mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Productores</Text>}
-        placeholder="Selecciona los productores que deberán realizar el informe"
-        data={producers.map((dep) => ({ value: dep._id, label: dep.name }))}
-        value={selectedDependencies}
-        onChange={(value) => {
-          setSelectedDependencies(value);
-          setErrors((prev) => ({ ...prev, selectedDependencies: value.length === 0 }));
-        }}
-        error={errors.producers && "Este campo es requerido"}
         searchable
         required
       />

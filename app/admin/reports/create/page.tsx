@@ -168,7 +168,7 @@ const ReportCreatePage = () => {
 
       <MultiSelect
         mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Dimensiones que diligenciarán el reporte:</Text>}
+        label={<Text fw={700} size="sm" component="span">Dimensiones que diligenciarán el informe:</Text>}
         placeholder="Selecciona las dimensiones que podrán usar el informe"
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
         value={selectedDimensions.map((dim) => dim._id)}

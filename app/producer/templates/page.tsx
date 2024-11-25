@@ -101,6 +101,7 @@ interface PublishedTemplate {
   updatedAt: string;
   loaded_data: ProducerData[];
   validators: Validator[];
+  deadline: Date;
 }
 
 const ProducerTemplatesPage = () => {
@@ -129,7 +130,7 @@ const ProducerTemplatesPage = () => {
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
-        setProducerEndDate(response.data.templates[0].period.producer_end_date);
+        setProducerEndDate(response.data.templates[0].deadline);
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
@@ -268,7 +269,7 @@ const ProducerTemplatesPage = () => {
   const handleDisableUpload = (publishedTemplate: PublishedTemplate) => {
     return (
       new Date(dateNow().toDateString()) >
-      new Date(publishedTemplate.period.producer_end_date)
+      new Date(publishedTemplate.deadline)
     );
   };
 
@@ -280,7 +281,7 @@ const ProducerTemplatesPage = () => {
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>{publishedTemplate.template.dimensions.map(dim => dim.name).join(', ')}</Table.Td>
         <Table.Td fw={700}>
-          {dateToGMT(publishedTemplate.period.producer_end_date)}
+          {dateToGMT(publishedTemplate.deadline ?? publishedTemplate.period.producer_end_date)}
         </Table.Td>
         <Table.Td>
           <Center>
@@ -402,18 +403,9 @@ const ProducerTemplatesPage = () => {
                 )}
               </Center>
             </Table.Th>
-            <Table.Th onClick={() => handleSort("period.producer_end_date")} style={{ cursor: "pointer" }}>
+            <Table.Th>
               <Center inline>
                 Fecha Límite
-                {sortConfig.key === "period.producer_end_date" ? (
-                  sortConfig.direction === "asc" ? (
-                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
-                  ) : (
-                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
-                  )
-                ) : (
-                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
-                )}
               </Center>
             </Table.Th>
             <Table.Th>
