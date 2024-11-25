@@ -279,6 +279,7 @@ const ResponsibleReportPage = () => {
   
   console.log("Aquí va:", (new Date(publishedReport?.deadline || "")) < dateNow())
   return (
+    console.log(canSend),
     <>
       <Container size={'xl'} ml={'md'} fluid>
         <DateConfig />
@@ -299,7 +300,7 @@ const ResponsibleReportPage = () => {
           </Text>
           <Text size={'md'}>
             <Text fw="700">Plazo máximo:</Text>
-            {publishedReport?.period.responsible_end_date ? dateToGMT(publishedReport.period.responsible_end_date) : "Fecha no disponible"}
+            {publishedReport?.deadline ? dateToGMT(publishedReport.deadline) : "Fecha no disponible"}
           </Text>
           <Text size={'md'}>
             <Text fw="700">Último estado:</Text>

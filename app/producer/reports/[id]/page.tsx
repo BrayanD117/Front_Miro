@@ -376,7 +376,7 @@ const ResponsibleReportPage = () => {
               "No puedes modificar el informe si ya fue aprobado o está en revisión"}
             transitionProps={{ transition: "fade-up", duration: 300 }}
             disabled={!sendsHistory.some((report) => report.status === "Aprobado" 
-              || report.status === "En Revisión")}
+              || report.status === "En Revisión") && (new Date(publishedReport?.deadline || "") >= dateNow())}
           >
             <Button
               onClick={() => {
