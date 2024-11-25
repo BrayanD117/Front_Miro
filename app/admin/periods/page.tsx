@@ -5,10 +5,11 @@ import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, 
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconArrowBigDownFilled, IconArrowBigUpFilled, IconArrowsTransferDown, IconCirclePlus, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconArrowBigDownFilled, IconArrowBigUpFilled, IconArrowsTransferDown, IconCirclePlus, IconCopy, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useSort } from "../../hooks/useSort";
 import DateConfig, { dateToGMT, dateNow } from "@/app/components/DateConfig";
 import "dayjs/locale/es";
+import { useRouter } from "next/navigation";
 
 interface Period {
   _id: string;
@@ -23,6 +24,7 @@ interface Period {
 }
 
 const AdminPeriodsPage = () => {
+  const router = useRouter();
   const [periods, setPeriods] = useState<Period[]>([]);
   const [opened, setOpened] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
@@ -204,6 +206,17 @@ const AdminPeriodsPage = () => {
           leftSection={<IconCirclePlus/>}
         >
           Crear Nuevo Periodo
+        </Button>
+        <Button 
+          ml={'auto'}
+          onClick={() => {
+            router.push("periods/duplicate");
+          }}
+          leftSection={<IconCopy/>}
+          color="orange"
+          variant="light"
+        >
+          Duplicar Plantillas e Informes de Periodo
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
