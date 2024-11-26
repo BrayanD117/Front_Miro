@@ -4,9 +4,10 @@ import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { Accordion, AccordionPanel, Button, Checkbox, Container, Divider, Group, rem, Select, Table, Text, Title } from "@mantine/core"
 import { DatePickerInput } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
-import { IconCancel, IconCopy, IconCopyPlusFilled } from "@tabler/icons-react";
+import { IconCancel, IconChevronLeft, IconCopy, IconCopyPlusFilled } from "@tabler/icons-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Period {
@@ -42,6 +43,7 @@ interface ProducerReports {
 
 const DuplicatePeriodPage = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [periods, setPeriods] = useState<Period[]>([]);
   const [availablePeriods, setAvailablePeriods] = useState<Period[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>();
@@ -144,7 +146,7 @@ const DuplicatePeriodPage = () => {
       <Table>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Duplicar</Table.Th>
+            <Table.Th>Clonar</Table.Th>
             <Table.Th>Nombre</Table.Th>
             <Table.Th>Fecha Límite Periodo</Table.Th>
             <Table.Th>Necesita Fecha Inferior</Table.Th>
@@ -336,11 +338,18 @@ const DuplicatePeriodPage = () => {
   return (
     <Container size={'lg'}>
       <DateConfig/>
-      <Title ta='center'>Duplicación de Periodo</Title>
+      <Title ta='center'>Clonación de Periodo</Title>
+      <Button
+        leftSection={<IconChevronLeft/>}
+        variant="light"
+        onClick={() => router.back()}
+      >
+        Ir Atrás
+      </Button>
       <Divider m='md'/>
       <Group grow mt={'md'}>
         <Select
-          label={<Text fw={700}>Periodo a Duplicar</Text>}
+          label={<Text fw={700}>Periodo a Clonar</Text>}
           data={periods.map(period => ({ value: period._id, label: period.name }))}
           onChange={async (value) => {
             setSelectedPeriod(periods.find(period => period._id === value) || null)
@@ -356,7 +365,7 @@ const DuplicatePeriodPage = () => {
             if(selectedPeriod?._id === value) {
               showNotification({
                 title: "Error",
-                message: "El periodo a duplicar y el periodo objetivo no pueden ser iguales",
+                message: "El periodo a clonar y el periodo objetivo no pueden ser iguales",
                 color: "red",
                 timeout: 4000
               });
@@ -377,7 +386,7 @@ const DuplicatePeriodPage = () => {
           leftSection={<IconCopy/>}
           onClick={handleFeedDuplicate}
         >
-          Empezar a Duplicar Periodo
+          Empezar a Clonar Periodo
         </Button>
         }
         {
@@ -404,7 +413,7 @@ const DuplicatePeriodPage = () => {
             leftSection={<IconCopy/>}
             onClick={() => {}}
           >
-            Duplicar Periodo
+            Clonar Periodo
           </Button>
         }
       </Group>
