@@ -393,7 +393,8 @@ const ResponsibleReportPage = () => {
                 }
               }}
               variant="outline"
-              leftSection={<IconEdit />}
+              leftSection={sendsHistory[0]?.status === "En Borrador"
+                ? <IconEdit /> : <IconCloudUpload/>}
               mt={25}
               disabled={sendsHistory.some(
                 (report) => report.status === "Aprobado" || report.status === "En Revisión"

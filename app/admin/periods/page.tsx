@@ -35,7 +35,7 @@ const AdminPeriodsPage = () => {
   const [productorEndDate, setProductorEndDate] = useState<Date | null>(null);
   const [responsibleStartDate, setResponsibleStartDate] = useState<Date | null>(null);
   const [responsibleEndDate, setResponsibleEndDate] = useState<Date | null>(null);
-  const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
@@ -100,7 +100,7 @@ const AdminPeriodsPage = () => {
         producer_end_date: productorEndDate.toISOString(),
         responsible_start_date: responsibleStartDate.toISOString(),
         responsible_end_date: responsibleEndDate.toISOString(),
-        is_active: isActive,
+        is_active: true,
       };
 
       if (selectedPeriod) {
@@ -277,7 +277,7 @@ const AdminPeriodsPage = () => {
         />
         <Stack mb="md">
           <DateInput
-            label="Fecha de Inicio"
+            label="Fecha de Inicio del Periodo"
             locale="es"
             placeholder="Selecciona una fecha"
             value={startDate}
@@ -286,7 +286,7 @@ const AdminPeriodsPage = () => {
         </Stack>
         <Stack mb="md">
           <DateInput
-            label="Fecha de fin"
+            label="Fecha de Fin del Periodo"
             locale="es"
             placeholder="Selecciona una fecha"
             value={endDate}
@@ -329,12 +329,6 @@ const AdminPeriodsPage = () => {
             onChange={setResponsibleEndDate}
           />
         </Stack>
-        <Switch
-          label="Activo"
-          checked={isActive}
-          onChange={(event) => setIsActive(event.currentTarget.checked)}
-          mb="md"
-        />
         <Group mt="md">
           <Button onClick={handleSave}>Guardar</Button>
           <Button variant="outline" onClick={handleModalClose}>
