@@ -35,6 +35,7 @@ import DateConfig, { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSort } from "../../../hooks/useSort";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 const DropzoneUpdateButton = dynamic(
   () =>
@@ -99,6 +100,7 @@ interface PublishedTemplate {
 }
 
 const ProducerUploadedTemplatesPage = () => {
+  const { selectedPeriodId } = usePeriod();
   const router = useRouter();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
@@ -120,7 +122,13 @@ const ProducerUploadedTemplatesPage = () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/uploaded`,
         {
-          params: { email: session?.user?.email, page, limit: 10, search },
+          params: { 
+            email: session?.user?.email, 
+            page, 
+            limit: 10, 
+            search,
+            periodId: selectedPeriodId,
+          },
         }
       );
       if (response.data) {
@@ -138,7 +146,7 @@ const ProducerUploadedTemplatesPage = () => {
     if (session?.user?.email) {
       fetchTemplates(page, search);
     }
-  }, [page, session]);
+  }, [page, search, session, selectedPeriodId]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -497,7 +505,19 @@ const ProducerUploadedTemplatesPage = () => {
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
+        <Table.Tbody>
+          {templates.length > 0 ? (
+            rows
+          ) : (
+            <Table.Tr>
+              <Table.Td colSpan={8}>
+                <Center>
+                  <p>No hay registros para este período.</p>
+                </Center>
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
       </Table>
       <Center>
         <Pagination

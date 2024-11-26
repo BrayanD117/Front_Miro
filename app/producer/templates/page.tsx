@@ -438,7 +438,19 @@ const ProducerTemplatesPage = () => {
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
+        <Table.Tbody>
+          {templates.length > 0 ? (
+            rows
+          ) : (
+            <Table.Tr>
+              <Table.Td colSpan={6}>
+                <Center>
+                  <p>No hay registros para este período.</p>
+                </Center>
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
       </Table>
       <Center>
         <Pagination
