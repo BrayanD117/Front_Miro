@@ -29,7 +29,7 @@ interface Reports {
   name: string;
   duplicate: boolean;
   customDeadline: boolean;
-  deadline: Date;
+  deadline: Date | null;
 }
 
 interface ProducerReports {
@@ -37,7 +37,7 @@ interface ProducerReports {
   name: string;
   duplicate: boolean;
   customDeadline: boolean;
-  deadline: Date;
+  deadline: Date | null;
 }
 
 const DuplicatePeriodPage = () => {
