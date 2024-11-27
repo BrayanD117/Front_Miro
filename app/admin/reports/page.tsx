@@ -280,8 +280,11 @@ const AdminReportsPage = () => {
             >
               <Button
                 variant="outline"
-                onClick={() => 
-                  setFrameFile({id: report.report_example_id, name: report.file_name})
+                onClick={() => {
+                  if(typeof window !== 'undefined') {
+                    window.open(report.report_example_link, "_blank");
+                  }
+                }
                 }
               >
                 <IconFileDescription size={16} />
