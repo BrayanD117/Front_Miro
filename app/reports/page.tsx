@@ -37,6 +37,7 @@ import { dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
 import { useRole } from "../context/RoleContext";
+import { usePeriod } from "../context/PeriodContext";
 
 interface Report {
   _id: string;
@@ -100,6 +101,7 @@ interface PublishedReport {
 
 const AdminPubReportsPage = () => {
   const { data: session } = useSession();
+  const { selectedPeriodId } = usePeriod();
   const { userRole, setUserRole } = useRole();
   const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
   const [selectedReport, setSelectedReport] = useState<
@@ -131,6 +133,7 @@ const AdminPubReportsPage = () => {
             page: page,
             search: search,
             email: session?.user?.email,
+            periodId: selectedPeriodId,
           },
         }
       );
@@ -162,7 +165,7 @@ const AdminPubReportsPage = () => {
     if (session?.user?.email) {
       fetchReports(page, search);
     }
-  }, [page, session?.user?.email]);
+  }, [page, session?.user?.email, selectedPeriodId]);
 
   useEffect(() => {
     if (session?.user?.email) {
