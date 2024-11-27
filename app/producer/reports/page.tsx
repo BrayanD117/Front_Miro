@@ -193,7 +193,7 @@ const ProducerReportsPage = () => {
         <Table.Tbody>
           {rows.length > 0 ? rows :
             <Table.Tr>
-              <Table.Td colSpan={10}>No se encontraron informes pendientes</Table.Td>
+              <Table.Td colSpan={10}>No se encontraron informes en el periodo</Table.Td>
             </Table.Tr>
           }
         </Table.Tbody>
