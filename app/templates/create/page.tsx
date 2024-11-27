@@ -7,6 +7,7 @@ import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
 import { useRole } from "@/app/context/RoleContext";
+import { IconCancel, IconCirclePlus, IconDeviceFloppy } from "@tabler/icons-react";
 
 interface Field {
   name: string;
@@ -382,11 +383,16 @@ const CreateTemplatePage = () => {
       </Table.Tbody>
       </Table>
       <Group mt="md">
-      <Button onClick={addField}>Añadir Campo</Button>
+      <Button onClick={addField} leftSection={<IconCirclePlus/>}>Añadir Campo</Button>
       </Group>
       <Group mt="md">
-      <Button onClick={handleSave}>Guardar</Button>
-      <Button variant="outline" onClick={() => router.back()}>
+      <Button onClick={handleSave} leftSection={<IconDeviceFloppy/>}>Guardar</Button>
+      <Button 
+        variant="light"
+        leftSection={<IconCancel/>}
+        onClick={() => router.back()}
+        color="red"
+      >
         Cancelar
       </Button>
       </Group>

@@ -121,7 +121,7 @@ const ProducerTemplatesPage = () => {
     useDisclosure(false);
   const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<PublishedTemplate>(templates, { key: null, direction: "asc" });
 
-  const fetchTemplates = async (page: number, search: string) => {
+  const fetchTemplates = async (page?: number, search?: string) => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
@@ -138,10 +138,9 @@ const ProducerTemplatesPage = () => {
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
-        setProducerEndDate(response.data.templates[0].deadline);
+        setProducerEndDate(new Date(response.data.templates[0].deadline));
       }
     } catch (error) {
-      console.error("Error fetching templates:", error);
       setTemplates([]);
     }
   };
@@ -477,7 +476,7 @@ const ProducerTemplatesPage = () => {
           />
         )}
       </Modal>
-      <ProducerUploadedTemplatesPage></ProducerUploadedTemplatesPage>
+      <ProducerUploadedTemplatesPage fetchTemp={fetchTemplates} />
     </Container>
   );
 };

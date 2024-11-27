@@ -99,7 +99,11 @@ interface PublishedTemplate {
   validators: Validator[];
 }
 
-const ProducerUploadedTemplatesPage = () => {
+interface ProducerUploadedTemplatesPageProps {
+  fetchTemp: () => void;
+}
+
+const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesPageProps) => {
   const { selectedPeriodId } = usePeriod();
   const router = useRouter();
   const { data: session } = useSession();
@@ -132,12 +136,11 @@ const ProducerUploadedTemplatesPage = () => {
         }
       );
       if (response.data) {
-        setProducerEndDate(response.data.templates[0].period.producer_end_date);
+        setProducerEndDate(response.data.templates[0].period.deadline);
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
       }
     } catch (error) {
-      console.error("Error fetching uploaded templates:", error);
       setTemplates([]);
     }
   };
@@ -288,6 +291,7 @@ const ProducerUploadedTemplatesPage = () => {
           color: "blue",
         });
         fetchTemplates(page, search);
+        fetchTemp();
       }
     } catch (error) {
       console.error("Error deleting template:", error);

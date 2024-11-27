@@ -355,7 +355,7 @@ const PublishedTemplatesPage = () => {
               variant="outline"
               leftSection={<IconArrowLeft size={16} />}
             >
-              Ir a Gestión de Plantillas
+              Ir a Configuración de Plantillas
             </Button>
           )
         }
@@ -427,7 +427,16 @@ const PublishedTemplatesPage = () => {
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
+        <Table.Tbody>
+          {rows.length > 0 ? rows : (
+            <Table.Tr>
+              <Table.Td colSpan={6}>
+                  No hay plantillas publicadas en el periodo
+              </Table.Td>
+            </Table.Tr>
+          )}
+        
+        </Table.Tbody>
       </Table>
       <Center>
         <Pagination

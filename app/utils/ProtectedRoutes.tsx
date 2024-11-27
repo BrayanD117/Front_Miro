@@ -27,7 +27,7 @@ const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
       (adminRoutes.test(pathname) && userRole !== "Administrador") ||
       (responsibleRoutes.test(pathname) && userRole !== "Responsable") ||
       (producerRoutes.test(pathname) && userRole !== "Productor") ||
-      (templateRoutes.test(pathname) && !["Administrador", "Responsable"].includes(userRole)) ||
+      (templateRoutes.test(pathname) && !["Administrador"].includes(userRole)) ||
       (reportRoutes.test(pathname) && !["Administrador", "Responsable"].includes(userRole))
     ) {
       showNotification({
