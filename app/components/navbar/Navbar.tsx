@@ -218,9 +218,7 @@ export default function Navbar() {
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
-              <Button onClick={() => setPeriodModalOpened(true)} variant="light" fw={700}>
-                Periodo: {availablePeriods.find((p) => p._id === selectedPeriodId)?.name || "Seleccionar"}
-              </Button>
+              
                 <Badge m={20} variant="light">
                   {userRole}
                 </Badge>
@@ -279,10 +277,22 @@ export default function Navbar() {
                       className={classes.avatarClickable}
                     />
                   </Menu.Target>
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    <Button 
+                      size="xs"
+                      style={{
+                        marginTop: "40px",
+                        position: "absolute",
+                        top: "110%",
+                        left: "70%",
+                        transform: "translateX(-100%)",
+                        zIndex: 1,
+                      }} onClick={() => setPeriodModalOpened(true)} variant="light" fw={700}>
+                        Periodo: {availablePeriods.find((p) => p._id === selectedPeriodId)?.name || "Seleccionar"}
+                    </Button>
+                  </div>
                   {/* Menu Dropdown */}
                   <Menu.Dropdown>
-                    <Menu.Divider />
-                    <Menu.Label></Menu.Label>
                     <Menu.Item
                       color="red"
                       leftSection={
