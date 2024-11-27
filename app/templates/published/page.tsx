@@ -30,6 +30,7 @@ import { DataTable } from 'mantine-datatable';
 import { useRouter } from "next/navigation";
 import { useRole } from "@/app/context/RoleContext";
 import { useSort } from "../../hooks/useSort";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 interface Field {
   name: string;
@@ -83,6 +84,7 @@ interface PublishedTemplate {
 const PublishedTemplatesPage = () => {
   const { userRole, setUserRole } = useRole();
   const router = useRouter();
+  const { selectedPeriodId } = usePeriod();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
   const [page, setPage] = useState(1);
@@ -97,7 +99,13 @@ const PublishedTemplatesPage = () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/dimension`,
         {
-          params: { page, limit: 10, search, email: session?.user?.email },
+          params: { 
+            page,
+            limit: 10,
+            search,
+            email: session?.user?.email,
+            periodId: selectedPeriodId,
+          },
         }
       );
 
@@ -120,7 +128,7 @@ const PublishedTemplatesPage = () => {
     if (session?.user?.email) {
       fetchTemplates(page, search);
     }
-  }, [page, search, session]);
+  }, [page, search, session, selectedPeriodId]);
 
   const handleDownload = async (
     publishedTemplate: PublishedTemplate,

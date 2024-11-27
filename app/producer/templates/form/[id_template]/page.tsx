@@ -178,7 +178,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         message: "Datos enviados exitosamente",
         color: "teal",
       });
-      router.push('/producer/templates/uploaded');
+      router.push('/producer/templates');
     } catch (error) {
       console.error("Error submitting data:", error);
       if (axios.isAxiosError(error) && error.response?.status === 400) {

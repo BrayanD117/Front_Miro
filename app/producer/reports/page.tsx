@@ -7,6 +7,7 @@ import { Badge, Button, Center, Container, Group, rem, Table, Text, TextInput, T
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { IconBulb, IconHistory, IconReportAnalytics } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 interface Report {
   _id: string;
@@ -80,6 +81,7 @@ const StatusColor: Record<string, string> = {
 
 const ProducerReportsPage = () => {
   const router = useRouter();
+  const { selectedPeriodId } = usePeriod();
   const { data: session } = useSession();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -95,6 +97,7 @@ const ProducerReportsPage = () => {
             page: page,
             search: search,
             email: session?.user?.email,
+            periodId: selectedPeriodId,
           },
         }
       );
@@ -115,7 +118,7 @@ const ProducerReportsPage = () => {
       }, 500);
       return () => clearTimeout(delayDebounceFn);
     }
-  }, [search, session?.user?.email, page]);
+  }, [search, session?.user?.email, page, selectedPeriodId]);
 
   const rows = publishedReports.map((pReport) => (
     <Table.Tr key={pReport._id}>

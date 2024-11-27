@@ -231,7 +231,7 @@ const ProducerTemplateUpdatePage = ({
         message: "Datos actualizados exitosamente",
         color: "teal",
       });
-      router.push("/producer/templates/uploaded");
+      router.push("/producer/templates");
     } catch (error) {
       console.error("Error submitting data:", error);
       if (axios.isAxiosError(error) && error.response?.status === 400) {
@@ -419,7 +419,7 @@ const ProducerTemplateUpdatePage = ({
         <Button
           color={"red"}
           variant="outline"
-          onClick={() => router.push('/producer/templates/uploaded')}
+          onClick={() => router.push('/producer/templates')}
           leftSection={<IconCancel/>}
         >
           Cancelar

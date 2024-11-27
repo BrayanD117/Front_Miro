@@ -46,6 +46,7 @@ import { dateNow, dateToGMT } from "@/app/components/DateConfig";
 import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
 import { useSort } from "../../../hooks/useSort";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 interface Report {
   _id: string;
@@ -107,6 +108,7 @@ interface PublishedReport {
 
 const AdminPubReportsPage = () => {
   const { data: session } = useSession();
+  const { selectedPeriodId } = usePeriod();
   const [pubReports, setPubReports] = useState<PublishedReport[]>([]);
   const [selectedReport, setSelectedReport] = useState<
     PublishedReport | null | undefined
@@ -148,6 +150,7 @@ const AdminPubReportsPage = () => {
             page: page,
             search: search,
             email: session?.user?.email,
+            periodId: selectedPeriodId,
           },
         }
       );
@@ -206,7 +209,7 @@ const AdminPubReportsPage = () => {
     if (session?.user?.email) {
       fetchReports(page, search);
     }
-  }, [page, session?.user?.email]);
+  }, [page, session?.user?.email, selectedPeriodId]);
 
   useEffect(() => {
     if (session?.user?.email) {

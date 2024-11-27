@@ -17,12 +17,14 @@ import {
   Avatar,
   Image,
   useMantineColorScheme,
+  Select,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { showNotification } from "@mantine/notifications";
 import { useRole } from "@/app/context/RoleContext";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 // Components
 import ThemeChanger from "../ThemeChanger/ThemeChanger";
@@ -65,7 +67,6 @@ const linksByRole: Record<Roles, LinkItem[]> = {
   Productor: [
     { link: "/dashboard", label: "Inicio" },
     { link: "/producer/templates", label: "Plantillas pendientes" },
-    { link: "/producer/templates/uploaded", label: "Plantillas cargadas" },
   ],
 };
 
@@ -81,6 +82,10 @@ export default function Navbar() {
   const [roleMenuOpened, setRoleMenuOpened] = useState(false);
   const [manageMenuOpened, setManageMenuOpened] = useState(false);
   const { colorScheme } = useMantineColorScheme();
+  const { selectedPeriodId, setSelectedPeriodId, availablePeriods } = usePeriod();
+  const [tempPeriod, setTempPeriod] = useState<string>(selectedPeriodId || "");
+  const [periodModalOpened, setPeriodModalOpened] = useState(false);
+
 
   const titles = session
     ? [{ link: "/dashboard", label: "MIRÓ" }]
@@ -106,6 +111,13 @@ export default function Navbar() {
         });
     }
   }, [session]);
+
+  useEffect(() => {
+    if (periodModalOpened) {
+      setTempPeriod(selectedPeriodId || "");
+    }
+  }, [periodModalOpened, selectedPeriodId]);
+  
 
   const handleRoleChange = async (role: string) => {
     if (!session?.user?.email) return;
@@ -206,6 +218,7 @@ export default function Navbar() {
           {session?.user ? (
             <>
               <Group gap={8} visibleFrom="xs">
+              
                 <Badge m={20} variant="light">
                   {userRole}
                 </Badge>
@@ -264,10 +277,22 @@ export default function Navbar() {
                       className={classes.avatarClickable}
                     />
                   </Menu.Target>
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    <Button 
+                      size="xs"
+                      style={{
+                        marginTop: "40px",
+                        position: "absolute",
+                        top: "110%",
+                        left: "70%",
+                        transform: "translateX(-100%)",
+                        zIndex: 1,
+                      }} onClick={() => setPeriodModalOpened(true)} variant="light" fw={700}>
+                        Periodo: {availablePeriods.find((p) => p._id === selectedPeriodId)?.name || "Seleccionar"}
+                    </Button>
+                  </div>
                   {/* Menu Dropdown */}
                   <Menu.Dropdown>
-                    <Menu.Divider />
-                    <Menu.Label></Menu.Label>
                     <Menu.Item
                       color="red"
                       leftSection={
@@ -352,6 +377,39 @@ export default function Navbar() {
             Cerrar Sesión
           </Button>
         </Group>
+      </Modal>
+      <Modal
+        opened={periodModalOpened}
+        onClose={() => setPeriodModalOpened(false)}
+        title="Selecciona un Periodo"
+      >
+        <Select
+          label="Periodo"
+          placeholder="Selecciona un periodo"
+          value={tempPeriod}
+          onChange={(value) =>{
+            console.log("Periodo seleccionado en navbar:", value);
+            setTempPeriod(value || "")
+          }}
+          searchable
+          allowDeselect={false}
+          data={availablePeriods.map((period) => ({
+            value: period._id,
+            label: period.name,
+          }))}
+        />
+        <Button
+          fullWidth
+          mt="md"
+          onClick={() => {
+            if (tempPeriod) {
+              setSelectedPeriodId(tempPeriod);
+              setPeriodModalOpened(false);
+            }
+          }}
+        >
+          Confirmar
+        </Button>
       </Modal>
     </>
   );

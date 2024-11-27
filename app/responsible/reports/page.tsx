@@ -7,6 +7,7 @@ import { Badge, Button, Center, Container, Group, rem, Table, Text, TextInput, T
 import { dateToGMT } from "@/app/components/DateConfig";
 import { IconBulb, IconHistory, IconReportAnalytics } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 interface Report {
   _id: string;
@@ -81,6 +82,7 @@ const StatusColor: Record<string, string> = {
 
 const ResponsibleReportsPage = () => {
   const router = useRouter();
+  const { selectedPeriodId } = usePeriod();
   const { data: session } = useSession();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -96,6 +98,7 @@ const ResponsibleReportsPage = () => {
             page: page,
             search: search,
             email: session?.user?.email,
+            periodId: selectedPeriodId,
           },
         }
       );  
@@ -115,11 +118,15 @@ const ResponsibleReportsPage = () => {
       }, 500);
       return () => clearTimeout(delayDebounceFn);
     }
-  }, [search, session?.user?.email, page]);
+  }, [search, session?.user?.email, page, selectedPeriodId]);
 
   const rows = publishedReports.map((pReport) => (
     <Table.Tr key={pReport._id}>
-      <Table.Td>{pReport.period.name}</Table.Td>
+      <Table.Td>
+        <Badge size={rem(12)} h={rem(8)} variant="light" p={"xs"}>
+          {pReport.period.name}
+        </Badge>
+      </Table.Td>
       <Table.Td>{dateToGMT(pReport.deadline)}</Table.Td>
       <Table.Td>
           {pReport.report.name}

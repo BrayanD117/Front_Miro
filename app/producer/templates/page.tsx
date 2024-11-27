@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSort } from "../../hooks/useSort";
 import ProducerUploadedTemplatesPage from "./uploaded/ProducerUploadedTemplates";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 const DropzoneButton = dynamic(
   () =>
@@ -105,6 +106,7 @@ interface PublishedTemplate {
 }
 
 const ProducerTemplatesPage = () => {
+  const { selectedPeriodId } = usePeriod();
   const router = useRouter();
   const { data: session } = useSession();
   const [templates, setTemplates] = useState<PublishedTemplate[]>([]);
@@ -124,7 +126,13 @@ const ProducerTemplatesPage = () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
         {
-          params: { email: session?.user?.email, page, limit: 10, search },
+          params: {
+            email: session?.user?.email,
+            page,
+            limit: 10,
+            search,
+            periodId: selectedPeriodId,
+          },
         }
       );
       if (response.data) {
@@ -137,6 +145,13 @@ const ProducerTemplatesPage = () => {
       setTemplates([]);
     }
   };
+
+  useEffect(() => {
+    console.log("ID de período seleccionado en la page:", selectedPeriodId);
+    if (session?.user?.email && selectedPeriodId) {
+      fetchTemplates(page, search);
+    }
+  }, [page, search, session, selectedPeriodId]);  
 
   const refreshTemplates = () => {
     if (session?.user?.email) {
@@ -416,7 +431,19 @@ const ProducerTemplatesPage = () => {
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
+        <Table.Tbody>
+          {templates.length > 0 ? (
+            rows
+          ) : (
+            <Table.Tr>
+              <Table.Td colSpan={6}>
+                <Center>
+                  <p>No hay registros para este período.</p>
+                </Center>
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
       </Table>
       <Center>
         <Pagination
