@@ -141,6 +141,61 @@ const DuplicatePeriodPage = () => {
     fetchOptions();
   }
 
+  const handleDuplicatePeriod = async () => {
+    try {
+      const publishTemplateUrl = `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/publish`;
+      const publishReportUrl = `${process.env.NEXT_PUBLIC_API_URL}/pReports/publish`;
+      const publishProducerReportUrl = `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/publish`;
+
+      const templatesToPublish = templates.filter(template => template.duplicate);
+      const reportsToPublish = reports.filter(report => report.duplicate);
+      const producerReportsToPublish = producerReports.filter(producerReport => producerReport.duplicate);
+
+      const templatePromises = templatesToPublish.map(template => {
+        return axios.post(publishTemplateUrl, {
+          period_id: targetPeriod?._id,
+          template_id: template._id,
+          deadline: template.deadline,
+          user_email: session?.user?.email
+        });
+      });
+
+      const reportPromises = reportsToPublish.map(report => {
+        return axios.post(publishReportUrl, {
+          periodId: targetPeriod?._id,
+          reportId: report._id,
+          deadline: report.deadline,
+          email: session?.user?.email
+        });
+      });
+
+      const producerReportPromises = producerReportsToPublish.map(producerReport => {
+        return axios.post(publishProducerReportUrl, {
+          period: targetPeriod?._id,
+          reportId: producerReport._id,
+          deadline: producerReport.deadline,
+          email: session?.user?.email
+        });
+      });
+
+      await Promise.all([...templatePromises, ...reportPromises, ...producerReportPromises]);
+      showNotification({
+        title: "Éxito",
+        message: "El periodo se ha duplicado correctamente",
+        color: "green",
+      });
+
+      router.back()
+    } catch (error) {
+      console.error("Error duplicating period:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al duplicar el periodo",
+        color: "red",
+      });
+    }
+  }
+
   const tableBuilder = (body: React.ReactNode) => {
     return (
       <Table>
@@ -411,7 +466,7 @@ const DuplicatePeriodPage = () => {
             color="green"
             variant="light"
             leftSection={<IconCopy/>}
-            onClick={() => {}}
+            onClick={handleDuplicatePeriod}
           >
             Clonar Periodo
           </Button>
