@@ -182,7 +182,7 @@ const AdminValidationCreatePage = () => {
           hasValidator = true;
         }
         for (const value of column.values) {
-          if (!value) {
+          if (value === "" || value === null || value === undefined) {
             setTooltipContent("Todos los valores de las columnas deben estar llenos.");
             setIsFormValid(false);
             return;
