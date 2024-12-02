@@ -17,9 +17,10 @@ import {
   ScrollArea,
   Stack,
   Tooltip,
+  Text
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
+import { IconPlus, IconTrash, IconSettings, IconBulb } from "@tabler/icons-react";
 import axios from "axios";
 import styles from './AdminValidationUpdatePage.module.css';
 
@@ -213,7 +214,7 @@ const AdminValidationUpdatePage = () => {
   }, [name, columns]);
 
   return (
-    <Container size="md">
+    <Container size="xl">
       <Title ta={"center"} order={2} my="lg">Actualizar Validación</Title>
       <Paper radius="md" p="xl" withBorder shadow="xs">
         <form onSubmit={handleSubmit}>
@@ -225,6 +226,11 @@ const AdminValidationUpdatePage = () => {
             required
             mb="md"
           />
+          <Text c="dimmed" size="xs" ta={"center"} mt="md" >
+            <IconBulb color="#797979" size={20}></IconBulb>
+            <br/>
+            Para el nombre de las columnas no uses "-", en su lugar usa "_"
+          </Text>
           <Center mb="md" mt="md">
             <Button onClick={handleAddColumn} leftSection={<IconPlus size={20} />}>
               Agregar Columna
