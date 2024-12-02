@@ -142,9 +142,15 @@ const AdminValidationCreatePage = () => {
       router.push("/admin/validations");
     } catch (error) {
       console.error("Error creating validation:", error);
+      let errorMessage = "Hubo un error al crear la validación";
+      const backendMessage = axios.isAxiosError(error) ? error.response?.data?.status : null;
+
+      if (backendMessage === "Columns name cannot contain '-' character") {
+        errorMessage = "El nombre de las columnas no puede tener un guión '-'";
+      }
       showNotification({
         title: "Error",
-        message: "Hubo un error al crear la validación",
+        message: errorMessage,
         color: "red",
       });
     }
