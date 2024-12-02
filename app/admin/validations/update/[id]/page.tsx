@@ -17,9 +17,10 @@ import {
   ScrollArea,
   Stack,
   Tooltip,
+  Text
 } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
-import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
+import { IconPlus, IconTrash, IconSettings, IconBulb } from "@tabler/icons-react";
 import axios from "axios";
 import styles from './AdminValidationUpdatePage.module.css';
 
@@ -152,9 +153,15 @@ const AdminValidationUpdatePage = () => {
       router.push("/admin/validations");
     } catch (error) {
       console.error("Error updating validation:", error);
+      let errorMessage = "Hubo un error al actualizar la validación";
+      const backendMessage = axios.isAxiosError(error) ? error.response?.data?.status : null;
+
+      if (backendMessage === "Columns name cannot contain '-' character") {
+        errorMessage = "El nombre de las columnas no puede tener un guión '-'";
+      }
       showNotification({
         title: "Error",
-        message: "Hubo un error al actualizar la validación",
+        message: errorMessage,
         color: "red",
       });
     }
@@ -193,7 +200,7 @@ const AdminValidationUpdatePage = () => {
           hasValidator = true;
         }
         for (const value of column.values) {
-          if (!value) {
+          if (value === "" || value === null || value === undefined) {
             setTooltipContent("Todos los valores de las columnas deben estar llenos.");
             setIsFormValid(false);
             return;
@@ -213,7 +220,7 @@ const AdminValidationUpdatePage = () => {
   }, [name, columns]);
 
   return (
-    <Container size="md">
+    <Container size="xl">
       <Title ta={"center"} order={2} my="lg">Actualizar Validación</Title>
       <Paper radius="md" p="xl" withBorder shadow="xs">
         <form onSubmit={handleSubmit}>
@@ -225,6 +232,11 @@ const AdminValidationUpdatePage = () => {
             required
             mb="md"
           />
+          <Text c="dimmed" size="xs" ta={"center"} mt="md" >
+            <IconBulb color="#797979" size={20}></IconBulb>
+            <br/>
+            Para el nombre de las columnas no uses "-", en su lugar usa "_"
+          </Text>
           <Center mb="md" mt="md">
             <Button onClick={handleAddColumn} leftSection={<IconPlus size={20} />}>
               Agregar Columna
