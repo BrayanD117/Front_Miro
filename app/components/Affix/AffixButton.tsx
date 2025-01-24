@@ -9,13 +9,21 @@ const AffixButton = () => {
     <Affix position={{ bottom: 20, right: 20 }}>
       <Transition transition="slide-up" mounted={scroll.y > 0}>
         {(transitionStyles) => (
+          <div
+          style={{
+            ...transitionStyles,
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <Button
             leftSection={<IconArrowUp size={16} />}
+            variant="light"
             style={transitionStyles}
             onClick={() => scrollTo({ y: 0 })}
           >
             Subir
           </Button>
+        </div>
         )}
       </Transition>
     </Affix>
