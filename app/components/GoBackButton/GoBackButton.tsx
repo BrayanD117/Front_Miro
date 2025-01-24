@@ -27,7 +27,7 @@ const GoBackButton = () => {
         variant="light"
         color="blue"
         size="sm"
-        leftSection={<IconArrowLeft></IconArrowLeft>}
+        leftSection={<IconArrowLeft size={16}/>}
       >
         Volver
       </Button>
