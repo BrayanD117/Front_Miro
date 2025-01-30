@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch } from "@mantine/core";
+import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch, Tooltip, Title, Select } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconSwitch3, IconDeviceFloppy, IconCancel } from "@tabler/icons-react";
 import styles from './AdminUsersPage.module.css';
 import { useSort } from "../../hooks/useSort";
 
@@ -16,6 +16,13 @@ interface User {
   email: string;
   roles: string[];
   isActive: boolean;
+  dep_code: string;
+}
+
+interface Dependency {
+  _id: string;
+  dep_code: string;
+  name: string;
 }
 
 const AdminUsersPage = () => {
@@ -25,6 +32,7 @@ const AdminUsersPage = () => {
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
+  const [migrateModalOpened, setMigrateModalOpened] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { sortedItems: sortedUsers, handleSort, sortConfig } = useSort<User>(users, { key: null, direction: "asc" });
@@ -142,11 +150,24 @@ const AdminUsersPage = () => {
       <Table.Td>{user.email}</Table.Td>
       <Table.Td>{user.roles.join(', ')}</Table.Td>
       <Table.Td>
-        <Center>
+        <Group gap={5}> 
           <Button variant="outline" onClick={() => handleEdit(user)}>
             <IconEdit size={16} />
           </Button>
-        </Center>
+          <Tooltip
+            label="Migrar Usuario de Dependencia"
+            position="top"
+            transitionProps={{ transition: 'fade-up', duration: 300 }}
+          >
+            <Button color="orange" variant="outline" onClick={() => {
+              setMigrateModalOpened(true)
+              setSelectedUser(user)
+            }}
+            >
+              <IconSwitch3 size={16} />
+            </Button>
+          </Tooltip>
+        </Group>
       </Table.Td>
       <Table.Td>
         <Center>
@@ -247,6 +268,54 @@ const AdminUsersPage = () => {
           value={roles}
           onChange={setRoles}
         />
+      </Modal>
+      <Modal
+        opened={migrateModalOpened}
+        onClose={() => {
+          setMigrateModalOpened(false);
+          setSelectedUser(null);
+        }}
+        title= {<Title size={'sm'}>Migrar Usuario de Dependencia</Title>}
+      >
+        <TextInput
+          disabled
+          label="Funcionario"
+          value={selectedUser?.full_name}
+        />
+        <TextInput
+          disabled
+          label="Email"
+          value={selectedUser?.email}
+        />
+        <TextInput
+          disabled
+          label="Dependencia Actual"
+          value={selectedUser?.dep_code}
+        />
+        <Select
+          label="Dependencia Nueva"
+          placeholder="Selecciona una dependencia"
+          data={[
+            { value: "1", label: "Dependencia 1" },
+            { value: "2", label: "Dependencia 2" },
+            { value: "3", label: "Dependencia 3" },
+          ]}
+          searchable
+        />
+        <Group mt="md">
+          <Button leftSection={<IconDeviceFloppy/>} onClick={handleSave}>Guardar</Button>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setMigrateModalOpened(false)
+              setSelectedUser(null)
+            }}
+            leftSection={<IconCancel/>}
+            color="red"
+          >
+            Cancelar
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );
