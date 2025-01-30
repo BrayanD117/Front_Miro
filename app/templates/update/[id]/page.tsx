@@ -7,6 +7,8 @@ import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
 import { useRole } from "@/app/context/RoleContext";
+import { IconCancel, IconCirclePlus, IconDeviceFloppy, IconGripVertical } from "@tabler/icons-react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 interface Field {
   name: string;
@@ -226,6 +228,27 @@ const UpdateTemplatePage = () => {
     }
   };
 
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const newFields = Array.from(fields);
+    const [removed] = newFields.splice(source.index, 1);
+    newFields.splice(destination.index, 0, removed);
+
+    setFields(newFields);
+  };
+
   if (loading) {
     return (
       <Center style={{ height: "100vh" }}>
@@ -283,78 +306,98 @@ const UpdateTemplatePage = () => {
         onChange={(event) => setActive(event.currentTarget.checked)}
         mb="md"
       />
-      <Table stickyHeader withTableBorder>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Nombre Campo</Table.Th>
-            <Table.Th>Tipo de Campo</Table.Th>
-            <Table.Th>¿Obligatorio?</Table.Th>
-            <Table.Th>Validar con Base de Datos</Table.Th>
-            <Table.Th>Comentario del Campo / Pista</Table.Th>
-            <Table.Th>Acciones</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {fields.map((field, index) => (
-            <Table.Tr key={index}>
-              <Table.Td>
-                <TextInput
-                  placeholder="Nombre del campo"
-                  value={field.name}
-                  onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Select
-                  placeholder="Seleccionar"
-                  data={allowedDataTypes}
-                  value={field.datatype}
-                  onChange={(value) => handleFieldChange(index, "datatype", value || "")}
-                  readOnly={!!field.validate_with}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Checkbox
-                  label=""
-                  checked={field.required}
-                  onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Select
-                  placeholder="Validar con"
-                  data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
-                  value={field.validate_with}
-                  onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
-                  maxDropdownHeight={200}
-                  searchable
-                  clearable
-                  nothingFoundMessage="La validación no existe"
-                />
-              </Table.Td>
-              <Table.Td>
-                <TextInput
-                  placeholder="Comentario"
-                  value={field.comment}
-                  onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
-                />
-              </Table.Td>
-              <Table.Td>
-                <Button color="red" onClick={() => removeField(index)}>
-                  Eliminar
-                </Button>
-              </Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="fields">
+          {(provided) => (
+            <Table stickyHeader withTableBorder {...provided.droppableProps} ref={provided.innerRef}>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Arrastrar</Table.Th>
+                  <Table.Th>Nombre Campo</Table.Th>
+                  <Table.Th>Tipo de Campo</Table.Th>
+                  <Table.Th>¿Obligatorio?</Table.Th>
+                  <Table.Th>Validar con Base de Datos</Table.Th>
+                  <Table.Th>Comentario del Campo / Pista</Table.Th>
+                  <Table.Th>Acciones</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {fields.map((field, index) => (
+                  <Draggable key={index} draggableId={`field-${index}`} index={index}>
+                    {(provided) => (
+                      <Table.Tr
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                      >
+                        <Table.Td {...provided.dragHandleProps}>
+                          <Center>
+                            <IconGripVertical size={18} />
+                          </Center>
+                        </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                            placeholder="Nombre del campo"
+                            value={field.name}
+                            onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <Select
+                            placeholder="Seleccionar"
+                            data={allowedDataTypes}
+                            value={field.datatype}
+                            onChange={(value) => handleFieldChange(index, "datatype", value || "")}
+                            readOnly={!!field.validate_with}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <Checkbox
+                            label=""
+                            checked={field.required}
+                            onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <Select
+                            placeholder="Validar con"
+                            data={validatorOptions.map(option => ({ value: option.name, label: option.name }))}
+                            value={field.validate_with}
+                            onChange={(value) => handleFieldChange(index, "validate_with", value || "")}
+                            maxDropdownHeight={200}
+                            searchable
+                            clearable
+                            nothingFoundMessage="La validación no existe"
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                            placeholder="Comentario"
+                            value={field.comment}
+                            onChange={(event) => handleFieldChange(index, "comment", event.currentTarget.value)}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <Button color="red" onClick={() => removeField(index)}>
+                            Eliminar
+                          </Button>
+                        </Table.Td>
+                      </Table.Tr>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </Table.Tbody>
+            </Table>
+          )}
+        </Droppable>
+      </DragDropContext>
       <Group mt="md">
-        <Button onClick={addField}>
+        <Button onClick={addField} leftSection={<IconCirclePlus />}>
           Añadir Campo
         </Button>
       </Group>
       <Group mt="md">
-        <Button onClick={handleSave}>Guardar</Button>
+        <Button onClick={handleSave} leftSection={<IconDeviceFloppy />}>Guardar</Button>
         <Button variant="outline" onClick={() => router.back()}>
           Cancelar
         </Button>
