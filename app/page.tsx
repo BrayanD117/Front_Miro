@@ -14,7 +14,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import ThemeChanger from "./components/ThemeChanger/ThemeChanger";
 import styles from "./page.module.css";
@@ -49,7 +49,7 @@ const HomePage = () => {
   }, [status]);
 
   const handleLogin = () => {
-    router.push("/signIn");
+    signIn("google");
   };
 
   return (
