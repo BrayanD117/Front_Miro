@@ -24,7 +24,12 @@ import { IconPlus, IconTrash, IconSettings, IconBulb } from "@tabler/icons-react
 import axios from "axios";
 import styles from './AdminValidationCreatePage.module.css';
 import '@mantine/dropzone/styles.css';
-import { ValidationDropzone } from "@/app/components/ValidationDropzone/ValidationDropzone";
+import dynamic from "next/dynamic";
+
+const ValidationDropzone = dynamic(
+  () => import("@/app/components/ValidationDropzone/ValidationDropzone").then(mod => mod.ValidationDropzone),
+  { ssr: false }
+);
 
 interface Column {
   name: string;

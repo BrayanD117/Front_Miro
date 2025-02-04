@@ -11,7 +11,7 @@ const options: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: '/signIn',
+    signIn: '/',
   },
   session: {
     maxAge: 3600 * 8,

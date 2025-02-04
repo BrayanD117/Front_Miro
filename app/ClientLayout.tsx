@@ -15,7 +15,7 @@ interface ClientLayoutProps {
 const ClientLayout = ({ children }: ClientLayoutProps) => {
   const pathname = usePathname();
 
-  const isSignInPage = pathname === '/signIn' || pathname === '/';
+  const isSignInPage = pathname === '/';
 
   return (
     <>
