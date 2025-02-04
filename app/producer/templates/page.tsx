@@ -36,6 +36,7 @@ import dynamic from "next/dynamic";
 import { useSort } from "../../hooks/useSort";
 import ProducerUploadedTemplatesPage from "./uploaded/ProducerUploadedTemplates";
 import { usePeriod } from "@/app/context/PeriodContext";
+import { sanitizeSheetName, shouldAddWorksheet } from "@/app/utils/templateUtils";
 
 const DropzoneButton = dynamic(
   () =>
@@ -219,13 +220,12 @@ const ProducerTemplatesPage = () => {
 
     // Crear una hoja por cada validador en el array
     validators.forEach((validator) => {
-      const validatorSheet = workbook.addWorksheet(validator.name);
+      const sanitizedName = sanitizeSheetName(validator.name);
+      if (!shouldAddWorksheet(workbook, sanitizedName)) return;
+      const validatorSheet = workbook.addWorksheet(sanitizedName);
 
-      // Agregar encabezados basados en las claves del primer objeto de "values"
       const header = Object.keys(validator.values[0]);
       const validatorHeaderRow = validatorSheet.addRow(header);
-
-      // Estilizar la fila de encabezado
       validatorHeaderRow.eachCell((cell) => {
         cell.font = { bold: true, color: { argb: "FFFFFF" } };
         cell.fill = {
@@ -242,7 +242,6 @@ const ProducerTemplatesPage = () => {
         cell.alignment = { vertical: "middle", horizontal: "center" };
       });
 
-      // Agregar las filas con los valores
       validator.values.forEach((value) => {
         const row = validatorSheet.addRow(Object.values(value));
         row.eachCell((cell) => {
@@ -255,13 +254,11 @@ const ProducerTemplatesPage = () => {
         });
       });
 
-      // Ajustar el ancho de las columnas
       validatorSheet.columns.forEach((column) => {
         column.width = 20;
       });
     });
 
-    // Generar y descargar el archivo Excel
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
     saveAs(blob, `${template.file_name}.xlsx`);

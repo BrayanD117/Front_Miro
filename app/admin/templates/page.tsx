@@ -13,6 +13,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useSort } from "../../hooks/useSort";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { DatePickerInput } from "@mantine/dates";
+import { shouldAddWorksheet, sanitizeSheetName } from "@/app/utils/templateUtils";
 
 interface Field {
   name: string;
@@ -282,18 +283,13 @@ const AdminTemplatesPage = () => {
       }
     });
 
-    const sanitizeSheetName = (name: string) => {
-      return name.replace(/[/\\?*[\]]/g, '').substring(0, 31);
-    };
-
-    validators.forEach(validator => {
+    validators.forEach((validator) => {
       const sanitizedName = sanitizeSheetName(validator.name);
-      if (workbook.getWorksheet(sanitizedName)) {
+      if (!shouldAddWorksheet(workbook, sanitizedName)) {
         return;
       }
       
       const validatorSheet = workbook.addWorksheet(sanitizedName);
-      
       // Agregar encabezados basados en las claves del primer objeto de "values"
       const header = Object.keys(validator.values[0]);
       const validatorHeaderRow = validatorSheet.addRow(header);
@@ -329,11 +325,11 @@ const AdminTemplatesPage = () => {
       });
   
       // Ajustar el ancho de las columnas
-      validatorSheet.columns.forEach(column => {
+      validatorSheet.columns.forEach((column) => {
         column.width = 20;
       });
     });
-
+  
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
     saveAs(blob, `${template.file_name}.xlsx`);
