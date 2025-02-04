@@ -187,11 +187,12 @@ const AdminTemplatesPage = () => {
     });
 
     template.fields.forEach((field, index) => {
-      const columnLetter = String.fromCharCode(65 + index);
+      const colNumber = index + 1;
       const maxRows = 1000;
       for (let i = 2; i <= maxRows; i++) {
-        const cellAddress = `${columnLetter}${i}`;
-        const cell = worksheet.getCell(cellAddress);
+        const row = worksheet.getRow(i);
+        const cell = row.getCell(colNumber);
+    
         switch (field.datatype) {
           case 'Entero':
             cell.dataValidation = {
@@ -281,10 +282,18 @@ const AdminTemplatesPage = () => {
       }
     });
 
-     // Crear una hoja por cada validador en el array
-     validators.forEach(validator => {
-      const validatorSheet = workbook.addWorksheet(validator.name);
-  
+    const sanitizeSheetName = (name: string) => {
+      return name.replace(/[/\\?*[\]]/g, '').substring(0, 31);
+    };
+
+    validators.forEach(validator => {
+      const sanitizedName = sanitizeSheetName(validator.name);
+      if (workbook.getWorksheet(sanitizedName)) {
+        return;
+      }
+      
+      const validatorSheet = workbook.addWorksheet(sanitizedName);
+      
       // Agregar encabezados basados en las claves del primer objeto de "values"
       const header = Object.keys(validator.values[0]);
       const validatorHeaderRow = validatorSheet.addRow(header);
