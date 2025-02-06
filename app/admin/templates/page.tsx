@@ -13,6 +13,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useSort } from "../../hooks/useSort";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { DatePickerInput } from "@mantine/dates";
+import { shouldAddWorksheet, sanitizeSheetName } from "@/app/utils/templateUtils";
 
 interface Field {
   name: string;
@@ -173,9 +174,10 @@ const AdminTemplatesPage = () => {
 
       const field = template.fields[colNumber - 1];
       if (field.comment) {
+        const commentText = field.comment.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         cell.note = {
           texts: [
-            { font: { size: 12, color: { argb: 'FF0000' } }, text: field.comment }
+            { font: { size: 12, color: { argb: 'FF0000' } }, text: commentText }
           ],
           editAs: 'oneCells',
         };
@@ -187,11 +189,12 @@ const AdminTemplatesPage = () => {
     });
 
     template.fields.forEach((field, index) => {
-      const columnLetter = String.fromCharCode(65 + index);
+      const colNumber = index + 1;
       const maxRows = 1000;
       for (let i = 2; i <= maxRows; i++) {
-        const cellAddress = `${columnLetter}${i}`;
-        const cell = worksheet.getCell(cellAddress);
+        const row = worksheet.getRow(i);
+        const cell = row.getCell(colNumber);
+    
         switch (field.datatype) {
           case 'Entero':
             cell.dataValidation = {
@@ -281,10 +284,13 @@ const AdminTemplatesPage = () => {
       }
     });
 
-     // Crear una hoja por cada validador en el array
-     validators.forEach(validator => {
-      const validatorSheet = workbook.addWorksheet(validator.name);
-  
+    validators.forEach((validator) => {
+      const sanitizedName = sanitizeSheetName(validator.name);
+      if (!shouldAddWorksheet(workbook, sanitizedName)) {
+        return;
+      }
+      
+      const validatorSheet = workbook.addWorksheet(sanitizedName);
       // Agregar encabezados basados en las claves del primer objeto de "values"
       const header = Object.keys(validator.values[0]);
       const validatorHeaderRow = validatorSheet.addRow(header);
@@ -320,11 +326,11 @@ const AdminTemplatesPage = () => {
       });
   
       // Ajustar el ancho de las columnas
-      validatorSheet.columns.forEach(column => {
+      validatorSheet.columns.forEach((column) => {
         column.width = 20;
       });
     });
-
+  
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
     saveAs(blob, `${template.file_name}.xlsx`);

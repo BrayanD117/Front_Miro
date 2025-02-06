@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import { useRole } from "@/app/context/RoleContext";
 import { useSort } from "../../hooks/useSort";
 import { usePeriod } from "@/app/context/PeriodContext";
+import { sanitizeSheetName, shouldAddWorksheet } from "@/app/utils/templateUtils";
 
 interface Field {
   name: string;
@@ -181,13 +182,12 @@ const PublishedTemplatesPage = () => {
 
       // Crear una hoja por cada validador en el array
       validators.forEach((validator) => {
-        const validatorSheet = workbook.addWorksheet(validator.name);
+        const sanitizedName = sanitizeSheetName(validator.name);
+        if (!shouldAddWorksheet(workbook, sanitizedName)) return;
+        const validatorSheet = workbook.addWorksheet(sanitizedName);
 
-        // Agregar encabezados basados en las claves del primer objeto de "values"
         const header = Object.keys(validator.values[0]);
         const validatorHeaderRow = validatorSheet.addRow(header);
-
-        // Estilizar la fila de encabezado
         validatorHeaderRow.eachCell((cell) => {
           cell.font = { bold: true, color: { argb: "FFFFFF" } };
           cell.fill = {
@@ -204,8 +204,7 @@ const PublishedTemplatesPage = () => {
           cell.alignment = { vertical: "middle", horizontal: "center" };
         });
 
-        // Agregar las filas con los valores
-        validator.values.forEach((value: any) => {
+        validator.values.forEach((value) => {
           const row = validatorSheet.addRow(Object.values(value));
           row.eachCell((cell) => {
             cell.border = {
@@ -217,7 +216,6 @@ const PublishedTemplatesPage = () => {
           });
         });
 
-        // Ajustar el ancho de las columnas
         validatorSheet.columns.forEach((column) => {
           column.width = 20;
         });

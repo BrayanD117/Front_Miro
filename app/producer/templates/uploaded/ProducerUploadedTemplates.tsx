@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSort } from "../../../hooks/useSort";
 import { usePeriod } from "@/app/context/PeriodContext";
+import { sanitizeSheetName, shouldAddWorksheet } from "@/app/utils/templateUtils"; 
 
 const DropzoneUpdateButton = dynamic(
   () =>
@@ -186,14 +187,12 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
 
       const field = template.fields[colNumber - 1];
       if (field.comment) {
+        const commentText = field.comment.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         cell.note = {
           texts: [
-            {
-              font: { size: 12, color: { argb: "FF0000" } },
-              text: field.comment,
-            },
+            { font: { size: 12, color: { argb: 'FF0000' } }, text: commentText }
           ],
-          editAs: "oneCells",
+          editAs: 'oneCells',
         };
       }
     });
@@ -221,13 +220,12 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
 
     // Crear una hoja por cada validador en el array
     validators.forEach((validator) => {
-      const validatorSheet = workbook.addWorksheet(validator.name);
+      const sanitizedName = sanitizeSheetName(validator.name);
+      if (!shouldAddWorksheet(workbook, sanitizedName)) return;
+      const validatorSheet = workbook.addWorksheet(sanitizedName);
 
-      // Agregar encabezados basados en las claves del primer objeto de "values"
       const header = Object.keys(validator.values[0]);
       const validatorHeaderRow = validatorSheet.addRow(header);
-
-      // Estilizar la fila de encabezado
       validatorHeaderRow.eachCell((cell) => {
         cell.font = { bold: true, color: { argb: "FFFFFF" } };
         cell.fill = {
@@ -244,7 +242,6 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
         cell.alignment = { vertical: "middle", horizontal: "center" };
       });
 
-      // Agregar las filas con los valores
       validator.values.forEach((value) => {
         const row = validatorSheet.addRow(Object.values(value));
         row.eachCell((cell) => {
@@ -257,7 +254,6 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
         });
       });
 
-      // Ajustar el ancho de las columnas
       validatorSheet.columns.forEach((column) => {
         column.width = 20;
       });
