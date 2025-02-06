@@ -187,14 +187,12 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
 
       const field = template.fields[colNumber - 1];
       if (field.comment) {
+        const commentText = field.comment.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         cell.note = {
           texts: [
-            {
-              font: { size: 12, color: { argb: "FF0000" } },
-              text: field.comment,
-            },
+            { font: { size: 12, color: { argb: 'FF0000' } }, text: commentText }
           ],
-          editAs: "oneCells",
+          editAs: 'oneCells',
         };
       }
     });

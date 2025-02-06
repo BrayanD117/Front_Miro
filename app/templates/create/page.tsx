@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, MultiSelect, Center } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, MultiSelect, Center, Textarea } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -390,16 +390,14 @@ const CreateTemplatePage = () => {
                           />
                         </Table.Td>
                         <Table.Td>
-                          <TextInput
-                            placeholder="Comentario"
+                         <Textarea
+                            placeholder="Comentario del Campo / Pista"
                             value={field.comment}
                             onChange={(event) =>
-                              handleFieldChange(
-                                index,
-                                "comment",
-                                event.currentTarget.value
-                              )
+                              handleFieldChange(index, "comment", event.currentTarget.value)
                             }
+                            autosize
+                            minRows={1}
                           />
                         </Table.Td>
                         <Table.Td>
