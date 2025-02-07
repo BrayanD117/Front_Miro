@@ -4,7 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, Tooltip, Text, Checkbox } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowsTransferDown, IconArrowBigUpFilled, IconArrowBigDownFilled } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowsTransferDown, IconArrowBigUpFilled, IconArrowBigDownFilled, IconCopy } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
@@ -372,21 +372,32 @@ const AdminTemplatesPage = () => {
       <Table.Td>
         <Text size="sm">{template?.dimensions?.map(dim => dim.name).join(", ")}</Text>
       </Table.Td>
-      <Table.Td>{template.active ? "Activo" : "Inactivo"}</Table.Td>
       <Table.Td>
         <Center>
-          <Group gap={5}>
+          <Group gap={3}>
             <Tooltip
-                  label="Descargar plantilla"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+              label="Descargar plantilla"
+              transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
               <Button variant="outline" onClick={() => handleDownload(template)}>
                 <IconDownload size={16} />
               </Button>
             </Tooltip>
             <Tooltip
-                  label="Editar plantilla"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+              label="Duplicar plantilla"
+              transitionProps={{ transition: 'fade-up', duration: 300 }}
+            >
+              <Button
+                variant="outline"
+                color="orange"
+                onClick={() => router.push(`/templates/duplicate/${template._id}`)}
+              >
+                <IconCopy size={16} />
+              </Button>
+            </Tooltip>
+            <Tooltip
+              label="Editar plantilla"
+              transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
               <Button
                 variant="outline"
@@ -494,21 +505,6 @@ const AdminTemplatesPage = () => {
               )}
             </Center>
           </Table.Th>
-
-          <Table.Th onClick={() => handleSort("active")} style={{ cursor: "pointer" }}>
-            <Center inline>
-              Estado
-              {sortConfig.key === "active" ? (
-                sortConfig.direction === "asc" ? 
-                <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 
-                : 
-                <IconArrowBigDownFilled size={16} style={{ marginLeft: '5px' }} />
-              ) : (
-                <IconArrowsTransferDown size={16} style={{ marginLeft: '5px' }} />
-              )}
-            </Center>
-          </Table.Th>
-
           <Table.Th>
             <Center>Acciones</Center>
           </Table.Th>
