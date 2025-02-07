@@ -263,8 +263,8 @@ const AdminReportsPage = () => {
               </Button>
             </Tooltip>
             <Tooltip
-                  label="Eliminar informe"
-                  transitionProps={{ transition: 'fade-up', duration: 300 }}
+              label="Eliminar informe"
+              transitionProps={{ transition: 'fade-up', duration: 300 }}
             >
               <Button
                 color="red"

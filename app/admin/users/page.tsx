@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch } from "@mantine/core";
+import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch, Tooltip, Title, Select } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconSwitch3, IconDeviceFloppy, IconCancel } from "@tabler/icons-react";
 import styles from './AdminUsersPage.module.css';
 import { useSort } from "../../hooks/useSort";
+import { useSession } from "next-auth/react";
 
 interface User {
   _id: string;
@@ -16,15 +17,26 @@ interface User {
   email: string;
   roles: string[];
   isActive: boolean;
+  dep_code: string;
+}
+
+interface Dependency {
+  _id: string;
+  dep_code: string;
+  name: string;
 }
 
 const AdminUsersPage = () => {
+  const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [newDependency, setNewDependency] = useState<Dependency | undefined>();
   const [modalOpened, setModalOpened] = useState(false);
+  const [migrateModalOpened, setMigrateModalOpened] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { sortedItems: sortedUsers, handleSort, sortConfig } = useSort<User>(users, { key: null, direction: "asc" });
@@ -44,6 +56,18 @@ const AdminUsersPage = () => {
       setUsers([]);
     }
   };
+
+  const fetchDependencies = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/all/${session?.user?.email}`);
+      if (response.data) {
+        setDependencies(response.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching dependencies:', error);
+      setDependencies([]);
+    }
+  }
 
   useEffect(() => {
     fetchUsers(page, search);
@@ -89,6 +113,32 @@ const AdminUsersPage = () => {
       }
     }
   };
+
+  const handleMigration = async () => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/migrate`, {
+        email: selectedUser?.email,
+        dep_code: selectedUser?.dep_code,
+        new_dep_code: newDependency?.dep_code
+      });
+      showNotification({
+        title: "Migrado",
+        message: "Usuario migrado exitosamente",
+        color: "teal",
+      });
+      setMigrateModalOpened(false);
+      setSelectedUser(null);
+      setNewDependency(undefined);
+      fetchUsers(page, search);
+    } catch (error) {
+      console.error("Error migrating user:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al migrar el usuario",
+        color: "red",
+      });
+    }
+  }
 
   const handleToggleActive = async (userId: string, isActive: boolean) => {
     try {
@@ -142,11 +192,25 @@ const AdminUsersPage = () => {
       <Table.Td>{user.email}</Table.Td>
       <Table.Td>{user.roles.join(', ')}</Table.Td>
       <Table.Td>
-        <Center>
+        <Group gap={5}> 
           <Button variant="outline" onClick={() => handleEdit(user)}>
             <IconEdit size={16} />
           </Button>
-        </Center>
+          <Tooltip
+            label="Migrar Usuario de Dependencia"
+            position="top"
+            transitionProps={{ transition: 'fade-up', duration: 300 }}
+          >
+            <Button color="orange" variant="outline" onClick={() => {
+              fetchDependencies()
+              setMigrateModalOpened(true)
+              setSelectedUser(user)
+            }}
+            >
+              <IconSwitch3 size={16} />
+            </Button>
+          </Tooltip>
+        </Group>
       </Table.Td>
       <Table.Td>
         <Center>
@@ -247,6 +311,54 @@ const AdminUsersPage = () => {
           value={roles}
           onChange={setRoles}
         />
+      </Modal>
+      <Modal
+        opened={migrateModalOpened}
+        onClose={() => {
+          setMigrateModalOpened(false);
+          setSelectedUser(null);
+          setNewDependency(undefined);
+        }}
+        title= {<Title size={'sm'}>Migrar Usuario de Dependencia</Title>}
+      >
+        <TextInput
+          disabled
+          label="Funcionario"
+          value={selectedUser?.full_name}
+        />
+        <TextInput
+          disabled
+          label="Email"
+          value={selectedUser?.email}
+        />
+        <TextInput
+          disabled
+          label="Dependencia Actual"
+          value={dependencies.find(dep => dep.dep_code === selectedUser?.dep_code)?.name}
+        />
+        <Select
+          label="Dependencia Nueva"
+          placeholder="Selecciona una dependencia"
+          data={dependencies.map(dep => ({ value: dep.dep_code, label: dep.name }))}
+          onChange={(value) => setNewDependency(dependencies.find(dep => dep.dep_code === value))}
+          value={newDependency?.dep_code}
+          searchable
+        />
+        <Group mt="md">
+          <Button leftSection={<IconDeviceFloppy/>} onClick={handleMigration}>Guardar</Button>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setMigrateModalOpened(false);
+              setSelectedUser(null);
+              setNewDependency(undefined);
+            }}
+            leftSection={<IconCancel/>}
+            color="red"
+          >
+            Cancelar
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );
