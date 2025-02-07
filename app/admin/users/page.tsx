@@ -7,6 +7,7 @@ import { showNotification } from "@mantine/notifications";
 import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconSwitch3, IconDeviceFloppy, IconCancel } from "@tabler/icons-react";
 import styles from './AdminUsersPage.module.css';
 import { useSort } from "../../hooks/useSort";
+import { useSession } from "next-auth/react";
 
 interface User {
   _id: string;
@@ -26,11 +27,14 @@ interface Dependency {
 }
 
 const AdminUsersPage = () => {
+  const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [newDependency, setNewDependency] = useState<Dependency | undefined>();
   const [modalOpened, setModalOpened] = useState(false);
   const [migrateModalOpened, setMigrateModalOpened] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
@@ -52,6 +56,18 @@ const AdminUsersPage = () => {
       setUsers([]);
     }
   };
+
+  const fetchDependencies = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dependencies/all/${session?.user?.email}`);
+      if (response.data) {
+        setDependencies(response.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching dependencies:', error);
+      setDependencies([]);
+    }
+  }
 
   useEffect(() => {
     fetchUsers(page, search);
@@ -97,6 +113,31 @@ const AdminUsersPage = () => {
       }
     }
   };
+
+  const handleMigration = async () => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/migrate`, {
+        email: selectedUser?.email,
+        dep_code: newDependency?.dep_code
+      });
+      showNotification({
+        title: "Migrado",
+        message: "Usuario migrado exitosamente",
+        color: "teal",
+      });
+      setMigrateModalOpened(false);
+      setSelectedUser(null);
+      setNewDependency(undefined);
+      fetchUsers(page, search);
+    } catch (error) {
+      console.error("Error migrating user:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al migrar el usuario",
+        color: "red",
+      });
+    }
+  }
 
   const handleToggleActive = async (userId: string, isActive: boolean) => {
     try {
@@ -160,6 +201,7 @@ const AdminUsersPage = () => {
             transitionProps={{ transition: 'fade-up', duration: 300 }}
           >
             <Button color="orange" variant="outline" onClick={() => {
+              fetchDependencies()
               setMigrateModalOpened(true)
               setSelectedUser(user)
             }}
@@ -274,6 +316,7 @@ const AdminUsersPage = () => {
         onClose={() => {
           setMigrateModalOpened(false);
           setSelectedUser(null);
+          setNewDependency(undefined);
         }}
         title= {<Title size={'sm'}>Migrar Usuario de Dependencia</Title>}
       >
@@ -290,25 +333,24 @@ const AdminUsersPage = () => {
         <TextInput
           disabled
           label="Dependencia Actual"
-          value={selectedUser?.dep_code}
+          value={dependencies.find(dep => dep.dep_code === selectedUser?.dep_code)?.name}
         />
         <Select
           label="Dependencia Nueva"
           placeholder="Selecciona una dependencia"
-          data={[
-            { value: "1", label: "Dependencia 1" },
-            { value: "2", label: "Dependencia 2" },
-            { value: "3", label: "Dependencia 3" },
-          ]}
+          data={dependencies.map(dep => ({ value: dep.dep_code, label: dep.name }))}
+          onChange={(value) => setNewDependency(dependencies.find(dep => dep.dep_code === value))}
+          value={newDependency?.dep_code}
           searchable
         />
         <Group mt="md">
-          <Button leftSection={<IconDeviceFloppy/>} onClick={handleSave}>Guardar</Button>
+          <Button leftSection={<IconDeviceFloppy/>} onClick={handleMigration}>Guardar</Button>
           <Button 
             variant="outline" 
             onClick={() => {
-              setMigrateModalOpened(false)
-              setSelectedUser(null)
+              setMigrateModalOpened(false);
+              setSelectedUser(null);
+              setNewDependency(undefined);
             }}
             leftSection={<IconCancel/>}
             color="red"
