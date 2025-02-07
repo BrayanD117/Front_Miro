@@ -118,7 +118,8 @@ const AdminUsersPage = () => {
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/migrate`, {
         email: selectedUser?.email,
-        dep_code: newDependency?.dep_code
+        dep_code: selectedUser?.dep_code,
+        new_dep_code: newDependency?.dep_code
       });
       showNotification({
         title: "Migrado",
