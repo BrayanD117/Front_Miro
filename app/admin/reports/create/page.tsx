@@ -41,7 +41,7 @@ const ReportCreatePage = () => {
       console.error("Error fetching dimensions:", error);
       showNotification({
         title: "Error",
-        message: "Hubo un error al obtener las dimensiones",
+        message: "Hubo un error al obtener los ámbitos",
         color: "red",
       });
     }
@@ -108,7 +108,7 @@ const ReportCreatePage = () => {
 
   return (
     <Container size={'lg'}>
-      <Title ta={'center'}>Creación de Informe para Dimensiones</Title>
+      <Title ta={'center'}>Creación de Informe para Ámbitos</Title>
       <Divider m={'md'}/>
 
       <TextInput
@@ -168,8 +168,8 @@ const ReportCreatePage = () => {
 
       <MultiSelect
         mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Dimensiones que diligenciarán el informe:</Text>}
-        placeholder="Selecciona las dimensiones que podrán usar el informe"
+        label={<Text fw={700} size="sm" component="span">Ámbitos que diligenciarán el informe:</Text>}
+        placeholder="Selecciona las ámbitos que podrán usar el informe"
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
         value={selectedDimensions.map((dim) => dim._id)}
         onChange={(value) => {

@@ -318,7 +318,7 @@ const AdminReportsPage = () => {
   return (
     <Container size="xl">
       <DateConfig />
-      <Title mb={'md'} ta={'center'}>Configuración Informes de Dimensiones</Title>
+      <Title mb={'md'} ta={'center'}>Configuración Informes de Ámbitos</Title>
       <TextInput
         placeholder="Buscar en todos los informes"
         value={search}

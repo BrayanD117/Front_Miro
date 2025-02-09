@@ -91,7 +91,7 @@ const ProducerReportCreatePage = () => {
       console.error("Error fetching dimensions:", error);
       showNotification({
         title: "Error",
-        message: "Hubo un error al obtener las dimensiones",
+        message: "Hubo un error al obtener los ámbitos",
         color: "red",
       });
     }
@@ -268,8 +268,8 @@ const ProducerReportCreatePage = () => {
 
       <MultiSelect
         mb={'xs'}
-        label={<Text fw={700} size="sm" component="span">Dimensiones con acceso al informe</Text>}
-        placeholder="Selecciona las dimensiones que podrán usar el informe"
+        label={<Text fw={700} size="sm" component="span">Ámbitos con acceso al informe</Text>}
+        placeholder="Selecciona los ámbitos que podrán usar el informe"
         data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
         value={selectedDimensions.map((dim) => dim._id)}
         onChange={(value) => {

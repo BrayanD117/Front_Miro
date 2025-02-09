@@ -104,14 +104,14 @@ const AdminDimensionsPage = () => {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${selectedDimension._id}`, dimensionData);
         showNotification({
           title: "Actualizado",
-          message: "Dimensión actualizada exitosamente",
+          message: "Ámbito actualizado exitosamente",
           color: "teal",
         });
       } else {
         await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/create`, dimensionData);
         showNotification({
           title: "Creado",
-          message: "Dimensión creada exitosamente",
+          message: "Ámbito creado exitosamente",
           color: "teal",
         });
       }
@@ -119,18 +119,18 @@ const AdminDimensionsPage = () => {
       handleModalClose();
       fetchDimensions(page, search);
     } catch (error) {
-      console.error("Error creando o actualizando dimensión:", error);
+      console.error("Error creando o actualizando ámbito:", error);
 
       if (axios.isAxiosError(error) && error.response && error.response.status === 400) {
         showNotification({
           title: "Error",
-          message: "El nombre de la dimensión ya existe",
+          message: "El nombre del ámbito ya existe",
           color: "red",
         });
       } else {
         showNotification({
           title: "Error",
-          message: "Hubo un error al crear o actualizar la dimensión",
+          message: "Hubo un error al crear o actualizar el ámbito",
           color: "red",
         });
       }
@@ -143,16 +143,16 @@ const AdminDimensionsPage = () => {
       await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/dimensions/${id}`);
       showNotification({
         title: "Eliminado",
-        message: "Dimensión eliminada exitosamente",
+        message: "Ámbito eliminado exitosamente",
         color: "teal",
       });
       fetchDimensions(page, search);
       setConfirmDeleteModalOpened(false);
     } catch (error) {
-      console.error("Error eliminando dimensión:", error);
+      console.error("Error eliminando ámbito:", error);
       showNotification({
         title: "Error",
-        message: "Hubo un error al eliminar la dimensión",
+        message: "Hubo un error al eliminar el ámbito",
         color: "red",
       });
     }
@@ -201,7 +201,7 @@ const AdminDimensionsPage = () => {
   return (
     <Container size="xl">
       <TextInput
-        placeholder="Buscar en todas las dimensiones"
+        placeholder="Buscar en todas los ámbitos"
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
@@ -214,7 +214,7 @@ const AdminDimensionsPage = () => {
           }}
           leftSection={<IconCirclePlus/>}
         >
-          Crear Nueva Dimensión
+          Crear Nuevo Ámbito
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
@@ -274,7 +274,7 @@ const AdminDimensionsPage = () => {
         }}
         centered
       >
-        <Text>¿Estás seguro de que deseas eliminar esta dimensión? Esta acción no se puede deshacer.</Text>
+        <Text>¿Estás seguro de que deseas eliminar este ámbito? Esta acción no se puede deshacer.</Text>
         <Group mt="md">
           <Button onClick={() => setConfirmDeleteModalOpened(false)} variant="light" color="gray">
             Cancelar
@@ -291,11 +291,11 @@ const AdminDimensionsPage = () => {
           blur: 3,
         }}
         onClose={handleModalClose}
-        title={selectedDimension ? "Editar Dimensión" : "Crear Nueva Dimensión"}
+        title={selectedDimension ? "Editar Ámbito" : "Crear Nuevo Ámbito"}
       >
         <TextInput
           label="Nombre"
-          placeholder="Nombre de la dimensión"
+          placeholder="Nombre del ámbito"
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
         />

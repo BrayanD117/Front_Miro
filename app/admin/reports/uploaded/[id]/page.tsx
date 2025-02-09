@@ -347,7 +347,7 @@ const UploadedReportsPage = () => {
       return (
         <Tooltip
           key={dimension._id}
-          label="Esta dimensión no ha enviado ningún reporte"
+          label="Este ámbito no ha enviado ningún reporte"
           transitionProps={{ transition: "fade-up", duration: 300 }}
         >
           <Accordion.Item key={dimension._id} value={dimension._id}>

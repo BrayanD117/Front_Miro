@@ -52,7 +52,7 @@ const linksByRole: Record<Roles, LinkItem[]> = {
     { link: "/admin/reports", label: "Reportes" },
     { link: "/admin/reports/uploaded", label: "Reportes publicados" },
     { link: "/admin/periods", label: "Periodos" },
-    { link: "/admin/dimensions", label: "Dimensiones" },
+    { link: "/admin/dimensions", label: "Ámbitos" },
     { link: "/admin/dependencies", label: "Dependencias" },
     { link: "/admin/validations", label: "Validaciones" },
     { link: "/admin/users", label: "Usuarios" },
@@ -62,7 +62,7 @@ const linksByRole: Record<Roles, LinkItem[]> = {
     { link: "/responsible/templates", label: "Plantillas" },
     { link: "/templates/published", label: "Plantillas publicadas" },
     { link: "/responsible/reports", label: "Reportes" },
-    { link: "/responsible/dimension", label: "Dimensión" },
+    { link: "/responsible/dimension", label: "Ámbito" },
   ],
   Productor: [
     { link: "/dashboard", label: "Inicio" },

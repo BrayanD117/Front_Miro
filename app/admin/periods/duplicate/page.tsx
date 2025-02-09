@@ -491,9 +491,9 @@ const DuplicatePeriodPage = () => {
                   {tableBuilder(producerReportsTable)}
                 </AccordionPanel>
             </Accordion.Item>
-            <Accordion.Item key="reports" value="Informes de Dimensiones">
+            <Accordion.Item key="reports" value="Informes de Ámbitos">
                 <Accordion.Control disabled={reports.length === 0}>
-                  Informes de Dimensiones
+                  Informes de Ámbitos
                 </Accordion.Control>
                 <AccordionPanel>
                   {tableBuilder(reportsTable)}

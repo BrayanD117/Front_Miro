@@ -122,14 +122,14 @@ const AdminDimensionEditPage = () => {
         });
         showNotification({
           title: "Actualizado",
-          message: "Dimensión actualizada exitosamente",
+          message: "Ámbito actualizado exitosamente",
           color: "teal",
         });
       } catch (error) {
         console.error("Error updating dimension:", error);
         showNotification({
           title: "Error",
-          message: "Hubo un error al actualizar la dimensión",
+          message: "Hubo un error al actualizar el ámbito",
           color: "red",
         });
       }
@@ -189,11 +189,11 @@ const AdminDimensionEditPage = () => {
   return (
     <Container size="xl">
       <Title ta={"center"} order={2} mb="md">
-        Gestionar Dimensión
+        Gestionar Ámbito
       </Title>
       <Box mb="lg">
         <TextInput
-          label="Nombre de la Dimensión"
+          label="Nombre de la Ámbito"
           value={dimensionName}
           onChange={(event) => setDimensionName(event.currentTarget.value)}
           mb="md"

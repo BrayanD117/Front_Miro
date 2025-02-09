@@ -494,7 +494,7 @@ const AdminTemplatesPage = () => {
 
           <Table.Th onClick={() => handleSort("file_description")} style={{ cursor: "pointer" }}>
             <Center inline>
-              Dimensiones
+              Ámbitos
               {sortConfig.key === "file_description" ? (
                 sortConfig.direction === "asc" ? 
                 <IconArrowBigUpFilled size={16} style={{ marginLeft: '5px' }} /> 

@@ -585,7 +585,7 @@ const AdminPubReportsPage = () => {
   return (
     <Container size="xl">
       <Title ta="center" mb={"md"}>
-        Gestión de Informes de Dimensiones
+        Gestión de Informes de Ámbitos
       </Title>
       <TextInput
         placeholder="Buscar en los informes publicados"
@@ -690,7 +690,7 @@ const AdminPubReportsPage = () => {
         <Table striped withTableBorder mt="md">
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Dimensión</Table.Th>
+              <Table.Th>Ámbito</Table.Th>
               <Table.Th>Carga</Table.Th>
               <Table.Th>Enviado por</Table.Th>
               <Table.Th>
@@ -714,7 +714,7 @@ const AdminPubReportsPage = () => {
         }}
         title={<Title size={"md"}>{selectedReport?.report.name}</Title>}
       >
-        <Text fw={700}>Dimensión: {filledReport?.dimension.name}</Text>
+        <Text fw={700}>Ámbito: {filledReport?.dimension.name}</Text>
         {newStatus === "Rechazado" && (
           <Textarea
             mt={"md"}

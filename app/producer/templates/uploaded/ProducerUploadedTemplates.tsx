@@ -442,7 +442,7 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
             </Table.Th>
             <Table.Th onClick={() => handleSort("template.dimension.name")} style={{ cursor: "pointer" }}>
               <Center inline>
-                Dimensión
+                Ámbito
                 {sortConfig.key === "template.dimension.name" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />

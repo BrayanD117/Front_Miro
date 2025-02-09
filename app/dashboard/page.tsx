@@ -186,10 +186,10 @@ const DashboardPage = () => {
                 <IconHexagon3d size={36} style={{ position: "absolute", top: "57%", left: "50%", transform: "translate(-50%, -50%)" }}/>
               </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Configurar Informes Dimensiones</Text>
+                <Text ta={"center"} w={500}>Configurar Informes Ámbitos</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Crea, edita y asigna los informes que generarán las dimensiones.
+                Crea, edita y asigna los informes que generarán las ámbitos.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports')}>
                 Ir a Configuración de Informes
@@ -202,10 +202,10 @@ const DashboardPage = () => {
                 <IconReportSearch size={80}/>
               </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Informes Dimensiones</Text>
+                <Text ta={"center"} w={500}>Gestionar Informes Ámbitos</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Gestiona el proceso de cargue de los informes por parte de las dimensiones.
+                Gestiona el proceso de cargue de los informes por parte de las ámbitos.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
                 Ir a Gestión de Informes
@@ -230,13 +230,13 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconHexagon3d size={80}/></Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Dimensiones</Text>
+                <Text ta={"center"} w={500}>Gestionar Ámbitos</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Administra las dimensiones y sus responsables.
+                Administra los ámbitos y sus responsables.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/dimensions')}>
-                Ir a Gestión de Dimensiones
+                Ir a Gestión de Ámbitos
               </Button>
             </Card>
           </Grid.Col>,
@@ -349,7 +349,7 @@ const DashboardPage = () => {
                <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
              </Group>
              <Text ta={"center"} size="sm" color="dimmed">
-               Revisa los informes que rindieron los productores a tu dimensión.
+               Revisa los informes que rindieron los productores a tu ámbito.
              </Text>
              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
                Ir a Informes de Productores
@@ -363,13 +363,13 @@ const DashboardPage = () => {
                 <IconHexagon3d size={36} style={{ position: "absolute", top: "57%", left: "50%", transform: "translate(-50%, -50%)" }}/>
                 </Center>
               <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Gestionar Informes Dimensión</Text>
+                <Text ta={"center"} w={500}>Gestionar Informes Ámbito</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Gestiona los informes de la dimensión en que eres responsable.
+                Gestiona los informes de la ámbito en que eres responsable.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
-                Ir a Informes de Dimensión
+                Ir a Informes de Ámbito
               </Button>
             </Card>
           </Grid.Col>,

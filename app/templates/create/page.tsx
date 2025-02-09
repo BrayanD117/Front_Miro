@@ -80,7 +80,7 @@ const CreateTemplatePage = () => {
         console.error("Error fetching dimensions:", error);
         showNotification({
           title: "Error",
-          message: "Hubo un error al obtener las dimensiones",
+          message: "Hubo un error al obtener las ámbitos",
           color: "red",
         });
       }
@@ -284,8 +284,8 @@ const CreateTemplatePage = () => {
       {userRole === "Administrador" && (
         <MultiSelect
           mb={'xs'}
-          label="Dimensiones"
-          placeholder="Seleccionar dimensiones"
+          label="Ámbitos"
+          placeholder="Seleccionar ámbitos"
           data={dimensions.map((dim) => ({ value: dim._id, label: dim.name }))}
           onChange={(value) => {
             const dims = dimensions.filter(dim => value.includes(dim._id));
