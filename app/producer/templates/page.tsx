@@ -12,6 +12,7 @@ import {
   Title,
   Group,
   Tooltip,
+  Text,
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -20,6 +21,8 @@ import {
   IconArrowBigUpFilled,
   IconArrowRight,
   IconArrowsTransferDown,
+  IconBulb,
+  IconChecks,
   IconDownload,
   IconEdit,
   IconPencil,
@@ -275,6 +278,27 @@ const ProducerTemplatesPage = () => {
     openUploadModal();
   };
 
+  const handleEmptySubmit = async (pubTemId: string) => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/submitEmpty`, {
+        pubTemId,
+        email: session?.user?.email
+      });
+      showNotification({
+        title: "Enviado",
+        message: "Se ha enviado la información en ceros",
+        color: "teal",
+      });
+      refreshTemplates();
+    } catch (error) {
+      console.error("Error enviando en ceros:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al enviar en ceros",
+        color: "red",
+      });
+    }
+  }
   const handleDisableUpload = (publishedTemplate: PublishedTemplate) => {
     return (
       new Date(dateNow().toDateString()) >
@@ -310,6 +334,23 @@ const ProducerTemplatesPage = () => {
         <Table.Td>
           <Center>
             <Group>
+              <Tooltip
+                label={
+                  uploadDisable
+                    ? "El periodo ya se encuentra cerrado"
+                    : "Realizar envío en ceros"
+                }
+                transitionProps={{ transition: "fade-up", duration: 300 }}
+              >
+                <Button
+                  variant="outline"
+                  color="green"
+                  onClick={() => handleEmptySubmit(publishedTemplate._id)}
+                  disabled={uploadDisable}
+                >
+                  <IconChecks size={16} />
+                </Button>
+              </Tooltip>
               <Tooltip
                 label={
                   uploadDisable
@@ -361,6 +402,12 @@ const ProducerTemplatesPage = () => {
       <Title ta="center" mb={"md"}>
         Plantillas Pendientes
       </Title>
+      <Text c="dimmed" size="sm" ta={"center"} my="md" >
+          <IconBulb color="#797979" size={20}/>
+          <br/>
+          Recuerda que no debe quedar ninguna plantilla pendiente, si no tienes nada por enviar<br/>
+          realiza el "envío en ceros" pulsando el botón con el símbolo de revisado
+      </Text>
       <TextInput
         placeholder="Buscar plantillas  "
         value={search}
