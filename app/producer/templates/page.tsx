@@ -344,7 +344,7 @@ const ProducerTemplatesPage = () => {
               >
                 <Button
                   variant="outline"
-                  color="green"
+                  color="orange"
                   onClick={() => handleEmptySubmit(publishedTemplate._id)}
                   disabled={uploadDisable}
                 >
