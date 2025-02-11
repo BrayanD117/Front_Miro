@@ -344,11 +344,11 @@ const ProducerTemplatesPage = () => {
               >
                 <Button
                   variant="outline"
-                  color="orange"
+                  color="green"
                   onClick={() => handleEmptySubmit(publishedTemplate._id)}
                   disabled={uploadDisable}
                 >
-                  <IconChecks size={16} />
+                  Reporte en cero
                 </Button>
               </Tooltip>
               <Tooltip
@@ -402,12 +402,6 @@ const ProducerTemplatesPage = () => {
       <Title ta="center" mb={"md"}>
         Plantillas Pendientes
       </Title>
-      <Text c="dimmed" size="sm" ta={"center"} my="md" >
-          <IconBulb color="#797979" size={20}/>
-          <br/>
-          Recuerda que no debe quedar ninguna plantilla pendiente, si no tienes nada por enviar<br/>
-          realiza el "envío en ceros" pulsando el botón con el símbolo de revisado
-      </Text>
       <TextInput
         placeholder="Buscar plantillas  "
         value={search}
