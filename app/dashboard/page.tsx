@@ -335,7 +335,7 @@ const DashboardPage = () => {
                   <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Administra las plantillas cargadas por los productores.
+                Haz seguimiento y descarga las plantillas de tus productores.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/templates/published')}>
                 Ir a Plantillas Cargadas
@@ -349,7 +349,7 @@ const DashboardPage = () => {
                <Text ta={"center"} w={500}>Gestionar Informes Productores</Text>
              </Group>
              <Text ta={"center"} size="sm" color="dimmed">
-               Revisa los informes que rindieron los productores a tu ámbito.
+              Haz seguimiento y descarga los informes de tus productores 
              </Text>
              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/reports')}>
                Ir a Informes de Productores
@@ -366,7 +366,7 @@ const DashboardPage = () => {
                 <Text ta={"center"} w={500}>Gestionar Informes Ámbito</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Gestiona los informes de la ámbito en que eres responsable.
+              Revisa los informes que debes entregar, cárgalos y haz los ajustes de acuerdo a las observaciones
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/responsible/reports')}>
                 Ir a Informes de Ámbito
@@ -398,7 +398,7 @@ const DashboardPage = () => {
                 <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
-                Gestiona las plantillas que te asignaron y tienes disponibles.
+                Consulta las plantillas que debes llenar, carga y edita los datos solicitados.
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/templates')}>
                 Ir a Gestionar Plantillas
@@ -426,7 +426,7 @@ const DashboardPage = () => {
               <Text ta={"center"} w={500}>Gestionar Informes</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
-              Revisa los informes asignados a la dependencia donde te encuentras
+              Revisa los informes que debes entregar, carga los informes y haz los ajustes de acuerdo a las observaciones
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/producer/reports')}>
               Ir a Informes de Productores
@@ -440,7 +440,7 @@ const DashboardPage = () => {
               <Text ta={"center"} w={500}>Validaciones</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
-              Conoce todas las validaciones que se han asignado a tus plantillas.
+            Conoce las validaciones que deben cumplir los datos de tus plantillas
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/validations')}>
               Ir a Validaciones
@@ -468,7 +468,7 @@ const DashboardPage = () => {
               <Text ta={"center"} w={500}>Administrar Mi Dependencia</Text>
             </Group>
             <Text ta={"center"} size="sm" color="dimmed">
-              Administra la dependencia de la cual eres responsable.
+              Selecciona qué miembros de tu equipo tendrán acceso a Miró
             </Text>
             <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency')}>
               Ir a Gestión de Dependencia
