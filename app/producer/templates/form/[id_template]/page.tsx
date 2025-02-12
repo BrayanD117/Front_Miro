@@ -62,6 +62,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const [validatorModalOpen, setValidatorModalOpen] = useState(false);
   const [validatorData, setValidatorData] = useState<ValidatorData | null>(null);
   const [validatorExists, setValidatorExists] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   const fetchTemplate = async () => {
@@ -167,6 +168,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     }
 
     try {
+      setLoading(true);
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
         email: session?.user?.email,
         pubTem_id: id_template,
@@ -201,6 +203,8 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
           color: "red",
         });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -357,6 +361,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
           variant="outline"
           onClick={() => router.push('/producer/templates')}
           leftSection={<IconCancel/>}
+          loading={loading}
         >
           Cancelar
         </Button>
@@ -371,6 +376,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
           <Button
             onClick={handleSubmit}
             rightSection={<IconSend2/>}
+            loading={loading}
           >
             Enviar
           </Button>
