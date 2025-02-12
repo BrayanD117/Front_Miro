@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications"
-import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
+import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -130,6 +130,33 @@ const PublishedTemplatesPage = () => {
       fetchTemplates(page, search);
     }
   }, [page, search, session, selectedPeriodId]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/delete`,
+        {
+          params: { id, email: session?.user?.email },
+        }
+      );
+
+      if (response.data) {
+        showNotification({
+          title: "Éxito",
+          message: "Plantilla eliminada exitosamente",
+          color: "green",
+        });
+        fetchTemplates(page, search);
+      }
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      showNotification({
+        title: "Error",
+        message: "Hubo un error al eliminar la plantilla",
+        color: "red",
+      });
+    }
+  }
 
   const handleDownload = async (
     publishedTemplate: PublishedTemplate,
@@ -324,6 +351,25 @@ const PublishedTemplatesPage = () => {
                   <IconDownload size={18} />
                 </Button>
               </Tooltip>
+              { userRole === "Administrador" &&
+                <Tooltip
+                  label={ publishedTemplate.loaded_data?.length > 0 ?
+                    "No puedes eliminar una plantilla con información enviada"
+                    : "Eliminar plantilla publicada"
+                  }
+                  transitionProps={{ transition: "slide-up", duration: 300 }}
+                  withArrow
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDelete(publishedTemplate._id)}
+                    color="red"
+                    disabled={publishedTemplate.loaded_data?.length > 0}
+                  >
+                    <IconTrash size={18} />
+                  </Button>
+                </Tooltip>
+              }
             </Group>
           </Center>
         </Table.Td>
