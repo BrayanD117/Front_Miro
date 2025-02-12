@@ -179,6 +179,23 @@ const PublishedTemplatesPage = () => {
       console.log("Template: ", template);
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet(template.name);
+      const helpWorksheet = workbook.addWorksheet("Guía");
+
+      helpWorksheet.columns = [{ width: 30 }, { width: 150 }];
+      const helpHeaderRow = helpWorksheet.addRow(["Campo", "Comentario del campo"]);
+      helpHeaderRow.eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFFF00" },
+        };
+      });
+      template.fields.forEach((field) => {
+        const commentText = field.comment ? field.comment.replace(/\r\n/g, '\n').replace(/\r/g, '\n') : "";
+        const helpRow = helpWorksheet.addRow([field.name, commentText]);
+        helpRow.getCell(2).alignment = { wrapText: true };
+      });
 
       const headerRow = worksheet.addRow(Object.keys(data[0]));
       headerRow.eachCell((cell) => {
