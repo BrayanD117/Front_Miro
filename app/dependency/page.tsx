@@ -133,7 +133,7 @@ const DependencyPage = () => {
       />
       <TextInput label="Nombre" value={dependency.name} readOnly mb="md" />
       <Select
-        label="Responsable"
+        label="Líder de Dependencia"
         value={dependency.responsible}
         onChange={(value) =>
           setDependency({ ...dependency, responsible: value ?? "" })
@@ -146,7 +146,7 @@ const DependencyPage = () => {
         readOnly        
       />
       <Switch
-        label="Activar todos los productores"
+        label="Activar todos los colaboradores"
         checked={selectAllProducers}
         onChange={toggleAllProducers}
         mb="md"
@@ -157,7 +157,7 @@ const DependencyPage = () => {
           <Table.Tr>
             <Table.Th>Miembro</Table.Th>
             <Table.Th>Email</Table.Th>
-            <Table.Th>Productor</Table.Th>
+            <Table.Th>Acceso</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

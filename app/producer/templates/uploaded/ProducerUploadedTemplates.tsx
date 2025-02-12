@@ -166,6 +166,23 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
     const { template, validators } = publishedTemplate;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(template.name);
+    const helpWorksheet = workbook.addWorksheet("Guía");
+
+    helpWorksheet.columns = [{ width: 30 }, { width: 150 }];
+    const helpHeaderRow = helpWorksheet.addRow(["Campo", "Comentario del campo"]);
+    helpHeaderRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFF00" },
+      };
+    });
+    template.fields.forEach((field) => {
+      const commentText = field.comment ? field.comment.replace(/\r\n/g, '\n').replace(/\r/g, '\n') : "";
+      const helpRow = helpWorksheet.addRow([field.name, commentText]);
+      helpRow.getCell(2).alignment = { wrapText: true };
+    });
 
     const headerRow = worksheet.addRow(
       template.fields.map((field) => field.name)
@@ -206,7 +223,7 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
     );
 
     if (filledData) {
-      const numRows = filledData.filled_data[0].values.length;
+      const numRows = filledData.filled_data[0]?.values?.length;
       for (let i = 0; i < numRows; i++) {
         const rowValues = template.fields.map((field) => {
           const fieldData = filledData.filled_data.find(
@@ -216,7 +233,103 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
         });
         worksheet.addRow(rowValues);
       }
-    }
+    } 
+
+    template.fields.forEach((field, index) => {
+      const colNumber = index + 1;
+      const maxRows = 1000;
+      for (let i = 2; i <= maxRows; i++) {
+        const row = worksheet.getRow(i);
+        const cell = row.getCell(colNumber);
+    
+        switch (field.datatype) {
+          case 'Entero':
+            cell.dataValidation = {
+              type: 'whole',
+              operator: 'between',
+              formulae: [1, 9999999999999999999999999999999],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un número entero.'
+            };
+            break;
+          case 'Decimal':
+            cell.dataValidation = {
+              type: 'decimal',
+              operator: 'between',
+              formulae: [0.0, 9999999999999999999999999999999],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un número decimal.'
+            };
+            break;
+          case 'Porcentaje':
+            cell.dataValidation = {
+              type: 'decimal',
+              operator: 'between',
+              formulae: [0.0, 100.0],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un número decimal entre 0.0 y 100.0.'
+            };
+            break;
+          case 'Texto Corto':
+            cell.dataValidation = {
+              type: 'textLength',
+              operator: 'lessThanOrEqual',
+              formulae: [60],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un texto de hasta 60 caracteres.'
+            };
+            break;
+          case 'Texto Largo':
+            cell.dataValidation = {
+              type: 'textLength',
+              operator: 'lessThanOrEqual',
+              formulae: [500],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un texto de hasta 500 caracteres.'
+            };
+            break;
+          case 'True/False':
+            cell.dataValidation = {
+              type: 'list',
+              allowBlank: true,
+              formulae: ['"Si,No"'],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, selecciona Si o No.'
+            };
+            break;
+          case 'Fecha':
+          case 'Fecha Inicial / Fecha Final':
+            cell.dataValidation = {
+              type: 'date',
+              operator: 'between',
+              formulae: [new Date(1900, 0, 1), new Date(9999, 11, 31)],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce una fecha válida en el formato DD/MM/AAAA.'
+            };
+            cell.numFmt = 'DD/MM/YYYY';
+            break;
+          case 'Link':
+            cell.dataValidation = {
+              type: 'textLength',
+              operator: 'greaterThan',
+              formulae: [0],
+              showErrorMessage: true,
+              errorTitle: 'Valor no válido',
+              error: 'Por favor, introduce un enlace válido.'
+            };
+            break;
+          default:
+            break;
+        }
+      }
+    });
 
     // Crear una hoja por cada validador en el array
     validators.forEach((validator) => {

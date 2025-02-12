@@ -72,6 +72,7 @@ const ProducerTemplateUpdatePage = ({
   const [validatorExists, setValidatorExists] = useState<
     Record<string, boolean>
   >({});
+  const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -217,6 +218,7 @@ const ProducerTemplateUpdatePage = ({
     }
 
     try {
+      setLoading(true);
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`,
         {
@@ -254,6 +256,8 @@ const ProducerTemplateUpdatePage = ({
           color: "red",
         });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -421,6 +425,7 @@ const ProducerTemplateUpdatePage = ({
           variant="outline"
           onClick={() => router.push('/producer/templates')}
           leftSection={<IconCancel/>}
+          loading={loading}
         >
           Cancelar
         </Button>
@@ -435,6 +440,7 @@ const ProducerTemplateUpdatePage = ({
           <Button 
             onClick={handleSubmit}
             rightSection={<IconRefresh/>}
+            loading={loading}
           >
             Actualizar
           </Button>
