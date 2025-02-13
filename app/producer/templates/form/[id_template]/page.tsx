@@ -222,7 +222,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
             const isNumericField = multiSelectOptions[fieldName]?.every(v => !isNaN(Number(v)));
             
             formattedRow[fieldName] = isNumericField
-              ? row[fieldName].map(v => Number(v))
+              ? row[fieldName].map((v: any) => Number(v))
               : row[fieldName];
           } else {
             formattedRow[fieldName] = row[fieldName];
