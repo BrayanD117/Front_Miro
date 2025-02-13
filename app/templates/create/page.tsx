@@ -16,9 +16,10 @@ interface Field {
   required: boolean;
   validate_with?: string;
   comment?: string;
+  multiple?: boolean;
 }
 
-type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment";
+type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment" | "multiple";
 
 const allowedDataTypes = [
   "Entero",
@@ -315,6 +316,7 @@ const CreateTemplatePage = () => {
                   <Table.Th>Tipo de Campo</Table.Th>
                   <Table.Th>¿Obligatorio?</Table.Th>
                   <Table.Th>Validar con Base de Datos</Table.Th>
+                  <Table.Th>Respuesta multiple</Table.Th>
                   <Table.Th>Comentario del Campo / Pista</Table.Th>
                   <Table.Th>Acciones</Table.Th>
                 </Table.Tr>
@@ -360,17 +362,19 @@ const CreateTemplatePage = () => {
                           />
                         </Table.Td>
                         <Table.Td>
-                          <Checkbox
-                            label=""
-                            checked={field.required}
-                            onChange={(event) =>
-                              handleFieldChange(
-                                index,
-                                "required",
-                                event.currentTarget.checked
-                              )
-                            }
-                          />
+                          <Center>
+                            <Checkbox
+                              label=""
+                              checked={field.required}
+                              onChange={(event) =>
+                                handleFieldChange(
+                                  index,
+                                  "required",
+                                  event.currentTarget.checked
+                                )
+                              }
+                            />
+                          </Center>
                         </Table.Td>
                         <Table.Td>
                           <Select
@@ -388,6 +392,17 @@ const CreateTemplatePage = () => {
                             clearable
                             nothingFoundMessage="La validación no existe"
                           />
+                        </Table.Td>
+                        <Table.Td>
+                          <Center>
+                            <Checkbox
+                              checked={field.multiple || false}
+                              onChange={(event) =>
+                                handleFieldChange(index, "multiple", event.currentTarget.checked)
+                              }
+                              disabled={!field.validate_with}
+                            />
+                          </Center>
                         </Table.Td>
                         <Table.Td>
                          <Textarea
