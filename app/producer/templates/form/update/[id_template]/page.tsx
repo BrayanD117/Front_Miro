@@ -91,7 +91,6 @@ const ProducerTemplateUpdatePage = ({
       );
       setPublishedTemplateName(templateResponse.data.name);
       setTemplate(templateResponse.data.template);
-
       const dataResponse = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/uploaded/${id_template}`,
         {
@@ -132,10 +131,10 @@ const ProducerTemplateUpdatePage = ({
         try {
           const validatorResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${field.validate_with?.id}`);
           const validatorColumns = validatorResponse.data.validator.columns || [];
-          const columnToValidate = field.validate_with?.name.split(" - ")[1]?.trim().toLowerCase();
+          const columnToValidate = field.validate_with?.name.split(" - ")[1]?.toLowerCase();
           const validatorColumn = validatorColumns.find(
             (col: { is_validator: boolean; name: string }) =>
-              col.is_validator && col.name.trim().toLowerCase() === columnToValidate
+              col.is_validator && col.name.toLowerCase() === columnToValidate
           );
           if (validatorColumn) {
             console.log("Columna encontrada para validación:", validatorColumn.name);
@@ -167,15 +166,15 @@ const ProducerTemplateUpdatePage = ({
   const transformData = (data: any[]): Record<string, any>[] => {
     const rowCount = data[0]?.values?.length || 0;
     const transformedRows: Record<string, any>[] = Array.from({ length: rowCount }, () => ({}));
-  
+    
     data.forEach((fieldData) => {
       const isMultiple = template?.fields.find(f => f.name === fieldData.field_name)?.multiple;
-  
+
       fieldData.values.forEach((value: any, index: number) => {
         if (isMultiple) {
           transformedRows[index][fieldData.field_name] = Array.isArray(value) 
-            ? value.map(v => v.toString())
-            : value?.toString().split(",").map((v: string) => v.trim());
+          ? value.map(v => v.toString())
+          : value?.toString().split(",");
         } else {
           transformedRows[index][fieldData.field_name] = value;
         }
@@ -322,7 +321,7 @@ const ProducerTemplateUpdatePage = ({
     if (field.multiple && field.validate_with) {
       return (
         <MultiSelect
-          value={Array.isArray(row[field.name]) ? row[field.name] : []}
+          value={Array.isArray(row[field.name]) ? row[field.name].map(String) : []}
           onChange={(value) => handleInputChange(rowIndex, field.name, value)}
           data={multiSelectOptions[field.name] || []}
           searchable
