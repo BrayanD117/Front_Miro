@@ -20,7 +20,6 @@ interface Field {
 }
 
 type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment" | "multiple";
-type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment" | "multiple";
 
 const allowedDataTypes = [
   "Entero",
