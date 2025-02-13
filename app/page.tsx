@@ -19,6 +19,8 @@ import { useEffect, useState } from "react";
 import ThemeChanger from "./components/ThemeChanger/ThemeChanger";
 import styles from "./page.module.css";
 import axios from "axios";
+import Linkify from "linkify-react";
+import "linkify-plugin-url";
 
 interface AccordionSection {
   _id: string;
@@ -135,9 +137,12 @@ const HomePage = () => {
           {sections.map((section, index) => (
           <Accordion.Item key={section._id} value={`section-${index}`}>
             <Accordion.Control>{section.title}</Accordion.Control>
-            <Accordion.Panel style={{ whiteSpace: "pre-wrap" }}>
-              {section.description}
-            </Accordion.Panel>
+              <Accordion.Panel style={{ whiteSpace: "pre-wrap" }}>
+                <Linkify options={{ target: "_blank", rel: "noopener noreferrer" }}>
+                  {section.description}
+                </Linkify>
+              </Accordion.Panel>;
+
           </Accordion.Item>
         ))}
       </Accordion>
