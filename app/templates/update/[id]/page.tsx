@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center, MultiSelect, Textarea } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center, MultiSelect, Textarea, rem, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
@@ -14,11 +14,12 @@ interface Field {
   name: string;
   datatype: string;
   required: boolean;
+  multiple: boolean;
   validate_with?: string;
   comment?: string;
 }
 
-type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment";
+type FieldKey = "name" | "datatype" | "required" | "validate_with" | "multiple" | "comment";
 
 const allowedDataTypes = [
   "Entero",
@@ -53,7 +54,7 @@ const UpdateTemplatePage = () => {
   const [name, setName] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileDescription, setFileDescription] = useState("");
-  const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
+  const [fields, setFields] = useState<Field[]>([{ name: "", datatype: "", required: true, validate_with: "", comment: "", multiple: false }]);
   const [active, setActive] = useState(true);
   const [dimension, setDimension] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<Dimension[]>([]);
@@ -166,7 +167,7 @@ const UpdateTemplatePage = () => {
   };
 
   const addField = () => {
-    setFields([...fields, { name: "", datatype: "", required: true, validate_with: "", comment: "" }]);
+    setFields([...fields, { name: "", datatype: "", required: true, validate_with: "", comment: "", multiple: false }]);
   };
 
   const removeField = (index: number) => {
@@ -317,6 +318,7 @@ const UpdateTemplatePage = () => {
                   <Table.Th>Tipo de Campo</Table.Th>
                   <Table.Th>¿Obligatorio?</Table.Th>
                   <Table.Th>Validar con Base de Datos</Table.Th>
+                  <Table.Th w={rem(70)}>Múltiple Respuesta</Table.Th>
                   <Table.Th>Comentario del Campo / Pista</Table.Th>
                   <Table.Th>Acciones</Table.Th>
                 </Table.Tr>
@@ -341,7 +343,7 @@ const UpdateTemplatePage = () => {
                             onChange={(event) => handleFieldChange(index, "name", event.currentTarget.value)}
                           />
                         </Table.Td>
-                        <Table.Td>
+                        <Table.Td w={rem(160)}>
                           <Select
                             placeholder="Seleccionar"
                             data={allowedDataTypes}
@@ -351,11 +353,13 @@ const UpdateTemplatePage = () => {
                           />
                         </Table.Td>
                         <Table.Td>
-                          <Checkbox
-                            label=""
-                            checked={field.required}
-                            onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
-                          />
+                          <Center>
+                            <Checkbox
+                              label=""
+                              checked={field.required}
+                              onChange={(event) => handleFieldChange(index, "required", event.currentTarget.checked)}
+                            />
+                          </Center>
                         </Table.Td>
                         <Table.Td>
                           <Select
@@ -368,6 +372,24 @@ const UpdateTemplatePage = () => {
                             clearable
                             nothingFoundMessage="La validación no existe"
                           />
+                        </Table.Td>
+                        <Table.Td>
+                            <Center>
+                              <Tooltip
+                                label="Esta opción solo se puede activar si se selecciona una validación"
+                                position="top"
+                                withArrow
+                                transitionProps={{ transition: "slide-up", duration: 300 }}
+                                disabled={field.validate_with !== ""}
+                              >
+                                <Checkbox
+                                  label=""
+                                  checked={field.multiple}
+                                  onChange={(event) => handleFieldChange(index, "multiple", event.currentTarget.checked)}
+                                  disabled={!field.validate_with}
+                                />
+                              </Tooltip>
+                            </Center>
                         </Table.Td>
                         <Table.Td>
                           <Textarea

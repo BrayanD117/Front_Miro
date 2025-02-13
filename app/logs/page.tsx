@@ -47,7 +47,7 @@ const ErrorLogsPage = () => {
               columnError.errors.map((detail, subIndex) => (
                 <Table.Tr key={`${index}-${subIndex}`}>
                   <Table.Td>{columnError.column}</Table.Td>
-                  <Table.Td>{detail.register + 1}</Table.Td>
+                  <Table.Td>{detail.register}</Table.Td>
                   <Table.Td>{detail.message}</Table.Td>
                   <Table.Td>{detail.value}</Table.Td>
                 </Table.Tr>
