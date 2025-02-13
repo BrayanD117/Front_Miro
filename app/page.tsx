@@ -135,7 +135,9 @@ const HomePage = () => {
           {sections.map((section, index) => (
           <Accordion.Item key={section._id} value={`section-${index}`}>
             <Accordion.Control>{section.title}</Accordion.Control>
-            <Accordion.Panel>{section.description}</Accordion.Panel>
+            <Accordion.Panel style={{ whiteSpace: "pre-wrap" }}>
+              {section.description}
+            </Accordion.Panel>
           </Accordion.Item>
         ))}
       </Accordion>
