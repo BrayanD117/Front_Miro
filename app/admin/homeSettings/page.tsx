@@ -212,7 +212,7 @@ const AdminHomeSections = () => {
                         >
                           <Box {...provided.dragHandleProps} style={{ cursor: 'grab' }}>
                             <Title order={4}>{section.title}</Title>
-                            <p>{section.description}</p>
+                            <p style={{ whiteSpace: "pre-wrap" }}>{section.description}</p>
                           </Box>
                           <Group justify="right" mt="xs" gap="xs">
                             <Button
