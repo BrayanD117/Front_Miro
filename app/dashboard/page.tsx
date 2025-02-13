@@ -332,7 +332,7 @@ const DashboardPage = () => {
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconChecklist size={80}></IconChecklist></Center>
               <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Gestionar Plantillas</Text>
+                  <Text ta={"center"} w={500}>Gestionar Plantillas Productores</Text>
               </Group>
               <Text ta={"center"} size="sm" color="dimmed">
                 Haz seguimiento y descarga las plantillas de tus productores.
