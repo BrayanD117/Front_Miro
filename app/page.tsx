@@ -20,7 +20,6 @@ import ThemeChanger from "./components/ThemeChanger/ThemeChanger";
 import styles from "./page.module.css";
 import axios from "axios";
 import Linkify from "linkify-react";
-import "linkify-plugin-url";
 
 interface AccordionSection {
   _id: string;
@@ -141,8 +140,7 @@ const HomePage = () => {
                 <Linkify options={{ target: "_blank", rel: "noopener noreferrer" }}>
                   {section.description}
                 </Linkify>
-              </Accordion.Panel>;
-
+              </Accordion.Panel>
           </Accordion.Item>
         ))}
       </Accordion>
