@@ -18,6 +18,7 @@ import {
   Switch,
   Tooltip,
   rem,
+  MultiSelect,
 } from "@mantine/core";
 import { IconPlus, IconTrash, IconEye, IconCancel, IconSend2 } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
@@ -32,6 +33,7 @@ interface Field {
   required: boolean;
   validate_with?: { id: string, name: string };
   comment?: string;
+  multiple?: boolean;
 }
 
 interface Template {
@@ -64,6 +66,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const [validatorExists, setValidatorExists] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const [multiSelectOptions, setMultiSelectOptions] = useState<Record<string, string[]>>({});
 
   const fetchTemplate = async () => {
     try {
@@ -89,6 +92,36 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       const validatorCheckResults = validatorChecks.reduce((acc, curr) => ({ ...acc, ...curr }), {});
       setValidatorExists(validatorCheckResults);
 
+      const multiSelectOptionsPromises = response.data.template.fields
+      .filter(field => field.multiple && field.validate_with)
+      .map(async (field) => {
+        try {
+          const validatorResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${field.validate_with?.id}`);
+          const validatorColumns = validatorResponse.data.validator.columns || [];
+          const columnToValidate = field.validate_with?.name.split(" - ")[1]?.trim().toLowerCase();
+          const validatorColumn = validatorColumns.find(
+            (col: { is_validator: boolean; name: string }) =>
+              col.is_validator && col.name.trim().toLowerCase() === columnToValidate
+          );
+          if (validatorColumn) {
+            console.log("Columna encontrada para validación:", validatorColumn.name);
+          } else {
+            console.log("No se encontró una columna coincidente para:", columnToValidate);
+          }
+          return {
+            [field.name]: validatorColumn ? validatorColumn.values.map((v: any) => v.toString()) : []
+          };
+        } catch (error) {
+          console.error(`Error obteniendo opciones para ${field.name}:`, error);
+          return { [field.name]: [] };
+        }
+      });
+
+    const multiSelectOptionsArray = await Promise.all(multiSelectOptionsPromises);
+    const multiSelectOptions = multiSelectOptionsArray.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    setMultiSelectOptions(multiSelectOptions);
+
+
     } catch (error) {
       console.error("Error fetching template:", error);
       showNotification({
@@ -107,7 +140,17 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
 
   const handleInputChange = (rowIndex: number, fieldName: string, value: any) => {
     const updatedRows = [...rows];
-    updatedRows[rowIndex][fieldName] = value === "" ? null : value;
+
+    if (Array.isArray(value)) {
+      const isNumericField = multiSelectOptions[fieldName]?.every(v => !isNaN(Number(v)));
+  
+      updatedRows[rowIndex][fieldName] = value.length > 0 
+        ? isNumericField ? value.map(v => Number(v)) : value
+        : null;
+    } else {
+      updatedRows[rowIndex][fieldName] = value === "" ? null : value;
+    }
+  
     setRows(updatedRows);
 
     const updatedErrors = { ...errors };
@@ -169,10 +212,31 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
 
     try {
       setLoading(true);
+      const formattedRows = rows.map(row => {
+        const formattedRow: Record<string, any> = {};
+  
+        Object.keys(row).forEach(fieldName => {
+          const field = template?.fields.find(f => f.name === fieldName);
+  
+          if (field?.multiple && Array.isArray(row[fieldName])) {
+            const isNumericField = multiSelectOptions[fieldName]?.every(v => !isNaN(Number(v)));
+            
+            formattedRow[fieldName] = isNumericField
+              ? row[fieldName].map(v => Number(v))
+              : row[fieldName];
+          } else {
+            formattedRow[fieldName] = row[fieldName];
+          }
+        });
+  
+        return formattedRow;
+      });  
+      console.log("Datos enviados al backend:", formattedRows);
+
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
         email: session?.user?.email,
         pubTem_id: id_template,
-        data: rows,
+        data: formattedRows,
         edit: false,
       });
       showNotification({
@@ -218,6 +282,20 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       style: { width: "100%" },
       error: Boolean(fieldError),
     };
+
+    if (field.multiple && field.validate_with) {
+      return (
+        <MultiSelect
+          value={(row[field.name]?.toString().split(",") || [])}
+          onChange={(value) => handleInputChange(rowIndex, field.name, value)}
+          data={multiSelectOptions[field.name] || []}
+          searchable
+          placeholder={field.comment || "Seleccione opciones"}
+          style={{ width: "100%" }}
+          error={fieldError ? fieldError : undefined}
+        />
+      );
+    }
 
     switch (field.datatype) {
       case "Entero":

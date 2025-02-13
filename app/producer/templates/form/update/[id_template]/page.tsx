@@ -18,6 +18,7 @@ import {
   Switch,
   Tooltip,
   rem,
+  MultiSelect,
 } from "@mantine/core";
 import { IconTrash, IconEye, IconPlus, IconCancel, IconRefresh } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
@@ -33,6 +34,7 @@ interface Field {
   required: boolean;
   validate_with?: { id: string; name: string };
   comment?: string;
+  multiple?: boolean;
 }
 
 interface Template {
@@ -74,6 +76,7 @@ const ProducerTemplateUpdatePage = ({
   >({});
   const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const [multiSelectOptions, setMultiSelectOptions] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     if (id_template) {
@@ -88,7 +91,6 @@ const ProducerTemplateUpdatePage = ({
       );
       setPublishedTemplateName(templateResponse.data.name);
       setTemplate(templateResponse.data.template);
-
       const dataResponse = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/uploaded/${id_template}`,
         {
@@ -122,6 +124,35 @@ const ProducerTemplateUpdatePage = ({
         {}
       );
       setValidatorExists(validatorCheckResults);
+
+      const multiSelectOptionsPromises = templateResponse.data.template.fields
+      .filter(field => field.multiple && field.validate_with)
+      .map(async (field) => {
+        try {
+          const validatorResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${field.validate_with?.id}`);
+          const validatorColumns = validatorResponse.data.validator.columns || [];
+          const columnToValidate = field.validate_with?.name.split(" - ")[1]?.toLowerCase();
+          const validatorColumn = validatorColumns.find(
+            (col: { is_validator: boolean; name: string }) =>
+              col.is_validator && col.name.toLowerCase() === columnToValidate
+          );
+          if (validatorColumn) {
+            console.log("Columna encontrada para validación:", validatorColumn.name);
+          } else {
+            console.log("No se encontró una columna coincidente para:", columnToValidate);
+          }
+          return {
+            [field.name]: validatorColumn ? validatorColumn.values.map((v: any) => v.toString()) : []
+          };
+        } catch (error) {
+          console.error(`Error obteniendo opciones para ${field.name}:`, error);
+          return { [field.name]: [] };
+        }
+      });
+
+    const multiSelectOptionsArray = await Promise.all(multiSelectOptionsPromises);
+    const multiSelectOptions = multiSelectOptionsArray.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    setMultiSelectOptions(multiSelectOptions);
     } catch (error) {
       console.error("Error fetching template or data:", error);
       showNotification({
@@ -135,13 +166,21 @@ const ProducerTemplateUpdatePage = ({
   const transformData = (data: any[]): Record<string, any>[] => {
     const rowCount = data[0]?.values?.length || 0;
     const transformedRows: Record<string, any>[] = Array.from({ length: rowCount }, () => ({}));
-
+    
     data.forEach((fieldData) => {
+      const isMultiple = template?.fields.find(f => f.name === fieldData.field_name)?.multiple;
+
       fieldData.values.forEach((value: any, index: number) => {
-        transformedRows[index][fieldData.field_name] = value;
+        if (isMultiple) {
+          transformedRows[index][fieldData.field_name] = Array.isArray(value) 
+          ? value.map(v => v.toString())
+          : value?.toString().split(",");
+        } else {
+          transformedRows[index][fieldData.field_name] = value;
+        }
       });
     });
-
+  
     return transformedRows;
   };
 
@@ -163,15 +202,17 @@ const ProducerTemplateUpdatePage = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (
-    rowIndex: number,
-    fieldName: string,
-    value: any
-  ) => {
+  const handleInputChange = (rowIndex: number, fieldName: string, value: any) => {
     const updatedRows = [...rows];
-    updatedRows[rowIndex][fieldName] = value === "" ? null : value;
+  
+    if (Array.isArray(value)) {
+      updatedRows[rowIndex][fieldName] = value.map(v => v.toString()); 
+    } else {
+      updatedRows[rowIndex][fieldName] = value === "" ? null : value;
+    }
+  
     setRows(updatedRows);
-
+  
     const updatedErrors = { ...errors };
     if (updatedErrors[fieldName]) {
       delete updatedErrors[fieldName];
@@ -276,6 +317,20 @@ const ProducerTemplateUpdatePage = ({
       style: { width: "100%" },
       error: Boolean(fieldError),
     };
+
+    if (field.multiple && field.validate_with) {
+      return (
+        <MultiSelect
+          value={Array.isArray(row[field.name]) ? row[field.name].map(String) : []}
+          onChange={(value) => handleInputChange(rowIndex, field.name, value)}
+          data={multiSelectOptions[field.name] || []}
+          searchable
+          placeholder={field.comment || "Seleccione opciones"}
+          style={{ width: "100%" }}
+          error={fieldError ? fieldError : undefined}
+        />
+      );
+    }
 
     switch (field.datatype) {
       case "Entero":

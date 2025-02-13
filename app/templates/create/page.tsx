@@ -20,6 +20,7 @@ interface Field {
 }
 
 type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment" | "multiple";
+type FieldKey = "name" | "datatype" | "required" | "validate_with" | "comment" | "multiple";
 
 const allowedDataTypes = [
   "Entero",
@@ -363,6 +364,19 @@ const CreateTemplatePage = () => {
                           />
                         </Table.Td>
                         <Table.Td>
+                          <Center>
+                            <Checkbox
+                              label=""
+                              checked={field.required}
+                              onChange={(event) =>
+                                handleFieldChange(
+                                  index,
+                                  "required",
+                                  event.currentTarget.checked
+                                )
+                              }
+                            />
+                          </Center>
                           <Center>
                             <Checkbox
                               label=""
