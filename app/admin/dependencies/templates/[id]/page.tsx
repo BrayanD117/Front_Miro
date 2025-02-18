@@ -4,8 +4,6 @@ import { Center, Container, Pagination, Table } from "@mantine/core";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import styles from "./AdminDependenciesPage.module.css";
-
 
 interface Templates {
   _id: string;
@@ -21,6 +19,9 @@ const DependencyTemplatesPage = () => {
   const [dependencyName, setDependencyName] = useState<string>("");
 
   useEffect(() => {
+
+    if (!id) return;
+
     if (id) {
       const fetchDependencyTemplates = async () => {
         try {
@@ -28,7 +29,7 @@ const DependencyTemplatesPage = () => {
             `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}/templates`
           );
 
-          setTemplates(response.data.templates);
+          setTemplates(response.data.templates ?? []);
           setDependencyName(response.data.dependencyName);
         } catch (error) {
           console.error("Error fetching templates:", error);
@@ -39,7 +40,7 @@ const DependencyTemplatesPage = () => {
     }
   }, [id]);
 
-  const rows = templates.map((template) => (
+  const rows = templates?.map((template) => (
     <Table.Tr key={template._id}>
       <Table.Td>{template.name}</Table.Td>
     </Table.Tr>
