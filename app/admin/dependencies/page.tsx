@@ -106,6 +106,10 @@ const AdminDependenciesPage = () => {
     }
   };
 
+  const handleShowTemplates = (dependency: Dependency) => {
+    router.push(`/admin/dependencies/templates/${dependency._id}`);
+  }
+
   const handleEdit = (dependency: Dependency) => {
     router.push(`/admin/dependencies/update/${dependency._id}`);
   };
@@ -168,6 +172,9 @@ const AdminDependenciesPage = () => {
       <Table.Td>
         <Center>
           <Group gap={5}>
+            <Button variant="outline" color="orange" onClick={() => handleShowTemplates(dependency)}>
+               Plantillas
+            </Button>
             <Button variant="outline" onClick={() => handleEdit(dependency)}>
               <IconEdit size={16} />
             </Button>

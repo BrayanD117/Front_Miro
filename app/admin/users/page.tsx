@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch, Tooltip, Title, Select } from "@mantine/core";
+import { Container, Table, Button, Modal, Group, TextInput, Pagination, Center, MultiSelect, Switch, Tooltip, Title, Select, Stack } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconSwitch3, IconDeviceFloppy, IconCancel } from "@tabler/icons-react";
+import { IconEdit, IconRefresh, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconSwitch3, IconDeviceFloppy, IconCancel, IconUser } from '@tabler/icons-react';
 import styles from './AdminUsersPage.module.css';
 import { useSort } from "../../hooks/useSort";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 interface User {
   _id: string;
@@ -184,6 +184,19 @@ const AdminUsersPage = () => {
     }
   };
 
+  const handleImpersonateUser = async (userId: string) => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/impersonate?id=${userId}`)
+        
+        if (response.data){
+          await signIn("impersonate",{userEmail:response.data.email});
+        }
+      
+      } catch (error) {
+        
+      }
+  }
+
   const rows = sortedUsers.map((user) => (
     <Table.Tr key={user._id}>
       <Table.Td>{user.identification}</Table.Td>
@@ -192,7 +205,7 @@ const AdminUsersPage = () => {
       <Table.Td>{user.email}</Table.Td>
       <Table.Td>{user.roles.join(', ')}</Table.Td>
       <Table.Td>
-        <Group gap={5}> 
+        <Stack gap={5}> 
           <Button variant="outline" onClick={() => handleEdit(user)}>
             <IconEdit size={16} />
           </Button>
@@ -210,7 +223,22 @@ const AdminUsersPage = () => {
               <IconSwitch3 size={16} />
             </Button>
           </Tooltip>
-        </Group>
+
+          <Tooltip
+            label="Impersonar usuario"
+            position="top"
+            transitionProps={{ transition: 'fade-up', duration: 300 }}
+          >
+            <Button color="green" variant="outline" onClick={() => {
+              //handleImpersonateUser(user._id)
+              console.log('Impersonar usuario')
+            }}
+            >
+              <IconUser size={16} />
+            </Button>
+          </Tooltip>
+
+        </Stack>
       </Table.Td>
       <Table.Td>
         <Center>
