@@ -59,7 +59,6 @@ const linksByRole: Record<Roles, LinkItem[]> = {
   ],
   Responsable: [
     { link: "/dashboard", label: "Inicio" },
-    { link: "/responsible/templates", label: "Plantillas" },
     { link: "/templates/published", label: "Plantillas publicadas" },
     { link: "/responsible/reports", label: "Reportes" },
     { link: "/responsible/dimension", label: "Ámbito" },

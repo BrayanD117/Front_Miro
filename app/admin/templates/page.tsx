@@ -14,6 +14,7 @@ import { useSort } from "../../hooks/useSort";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { DatePickerInput } from "@mantine/dates";
 import { shouldAddWorksheet, sanitizeSheetName } from "@/app/utils/templateUtils";
+import { usePeriod } from "@/app/context/PeriodContext";
 
 interface Field {
   name: string;
@@ -54,6 +55,7 @@ interface Template {
     full_name: string;
   };
   validators: Validator[]
+  published: boolean;
 }
 
 interface Period {
@@ -69,6 +71,7 @@ interface Producer {
 }
 
 const AdminTemplatesPage = () => {
+  const { selectedPeriodId } = usePeriod();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -90,10 +93,10 @@ const AdminTemplatesPage = () => {
   const fetchTemplates = async (page: number, search: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all`, {
-        params: { page, limit: 10, search },
+        params: { page, limit: 10, search, periodId: selectedPeriodId },
       });
-      console.log(response);
       if (response.data) {
+        console.log(response.data.templates);
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
       }
@@ -441,10 +444,14 @@ const AdminTemplatesPage = () => {
       <Table.Td>
         <Center>
           <Tooltip
-                  label="Asignar plantilla a periodo"
+                  label={template.published ? "Plantilla ya asignada en el periodo" :
+                    "Asignar plantilla a periodo"}
                   transitionProps={{ transition: 'fade-up', duration: 300 }}
           >
-            <Button variant="outline" onClick={() => { 
+            <Button 
+              disabled={template.published}
+              variant="outline" 
+              onClick={() => { 
               setSelectedTemplate(template);
               setPublicationName(template.name)
               open(); 

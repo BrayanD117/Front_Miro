@@ -100,6 +100,7 @@ const ResponsibleReportPage = () => {
   const [opened, setOpened] = useState(false);
   const [openedReportForm, setOpenedReportForm] = useState(false);
   const [openedHistoryReport, setOpenedHistoryReport] = useState(false);
+  const [availableDimensions, setAvailableDimensions] = useState<Dimension[]>([]);
   const toggle = () => setOpened((prev) => !prev);
   const [saving, setSaving] = useState<boolean>(false);
   const [sending, setSending] = useState<boolean>(false);
@@ -119,6 +120,15 @@ const ResponsibleReportPage = () => {
         }
       )
       if (response.data) {
+          if(response.data.report.dimensions.length > 1) {
+          setAvailableDimensions(response.data.report.dimensions);
+          showNotification({
+            title: "Selecciona ámbito",
+            message: "Perteneces a más de 1 ámbito, por favor selecciona uno para continuar",
+            color: "orange",
+            timeout: 15000
+          });
+        }
         setSendsHistory(response.data.filled_reports);
         setPublishedReport(response.data);
       }
@@ -277,9 +287,7 @@ const ResponsibleReportPage = () => {
     }
   };
   
-  console.log("Aquí va:", (new Date(publishedReport?.deadline || "")) < dateNow())
   return (
-    console.log(canSend),
     <>
       <Container size={'xl'} ml={'md'} fluid>
         <DateConfig />
