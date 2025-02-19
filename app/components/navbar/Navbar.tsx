@@ -219,6 +219,14 @@ export default function Navbar() {
             <>
               <Group gap={8} visibleFrom="xs">
               
+                {!session?.user?.image ? (
+                  <>
+                 <Badge color="red" size="lg" m={20} variant="light">
+                  Estás impersonando al usuario: {session.user.name} 
+                  </Badge>
+                  </>
+                ) : null}
+
                 <Badge m={20} variant="light">
                   {userRole}
                 </Badge>

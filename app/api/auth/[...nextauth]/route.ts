@@ -10,6 +10,32 @@ const options: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
+
+    CredentialsProvider({
+      name: "impersonate",
+      id: "impersonate",
+      credentials: {
+        id: {label: 'User id', type:"text"},
+        userEmail: { label: "User Email", type: "text" },
+        userName: { label: "User Name", type: "text" },
+        isImpersonating: {label: "Indicator of impersonating an user", type: "text"}
+      },
+      async authorize(credentials) {
+
+        if (!credentials?.id || !credentials?.userEmail || !credentials?.userName) {
+          throw new Error("Missing required fields");
+        }
+
+        const user = {
+          id: credentials.id, 
+          name:credentials.userName, 
+          email:credentials.userEmail, 
+          isImpersonating: credentials.isImpersonating
+        };
+
+        return user
+      },
+    }),
   ],
   pages: {
     signIn: "/",
