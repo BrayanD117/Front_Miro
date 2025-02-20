@@ -40,6 +40,8 @@ import { useSort } from "../../hooks/useSort";
 import ProducerUploadedTemplatesPage from "./uploaded/ProducerUploadedTemplates";
 import { usePeriod } from "@/app/context/PeriodContext";
 import { sanitizeSheetName, shouldAddWorksheet } from "@/app/utils/templateUtils";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 
 const DropzoneButton = dynamic(
   () =>
@@ -106,7 +108,8 @@ interface PublishedTemplate {
   updatedAt: string;
   loaded_data: ProducerData[];
   validators: Validator[];
-  deadline: Date;
+  deadline: string | Date;
+  isPending: boolean;
 }
 
 const ProducerTemplatesPage = () => {
@@ -118,6 +121,8 @@ const ProducerTemplatesPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [producerEndDate, setProducerEndDate] = useState<Date | undefined>();
+  const [nextDeadline, setNextDeadline] = useState<Date | null>(null);
+  const [pendingCount, setPendingCount] = useState<number>(0);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
   );
@@ -177,6 +182,26 @@ const ProducerTemplatesPage = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
+
+  useEffect(() => {
+    if (templates.length === 0) {
+      setPendingCount(0);
+      setNextDeadline(null);
+      return;
+    }
+    setPendingCount(templates.length);
+  
+    let earliest = new Date(templates[0].deadline);
+    for (let i = 1; i < templates.length; i++) {
+      const d = new Date(templates[i].deadline);
+      if (d < earliest) {
+        earliest = d;
+      }
+    }
+    setNextDeadline(earliest);
+  }, [templates]);
+  
+  
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
     const { template, validators } = publishedTemplate;
@@ -426,6 +451,12 @@ const ProducerTemplatesPage = () => {
       <Table.Tr key={publishedTemplate._id}>
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
+        <Table.Td>
+  <Text ta="justify">
+    {publishedTemplate.template.file_description}
+  </Text>
+</Table.Td>
+
         <Table.Td>{publishedTemplate.template.dimensions.map(dim => dim.name).join(', ')}</Table.Td>
         <Table.Td fw={700}>
           {dateToGMT(publishedTemplate.deadline ?? publishedTemplate.period.producer_end_date)}
@@ -516,6 +547,20 @@ const ProducerTemplatesPage = () => {
       <Title ta="center" mb={"md"}>
         Plantillas Pendientes
       </Title>
+      <Text ta="center" mt="sm" mb="md">
+    Tienes <strong>{pendingCount}</strong> plantilla
+    {pendingCount === 1 ? "" : "s"} pendiente
+    {pendingCount === 1 ? "" : "s"}.
+    <br />
+    {nextDeadline ? (
+      <>
+        La fecha de vencimiento es el{" "}
+        <strong>{dayjs(nextDeadline).format("DD/MM/YYYY")}</strong>.
+      </>
+    ) : (
+      <>No hay fecha de vencimiento próxima.</>
+    )}
+  </Text>
       <TextInput
         placeholder="Buscar plantillas  "
         value={search}
@@ -543,6 +588,20 @@ const ProducerTemplatesPage = () => {
               <Center inline>
                 Nombre
                 {sortConfig.key === "name" ? (
+                  sortConfig.direction === "asc" ? (
+                    <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+                  ) : (
+                    <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+                  )
+                ) : (
+                  <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+                )}
+              </Center>
+            </Table.Th>
+            <Table.Th onClick={() => handleSort("template.dimension.file_description")} style={{ cursor: "pointer" }}>
+            <Center inline>
+                Descripción
+                {sortConfig.key === "template.dimension.file_description" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
                   ) : (
@@ -585,7 +644,7 @@ const ProducerTemplatesPage = () => {
             rows
           ) : (
             <Table.Tr>
-              <Table.Td colSpan={6}>
+              <Table.Td colSpan={7}>
                 <Center>
                   <p>No hay registros para este período.</p>
                 </Center>

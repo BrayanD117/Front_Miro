@@ -163,7 +163,13 @@ const AdminDependenciesPage = () => {
     setMembers([]);
   };
 
-  const rows = sortedDependencies.map((dependency) => (
+  //filter dependencies
+
+  const filteredDependencies = sortedDependencies.filter(
+    (dependency) => dependency.members && dependency.members.length > 0
+  );
+
+ const rows = filteredDependencies.map((dependency) => (
     <Table.Tr key={dependency._id}>
       <Table.Td>{dependency.dep_code}</Table.Td>
       <Table.Td>{dependency.name}</Table.Td>

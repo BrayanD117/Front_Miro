@@ -8,6 +8,8 @@ import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { IconBulb, IconHistory, IconReportAnalytics } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { usePeriod } from "@/app/context/PeriodContext";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 
 interface Report {
   _id: string;
@@ -68,7 +70,8 @@ interface PublishedReport {
   period: Period;
   filled_reports: FilledReport[];
   folder_id: string;
-  deadline: Date;
+  deadline: string | Date;
+  isPending: boolean;
 }
 
 const StatusColor: Record<string, string> = {
@@ -87,6 +90,8 @@ const ProducerReportsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [publishedReports, setPublishedReports] = useState<PublishedReport[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [nextDeadline, setNextDeadline] = useState<Date | null>(null);
 
   const fetchReports = async (page: Number, search: String) => {
     try {
@@ -119,6 +124,33 @@ const ProducerReportsPage = () => {
       return () => clearTimeout(delayDebounceFn);
     }
   }, [search, session?.user?.email, page, selectedPeriodId]);
+
+  useEffect(() => {
+    if (publishedReports.length === 0) {
+      setPendingCount(0);
+      setNextDeadline(null);
+      return;
+    }
+    const pending = publishedReports.filter((pRep) => {
+      const firstReport = pRep.filled_reports[0]; 
+      const status = firstReport?.status ?? "Pendiente"; 
+  
+      return status === "Pendiente";
+    });
+
+    setPendingCount(pending.length);
+
+    if (pending.length > 0) {
+      let earliest = new Date(pending[0].deadline);
+      for (let i = 1; i < pending.length; i++) {
+        const d = new Date(pending[i].deadline);
+        if (d < earliest) earliest = d;
+      }
+      setNextDeadline(earliest);
+    } else {
+      setNextDeadline(null);
+    }
+  }, [publishedReports]);
 
   const rows = publishedReports.map((pReport) => (
     <Table.Tr key={pReport._id}>
@@ -167,6 +199,19 @@ const ProducerReportsPage = () => {
       <Title ta="center" mb={"md"}>
         Gestión de Informes
       </Title>
+      <Text ta="center" mt="sm" mb="md">
+        Tienes <strong>{pendingCount}</strong>{" "}
+        {pendingCount === 1 ? "informe pendiente" : "informes pendientes"}.
+        <br />
+        {nextDeadline ? (
+          <>
+            La fecha de vencimiento próxima es el{" "}
+            <strong>{dayjs(nextDeadline).format("DD/MM/YYYY")}</strong>.
+          </>
+        ) : (
+          "No hay una fecha de vencimiento próxima."
+        )}
+      </Text>
       <TextInput
         placeholder="Buscar en los informes publicados"
         value={search}
