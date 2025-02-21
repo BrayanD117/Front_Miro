@@ -1,11 +1,21 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Badge, Button, Center, Container, Group, rem, Table, Text, TextInput, Title, Tooltip } from "@mantine/core";
+import {
+  Badge,
+  Button,
+  Center,
+  Container,
+  Table,
+  Text,
+  TextInput,
+  Title,
+  Pagination
+} from "@mantine/core";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
-import { IconBulb, IconHistory, IconReportAnalytics } from "@tabler/icons-react";
+import { IconBulb, IconReportAnalytics } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { usePeriod } from "@/app/context/PeriodContext";
 import dayjs from "dayjs";
@@ -14,36 +24,11 @@ import "dayjs/locale/es";
 interface Report {
   _id: string;
   name: string;
-  description: string;
-  report_example_id: string;
-  report_example_link: string;
-  report_example_download: string;
-  requires_attachment: boolean;
-  file_name: string;
-  created_by: {
-    email: string;
-    full_name: string;
-  };
-}
-
-interface Dimension {
-  _id: string;
-  name: string;
 }
 
 interface Period {
   _id: string;
   name: string;
-  responsible_start_date: Date;
-  responsible_end_date: Date;
-}
-
-interface DriveFile {
-  id: string;
-  name: string;
-  view_link: string;
-  download_link: string;
-  folder_id: string;
 }
 
 interface User {
@@ -51,17 +36,20 @@ interface User {
   full_name: string;
 }
 
+interface DriveFile {
+  id: string;
+  name: string;
+  view_link: string;
+  download_link: string;
+}
+
 interface FilledReport {
   _id: string;
-  dimension: Dimension;
-  send_by: any;
+  send_by: User;
   loaded_date: Date;
   report_file: DriveFile;
-  attachments: DriveFile[];
   status: string;
   status_date: Date;
-  observations: string;
-  evaluated_by: User;
 }
 
 interface PublishedReport {
@@ -69,9 +57,7 @@ interface PublishedReport {
   report: Report;
   period: Period;
   filled_reports: FilledReport[];
-  folder_id: string;
   deadline: string | Date;
-  isPending: boolean;
 }
 
 const StatusColor: Record<string, string> = {
@@ -86,20 +72,28 @@ const ProducerReportsPage = () => {
   const router = useRouter();
   const { selectedPeriodId } = usePeriod();
   const { data: session } = useSession();
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [publishedReports, setPublishedReports] = useState<PublishedReport[]>([]);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [nextDeadline, setNextDeadline] = useState<Date | null>(null);
+  const [pagePending, setPagePending] = useState(1);
+  const [totalPagesPending, setTotalPagesPending] = useState(1);
+  const [pageCompleted, setPageCompleted] = useState(1);
+  const [totalPagesCompleted, setTotalPagesCompleted] = useState(1);
 
-  const fetchReports = async (page: Number, search: String) => {
+  useEffect(() => {
+    if (session?.user?.email) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchReports();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [search, session?.user?.email, selectedPeriodId, pagePending, pageCompleted]);
+
+  const fetchReports = async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
         {
           params: {
-            page: page,
             search: search,
             email: session?.user?.email,
             periodId: selectedPeriodId,
@@ -108,148 +102,137 @@ const ProducerReportsPage = () => {
       );
       if (response.data) {
         setPublishedReports(response.data.publishedReports);
-        console.log(response.data);
-        setTotalPages(response.data.totalPages);
+        setTotalPagesPending(Math.ceil(response.data.publishedReports.filter((pRep: PublishedReport) => 
+          !pRep.filled_reports[0] || pRep.filled_reports[0].status === "Pendiente").length / 5));
+        setTotalPagesCompleted(Math.ceil(response.data.publishedReports.filter((pRep: PublishedReport) => 
+          pRep.filled_reports[0] && pRep.filled_reports[0].status !== "Pendiente").length / 5));
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
-  useEffect(() => {
-    if (session?.user?.email) {
-      const delayDebounceFn = setTimeout(() => {
-        fetchReports(page, search);
-      }, 500);
-      return () => clearTimeout(delayDebounceFn);
-    }
-  }, [search, session?.user?.email, page, selectedPeriodId]);
+  const pendingReports = publishedReports.filter((pRep) => {
+    const firstReport = pRep.filled_reports[0];
+    return firstReport?.status === "Pendiente" || !firstReport;
+  }).slice((pagePending - 1) * 5, pagePending * 5);
 
-  useEffect(() => {
-    if (publishedReports.length === 0) {
-      setPendingCount(0);
-      setNextDeadline(null);
-      return;
-    }
-    const pending = publishedReports.filter((pRep) => {
-      const firstReport = pRep.filled_reports[0]; 
-      const status = firstReport?.status ?? "Pendiente"; 
-  
-      return status === "Pendiente";
-    });
+  const completedReports = publishedReports.filter((pRep) => {
+    const firstReport = pRep.filled_reports[0];
+    return firstReport && firstReport.status !== "Pendiente";
+  }).slice((pageCompleted - 1) * 5, pageCompleted * 5);
 
-    setPendingCount(pending.length);
+  const nextDeadline = pendingReports.length > 0 
+    ? dayjs(pendingReports[0].deadline).format("DD/MM/YYYY") 
+    : null;
 
-    if (pending.length > 0) {
-      let earliest = new Date(pending[0].deadline);
-      for (let i = 1; i < pending.length; i++) {
-        const d = new Date(pending[i].deadline);
-        if (d < earliest) earliest = d;
-      }
-      setNextDeadline(earliest);
-    } else {
-      setNextDeadline(null);
-    }
-  }, [publishedReports]);
-
-  const rows = publishedReports.map((pReport) => (
-    <Table.Tr key={pReport._id}>
-      <Table.Td>{pReport.period?.name}</Table.Td>
-      <Table.Td>{dateToGMT(pReport.deadline)}</Table.Td>
-      <Table.Td>
-          {pReport.report.name}
-      </Table.Td>
-      <Table.Td>
-        <Center>
-          <Badge
-            w={rem(110)}
-            color={
-              StatusColor[pReport.filled_reports[0]?.status] ?? "orange"
-            }
-            variant={"light"}
-          >
-            {pReport.filled_reports[0]?.status ?? "Pendiente"}
-          </Badge>
-        </Center>
-      </Table.Td>
-      <Table.Td>
-        <Center>{pReport.filled_reports[0] ? 
-          dateToGMT(pReport.filled_reports[0].status_date) : ""}
-        </Center>
-      </Table.Td>
-      <Table.Td>
-        <Center>
-          <Button
-            onClick={() => {
-              router.push(`reports/${pReport._id}`);
-            }}
-            variant="outline"
-            color="blue"
-          >
-            <IconReportAnalytics size={18} />
-          </Button>
-        </Center>
-      </Table.Td>
-    </Table.Tr>
-  ))
+  const renderReportRows = (reports: PublishedReport[]) =>
+    reports.map((pRep) => (
+      <Table.Tr key={pRep._id}>
+        <Table.Td>{pRep.period?.name}</Table.Td>
+        <Table.Td>{dateToGMT(pRep.deadline)}</Table.Td>
+        <Table.Td>{pRep.report.name}</Table.Td>
+        <Table.Td>
+          <Center>
+            <Badge color={StatusColor[pRep.filled_reports[0]?.status] ?? "orange"} variant={"light"}>
+              {pRep.filled_reports[0]?.status ?? "Pendiente"}
+            </Badge>
+          </Center>
+        </Table.Td>
+        <Table.Td>
+          <Center>
+            {pRep.filled_reports[0] ? dateToGMT(pRep.filled_reports[0].status_date) : ""}
+          </Center>
+        </Table.Td>
+        <Table.Td>
+          <Center>
+            <Button onClick={() => router.push(`reports/${pRep._id}`)} variant="outline" color="blue">
+              <IconReportAnalytics size={18} />
+            </Button>
+          </Center>
+        </Table.Td>
+      </Table.Tr>
+    ));
 
   return (
     <Container size="xl">
-      <DateConfig/>
-      <Title ta="center" mb={"md"}>
-        Gestión de Informes
+      <DateConfig />
+
+      {/* Reportes Pendientes */}
+      <Title ta="center" mb="md">
+        Reportes Pendientes
       </Title>
       <Text ta="center" mt="sm" mb="md">
-        Tienes <strong>{pendingCount}</strong>{" "}
-        {pendingCount === 1 ? "informe pendiente" : "informes pendientes"}.
+        Tienes <strong>{pendingReports.length}</strong> reportes pendientes.
         <br />
-        {nextDeadline ? (
-          <>
-            La fecha de vencimiento próxima es el{" "}
-            <strong>{dayjs(nextDeadline).format("DD/MM/YYYY")}</strong>.
-          </>
-        ) : (
-          "No hay una fecha de vencimiento próxima."
-        )}
+        {nextDeadline ? `La fecha de vencimiento es el ${nextDeadline}.` : "No hay fecha de vencimiento próxima."}
       </Text>
+
       <TextInput
-        placeholder="Buscar en los informes publicados"
+        placeholder="Buscar reportes..."
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
+
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Periodo</Table.Th>
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Nombre de Informe</Table.Th>
-            <Table.Th w={rem(20)}>
+            <Table.Th>
               <Center>Estado</Center>
             </Table.Th>
             <Table.Th>
               <Center>Fecha de Estado</Center>
             </Table.Th>
-            <Table.Td fw={700}>
+            <Table.Th>
               <Center>Ver Informe</Center>
-            </Table.Td>
+            </Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {rows.length > 0 ? rows :
+          {pendingReports.length > 0 ? (
+            renderReportRows(pendingReports)
+          ) : (
             <Table.Tr>
-              <Table.Td colSpan={10}>No se encontraron informes en el periodo</Table.Td>
+              <Table.Td colSpan={6} align="center">
+                No hay reportes pendientes.
+              </Table.Td>
             </Table.Tr>
-          }
+          )}
         </Table.Tbody>
       </Table>
-      <Text c="dimmed" size="xs" ta="center" mt="md" >
-        <IconBulb color="#797979" size={20}></IconBulb>
-        <br/>
-        Si quieres ver el detalle, historial o cargar un informe, toca el botón de "Ver informe". 
-      </Text>
+
+      <Center>
+        <Pagination value={pagePending} onChange={setPagePending} total={totalPagesPending} />
+      </Center>
+
+      {/* Reportes Entregados */}
+      <Title ta="center" mb="md">
+        Reportes Entregados
+      </Title>
+
+      <Table striped withTableBorder mt="md">
+        <Table.Tbody>
+          {completedReports.length > 0 ? (
+            renderReportRows(completedReports)
+          ) : (
+            <Table.Tr>
+              <Table.Td colSpan={6} align="center">
+                No hay reportes entregados.
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
+      </Table>
+
+      <Center>
+        <Pagination value={pageCompleted} onChange={setPageCompleted} total={totalPagesCompleted} />
+      </Center>
     </Container>
-  )
-}
+  );
+};
 
 export default ProducerReportsPage;
