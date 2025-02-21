@@ -206,7 +206,7 @@ const AdminDependenciesPage = () => {
           loading={isLoading}
           leftSection={<IconRefresh/>}
         >
-          Sincronizar Dependencias
+          Sincronizar las Dependencias
         </Button>
       </Group>
       <Table striped withTableBorder mt="md">
