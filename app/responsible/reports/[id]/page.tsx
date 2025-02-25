@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
 import { Badge, Button, Center, Collapse, Container, Divider, FileButton, Group, Modal, Pill, rem, Select, Table, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
@@ -87,7 +87,10 @@ const StatusColor: Record<string, string> = {
 
 const ResponsibleReportPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams()
   const { id } = useParams();
+ 
+  const dimension = searchParams.get('dimension')
   const { data: session } = useSession();
   const [publishedReport, setPublishedReport] = useState<PublishedReport>();
   const [sendsHistory, setSendsHistory] = useState<FilledReport[]>([]);
@@ -111,24 +114,17 @@ const ResponsibleReportPage = () => {
 
   const fetchReport = async () => {
     try {
+      console.log(dimension)
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/pReports`, {
           params: {
             id,
-            email: session?.user?.email
+            email: session?.user?.email,
+            dimension
           }
         }
       )
       if (response.data) {
-          if(response.data.report.dimensions.length > 1) {
-          setAvailableDimensions(response.data.report.dimensions);
-          showNotification({
-            title: "Selecciona ámbito",
-            message: "Perteneces a más de 1 ámbito, por favor selecciona uno para continuar",
-            color: "orange",
-            timeout: 15000
-          });
-        }
         setSendsHistory(response.data.filled_reports);
         setPublishedReport(response.data);
       }
@@ -152,6 +148,7 @@ const ResponsibleReportPage = () => {
       const formData = new FormData();
 
       formData.append("email", session?.user?.email ?? "");
+      formData.append("dimension", dimension ?? "");
       formData.append("publishedReportId", publishedReport?._id ?? "");
       formData.append("filledDraft", JSON.stringify(publishedReport?.filled_reports[0] ?? ""));
       if (reportFile) {
