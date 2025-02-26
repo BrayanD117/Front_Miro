@@ -145,11 +145,10 @@ const AdminTemplatesPage = () => {
         color: "teal",
       });
       fetchTemplates(page, search);
-    } catch (error) {
-      console.error("Error eliminando plantilla:", error);
+    } catch (error: any) {
       showNotification({
         title: "Error",
-        message: "Hubo un error al eliminar la plantilla",
+        message: error.response?.data?.mensaje || "Hubo un error al eliminar la plantilla",
         color: "red",
       });
     }
