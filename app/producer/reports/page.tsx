@@ -206,7 +206,14 @@ const ProducerReportsPage = () => {
       </Table>
 
       <Center>
-        <Pagination value={pagePending} onChange={setPagePending} total={totalPagesPending} />
+      <Pagination 
+          mt={15}
+          value={pagePending} 
+          onChange={setPagePending} 
+          total={totalPagesPending} 
+          siblings={1}
+          boundaries={3}
+  />
       </Center>
 
       {/* Reportes Entregados */}
@@ -229,7 +236,14 @@ const ProducerReportsPage = () => {
       </Table>
 
       <Center>
-        <Pagination value={pageCompleted} onChange={setPageCompleted} total={totalPagesCompleted} />
+      <Pagination 
+          mt={15}
+          value={pagePending} 
+          onChange={setPagePending} 
+          total={totalPagesPending} 
+          siblings={1}
+          boundaries={3}
+  />
       </Center>
     </Container>
   );

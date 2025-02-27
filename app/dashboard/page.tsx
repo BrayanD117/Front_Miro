@@ -31,39 +31,70 @@ const DashboardPage = () => {
 
   const fetchPendingItems = async (role: string) => {
     if (session?.user?.email && selectedPeriodId) {
-      try {
-        const reportsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
-          { params: { email: session.user.email, periodId: selectedPeriodId } }
-        );
-        const pendingReportsData = reportsResponse.data.publishedReports.filter(
-          (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
-        );
-        setPendingReports(pendingReportsData.length);
-        setNextReportDeadline(
-          pendingReportsData.length > 0 ? dayjs(pendingReportsData[0].deadline).format("DD/MM/YYYY") : null
-        );
+        try {
+            // Si es Administrador, no hacer nada
+            if (role === "Administrador") {
+                setPendingReports(0);
+                setPendingTemplates(0);
+                setNextReportDeadline(null);
+                setNextTemplateDeadline(null);
+                return;
+            }
 
-        if (role !== "Responsable") {
-          const templatesResponse = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
-            { params: { email: session.user.email, periodId: selectedPeriodId } }
-          );
-          setPendingTemplates(templatesResponse.data.templates.length);
-          setNextTemplateDeadline(
-            templatesResponse.data.templates.length > 0
-              ? dayjs(templatesResponse.data.templates[0].deadline).format("DD/MM/YYYY")
-              : null
-          );
-        } else {
-          setPendingTemplates(0);
-          setNextTemplateDeadline(null);
+            let reportsResponse;
+
+            if (role === "Responsable") {
+                // Obtener reportes para el responsable
+                reportsResponse = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible`,
+                    { params: { email: session.user.email, periodId: selectedPeriodId } }
+                );
+            } else {
+                // Obtener reportes para el productor
+                reportsResponse = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
+                    { params: { email: session.user.email, periodId: selectedPeriodId } }
+                );
+            }
+
+            const pendingReportsData = reportsResponse.data.publishedReports.filter(
+                (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
+            );
+
+            setPendingReports(pendingReportsData.length);
+            setNextReportDeadline(
+                pendingReportsData.length > 0 ? dayjs(pendingReportsData[0].deadline).format("DD/MM/YYYY") : null
+            );
+
+            if (role !== "Responsable") {
+                // Obtener plantillas disponibles solo si el usuario no es "Responsable"
+                const templatesResponse = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
+                    { params: { email: session.user.email, periodId: selectedPeriodId } }
+                );
+
+                setPendingTemplates(templatesResponse.data.templates.length);
+                setNextTemplateDeadline(
+                    templatesResponse.data.templates.length > 0
+                        ? dayjs(templatesResponse.data.templates[0].deadline).format("DD/MM/YYYY")
+                        : null
+                );
+            } else {
+                setPendingTemplates(0);
+                setNextTemplateDeadline(null);
+            }
+        } catch (error) {
+            console.error("Error obteniendo reportes y plantillas pendientes:", error);
         }
-      } catch (error) {
-        console.error("Error obteniendo reportes y plantillas pendientes:", error);
-      }
     }
-  };
+};
+
+useEffect(() => {
+    if (status === "authenticated" && selectedPeriodId) {
+        fetchPendingItems(userRole);
+    }
+}, [session, status, userRole, selectedPeriodId]);
+
 
   useEffect(() => {
     if (status === "authenticated" && selectedPeriodId) {
