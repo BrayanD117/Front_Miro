@@ -1,13 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Modal, Button, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
+import { Modal, Button, Badge, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
 import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 import { useColorScheme } from "@mantine/hooks";
+import { usePeriod } from "@/app/context/PeriodContext";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
@@ -20,6 +23,63 @@ const DashboardPage = () => {
   const [notificationShown, setNotificationShown] = useState(false);
   const [isResponsible, setIsResponsible] = useState(false);
   const colorScheme = useColorScheme();
+  const [pendingReports, setPendingReports] = useState<number>(0);
+  const [pendingTemplates, setPendingTemplates] = useState<number>(0);
+  const [nextReportDeadline, setNextReportDeadline] = useState<string | null>(null);
+  const [nextTemplateDeadline, setNextTemplateDeadline] = useState<string | null>(null);
+  const { selectedPeriodId } = usePeriod();
+
+  const fetchPendingItems = async (role: string) => {
+    if (session?.user?.email && selectedPeriodId) {
+      try {
+        const reportsResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
+          { params: { email: session.user.email, periodId: selectedPeriodId } }
+        );
+        const pendingReportsData = reportsResponse.data.publishedReports.filter(
+          (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
+        );
+        setPendingReports(pendingReportsData.length);
+        setNextReportDeadline(
+          pendingReportsData.length > 0 ? dayjs(pendingReportsData[0].deadline).format("DD/MM/YYYY") : null
+        );
+
+        if (role !== "Responsable") {
+          const templatesResponse = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
+            { params: { email: session.user.email, periodId: selectedPeriodId } }
+          );
+          setPendingTemplates(templatesResponse.data.templates.length);
+          setNextTemplateDeadline(
+            templatesResponse.data.templates.length > 0
+              ? dayjs(templatesResponse.data.templates[0].deadline).format("DD/MM/YYYY")
+              : null
+          );
+        } else {
+          setPendingTemplates(0);
+          setNextTemplateDeadline(null);
+        }
+      } catch (error) {
+        console.error("Error obteniendo reportes y plantillas pendientes:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (status === "authenticated" && selectedPeriodId) {
+      fetchPendingItems(userRole);
+    }
+  }, [session, status, userRole, selectedPeriodId]);
+
+  useEffect(() => {
+    if (userRole) {
+      setPendingReports(0);
+      setPendingTemplates(0);
+      setNextReportDeadline(null);
+      setNextTemplateDeadline(null);
+    }
+  }, [userRole]);
+  
 
   useEffect(() => {
     const fetchUserRoles = async () => {
@@ -76,6 +136,50 @@ const DashboardPage = () => {
     checkIfUserIsResponsible();
   }, [session]);
 
+  const renderMessage = () => {
+    if (pendingReports === 0 && pendingTemplates === 0) return null; // No renderizar nada si no hay pendientes
+  
+    return (
+      <Center mt="md">
+        <Badge
+          color="red"
+          size="lg"
+          variant="light"
+          style={{
+            padding: "10px 15px", // Reduce el padding para ajustarse al texto
+            textAlign: "center", // Asegura que el texto esté alineado al centro
+            display: pendingReports > 0 || pendingTemplates > 0 ? "inline-flex" : "none", // Mantiene el tamaño adecuado
+            maxWidth: "max-content", // Ajusta el ancho al contenido
+            whiteSpace: "pre-wrap", // Permite saltos de línea si el contenido es muy largo
+            margin: "20px auto", // Centra el badge y da margen con otros elementos
+            justifyContent: "center", // Centra el contenido horizontalmente
+            alignItems: "center", // Centra el contenido verticalmente
+            lineHeight: "normal", // Asegura que la altura de línea no sea excesiva
+            height: "auto", // Permite que el `Badge` se adapte al contenido
+          }}
+        >
+          {pendingReports > 0 && (
+            <>
+              Tienes <strong>{pendingReports}</strong> reportes pendientes.{" "}
+              {nextReportDeadline && `Fecha de vencimiento más próxima: ${nextReportDeadline}.`}
+              <br />
+            </>
+          )}
+          {pendingTemplates > 0 && userRole !== "Responsable" && (
+            <>
+              Tienes <strong>{pendingTemplates}</strong> plantillas pendientes.{" "}
+              {nextTemplateDeadline && `Fecha de vencimiento más próxima: ${nextTemplateDeadline}.`}
+            </>
+          )}
+        </Badge>
+      </Center>
+    );
+  };
+  
+  
+
+  
+  
   const handleRoleSelect = async (role: string) => {
     if (!session?.user?.email) return;
 
@@ -487,6 +591,7 @@ const DashboardPage = () => {
         <Center>
           <Title mt="md" mb="md">Inicio</Title>
         </Center>
+        {renderMessage()}
         <Grid justify="center" align="center">
           {renderCards()}
         </Grid>
