@@ -198,19 +198,11 @@ const ResponsibleReportsPage = () => {
         Gestión de Informes
       </Title>
       <Center mt="md">
-    {pendingReportsCount > 0 && (
-      <Badge
-        color="red"
-        size="lg"
-        m={15}
-        variant="light"
-        style={{ width: "100%", textAlign: "center" }}
-      >
-        Tienes <strong>{pendingReportsCount}</strong> informe(s) pendiente(s).
-        {nextDeadline && ` La fecha de vencimiento más próxima es: ${nextDeadline}.`}
-      </Badge>
-    )}
-    {pendingReportsCount === 0 && <Text>No tienes informes pendientes.</Text>}
+      <Text ta="center" mt="sm" mb="md">
+        Tienes <strong>{pendingReportsCount}</strong> reportes pendientes.
+        <br />
+        {nextDeadline ? `La fecha de vencimiento es el ${nextDeadline}.` : "No hay fecha de vencimiento próxima."}
+      </Text>
   </Center>
   <div style={{ marginTop: '20px' }}>
       <TextInput
