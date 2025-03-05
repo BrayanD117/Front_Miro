@@ -8,6 +8,8 @@ import { dateToGMT } from "@/app/components/DateConfig";
 import { IconBulb, IconHistory, IconReportAnalytics } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { usePeriod } from "@/app/context/PeriodContext";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 
 interface Report {
   _id: string;
@@ -88,6 +90,9 @@ const ResponsibleReportsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [publishedReports, setPublishedReports] = useState<PublishedReport[]>([]);
+  const [pendingReportsCount, setPendingReportsCount] = useState<number>(0);
+  const [nextDeadline, setNextDeadline] = useState<string | null>(null);
+
 
   const fetchReports = async (page: Number, search: String) => {
     try {
@@ -103,13 +108,35 @@ const ResponsibleReportsPage = () => {
         }
       );  
       if (response.data) {
-        setPublishedReports(response.data.publishedReports);
-        console.log(response.data);
+        const reports = response.data.publishedReports;
+        setPublishedReports(reports);
+  
+        // Filtrar informes pendientes
+        const pendingReports = reports.filter((pReport: PublishedReport) => {
+          const firstReport = pReport.filled_reports[0];
+          return firstReport?.status === "Pendiente" || !firstReport;
+        });
+  
+        setPendingReportsCount(pendingReports.length);
+  
+        // Obtener la fecha de vencimiento más próxima
+        const sortedPendingReports = pendingReports.sort((a: PublishedReport, b: PublishedReport) => {
+          const aDate = dayjs(a.deadline);
+          const bDate = dayjs(b.deadline);
+          return aDate.isBefore(bDate) ? -1 : 1;
+        });
+        
+        setNextDeadline(
+          sortedPendingReports.length > 0
+            ? dayjs(sortedPendingReports[0].deadline).format("DD/MM/YYYY")
+            : null
+        );
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
+  
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -170,12 +197,21 @@ const ResponsibleReportsPage = () => {
       <Title ta="center" mb={"md"}>
         Gestión de Informes
       </Title>
+      <Center mt="md">
+      <Text ta="center" mt="sm" mb="md">
+        Tienes <strong>{pendingReportsCount}</strong> reportes pendientes.
+        <br />
+        {nextDeadline ? `La fecha de vencimiento es el ${nextDeadline}.` : "No hay fecha de vencimiento próxima."}
+      </Text>
+  </Center>
+  <div style={{ marginTop: '20px' }}>
       <TextInput
         placeholder="Buscar en los informes publicados"
         value={search}
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
+        </div>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
