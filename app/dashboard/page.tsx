@@ -44,23 +44,28 @@ const DashboardPage = () => {
             let reportsResponse;
 
             if (role === "Responsable") {
-                // Obtener reportes para el responsable
+                // Obtener reportes para el responsable con todos los datos
                 reportsResponse = await axios.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/pReports/responsible`,
-                    { params: { email: session.user.email, periodId: selectedPeriodId } }
+                    { params: { email: session.user.email, periodId: selectedPeriodId, limit: 10000 } }
                 );
             } else {
-                // Obtener reportes para el productor
+                // Obtener reportes para el productor con todos los datos
                 reportsResponse = await axios.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
-                    { params: { email: session.user.email, periodId: selectedPeriodId } }
+                    { params: { email: session.user.email, periodId: selectedPeriodId, limit: 10000 } }
                 );
             }
 
+            // Se obtiene el total de reportes publicados
+            const totalReports = reportsResponse.data.publishedReports.length;
+
+            // Se filtran los reportes pendientes
             const pendingReportsData = reportsResponse.data.publishedReports.filter(
                 (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
             );
 
+            // Se establece el número de reportes pendientes
             setPendingReports(pendingReportsData.length);
             setNextReportDeadline(
                 pendingReportsData.length > 0 ? dayjs(pendingReportsData[0].deadline).format("DD/MM/YYYY") : null
@@ -70,14 +75,16 @@ const DashboardPage = () => {
                 // Obtener plantillas disponibles solo si el usuario no es "Responsable"
                 const templatesResponse = await axios.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/pTemplates/available`,
-                    { params: { email: session.user.email, periodId: selectedPeriodId } }
+                    { params: { email: session.user.email, periodId: selectedPeriodId, limit: 10000 } }
                 );
 
-                setPendingTemplates(templatesResponse.data.templates.length);
+                // Se obtiene el total de plantillas
+                const totalTemplates = templatesResponse.data.templates.length;
+
+                // Se establece el número total de plantillas pendientes
+                setPendingTemplates(totalTemplates);
                 setNextTemplateDeadline(
-                    templatesResponse.data.templates.length > 0
-                        ? dayjs(templatesResponse.data.templates[0].deadline).format("DD/MM/YYYY")
-                        : null
+                    totalTemplates > 0 ? dayjs(templatesResponse.data.templates[0].deadline).format("DD/MM/YYYY") : null
                 );
             } else {
                 setPendingTemplates(0);
@@ -88,6 +95,7 @@ const DashboardPage = () => {
         }
     }
 };
+
 
 useEffect(() => {
     if (status === "authenticated" && selectedPeriodId) {

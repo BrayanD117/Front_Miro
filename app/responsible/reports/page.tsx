@@ -110,22 +110,16 @@ const ResponsibleReportsPage = () => {
       if (response.data) {
         const reports = response.data.publishedReports;
         setPublishedReports(reports);
-  
-        // Filtrar informes pendientes
-        const pendingReports = reports.filter((pReport: PublishedReport) => {
-          const firstReport = pReport.filled_reports[0];
-          return firstReport?.status === "Pendiente" || !firstReport;
-        });
-  
-        setPendingReportsCount(pendingReports.length);
-  
-        // Obtener la fecha de vencimiento más próxima
+        setPendingReportsCount(response.data.totalPending || 0);
+
+        const pendingReports = reports.filter(
+          (pReport: PublishedReport) => !pReport.filled_reports[0] || pReport.filled_reports[0].status === "Pendiente"
+        );
+
         const sortedPendingReports = pendingReports.sort((a: PublishedReport, b: PublishedReport) => {
-          const aDate = dayjs(a.deadline);
-          const bDate = dayjs(b.deadline);
-          return aDate.isBefore(bDate) ? -1 : 1;
+          return dayjs(a.deadline).isBefore(dayjs(b.deadline)) ? -1 : 1;
         });
-        
+
         setNextDeadline(
           sortedPendingReports.length > 0
             ? dayjs(sortedPendingReports[0].deadline).format("DD/MM/YYYY")
@@ -136,6 +130,7 @@ const ResponsibleReportsPage = () => {
       console.error(error);
     }
   };
+
   
 
   useEffect(() => {

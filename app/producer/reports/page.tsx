@@ -78,6 +78,8 @@ const ProducerReportsPage = () => {
   const [totalPagesPending, setTotalPagesPending] = useState(1);
   const [pageCompleted, setPageCompleted] = useState(1);
   const [totalPagesCompleted, setTotalPagesCompleted] = useState(1);
+  const [pendingReportsCount, setPendingReportsCount] = useState<number>(0);
+  const [nextDeadline, setNextDeadline] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -101,30 +103,36 @@ const ProducerReportsPage = () => {
         }
       );
       if (response.data) {
-        setPublishedReports(response.data.publishedReports);
-        setTotalPagesPending(Math.ceil(response.data.publishedReports.filter((pRep: PublishedReport) => 
-          !pRep.filled_reports[0] || pRep.filled_reports[0].status === "Pendiente").length / 5));
-        setTotalPagesCompleted(Math.ceil(response.data.publishedReports.filter((pRep: PublishedReport) => 
-          pRep.filled_reports[0] && pRep.filled_reports[0].status !== "Pendiente").length / 5));
+        const reports = response.data.publishedReports;
+        setPublishedReports(reports);
+        setPendingReportsCount(response.data.totalPending || 0);
+
+        // Obtener la fecha de vencimiento más próxima
+        const pendingReports = reports.filter(
+          (pRep: PublishedReport) => !pRep.filled_reports[0] || pRep.filled_reports[0].status === "Pendiente"
+        );
+
+        const sortedPendingReports = pendingReports.sort((a: PublishedReport, b: PublishedReport) => {
+          return dayjs(a.deadline).isBefore(dayjs(b.deadline)) ? -1 : 1;
+        });
+
+        setNextDeadline(
+          sortedPendingReports.length > 0
+            ? dayjs(sortedPendingReports[0].deadline).format("DD/MM/YYYY")
+            : null
+        );
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const pendingReports = publishedReports.filter((pRep) => {
-    const firstReport = pRep.filled_reports[0];
-    return firstReport?.status === "Pendiente" || !firstReport;
-  }).slice((pagePending - 1) * 5, pagePending * 5);
 
   const completedReports = publishedReports.filter((pRep) => {
     const firstReport = pRep.filled_reports[0];
     return firstReport && firstReport.status !== "Pendiente";
   }).slice((pageCompleted - 1) * 5, pageCompleted * 5);
 
-  const nextDeadline = pendingReports.length > 0 
-    ? dayjs(pendingReports[0].deadline).format("DD/MM/YYYY") 
-    : null;
 
   const renderReportRows = (reports: PublishedReport[]) =>
     reports.map((pRep) => (
@@ -163,9 +171,15 @@ const ProducerReportsPage = () => {
         Reportes Pendientes
       </Title>
       <Text ta="center" mt="sm" mb="md">
-        Tienes <strong>{pendingReports.length}</strong> reportes pendientes.
-        <br />
-        {nextDeadline ? `La fecha de vencimiento es el ${nextDeadline}.` : "No hay fecha de vencimiento próxima."}
+        {pendingReportsCount > 0 ? (
+          <>
+            Tienes <strong>{pendingReportsCount}</strong> reportes pendientes.
+            <br />
+            {nextDeadline ? `La fecha de vencimiento es el ${nextDeadline}.` : "No hay fecha de vencimiento próxima."}
+          </>
+        ) : (
+          <>No tienes reportes pendientes.</>
+        )}
       </Text>
 
       <TextInput
@@ -193,8 +207,8 @@ const ProducerReportsPage = () => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {pendingReports.length > 0 ? (
-            renderReportRows(pendingReports)
+        {publishedReports.length > 0 ? (
+            renderReportRows(publishedReports)
           ) : (
             <Table.Tr>
               <Table.Td colSpan={6} align="center">

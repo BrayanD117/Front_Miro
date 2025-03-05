@@ -147,10 +147,11 @@ const ProducerTemplatesPage = () => {
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
-        setProducerEndDate(new Date(response.data.templates[0].deadline));
+        setPendingCount(response.data.total || 0);
       }
     } catch (error) {
       setTemplates([]);
+      setPendingCount(0);
     }
   };
 
@@ -184,23 +185,27 @@ const ProducerTemplatesPage = () => {
   }, [search]);
 
   useEffect(() => {
+    if (session?.user?.email && selectedPeriodId) {
+      fetchTemplates(page, search);
+    }
+  }, [page, search, session, selectedPeriodId]);
+
+  useEffect(() => {
     if (templates.length === 0) {
-      setPendingCount(0);
       setNextDeadline(null);
       return;
     }
-    setPendingCount(templates.length);
-  
-    let earliest = new Date(templates[0].deadline);
-    for (let i = 1; i < templates.length; i++) {
-      const d = new Date(templates[i].deadline);
-      if (d < earliest) {
-        earliest = d;
-      }
+
+    const deadlines = templates
+      .map((t) => new Date(t.deadline))
+      .filter((date) => !isNaN(date.getTime()));
+
+    if (deadlines.length > 0) {
+      setNextDeadline(new Date(Math.min(...deadlines.map((date) => date.getTime()))));
+    } else {
+      setNextDeadline(null);
     }
-    setNextDeadline(earliest);
   }, [templates]);
-  
   
 
   const handleDownload = async (publishedTemplate: PublishedTemplate) => {
