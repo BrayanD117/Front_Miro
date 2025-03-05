@@ -12,9 +12,12 @@ interface Dependency {
   dep_father: string;
   children: Dependency[];
 }
+interface ChildrenDependency extends Dependency {
+  children: ChildrenDependency[];
+}
 
 interface Props {
-  dependencies: Dependency;
+  dependencies: ChildrenDependency[];  
 }
 
 const DependencyTree = ({ dependencies }: Props) => {

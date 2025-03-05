@@ -6,6 +6,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
+
 interface Dependency {
   _id: string;
   dep_code: string;
@@ -39,8 +40,9 @@ const Page = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${session?.user?.email}/hierarchy`,
         );
 
-        setFatherDependency(response.data.fatherDependency ?? []);
+        setFatherDependency(response.data.fatherDependency ?? undefined);
         setChildrenDependencies(response.data.childrenDependencies ?? []);
+
       } catch (error) {
         console.error("Error fetching templates:", error);
       }

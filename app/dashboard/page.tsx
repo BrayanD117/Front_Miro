@@ -11,6 +11,7 @@ import { useColorScheme } from "@mantine/hooks";
 import { usePeriod } from "@/app/context/PeriodContext";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import { useParams } from "next/navigation";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
@@ -28,6 +29,11 @@ const DashboardPage = () => {
   const [nextReportDeadline, setNextReportDeadline] = useState<string | null>(null);
   const [nextTemplateDeadline, setNextTemplateDeadline] = useState<string | null>(null);
   const { selectedPeriodId } = usePeriod();
+  const [isVisualizer, setIsVisualizer] = useState(false);
+  const userEmail = session?.user?.email ?? "";
+
+  const params = useParams();
+const { id } = params ?? {};
 
   const fetchPendingItems = async (role: string) => {
     if (session?.user?.email && selectedPeriodId) {
@@ -88,6 +94,39 @@ const DashboardPage = () => {
         }
     }
 };
+
+const fetchVisualizers = async () => {
+  if (!session?.user?.email) return; // Evita errores si el usuario no está autenticado
+
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/dependencies/all`
+    );
+
+    console.log("🔍 Respuesta del backend corregida:", response.data.dependencies); // 👀 DEBUG
+
+    // Verificar si el usuario está en la lista de visualizadores
+    const isUserVisualizer = response.data.dependencies.some((dep: any) =>
+      Array.isArray(dep.visualizers) && dep.visualizers.includes(session?.user?.email)
+    );
+
+    setIsVisualizer(isUserVisualizer);
+    console.log("✅ El usuario es visualizador:", isUserVisualizer); // 👀 DEBUG
+  } catch (error) {
+    console.error("❌ Error fetching visualizers:", error);
+  }
+};
+
+
+useEffect(() => {
+  if (status === "authenticated") {
+    fetchVisualizers();
+  }
+}, [session, status]);
+
+
+
+
 
 useEffect(() => {
     if (status === "authenticated" && selectedPeriodId) {
@@ -583,7 +622,25 @@ useEffect(() => {
           </Card>
         </Grid.Col>,
         );
-        break;
+        if (isVisualizer) {
+          cards.push(
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="visualizer-dependencies">
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Center><IconBuilding size={80}/></Center>
+                <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>Ver Dependencias Hijas</Text>
+                </Group>
+                <Text ta={"center"} size="sm" color="dimmed">
+                  Accede a las dependencias en las que eres visualizador.
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependencies/child')}>
+                  Ir a Dependencias Hijas
+                </Button>
+              </Card>
+            </Grid.Col>
+          );
+        }
+  break;
       case "Usuario":
       default:
         cards.push(
