@@ -1,23 +1,12 @@
 "use client";
 import React from "react";
 import { Accordion, Button } from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react"; // Import Mantine's warning icon
 import Link from "next/link";
-
-interface Dependency {
-  _id: string;
-  dep_code: string;
-  name: string;
-  members: string[];
-  responsible: string;
-  dep_father: string;
-  children: Dependency[];
-}
-interface ChildrenDependency extends Dependency {
-  children: ChildrenDependency[];
-}
+import Dependency from "../interfaces/Dependency";
 
 interface Props {
-  dependencies: ChildrenDependency[];  
+  dependencies: Dependency[];
 }
 
 const DependencyTree = ({ dependencies }: Props) => {
@@ -25,25 +14,43 @@ const DependencyTree = ({ dependencies }: Props) => {
     return dependencies.map((dependency) => (
       <Accordion.Item key={dependency._id} value={dependency.dep_code}>
         <Accordion.Control>
-          <p style={{ fontWeight: "bold" }}> {dependency.name} </p>
+          <p style={{ fontWeight: "bold" }}>{dependency.name}</p>
         </Accordion.Control>
         <Accordion.Panel>
-          <div>
-            <strong>Responsible:</strong> {dependency.responsible || "N/A"}
-          </div>
-          <div>
-            <strong>Members:</strong>
-            <ul>
-              {dependency.members.map((member) => (
-                <li key={member}>{member}</li>
-              ))}
-            </ul>
+          {/* Responsible Indicator */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <strong>Líder(es):</strong>{" "}
+            {dependency.responsible ? (
+              dependency.responsible
+            ) : (
+              <span style={{ color: "red", display: "flex", alignItems: "center", gap: 5 }}>
+                <IconAlertCircle size={16} color="red" /> No establecido aún
+              </span>
+            )}
           </div>
 
+          {/* Members Indicator */}
+          <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+            <strong>Miembros:</strong>
+            {dependency.members.length > 0 ? (
+              <ul>
+                {dependency.members.map((member) => (
+                  <li key={member}>{member}</li>
+                ))}
+              </ul>
+            ) : (
+              <span style={{ color: "red", display: "flex", alignItems: "center", gap: 5 }}>
+                <IconAlertCircle size={16} color="red" /> Aún no han sido definidos
+              </span>
+            )}
+          </div>
+
+          {/* View Templates Button */}
           <Link href={`/dependency/children-dependencies/templates/${dependency._id}`}>
-            <Button> Ver plantillas de la dependencia </Button>
+            <Button style={{ marginBottom: 20 }}>Ver plantillas de la dependencia</Button>
           </Link>
 
+          {/* Recursive Accordion for Children */}
           {dependency.children.length > 0 && (
             <Accordion variant="contained">
               {renderHierarchy(dependency.children)}
@@ -54,9 +61,7 @@ const DependencyTree = ({ dependencies }: Props) => {
     ));
   };
 
-  return (
-    <Accordion variant="contained">{renderHierarchy(dependencies)}</Accordion>
-  );
+  return <Accordion variant="contained">{renderHierarchy(dependencies)}</Accordion>;
 };
 
 export default DependencyTree;

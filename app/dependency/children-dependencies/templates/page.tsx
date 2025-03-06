@@ -1,37 +1,16 @@
 "use client";
 
 import DependencyTree from "@/app/components/DependencyTree"; // Adjust the import path
-import { Text, Title } from "@mantine/core";
+import Dependency from "@/app/interfaces/Dependency";
+import { Title } from "@mantine/core";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-
-interface Dependency {
-  _id: string;
-  dep_code: string;
-  name: string;
-  members: string[];
-  responsible: string;
-  dep_father: string;
-}
-
-interface ChildrenDependency {
-  _id: string;
-  dep_code: string;
-  name: string;
-  members: string[];
-  responsible: string;
-  dep_father: string;
-  children: ChildrenDependency[];
-}
-
 const Page = () => {
   const { data: session } = useSession();
   const [fatherDependency, setFatherDependency] = useState<Dependency>();
-  const [childrenDependencies, setChildrenDependencies] = useState<
-    ChildrenDependency[]
-  >([]);
+  const [childrenDependencies, setChildrenDependencies] = useState<Dependency[]>([]);
 
   useEffect(() => {
     const fetchFatherDependencyWithHierarchy = async () => {
