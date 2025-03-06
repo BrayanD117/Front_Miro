@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Badge, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 import { useColorScheme } from "@mantine/hooks";
@@ -203,7 +203,25 @@ useEffect(() => {
       }
     };
 
+    const checkIfUserIsVisualizerOfDependency = async () => {
+      if (session?.user?.email) {
+        try {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/dependencies/all`,
+            { params: { search: session.user.email } }
+          );
+          const userDependencies = response.data.dependencies.filter(
+            (dependency: any) => dependency.visualizers.includes(session?.user?.email)
+          );
+          setIsVisualizer(userDependencies.length > 0);
+        } catch (error) {
+          console.error("Error checking user responsibilities:", error);
+        }
+      }
+    };
+
     checkIfUserIsResponsible();
+    checkIfUserIsVisualizerOfDependency();
   }, [session]);
 
   const renderMessage = () => {
@@ -622,19 +640,19 @@ useEffect(() => {
           </Card>
         </Grid.Col>,
         );
-        if (isVisualizer) {
+        if (isVisualizer){
           cards.push(
-            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="visualizer-dependencies">
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="administer-dependency">
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Center><IconBuilding size={80}/></Center>
+                <Center><IconHierarchy2 size={80}/></Center>
                 <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Ver Dependencias Hijas</Text>
+                  <Text ta={"center"} w={500}>Visualizar plantillas de dependencias hijo</Text>
                 </Group>
                 <Text ta={"center"} size="sm" color="dimmed">
-                  Accede a las dependencias en las que eres visualizador.
+                  Observa el progreso de carga de las plantillas de tus dependencias hijo
                 </Text>
-                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependencies/child')}>
-                  Ir a Dependencias Hijas
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency/children-dependencies/templates')}>
+                  Ir a visualizador
                 </Button>
               </Card>
             </Grid.Col>
@@ -669,6 +687,8 @@ useEffect(() => {
         </Grid.Col>
       );
     }
+
+    
 
     return cards;
   };
