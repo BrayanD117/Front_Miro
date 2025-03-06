@@ -104,17 +104,8 @@ const AdminUpdateDependencyPage = () => {
             roles: [],
           })),
         ]
-      );
-
-      if (
-        dependency.visualizers &&
-        Array.isArray(dependency.visualizers)
-      ) {
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}/visualizers`,
-          { visualizers: dependency.visualizers }
-        );
-      }
+      ); 
+      
 
       showNotification({
         title: "Actualizado",

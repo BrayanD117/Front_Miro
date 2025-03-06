@@ -1,6 +1,6 @@
 "use client";
 
-import DependencyTree from "@/app/components/DependencyTree"; // Adjust the import path
+import DependencyTree from "@/app/components/DependencyTree"; 
 import Dependency from "@/app/interfaces/Dependency";
 import { Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
@@ -9,17 +9,15 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { usePeriod } from "@/app/context/PeriodContext"; 
 
-const Page = () => {
+const ReportsPage = () => {
   const { data: session } = useSession();
   const { selectedPeriodId } = usePeriod();
   const [loading, setLoading] = useState<boolean>(false);
   const [fatherDependency, setFatherDependency] = useState<Dependency>();
-  const [childrenDependencies, setChildrenDependencies] = useState<
-    Dependency[]
-  >([]);
+  const [childrenDependencies, setChildrenDependencies] = useState<Dependency[]>([]);
 
   useEffect(() => {
-    const fetchFatherDependencyWithHierarchy = async () => {
+    const fetchFatherDependencyWithReports = async () => {
       if (!session?.user?.email || !selectedPeriodId) return;
       setLoading(true);
       try {
@@ -29,26 +27,27 @@ const Page = () => {
             { params: { periodId: selectedPeriodId } }
         );
 
-        console.log("Datos actualizados:", response.data);
+        console.log("Reports data updated:", response.data);
 
         setFatherDependency(response.data.fatherDependency ?? undefined);
         setChildrenDependencies(response.data.childrenDependencies ?? []);
       } catch (error) {
-        console.error("Error fetching templates:", error);
+        console.error("Error fetching reports:", error);
         showNotification({
           title: "Error",
-          message: "Ocurrió un error",
+          message: "Ocurrió un error al obtener los reports.",
           color: "red",
         });
-      }finally {
+      } finally {
         setLoading(false);
       }
     };
 
+    // Reset data when period or dependency changes
     setFatherDependency(undefined);
     setChildrenDependencies([]);
-    
-    fetchFatherDependencyWithHierarchy();
+
+    fetchFatherDependencyWithReports();
   }, [session?.user?.email, selectedPeriodId]);
 
   return (
@@ -56,14 +55,13 @@ const Page = () => {
       {fatherDependency && (
         <>
           <Title __size="sm" mb={15}>
-            {" "}
-            Plantillas hijas de la dependencia {fatherDependency.name}
+            Reportes de dependencias hijas {fatherDependency.name}
           </Title>
-          <DependencyTree dependencies={childrenDependencies} />
-        </>
+          <DependencyTree dependencies={childrenDependencies} showReports={true} />
+          </>
       )}
     </div>
   );
 };
 
-export default Page;
+export default ReportsPage;

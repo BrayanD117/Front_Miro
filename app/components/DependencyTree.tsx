@@ -7,9 +7,10 @@ import Dependency from "../interfaces/Dependency";
 
 interface Props {
   dependencies: Dependency[];
+  showReports?: boolean; 
 }
 
-const DependencyTree = ({ dependencies }: Props) => {
+const DependencyTree = ({ dependencies, showReports = false }: Props) => { 
   const renderHierarchy = (dependencies: Dependency[]) => {
     return dependencies.map((dependency) => (
       <Accordion.Item key={dependency._id} value={dependency.dep_code}>
@@ -46,8 +47,11 @@ const DependencyTree = ({ dependencies }: Props) => {
           </div>
 
           {/* View Templates Button */}
-          <Link href={`/dependency/children-dependencies/templates/${dependency._id}`}>
-            <Button style={{ marginBottom: 20 }}>Ver plantillas de la dependencia</Button>
+          {/* Muestra el botón correcto según la página */}
+          <Link href={`/dependency/children-dependencies/${showReports ? "reports" : "templates"}/${dependency._id}`}>
+            <Button style={{ marginBottom: 20 }}>
+              {showReports ? "Ver reportes de la dependencia" : "Ver plantillas de la dependencia"}
+            </Button>
           </Link>
 
           {/* Recursive Accordion for Children */}

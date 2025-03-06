@@ -655,9 +655,31 @@ useEffect(() => {
                   Ir a visualizador
                 </Button>
               </Card>
-            </Grid.Col>
-          );
-        }
+            </Grid.Col>,
+ <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="view-child-dependency-reports">
+ <Card shadow="sm" padding="lg" radius="md" withBorder>
+   <Center>
+     <IconClipboardData size={80} />
+   </Center>
+   <Group mt="md" mb="xs">
+     <Text ta={"center"} w={500}>Visualizar reportes de dependencias hijo</Text>
+   </Group>
+   <Text ta={"center"} size="sm" color="dimmed">
+     Observa los reportes generados por las dependencias hijo y su estado de cumplimiento.
+   </Text>
+   <Button
+     variant="light"
+     fullWidth
+     mt="md"
+     radius="md"
+     onClick={() => router.push('/dependency/children-dependencies/reports')}
+   >
+     Ir a visualizador de reportes
+   </Button>
+ </Card>
+</Grid.Col>
+);
+}
   break;
       case "Usuario":
       default:
