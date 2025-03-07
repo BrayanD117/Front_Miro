@@ -106,26 +106,30 @@ const ProducerReportsPage = () => {
         const reports = response.data.publishedReports;
         setPublishedReports(reports);
         setPendingReportsCount(response.data.totalPending || 0);
+     // Se obtiene el total de reportes publicados
+            const totalReports = response.data.publishedReports.length;
 
-        // Obtener la fecha de vencimiento más próxima
-        const pendingReports = reports.filter(
-          (pRep: PublishedReport) => !pRep.filled_reports[0] || pRep.filled_reports[0].status === "Pendiente"
-        );
+            // Se filtran los reportes pendientes
+            const pendingReportsData = response.data.publishedReports.filter(
+                (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
+            );
 
-        const sortedPendingReports = pendingReports.sort((a: PublishedReport, b: PublishedReport) => {
-          return dayjs(a.deadline).isBefore(dayjs(b.deadline)) ? -1 : 1;
-        });
-
-        setNextDeadline(
-          sortedPendingReports.length > 0
-            ? dayjs(sortedPendingReports[0].deadline).format("DD/MM/YYYY")
-            : null
-        );
+            // Se establece el número de reportes pendientes
+            setPendingReportsCount(pendingReportsData.length);
+            setNextDeadline(
+                pendingReportsData.length > 0 ? dayjs(pendingReportsData[0].deadline).format("DD/MM/YYYY") : null
+            );
       }
     } catch (error) {
       console.error(error);
     }
   };
+
+  // Filtrar reportes pendientes (estado "Pendiente" o sin reportes llenados)
+const pendingReports = publishedReports.filter((pRep) => {
+  const firstReport = pRep.filled_reports[0];
+  return !firstReport || firstReport.status === "Pendiente";
+});
 
 
   const completedReports = publishedReports.filter((pRep) => {
@@ -149,7 +153,7 @@ const ProducerReportsPage = () => {
         </Table.Td>
         <Table.Td>
           <Center>
-            {pRep.filled_reports[0] ? dateToGMT(pRep.filled_reports[0].status_date) : ""}
+           
           </Center>
         </Table.Td>
         <Table.Td>
@@ -208,7 +212,7 @@ const ProducerReportsPage = () => {
         </Table.Thead>
         <Table.Tbody>
         {publishedReports.length > 0 ? (
-            renderReportRows(publishedReports)
+            renderReportRows(pendingReports)
           ) : (
             <Table.Tr>
               <Table.Td colSpan={6} align="center">
