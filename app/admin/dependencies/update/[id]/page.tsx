@@ -165,7 +165,7 @@ const AdminUpdateDependencyPage = () => {
       />
       <TextInput label="Nombre" value={dependency.name} readOnly mb="md" />
 
-      <Select
+      {/* <Select
         label="Líder de Dependencia"
         value={dependency.responsible}
         onChange={(value) =>
@@ -179,7 +179,7 @@ const AdminUpdateDependencyPage = () => {
         allowDeselect={false}
         searchable
         nothingFoundMessage="No existe ningún miembro con ese nombre."
-      />
+      /> */}
       <MultiSelect
         label="Visualizadores"
         placeholder={

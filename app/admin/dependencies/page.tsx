@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text } from "@mantine/core";
+import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, Select, MultiSelect, Text, Badge } from "@mantine/core";
 import { IconEdit, IconRefresh, IconTrash, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown } from "@tabler/icons-react";
 import axios from "axios";
 import { useRouter } from 'next/navigation';
@@ -16,6 +16,7 @@ interface Dependency {
   members: string[];
   responsible: string;
   dep_father: string;
+  visualizers: string[]
 }
 
 interface MemberOption {
@@ -173,7 +174,17 @@ const AdminDependenciesPage = () => {
     <Table.Tr key={dependency._id}>
       <Table.Td>{dependency.dep_code}</Table.Td>
       <Table.Td>{dependency.name}</Table.Td>
-      <Table.Td>{dependency.responsible}</Table.Td>
+      <Table.Td>
+        {dependency.visualizers.length > 0 ? <Group gap={5}>
+    {dependency.visualizers.slice(0, 1).map((v, index) => (
+      <Text key={index} > {v} </Text>
+    ))}
+    {dependency.visualizers.length > 1 && (
+      <Badge variant="outline">+{dependency.visualizers.length - 1} más</Badge>
+    )}
+  </Group> : <Text> No definido </Text> }
+  
+</Table.Td>
       {/* <Table.Td>{dependency.dep_father}</Table.Td> */}
       <Table.Td>
         <Center>
@@ -242,7 +253,7 @@ const AdminDependenciesPage = () => {
             </Table.Th>
             <Table.Th onClick={() => handleSort("responsible")} style={{ cursor: "pointer" }}>
               <Center inline>
-                Responsable
+                Responsable(s)
                 {sortConfig.key === "responsible" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
