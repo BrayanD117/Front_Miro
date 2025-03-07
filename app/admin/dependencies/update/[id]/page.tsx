@@ -33,7 +33,7 @@ const AdminUpdateDependencyPage = () => {
     responsible: "",
     dep_father: "",
     members: [] as string[],
-    visualizers: [] as string[], 
+    visualizers: [] as string[],
   });
   const [members, setMembers] = useState<Member[]>([]);
   const [selectAllProducers, setSelectAllProducers] = useState(false);
@@ -45,7 +45,7 @@ const AdminUpdateDependencyPage = () => {
           const response = await axios.get(
             `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}`
           );
-          
+
           setDependency(response.data);
           const membersResponse = await axios.get(
             `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${response.data.dep_code}/members`
@@ -104,8 +104,15 @@ const AdminUpdateDependencyPage = () => {
             roles: [],
           })),
         ]
-      ); 
-      
+      );
+
+      if (dependency.visualizers && Array.isArray(dependency.visualizers)) {
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}/visualizers`,
+
+          { visualizers: dependency.visualizers }
+        );
+      }
 
       showNotification({
         title: "Actualizado",
@@ -173,19 +180,25 @@ const AdminUpdateDependencyPage = () => {
         searchable
         nothingFoundMessage="No existe ningún miembro con ese nombre."
       />
-    <MultiSelect
-      label="Visualizadores"
-      placeholder={(dependency.visualizers && dependency.visualizers.length > 0) ? "" : "Selecciona visualizadores"}
-      data={members.map((member) => ({
-        value: member.email,
-        label: member.full_name,
-      }))}
-      value={dependency.visualizers ?? []} 
-      onChange={(values) => setDependency({ ...dependency, visualizers: values })}
-      searchable
-      clearable
-      mb="md"
-    />
+      <MultiSelect
+        label="Visualizadores"
+        placeholder={
+          dependency.visualizers && dependency.visualizers.length > 0
+            ? ""
+            : "Selecciona visualizadores"
+        }
+        data={members.map((member) => ({
+          value: member.email,
+          label: member.full_name,
+        }))}
+        value={dependency.visualizers ?? []}
+        onChange={(values) =>
+          setDependency({ ...dependency, visualizers: values })
+        }
+        searchable
+        clearable
+        mb="md"
+      />
       <Switch
         label="Activar todos los colaboradores"
         checked={selectAllProducers}
