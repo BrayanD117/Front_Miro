@@ -61,9 +61,6 @@ const DependencyReportsPage = () => {
             <Table.Th>
               <Center inline>Estado</Center>
             </Table.Th>
-            <Table.Th>
-              <Center inline>Acción</Center>
-            </Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -74,14 +71,6 @@ const DependencyReportsPage = () => {
                 <Badge color={report.isSent ? "green" : "red"}>
                   {report.isSent ? "ENVIADO" : "PENDIENTE"}
                 </Badge>
-              </Table.Td>
-              <Table.Td>
-                <Button
-                  variant="light"
-                  onClick={() => router.push(`/dependency/${id}/reports`)}
-                >
-                  Ver reportes de la dependencia
-                </Button>
               </Table.Td>
             </Table.Tr>
           ))}
