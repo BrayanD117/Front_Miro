@@ -35,6 +35,8 @@ const DependencyTemplatesPage = () => {
           }
         );
 
+        console.log(" Plantillas obtenidas:", response.data);
+
         setTemplates(response.data.templates ?? []);
         setDependencyName(response.data.dependencyName);
       } catch (error) {

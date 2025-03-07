@@ -4,13 +4,14 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Badge, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 import { useColorScheme } from "@mantine/hooks";
 import { usePeriod } from "@/app/context/PeriodContext";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import { useParams } from "next/navigation";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
@@ -28,6 +29,11 @@ const DashboardPage = () => {
   const [nextReportDeadline, setNextReportDeadline] = useState<string | null>(null);
   const [nextTemplateDeadline, setNextTemplateDeadline] = useState<string | null>(null);
   const { selectedPeriodId } = usePeriod();
+  const [isVisualizer, setIsVisualizer] = useState(false);
+  const userEmail = session?.user?.email ?? "";
+
+  const params = useParams();
+const { id } = params ?? {};
 
   const fetchPendingItems = async (role: string) => {
     if (session?.user?.email && selectedPeriodId) {
@@ -95,6 +101,39 @@ const DashboardPage = () => {
         }
     }
 };
+
+
+const fetchVisualizers = async () => {
+  if (!session?.user?.email) return; // Evita errores si el usuario no está autenticado
+
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/dependencies/all`
+    );
+
+    console.log("🔍 Respuesta del backend corregida:", response.data.dependencies); // 👀 DEBUG
+
+    // Verificar si el usuario está en la lista de visualizadores
+    const isUserVisualizer = response.data.dependencies.some((dep: any) =>
+      Array.isArray(dep.visualizers) && dep.visualizers.includes(session?.user?.email)
+    );
+
+    setIsVisualizer(isUserVisualizer);
+    console.log("✅ El usuario es visualizador:", isUserVisualizer); // 👀 DEBUG
+  } catch (error) {
+    console.error("❌ Error fetching visualizers:", error);
+  }
+};
+
+
+useEffect(() => {
+  if (status === "authenticated") {
+    fetchVisualizers();
+  }
+}, [session, status]);
+
+
+
 
 
 useEffect(() => {
@@ -172,7 +211,25 @@ useEffect(() => {
       }
     };
 
+    const checkIfUserIsVisualizerOfDependency = async () => {
+      if (session?.user?.email) {
+        try {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/dependencies/all`,
+            { params: { search: session.user.email } }
+          );
+          const userDependencies = response.data.dependencies.filter(
+            (dependency: any) => dependency.visualizers.includes(session?.user?.email)
+          );
+          setIsVisualizer(userDependencies.length > 0);
+        } catch (error) {
+          console.error("Error checking user responsibilities:", error);
+        }
+      }
+    };
+
     checkIfUserIsResponsible();
+    checkIfUserIsVisualizerOfDependency();
   }, [session]);
 
   const renderMessage = () => {
@@ -591,7 +648,47 @@ useEffect(() => {
           </Card>
         </Grid.Col>,
         );
-        break;
+        if (isVisualizer){
+          cards.push(
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="administer-dependency">
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Center><IconHierarchy2 size={80}/></Center>
+                <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>Visualizar plantillas de dependencias hijo</Text>
+                </Group>
+                <Text ta={"center"} size="sm" color="dimmed">
+                  Observa el progreso de carga de las plantillas de tus dependencias hijo
+                </Text>
+                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency/children-dependencies/templates')}>
+                  Ir a visualizador
+                </Button>
+              </Card>
+            </Grid.Col>,
+ <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="view-child-dependency-reports">
+ <Card shadow="sm" padding="lg" radius="md" withBorder>
+   <Center>
+     <IconClipboardData size={80} />
+   </Center>
+   <Group mt="md" mb="xs">
+     <Text ta={"center"} w={500}>Visualizar reportes de dependencias hijo</Text>
+   </Group>
+   <Text ta={"center"} size="sm" color="dimmed">
+     Observa los reportes generados por las dependencias hijo y su estado de cumplimiento.
+   </Text>
+   <Button
+     variant="light"
+     fullWidth
+     mt="md"
+     radius="md"
+     onClick={() => router.push('/dependency/children-dependencies/reports')}
+   >
+     Ir a visualizador de reportes
+   </Button>
+ </Card>
+</Grid.Col>
+);
+}
+  break;
       case "Usuario":
       default:
         cards.push(
@@ -620,6 +717,8 @@ useEffect(() => {
         </Grid.Col>
       );
     }
+
+    
 
     return cards;
   };

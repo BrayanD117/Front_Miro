@@ -1,62 +1,62 @@
 "use client";
 
-import { Center, Container, Table, Badge } from "@mantine/core";
+import { Center, Container, Table, Badge, Button } from "@mantine/core";
 import axios from "axios";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { usePeriod } from "@/app/context/PeriodContext";
 
-interface Template {
+interface Report {
   _id: string;
   name: string;
   isSent: boolean;
 }
 
-const DependencyTemplatesPage = () => {
+const DependencyReportsPage = () => {
   const params = useParams();
+  const router = useRouter();
   const { selectedPeriodId } = usePeriod();
   const { id } = params;
 
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [dependencyName, setDependencyName] = useState<string>("");
 
   useEffect(() => {
     if (!id || !selectedPeriodId) return;
 
-    const fetchDependencyTemplates = async () => {
+    const fetchDependencyReports = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}/templates`,
+          `${process.env.NEXT_PUBLIC_API_URL}/dependencies/${id}/reports`,
           {
-            params: {
-              periodId: selectedPeriodId,
-              limit: 10,
-            },
+            params: { periodId: selectedPeriodId, limit: 10 },
           }
         );
 
-        setTemplates(response.data.templates ?? []);
+        console.log("Reportes obtenidos:", response.data);
+
+        setReports(response.data.reports ?? []);
         setDependencyName(response.data.dependencyName);
       } catch (error) {
-        console.error("Error fetching templates:", error);
+        console.error("Error al obtener reportes:", error);
       }
     };
 
-    fetchDependencyTemplates();
+    fetchDependencyReports();
   }, [id, selectedPeriodId]);
 
   return (
     <Container size="xl">
       <h2>
         {dependencyName
-          ? `Plantillas asignadas a la dependencia ${dependencyName}`
-          : "Plantillas"}
+          ? `Reportes asignados a la dependencia ${dependencyName}`
+          : "Reportes"}
       </h2>
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
             <Table.Th>
-              <Center inline>Plantilla</Center>
+              <Center inline>Reporte</Center>
             </Table.Th>
             <Table.Th>
               <Center inline>Estado</Center>
@@ -64,12 +64,12 @@ const DependencyTemplatesPage = () => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {templates.map((template) => (
-            <Table.Tr key={template._id}>
-              <Table.Td>{template.name}</Table.Td>
+          {reports.map((report) => (
+            <Table.Tr key={report._id}>
+              <Table.Td>{report.name}</Table.Td>
               <Table.Td>
-                <Badge color={template.isSent ? "green" : "red"}>
-                  {template.isSent ? "CARGADA" : "PENDIENTE"}
+                <Badge color={report.isSent ? "green" : "red"}>
+                  {report.isSent ? "ENVIADO" : "PENDIENTE"}
                 </Badge>
               </Table.Td>
             </Table.Tr>
@@ -80,4 +80,4 @@ const DependencyTemplatesPage = () => {
   );
 };
 
-export default DependencyTemplatesPage;
+export default DependencyReportsPage;
