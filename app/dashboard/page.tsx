@@ -648,46 +648,99 @@ useEffect(() => {
           </Card>
         </Grid.Col>,
         );
-        if (isVisualizer){
+        if (isVisualizer) {
+
           cards.push(
-            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="administer-dependency">
+            <Grid.Col
+            span={{ base: 12, md: 5, lg: 4 }}
+            key="administer-dependency"
+          >
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconUserStar size={80} />
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>
+                  Administrar Mi Dependencia
+                </Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Selecciona qué miembros de tu equipo tendrán acceso a Miró
+              </Text>
+              <Button
+                variant="light"
+                fullWidth
+                mt="md"
+                radius="md"
+                onClick={() => router.push("/dependency")}
+              >
+                Ir a Gestión de Dependencia
+              </Button>
+            </Card>
+          </Grid.Col>,
+
+            <Grid.Col
+              span={{ base: 12, md: 5, lg: 4 }}
+              key="view-child-dependency-templates"
+            >
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Center><IconHierarchy2 size={80}/></Center>
+                <Center>
+                  <IconHierarchy2 size={80} />
+                </Center>
                 <Group mt="md" mb="xs">
-                  <Text ta={"center"} w={500}>Visualizar plantillas de dependencias hijo</Text>
+                  <Text ta={"center"} w={500}>
+                    Visualizar plantillas de dependencias hijo
+                  </Text>
                 </Group>
                 <Text ta={"center"} size="sm" color="dimmed">
-                  Observa el progreso de carga de las plantillas de tus dependencias hijo
+                  Observa el progreso de carga de las plantillas de tus
+                  dependencias hijo
                 </Text>
-                <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency/children-dependencies/templates')}>
+                <Button
+                  variant="light"
+                  fullWidth
+                  mt="md"
+                  radius="md"
+                  onClick={() =>
+                    router.push("/dependency/children-dependencies/templates")
+                  }
+                >
                   Ir a visualizador
                 </Button>
               </Card>
             </Grid.Col>,
- <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="view-child-dependency-reports">
- <Card shadow="sm" padding="lg" radius="md" withBorder>
-   <Center>
-     <IconClipboardData size={80} />
-   </Center>
-   <Group mt="md" mb="xs">
-     <Text ta={"center"} w={500}>Visualizar reportes de dependencias hijo</Text>
-   </Group>
-   <Text ta={"center"} size="sm" color="dimmed">
-     Observa los reportes generados por las dependencias hijo y su estado de cumplimiento.
-   </Text>
-   <Button
-     variant="light"
-     fullWidth
-     mt="md"
-     radius="md"
-     onClick={() => router.push('/dependency/children-dependencies/reports')}
-   >
-     Ir a visualizador de reportes
-   </Button>
- </Card>
-</Grid.Col>
-);
-}
+            <Grid.Col
+              span={{ base: 12, md: 5, lg: 4 }}
+              key="view-child-dependency-reports"
+            >
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Center>
+                  <IconClipboardData size={80} />
+                </Center>
+                <Group mt="md" mb="xs">
+                  <Text ta={"center"} w={500}>
+                    Visualizar reportes de dependencias hijo
+                  </Text>
+                </Group>
+                <Text ta={"center"} size="sm" color="dimmed">
+                  Observa los reportes generados por las dependencias hijo y su
+                  estado de cumplimiento.
+                </Text>
+                <Button
+                  variant="light"
+                  fullWidth
+                  mt="md"
+                  radius="md"
+                  onClick={() =>
+                    router.push("/dependency/children-dependencies/reports")
+                  }
+                >
+                  Ir a visualizador de reportes
+                </Button>
+              </Card>
+            </Grid.Col>
+          );
+        }
   break;
       case "Usuario":
       default:
@@ -699,27 +752,24 @@ useEffect(() => {
         break;
     }
 
-    if (isResponsible) {
-      cards.push(
-        <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="administer-dependency">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Center><IconUserStar size={80}/></Center>
-            <Group mt="md" mb="xs">
-              <Text ta={"center"} w={500}>Administrar Mi Dependencia</Text>
-            </Group>
-            <Text ta={"center"} size="sm" color="dimmed">
-              Selecciona qué miembros de tu equipo tendrán acceso a Miró
-            </Text>
-            <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency')}>
-              Ir a Gestión de Dependencia
-            </Button>
-          </Card>
-        </Grid.Col>
-      );
-    }
-
-    
-
+    // if (isResponsible) {
+    //   cards.push(
+    //     <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="administer-dependency">
+    //       <Card shadow="sm" padding="lg" radius="md" withBorder>
+    //         <Center><IconUserStar size={80}/></Center>
+    //         <Group mt="md" mb="xs">
+    //           <Text ta={"center"} w={500}>Administrar Mi Dependencia</Text>
+    //         </Group>
+    //         <Text ta={"center"} size="sm" color="dimmed">
+    //           Selecciona qué miembros de tu equipo tendrán acceso a Miró
+    //         </Text>
+    //         <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/dependency')}>
+    //           Ir a Gestión de Dependencia
+    //         </Button>
+    //       </Card>
+    //     </Grid.Col>
+    //   );
+    // }
     return cards;
   };
 

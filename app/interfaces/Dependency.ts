@@ -6,6 +6,7 @@ interface Dependency {
   members: string[];
   name: string;
   responsible: string;
+  visualizers: string[]
 }
 
 export default Dependency;

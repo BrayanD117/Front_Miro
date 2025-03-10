@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Accordion, Button } from "@mantine/core";
+import { Accordion, Badge, Button, Group, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react"; // Import Mantine's warning icon
 import Link from "next/link";
 import Dependency from "../interfaces/Dependency";
@@ -18,16 +18,15 @@ const DependencyTree = ({ dependencies, showReports = false }: Props) => {
           <p style={{ fontWeight: "bold" }}>{dependency.name}</p>
         </Accordion.Control>
         <Accordion.Panel>
-          {/* Responsible Indicator */}
+          {/* Visualizers Indicator */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <strong>Líder(es):</strong>{" "}
-            {dependency.responsible ? (
-              dependency.responsible
-            ) : (
-              <span style={{ color: "red", display: "flex", alignItems: "center", gap: 5 }}>
-                <IconAlertCircle size={16} color="red" /> No establecido aún
-              </span>
-            )}
+             {dependency.visualizers.length > 0 ? 
+              <ul>
+                {dependency.visualizers.map((member) => (
+                  <li key={member}>{member}</li>
+                ))}
+              </ul> : <Text> No definido </Text> }
           </div>
 
           {/* Members Indicator */}

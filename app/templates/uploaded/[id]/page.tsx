@@ -13,6 +13,7 @@ import {
   Tooltip,
   Button,
   Group,
+  Badge,
 } from "@mantine/core";
 import { useSession } from "next-auth/react";
 import { IconCheck, IconX, IconArrowLeft, IconCheckupList, IconTableRow } from "@tabler/icons-react";
@@ -34,6 +35,7 @@ interface Dependency {
   dep_code: string,
   name: string,
   responsible: string
+  visualizers: string[]
 }
 
 interface ResumeData {
@@ -158,17 +160,26 @@ const UploadedTemplatePage = () => {
     const hasSentData = resumeData?.some(data => data.dependency===dependency.dep_code)
     return (
       <Table.Tr key={dependency.dep_code} c={!hasSentData ? "red" : undefined}>
+        <Table.Td>{dependency.name}</Table.Td>
         <Table.Td>
-          {dependency.name}
+          {dependency.visualizers.length > 0 ? (
+            <Group gap={5}>
+              {dependency.visualizers.slice(0, 1).map((v, index) => (
+                <Text key={index}> {v} </Text>
+              ))}
+              {dependency.visualizers.length > 1 && (
+                <Badge variant="outline">
+                  +{dependency.visualizers.length - 1} más
+                </Badge>
+              )}
+            </Group>
+          ) : (
+            <Text> No definido </Text>
+          )}
         </Table.Td>
-        <Table.Td>
-          {dependency.responsible ?? "No tiene un responsable asignado"}
-        </Table.Td>
-        <Table.Td>
-          {hasSentData ? "✓ Enviado" : "✗ No enviado"}
-        </Table.Td>
+        <Table.Td>{hasSentData ? "✓ Enviado" : "✗ No enviado"}</Table.Td>
       </Table.Tr>
-    )
+    );
   })
 
   return (
@@ -220,7 +231,7 @@ const UploadedTemplatePage = () => {
               Dependencia
             </Table.Th>
             <Table.Th>
-              Responsable
+              Líder(es)
             </Table.Th>
             <Table.Th>
               Estado de envío

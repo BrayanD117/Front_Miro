@@ -253,7 +253,7 @@ const AdminDependenciesPage = () => {
             </Table.Th>
             <Table.Th onClick={() => handleSort("responsible")} style={{ cursor: "pointer" }}>
               <Center inline>
-                Responsable(s)
+                Líder(es)
                 {sortConfig.key === "responsible" ? (
                   sortConfig.direction === "asc" ? (
                     <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
