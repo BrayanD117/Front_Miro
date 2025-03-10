@@ -160,11 +160,11 @@ const DependencyPage = () => {
         readOnly        
       /> */}
       <MultiSelect
-        label="Visualizadores"
+        label="Líderes"
         placeholder={
           dependency.visualizers && dependency.visualizers.length > 0
             ? ""
-            : "Selecciona visualizadores"
+            : "Selecciona los líderes de la dependencia"
         }
         data={members.map((member) => ({
           value: member.email,
