@@ -481,6 +481,13 @@ const AdminTemplatesPage = () => {
         >
           Crear Nueva Plantilla
         </Button>
+        <Button
+    onClick={() => router.push('/templates/categorize')}  
+    leftSection={<IconArrowsTransferDown size={16} />}
+  >
+    Categorizar Plantillas
+  </Button>
+
         <Button 
           ml={"auto"} 
           onClick={() => router.push('/templates/published')}

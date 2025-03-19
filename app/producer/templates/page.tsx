@@ -72,6 +72,7 @@ interface Template {
   file_description: string;
   fields: Field[];
   active: boolean;
+  category?: string; 
 }
 
 interface FilledFieldData {
@@ -454,6 +455,7 @@ const ProducerTemplatesPage = () => {
     const uploadDisable = handleDisableUpload(publishedTemplate);
     return (
       <Table.Tr key={publishedTemplate._id}>
+        <Table.Td>{publishedTemplate.template.category}</Table.Td> {/* Aquí es donde ahora mostramos la categoría */}
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
         <Table.Td>
@@ -575,6 +577,12 @@ const ProducerTemplatesPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
+          <Table.Th>
+  <Center inline>
+    Categoría
+  </Center>
+</Table.Th>
+
           <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
               <Center inline>
                 Periodo
