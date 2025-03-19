@@ -23,7 +23,7 @@ export const PeriodProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchPeriods = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periods/allperiods`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periods/active`);
         if (Array.isArray(response.data)) {
           setAvailablePeriods(response.data);
   
