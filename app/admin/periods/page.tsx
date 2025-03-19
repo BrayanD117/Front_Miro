@@ -5,7 +5,7 @@ import { Container, Table, Button, Modal, TextInput, Group, Pagination, Center, 
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
-import { IconArrowBigDownFilled, IconArrowBigUpFilled, IconArrowsTransferDown, IconCirclePlus, IconCopy, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconArrowBigDownFilled, IconArrowBigUpFilled, IconArrowsTransferDown, IconCheck, IconCirclePlus, IconCopy, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
 import { useSort } from "../../hooks/useSort";
 import DateConfig, { dateToGMT, dateNow } from "@/app/components/DateConfig";
 import "dayjs/locale/es";
@@ -83,6 +83,7 @@ const AdminPeriodsPage = () => {
 
   const handleSave = async () => {
     if (!name || name.length > 6  || !startDate || !endDate || !productorStartDate || !productorEndDate || !responsibleStartDate || !responsibleEndDate) {
+      console.error(name, startDate, endDate, productorStartDate, productorEndDate, responsibleStartDate, responsibleEndDate);
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -172,7 +173,38 @@ const AdminPeriodsPage = () => {
       <Table.Td><Center>{dateToGMT(period.producer_end_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{dateToGMT(period.responsible_start_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{dateToGMT(period.responsible_end_date, "DD MMM, YYYY")}</Center></Table.Td>
-      <Table.Td><Center>{period.is_active ? "Activo" : "Inactivo"}</Center></Table.Td>
+      <Table.Td><Center>    
+        <Switch
+          checked={period.is_active}
+          onChange={async (event) => {
+            const updatedPeriod = { ...period, is_active: event.currentTarget.checked };
+            try {
+              await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/periods/${period._id}`, updatedPeriod);
+              showNotification({
+                title: "Actualizado",
+                message: "Estado del periodo actualizado exitosamente",
+                color: "teal",
+              });
+              fetchPeriods(page, search);
+            } catch (error) {
+              console.error("Error actualizando estado del periodo:", error);
+              showNotification({
+                title: "Error",
+                message: "Hubo un error al actualizar el estado del periodo",
+                color: "red",
+              });
+            }
+          }}
+          color="blue"
+          thumbIcon={
+            period.is_active ? (
+              <IconCheck size={12} color="var(--mantine-color-blue-6)" stroke={3} />
+            ) : (
+              <IconX size={12} color="var(--mantine-color-red-6)" stroke={3} />
+            )
+          }
+        />
+      </Center></Table.Td>
       <Table.Td>
         <Center>
           <Group gap={5}>
