@@ -28,8 +28,7 @@ const EditCategoryPage = () => {
     // Fetch templates for the category
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all`);
-        setTemplates(response.data.templates);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all/no-pagination`);        setTemplates(response.data.templates);
       } catch (error) {
         console.error("Error fetching templates:", error);
       }
@@ -102,7 +101,7 @@ const EditCategoryPage = () => {
         color: "teal",
       });
 
-      router.push('/templates/categorize'); // Redirigir después de guardar
+      router.push('/templates/categories'); // Redirigir después de guardar
 
     } catch (error) {
       console.error("Error saving category:", error); // Log error details

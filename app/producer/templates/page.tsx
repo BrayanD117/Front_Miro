@@ -458,6 +458,8 @@ const ProducerTemplatesPage = () => {
         <Table.Td>{publishedTemplate.template.category}</Table.Td> {/* Aquí es donde ahora mostramos la categoría */}
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
+        <Table.Td></Table.Td>
+        
         <Table.Td>
   <Text ta="justify">
     {publishedTemplate.template.file_description}
