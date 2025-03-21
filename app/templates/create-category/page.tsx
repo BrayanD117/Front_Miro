@@ -50,50 +50,39 @@ const CreateCategoryPage = () => {
   };
 
   const handleSave = async () => {
-    if (!categoryName || fields.length === 0) {
+    if (!categoryName || fields.length === 0 || fields.some(field => !field.templateId)) {
       showNotification({
         title: "Error",
-        message: "Por favor ingrese el nombre de la categoría y asignar plantillas.",
+        message: "Ingrese el nombre de la categoría y asigne al menos una plantilla.",
         color: "red",
       });
       return;
     }
-  
+
     try {
       // Crear la categoría
       const categoryResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/categories/create`, {
         name: categoryName,
+        templates: fields, // Enviar plantillas junto con la categoría
       });
-  
-      const categoryId = categoryResponse.data._id;
-  
-      // Asignar plantillas con secuencia a la categoría
-      for (const field of fields) {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/categories/assign-template`, {
-          categoryId,
-          templateId: field.templateId,
-          sequence: field.sequence,
-        });
-      }
-  
+
       showNotification({
         title: "Categoría creada",
         message: "La categoría se ha creado exitosamente.",
         color: "teal",
       });
-  
-      router.push('/templates/categories'); // Redirigir después de guardar
-  
+
+      router.push("/templates/categories"); // Redirigir después de guardar
     } catch (error) {
-      console.error("Error saving category:", error); // Agrega detalles del error en la consola
+      console.error("Error saving category:", error);
       showNotification({
         title: "Error",
-        message: `Hubo un error al crear la categoría`, // Muestra detalles del error
+        message: "Hubo un error al crear la categoría.",
         color: "red",
       });
     }
   };
-  
+
 
   return (
     <Container size="xl">
@@ -128,14 +117,16 @@ const CreateCategoryPage = () => {
                           </Center>
                         </Table.Td>
                         <Table.Td>
-                          <Select
+                        <Select
                             value={field.templateId}
                             onChange={(value) => handleFieldChange(index, "templateId", value)}
                             data={templates.map((template) => ({
                               value: template._id,
                               label: template.name,
                             }))}
-                            placeholder="Seleccionar plantilla"
+                            searchable
+                            clearable
+                            placeholder="Buscar y seleccionar plantilla"
                           />
                         </Table.Td>
                         <Table.Td>

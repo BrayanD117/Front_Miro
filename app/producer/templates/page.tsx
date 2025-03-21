@@ -72,7 +72,6 @@ interface Template {
   file_description: string;
   fields: Field[];
   active: boolean;
-  category?: string; 
 }
 
 interface FilledFieldData {
@@ -111,6 +110,8 @@ interface PublishedTemplate {
   validators: Validator[];
   deadline: string | Date;
   isPending: boolean;
+  category: { name: string }; // Add this to the interface
+  sequence: number;
 }
 
 const ProducerTemplatesPage = () => {
@@ -452,14 +453,16 @@ const ProducerTemplatesPage = () => {
   };
 
   const rows = sortedTemplates.map((publishedTemplate) => {
+    console.log("Published Template:", publishedTemplate); // Agregar el log aquí para inspeccionar los datos
     const uploadDisable = handleDisableUpload(publishedTemplate);
     return (
       <Table.Tr key={publishedTemplate._id}>
-        <Table.Td>{publishedTemplate.template.category}</Table.Td> {/* Aquí es donde ahora mostramos la categoría */}
+         <Table.Td>{publishedTemplate.category ? publishedTemplate.category.name : 'Sin categoría'}</Table.Td>
+      <Table.Td>{publishedTemplate.sequence || 'No especificada'}</Table.Td>
+
+
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
-        <Table.Td></Table.Td>
-        
         <Table.Td>
   <Text ta="justify">
     {publishedTemplate.template.file_description}
@@ -579,10 +582,26 @@ const ProducerTemplatesPage = () => {
       <Table striped withTableBorder mt="md">
         <Table.Thead>
           <Table.Tr>
-          <Table.Th>
+          <Table.Th
+  onClick={() => handleSort("template.category.name")}
+  style={{ cursor: "pointer" }}
+>
   <Center inline>
     Categoría
+    {sortConfig.key === "template.category.name" ? (
+      sortConfig.direction === "asc" ? (
+        <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
+      ) : (
+        <IconArrowBigDownFilled size={16} style={{ marginLeft: "5px" }} />
+      )
+    ) : (
+      <IconArrowsTransferDown size={16} style={{ marginLeft: "5px" }} />
+    )}
   </Center>
+</Table.Th>
+
+<Table.Th>
+  <Center inline>Secuencia</Center>
 </Table.Th>
 
           <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>

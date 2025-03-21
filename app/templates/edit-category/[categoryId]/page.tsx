@@ -37,7 +37,9 @@ const EditCategoryPage = () => {
     const fetchCategory = async () => {
       if (categoryId) {
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}`);
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}`
+          );
           const category = response.data;
           setCategoryName(category.name);
           setFields(
@@ -72,46 +74,46 @@ const EditCategoryPage = () => {
   };
 
   const handleSave = async () => {
-    if (!categoryName || fields.length === 0) {
+    if (!categoryName || fields.length === 0 || fields.some(field => !field.templateId)) {
       showNotification({
         title: "Error",
-        message: "Por favor ingrese el nombre de la categoría y asignar plantillas.",
+        message: "Ingrese el nombre de la categoría y asigne al menos una plantilla.",
         color: "red",
       });
       return;
     }
-
+  
     try {
-      // Actualizar la categoría
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}`, {
+      // Crear el cuerpo de la solicitud con todas las plantillas
+      const categoryData = {
         name: categoryName,
-      });
-
-      // Actualizar las plantillas con la secuencia
-      for (const field of fields) {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/assign-template`, {
+        templates: fields.map(field => ({
           templateId: field.templateId,
-          sequence: field.sequence,
-        });
-      }
-
+          sequence: field.sequence
+        }))
+      };
+  
+      // Enviar la actualización de la categoría
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}`, categoryData);
+  
       showNotification({
         title: "Categoría actualizada",
         message: "La categoría se ha actualizado exitosamente.",
         color: "teal",
       });
-
-      router.push('/templates/categories'); // Redirigir después de guardar
-
+  
+      router.push("/templates/categories"); // Redirigir después de guardar
+  
     } catch (error) {
-      console.error("Error saving category:", error); // Log error details
+      console.error("Error updating category:", error);
       showNotification({
         title: "Error",
-        message: `Hubo un error al actualizar la categoría`,
+        message: "Hubo un error al actualizar la categoría.",
         color: "red",
       });
     }
   };
+  
 
   return (
     <Container size="xl">
@@ -146,14 +148,16 @@ const EditCategoryPage = () => {
                           </Center>
                         </Table.Td>
                         <Table.Td>
-                          <Select
+                        <Select
                             value={field.templateId}
                             onChange={(value) => handleFieldChange(index, "templateId", value)}
                             data={templates.map((template) => ({
                               value: template._id,
                               label: template.name,
                             }))}
-                            placeholder="Seleccionar plantilla"
+                            searchable
+                            clearable
+                            placeholder="Buscar y seleccionar plantilla"
                           />
                         </Table.Td>
                         <Table.Td>
