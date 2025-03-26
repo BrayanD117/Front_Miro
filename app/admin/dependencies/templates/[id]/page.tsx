@@ -21,8 +21,8 @@ const DependencyTemplatesPage = () => {
   const [dependencyName, setDependencyName] = useState<string>("");
 
   useEffect(() => {
-    if (!id || !selectedPeriodId) return;
-
+    if (!id || !selectedPeriodId) return; // Asegurarse de que los parámetros estén definidos
+  
     const fetchDependencyTemplates = async () => {
       try {
         const response = await axios.get(
@@ -34,17 +34,27 @@ const DependencyTemplatesPage = () => {
             },
           }
         );
-
-        setTemplates(response.data.templates ?? []);
-        setDependencyName(response.data.dependencyName);
+    
+        // Verifica la respuesta completa
+        console.log("Response from API:", response);
+        
+        // Asumiendo que la respuesta contiene un array de plantillas directamente
+        setTemplates(response.data); // Aquí asignamos los datos directamente
+    
+        // Si quieres obtener el nombre de la dependencia también
+        setDependencyName(response.data.dependencyName); // Asegúrate de que 'dependencyName' exista en la respuesta
+    
       } catch (error) {
         console.error("Error fetching templates:", error);
       }
     };
-
+    
+    
+  
     fetchDependencyTemplates();
-  }, [id, selectedPeriodId]);
-
+  }, [id, selectedPeriodId]); 
+  
+  console.log(templates); // Verifica que `templates` contiene los objetos esperados
   return (
     <Container size="xl">
       <h2>
