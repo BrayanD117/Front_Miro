@@ -42,6 +42,7 @@ import { usePeriod } from "@/app/context/PeriodContext";
 import { sanitizeSheetName, shouldAddWorksheet } from "@/app/utils/templateUtils";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import PublishedTemplatesPage from "@/app/responsible/children-dependencies/reports/page";
 
 const DropzoneButton = dynamic(
   () =>
@@ -50,6 +51,10 @@ const DropzoneButton = dynamic(
     ),
   { ssr: false }
 );
+
+interface Category {
+  name: string;
+}
 
 interface Field {
   name: string;
@@ -110,8 +115,8 @@ interface PublishedTemplate {
   validators: Validator[];
   deadline: string | Date;
   isPending: boolean;
-  category: { name: string }; // Add this to the interface
-  sequence: number;
+  category_name?: string;
+      sequence: number;
 }
 
 const ProducerTemplatesPage = () => {
@@ -132,6 +137,21 @@ const ProducerTemplatesPage = () => {
     useDisclosure(false);
   const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<PublishedTemplate>(templates, { key: null, direction: "asc" });
 
+  const fetchPublishedTemplates = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories/published-templates`);
+      if (response.data) {
+        setTemplates(response.data.publishedTemplates); // Suponiendo que el JSON contiene la lista en "publishedTemplates"
+      }
+    } catch (error) {
+      console.error("Error al obtener los templates publicados:", error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchPublishedTemplates();
+  }, []);
+  
   const fetchTemplates = async (page?: number, search?: string) => {
     try {
       const response = await axios.get(
@@ -156,6 +176,11 @@ const ProducerTemplatesPage = () => {
       setPendingCount(0);
     }
   };
+
+  useEffect(() => {
+    console.log("Template con categoría:", PublishedTemplatesPage);  // Verifica que category esté poblado correctamente
+  }, [PublishedTemplatesPage]);
+  
 
   useEffect(() => {
     console.log("ID de período seleccionado en la page:", selectedPeriodId);
@@ -457,8 +482,14 @@ const ProducerTemplatesPage = () => {
     const uploadDisable = handleDisableUpload(publishedTemplate);
     return (
       <Table.Tr key={publishedTemplate._id}>
-         <Table.Td>{publishedTemplate.category ? publishedTemplate.category.name : 'Sin categoría'}</Table.Td>
-      <Table.Td>{publishedTemplate.sequence || 'No especificada'}</Table.Td>
+<Table.Td>
+  {publishedTemplate.category_name || 'Sin categoría'}
+</Table.Td>
+
+
+
+
+<Table.Td>{publishedTemplate.sequence || 'No especificada'}</Table.Td>
 
 
         <Table.Td>{publishedTemplate.period.name}</Table.Td>

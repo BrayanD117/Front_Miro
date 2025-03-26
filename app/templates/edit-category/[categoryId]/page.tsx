@@ -18,17 +18,16 @@ interface Template {
 const EditCategoryPage = () => {
   const [categoryName, setCategoryName] = useState<string>('');
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [fields, setFields] = useState<any[]>([{ templateId: "", sequence: 1 }]);
+  const [fields, setFields] = useState<any[]>([]);
   const { data: session } = useSession();
   const router = useRouter();
-  
   const { categoryId } = useParams();
 
   useEffect(() => {
-    // Fetch templates for the category
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all/no-pagination`);        setTemplates(response.data.templates);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/all/no-pagination`);
+        setTemplates(response.data.templates);
       } catch (error) {
         console.error("Error fetching templates:", error);
       }
@@ -42,12 +41,12 @@ const EditCategoryPage = () => {
           );
           const category = response.data;
           setCategoryName(category.name);
-          setFields(
-            category.templates.map((template: any) => ({
-              templateId: template.templateId._id,
-              sequence: template.sequence,
-            }))
-          );
+          // Mapeamos las plantillas asociadas con sus secuencias
+          const templateFields = category.templates.map((template: any) => ({
+            templateId: template.templateId._id,
+            sequence: template.sequence,
+          }));
+          setFields(templateFields);
         } catch (error) {
           console.error("Error fetching category:", error);
         }
@@ -113,7 +112,6 @@ const EditCategoryPage = () => {
       });
     }
   };
-  
 
   return (
     <Container size="xl">
@@ -148,7 +146,7 @@ const EditCategoryPage = () => {
                           </Center>
                         </Table.Td>
                         <Table.Td>
-                        <Select
+                          <Select
                             value={field.templateId}
                             onChange={(value) => handleFieldChange(index, "templateId", value)}
                             data={templates.map((template) => ({
