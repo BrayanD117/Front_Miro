@@ -11,6 +11,13 @@ import { useDisclosure } from "@mantine/hooks";
 interface Category {
   _id: string;
   name: string;
+  templates: {
+    templateId: {
+      _id: string;
+      name: string; 
+    };
+    sequence: number;
+  }[];
 }
 
 const CategoryAdminPage = () => {
@@ -101,6 +108,7 @@ const CategoryAdminPage = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Nombre de la Categoría</Table.Th>
+            <Table.Th>Plantillas Asociadas</Table.Th>
             <Table.Th>Acciones</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -109,6 +117,18 @@ const CategoryAdminPage = () => {
             categories.map((category) => (
               <Table.Tr key={category._id}>
                 <Table.Td>{category.name}</Table.Td>
+                <Table.Td>
+  {category.templates.length > 0 ? (
+    <ul style={{ margin: 0, paddingLeft: 16 }}>
+      {category.templates.map((t) => (
+        <li key={t.templateId._id}>{t.templateId.name} (#{t.sequence})</li>
+      ))}
+    </ul>
+  ) : (
+    <i>No hay plantillas</i>
+  )}
+</Table.Td>
+
                 <Table.Td>
                   <Group>
                     <Tooltip label="Editar">
