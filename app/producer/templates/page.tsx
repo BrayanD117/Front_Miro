@@ -13,6 +13,7 @@ import {
   Group,
   Tooltip,
   Text,
+  Badge,
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications";
@@ -69,6 +70,12 @@ interface Dimension {
   name: string;
 }
 
+interface Category{
+  _id: string,
+  name:string,
+  templateSequence: number
+}
+
 interface Template {
   _id: string;
   name: string;
@@ -77,6 +84,7 @@ interface Template {
   file_description: string;
   fields: Field[];
   active: boolean;
+  category: Category
 }
 
 interface FilledFieldData {
@@ -137,20 +145,20 @@ const ProducerTemplatesPage = () => {
     useDisclosure(false);
   const { sortedItems: sortedTemplates, handleSort, sortConfig } = useSort<PublishedTemplate>(templates, { key: null, direction: "asc" });
 
-  const fetchPublishedTemplates = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories/published-templates`);
-      if (response.data) {
-        setTemplates(response.data.publishedTemplates); // Suponiendo que el JSON contiene la lista en "publishedTemplates"
-      }
-    } catch (error) {
-      console.error("Error al obtener los templates publicados:", error);
-    }
-  };
+  // const fetchPublishedTemplates = async () => {
+  //   try {
+  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/categories/published-templates`);
+  //     if (response.data) {
+  //       setTemplates(response.data.publishedTemplates); // Suponiendo que el JSON contiene la lista en "publishedTemplates"
+  //     }
+  //   } catch (error) {
+  //     console.error("Error al obtener los templates publicados:", error);
+  //   }
+  // };
   
-  useEffect(() => {
-    fetchPublishedTemplates();
-  }, []);
+  // useEffect(() => {
+  //   fetchPublishedTemplates();
+  // }, []);
   
   const fetchTemplates = async (page?: number, search?: string) => {
     try {
@@ -436,6 +444,33 @@ const ProducerTemplatesPage = () => {
     saveAs(blob, `${template.file_name}.xlsx`);
   };
 
+  const categoryColors = [
+    'blue', 
+    'cyan', 
+    'grape', 
+    'indigo', 
+    'violet', 
+    'teal', 
+    'green'
+  ];
+  
+  const getCategoryColor = (categoryName: any) => {
+    if (!categoryName || categoryName === 'Sin categoría') return 'gray';
+    
+    // Simple hash function to generate consistent colors
+    const hashCode = (str: any) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash = hash & hash; // Convert to 32-bit integer
+      }
+      return Math.abs(hash);
+    };
+  
+    // Use the hash to select a color from the predefined palette
+    return categoryColors[hashCode(categoryName) % categoryColors.length];
+  };
+
   const handleUploadClick = (publishedTemplate: PublishedTemplate) => {
     if(handleDisableUpload(publishedTemplate)) {
       showNotification({
@@ -483,14 +518,22 @@ const ProducerTemplatesPage = () => {
     return (
       <Table.Tr key={publishedTemplate._id}>
 <Table.Td>
-  {publishedTemplate.category_name || 'Sin categoría'}
+  <Badge 
+    size="lg"
+    variant="light" 
+    color={getCategoryColor(publishedTemplate.template.category.name)}
+    fullWidth
+    rightSection={
+      publishedTemplate.template.category.templateSequence ? (
+        <Text size="lg" fw={700}>
+          #{publishedTemplate.template.category.templateSequence}
+        </Text>
+      ) : null
+    }
+  >
+     {publishedTemplate.template.category.name || 'Sin categoría'}
+  </Badge>
 </Table.Td>
-
-
-
-
-<Table.Td>{publishedTemplate.sequence || 'No especificada'}</Table.Td>
-
 
         <Table.Td>{publishedTemplate.period.name}</Table.Td>
         <Table.Td>{publishedTemplate.name}</Table.Td>
@@ -618,7 +661,7 @@ const ProducerTemplatesPage = () => {
   style={{ cursor: "pointer" }}
 >
   <Center inline>
-    Categoría
+    Categoría/Secuencia
     {sortConfig.key === "template.category.name" ? (
       sortConfig.direction === "asc" ? (
         <IconArrowBigUpFilled size={16} style={{ marginLeft: "5px" }} />
@@ -631,9 +674,6 @@ const ProducerTemplatesPage = () => {
   </Center>
 </Table.Th>
 
-<Table.Th>
-  <Center inline>Secuencia</Center>
-</Table.Th>
 
           <Table.Th onClick={() => handleSort("period.name")} style={{ cursor: "pointer" }}>
               <Center inline>
