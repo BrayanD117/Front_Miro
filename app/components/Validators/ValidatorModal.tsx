@@ -31,9 +31,7 @@ export const ValidatorModal = ({ opened, onClose, validatorId }: ValidatorModalP
   useEffect(() => {
     const fetchValidatorData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${validatorId}`
-        );
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${validatorId}`);
         setValidatorData(response.data.validator);
       } catch (error) {
         showNotification({
@@ -90,17 +88,17 @@ export const ValidatorModal = ({ opened, onClose, validatorId }: ValidatorModalP
 
                     return column.values
                       .map((value, valueIndex) => {
-                        const matchesSearch = value
-                          .toString()
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase());
+                        const description = descriptions[valueIndex] || "";
+                        const matchesSearch =
+                          value.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          description.toString().toLowerCase().includes(searchTerm.toLowerCase());
 
                         if (!matchesSearch) return null;
 
                         return (
                           <Table.Tr key={`${columnIndex}-${valueIndex}`}>
                             <Table.Td>{value}</Table.Td>
-                            <Table.Td>{descriptions[valueIndex]}</Table.Td>
+                            <Table.Td>{description}</Table.Td>
                             <Table.Td>
                               <Center>
                                 <ActionIcon onClick={() => handleCopy(value)}>
