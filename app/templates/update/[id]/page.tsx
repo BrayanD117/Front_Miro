@@ -196,13 +196,25 @@ const UpdateTemplatePage = () => {
     };
 
     try {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`, templateData);
-      showNotification({
-        title: "Actualizado",
-        message: "Plantilla actualizada exitosamente",
-        color: "teal",
-      });
-      router.back();
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`, templateData);
+
+if (response.data.warning) {
+  showNotification({
+    title: "Actualizado con advertencia",
+    message: `${response.data.warning} (${response.data.blockedProducers?.length ?? 0}) productores no fueron eliminados.`,
+    color: "yellow",
+  });
+} else {
+  showNotification({
+    title: "Actualizado",
+    message: "Plantilla actualizada exitosamente",
+    color: "teal",
+  });
+}
+
+router.back();
+
+      
     } catch (error: any) {
       console.error("Error guardando plantilla:", error);
 
