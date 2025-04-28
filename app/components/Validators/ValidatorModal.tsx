@@ -17,6 +17,7 @@ interface ValidatorModalProps {
   opened: boolean;
   onClose: () => void;
   validatorId: string;
+  onCopy: (value: string) => void;
 }
 
 interface ValidatorData {
@@ -24,7 +25,7 @@ interface ValidatorData {
   columns: { name: string; is_validator: boolean; values: any[] }[];
 }
 
-export const ValidatorModal = ({ opened, onClose, validatorId }: ValidatorModalProps) => {
+export const ValidatorModal = ({ opened, onClose, validatorId, onCopy }: ValidatorModalProps) => {
   const [validatorData, setValidatorData] = useState<ValidatorData | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -49,12 +50,18 @@ export const ValidatorModal = ({ opened, onClose, validatorId }: ValidatorModalP
 
   const handleCopy = (value: string) => {
     navigator.clipboard.writeText(value);
+  
+    if (onCopy) {
+      onCopy(value); // 👈 LLAMAR onCopy que enviaste desde el formulario
+    }
+  
     showNotification({
       title: "Valor copiado",
       message: `"${value}" ha sido copiado al portapapeles`,
       color: "teal",
     });
   };
+  
 
   return (
     <Modal opened={opened} onClose={onClose} title="Valores aceptados" size="lg">

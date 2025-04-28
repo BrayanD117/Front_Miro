@@ -67,6 +67,8 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
   const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const [multiSelectOptions, setMultiSelectOptions] = useState<Record<string, string[]>>({});
+  const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
+  const [activeFieldName, setActiveFieldName] = useState<string | null>(null);
 
   const fetchTemplate = async () => {
     try {
@@ -186,10 +188,12 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleValidatorOpen = async (validatorId: string) => {
+  const handleValidatorOpen = async (validatorId: string, rowIndex: number, fieldName: string) => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/validators/id?id=${validatorId}`);
       setValidatorData(response.data.validator);
+      setActiveRowIndex(rowIndex);
+      setActiveFieldName(fieldName);
       setValidatorModalOpen(true);
     } catch (error) {
       showNotification({
@@ -395,9 +399,9 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
                       <Group>
                         {field.name} {field.required && <Text span color="red">*</Text>}
                         {field.validate_with && (
-                          <ActionIcon
+                            <ActionIcon
                             size={"lg"}
-                            onClick={() => handleValidatorOpen(field.validate_with?.id!)}
+                            onClick={() => handleValidatorOpen(field.validate_with?.id!, 0, field.name)}
                             title="Ver valores aceptados"
                             disabled={!validatorExists[field.name]}
                           >
@@ -469,6 +473,14 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         opened={validatorModalOpen}
         onClose={() => setValidatorModalOpen(false)}
         validatorId={validatorData?._id || ""}
+        onCopy={(value: string) => {
+          if (activeRowIndex !== null && activeFieldName !== null) {
+            const updatedRows = [...rows];
+            updatedRows[activeRowIndex][activeFieldName] = value;
+            setRows(updatedRows);
+          }
+          setValidatorModalOpen(false);
+        }}
       />
     </Container>
   );
