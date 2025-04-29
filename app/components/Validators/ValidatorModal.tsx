@@ -52,7 +52,7 @@ export const ValidatorModal = ({ opened, onClose, validatorId, onCopy }: Validat
     navigator.clipboard.writeText(value);
   
     if (onCopy) {
-      onCopy(value); // 👈 LLAMAR onCopy que enviaste desde el formulario
+      onCopy(value); 
     }
   
     showNotification({

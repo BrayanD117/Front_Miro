@@ -77,7 +77,9 @@ const ProducerTemplateUpdatePage = ({
   const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const [multiSelectOptions, setMultiSelectOptions] = useState<Record<string, string[]>>({});
-
+  const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
+  const [activeFieldName, setActiveFieldName] = useState<string | null>(null);
+  
   useEffect(() => {
     if (id_template) {
       fetchTemplateAndData();
@@ -502,10 +504,19 @@ const ProducerTemplateUpdatePage = ({
         </Group>
       </Group>
       <ValidatorModal
-        opened={validatorModalOpen}
-        onClose={() => setValidatorModalOpen(false)}
-        validatorId={validatorData?._id || ""}
-      />
+  opened={validatorModalOpen}
+  onClose={() => setValidatorModalOpen(false)}
+  validatorId={validatorData?._id || ""}
+  onCopy={(value: string) => {
+    if (activeRowIndex !== null && activeFieldName !== null) {
+      const updatedRows = [...rows];
+      updatedRows[activeRowIndex][activeFieldName] = value;
+      setRows(updatedRows);
+    }
+    setValidatorModalOpen(false);
+  }}
+/>
+
     </Container>
   );
 };
