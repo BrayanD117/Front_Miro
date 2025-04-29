@@ -437,9 +437,7 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
         <Table.Td>
           {dateToGMT(publishedTemplate.period.producer_end_date)}
         </Table.Td>
-        <Table.Td>
-          {truncateString(publishedTemplate.loaded_data[0].send_by.full_name)}
-        </Table.Td>
+    
         <Table.Td>
           {dateToGMT(publishedTemplate.loaded_data[0].loaded_date)}
         </Table.Td>
@@ -595,7 +593,6 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
                 )}
               </Center>
             </Table.Th>
-            <Table.Th>Cargado por</Table.Th>
             <Table.Th onClick={() => handleSort("loaded_data[0].loaded_date")} style={{ cursor: "pointer" }}>
               <Center inline>
                 Fecha de Cargue
