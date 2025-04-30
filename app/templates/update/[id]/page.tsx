@@ -319,6 +319,8 @@ router.back();
         onChange={(event) => setActive(event.currentTarget.checked)}
         mb="md"
       />
+              <Button onClick={handleSave} leftSection={<IconDeviceFloppy />}>Guardar</Button>
+
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="fields">
           {(provided) => (
