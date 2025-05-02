@@ -150,7 +150,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
         ? isNumericField ? value.map(v => Number(v)) : value
         : null;
     } else {
-      updatedRows[rowIndex][fieldName] = value === "" || value === null ? null : value;
+      updatedRows[rowIndex][fieldName] = value === "" ? null : value;
     }
   
     setRows(updatedRows);
@@ -175,8 +175,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
 
     rows.forEach((row, rowIndex) => {
       template?.fields.forEach((field) => {
-        if (field.required && (row[field.name] === null || row[field.name] === undefined || row[field.name] === "")) {
-          if (!newErrors[field.name]) {
+        if (field.required && (row[field.name] === null || row[field.name] === undefined)) {          if (!newErrors[field.name]) {
             newErrors[field.name] = [];
           }
           newErrors[field.name][rowIndex] = "Este campo es obligatorio.";
@@ -319,13 +318,13 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       case "Porcentaje":
         return wrapWithTooltip(
           <NumberInput
-  {...commonProps}
-  value={typeof row[field.name] === 'number' ? row[field.name] : ""}
-  min={0}
-  step={1}
-  hideControls
-  onChange={(value) => handleInputChange(rowIndex, field.name, value)}
-/>
+          {...commonProps}
+          value={typeof row[field.name] === 'number' ? row[field.name] : ""}
+          min={0}
+          step={1}
+          hideControls
+          onChange={(value) => handleInputChange(rowIndex, field.name, value)}
+        />
 
         );
   
