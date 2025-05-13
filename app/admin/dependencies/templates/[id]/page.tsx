@@ -39,7 +39,7 @@ const DependencyTemplatesPage = () => {
         console.log("Response from API:", response);
         
         // Asumiendo que la respuesta contiene un array de plantillas directamente
-        setTemplates(response.data); // Aquí asignamos los datos directamente
+        setTemplates(response.data.templates); // Aquí asignamos los datos directamente
     
         // Si quieres obtener el nombre de la dependencia también
         setDependencyName(response.data.dependencyName); // Asegúrate de que 'dependencyName' exista en la respuesta
