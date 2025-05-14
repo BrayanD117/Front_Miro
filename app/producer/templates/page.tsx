@@ -168,7 +168,7 @@ const ProducerTemplatesPage = () => {
           params: {
             email: session?.user?.email,
             page,
-            limit: 10,
+            limit: 20,
             search,
             periodId: selectedPeriodId,
           },
@@ -177,7 +177,7 @@ const ProducerTemplatesPage = () => {
       if (response.data) {
         setTemplates(response.data.templates || []);
         setTotalPages(response.data.pages || 1);
-        setPendingCount(response.data.total || 0);
+        setPendingCount(response.data.templates.length || 0);
       }
     } catch (error) {
       setTemplates([]);

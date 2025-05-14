@@ -295,7 +295,7 @@ const ProducerTemplateFormPage = ({ params }: { params: { id_template: string } 
       required: field.required,
       placeholder: field.comment,
       style: { minWidth: "280px", width: "100%" },
-      error: Boolean(fieldError),
+      error: fieldError || undefined, // este es el truco
     };
   
     if (field.multiple && field.validate_with) {
