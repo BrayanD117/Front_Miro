@@ -416,6 +416,11 @@ const ProducerTemplateUpdatePage = ({
       <Title ta="center" mb="md">
         {`Editar Plantilla: ${publishedTemplateName}`}
       </Title>
+      {rows.length === 0 && (
+  <Text ta="center" color="red" size="sm" mb="md">
+    Plantilla reportada en cero
+  </Text>
+)}
       <Tooltip
         label="Desplázate horizontalmente para ver todas las columnas"
         position="bottom"
