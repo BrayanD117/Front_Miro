@@ -223,13 +223,33 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
     );
 
     if (filledData) {
-      const numRows = filledData.filled_data[0]?.values?.length;
+      const firstFilled = filledData?.filled_data.find(fd => Array.isArray(fd.values) && fd.values.length > 0);
+const numRows = firstFilled ? firstFilled.values.length : 0;
       for (let i = 0; i < numRows; i++) {
         const rowValues = template.fields.map((field) => {
           const fieldData = filledData.filled_data.find(
             (data: FilledFieldData) => data.field_name === field.name
           );
-          return fieldData ? fieldData.values[i] : null;
+
+    let value = (fieldData?.values && fieldData.values[i] !== undefined)
+      ? fieldData.values[i]
+      : null;
+
+          if (
+            value &&
+            (field.datatype === "Fecha" || field.datatype === "Fecha Inicial / Fecha Final")
+          ) {
+            try {
+              const date = new Date(value);
+              if (!isNaN(date.getTime())) {
+                value = date.toISOString().slice(0, 10); // YYYY-MM-DD
+              }
+            } catch {
+              // Si falla el parseo, deja el valor tal cual
+            }
+          }
+
+          return value;
         });
         worksheet.addRow(rowValues);
       }

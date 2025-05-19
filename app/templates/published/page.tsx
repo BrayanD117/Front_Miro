@@ -176,6 +176,14 @@ const PublishedTemplatesPage = () => {
       const data = response.data.data;
       console.log("Data: ", data);
       const { template } = publishedTemplate;
+
+      // Campos de tipo fecha para formatear correctamente
+const dateFields = new Set(
+  template.fields
+    .filter(f => f.datatype === "Fecha" || f.datatype === "Fecha Inicial / Fecha Final")
+    .map(f => f.name)
+);
+
       console.log("Template: ", template);
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet(template.name);
@@ -220,8 +228,23 @@ const PublishedTemplatesPage = () => {
 
       // Add the data to the worksheet starting from the second row
       data.forEach((row: any) => {
-        worksheet.addRow(Object.values(row));
-        console.log("Row: ", row);
+        const formattedRow = Object.entries(row).map(([key, value]) => {
+          if (value && dateFields.has(key)) {
+            if (
+              typeof value === 'string' ||
+              typeof value === 'number' ||
+              value instanceof Date
+            ) {
+              const date = new Date(value);
+              if (!isNaN(date.getTime())) {
+                return date.toISOString().slice(0, 10); // YYYY-MM-DD
+              }
+            }
+          }
+          return value;
+        });
+
+        worksheet.addRow(formattedRow);
       });
 
       // Crear una hoja por cada validador en el array
