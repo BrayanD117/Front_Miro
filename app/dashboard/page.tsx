@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Badge, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2 } from "@tabler/icons-react";
+import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2,IconMail   } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 import { useColorScheme } from "@mantine/hooks";
@@ -510,6 +510,27 @@ useEffect(() => {
                 </Button>
               </Card>
             </Grid.Col>,
+            <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-reminders">
+  <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Center><IconMail   size={80}/></Center>
+    <Group mt="md" mb="xs">
+      <Text ta={"center"} w={500}>Recordatorios por correo</Text>
+    </Group>
+    <Text ta={"center"} size="sm" color="dimmed">
+      Ajusta cuándo se deben enviar recordatorios por email para plantillas pendientes.
+    </Text>
+    <Button
+      variant="light"
+      fullWidth
+      mt="md"
+      radius="md"
+      onClick={() => router.push('/admin/reminders')}
+    >
+      Ir a Recordatorios
+    </Button>
+  </Card>
+</Grid.Col>,
+
         );
         break;
       case "Responsable":
