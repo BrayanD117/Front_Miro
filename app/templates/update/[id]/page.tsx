@@ -214,31 +214,37 @@ if (response.data.warning) {
 
 router.back();
 
-      
-    } catch (error: any) {
-      console.error("Error guardando plantilla:", error);
+} catch (error: any) {
+  console.error("Error guardando plantilla:", error);
 
-      if(error.response.data.message) {
-        showNotification({
-          title: "Error",
-          message: 'La plantilla se encuentra publicada y ya han hecho cargue de información, no se puede modificar',
-          color: "red",
-        });
-      }
-      if (axios.isAxiosError(error) && error.response && error.response.data.mensaje) {
-        showNotification({
-          title: "Error",
-          message: error.response.data.mensaje,
-          color: "red",
-        });
-      } else {
-        showNotification({
-          title: "Error",
-          message: "Hubo un error al guardar la plantilla",
-          color: "red",
-        });
-      }
-    }
+  // 💡 Detecta error específico del backend por caracteres inválidos
+  if (axios.isAxiosError(error) && error.response?.data?.error) {
+    showNotification({
+      title: "Error al guardar plantilla:",
+      message: error.response.data.error,
+      color: "red",
+    });
+    return;
+  }
+
+  // 🟡 Caso de advertencia por productores no eliminables
+  if (error.response?.data?.message) {
+    showNotification({
+      title: "Error",
+      message: 'La plantilla se encuentra publicada y ya han hecho cargue de información, no se puede modificar',
+      color: "red",
+    });
+    return;
+  }
+
+  // 🔴 Error genérico (último recurso)
+  showNotification({
+    title: "Error",
+    message: "Hubo un error al guardar la plantilla",
+    color: "red",
+  });
+}      
+    
   };
 
   const onDragEnd = (result: DropResult) => {
