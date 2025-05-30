@@ -143,8 +143,8 @@ const UploadedTemplatePage = () => {
     window.history.pushState(null, "", `?${params.toString()}`);
   }, [resume]);
 
-  const renderCellContent = (value: any) => {
-    if (typeof value === "boolean") {
+const renderCellContent = (value: any) => {
+  if (typeof value === "boolean") {
     return value ? (
       <IconCheck color="green" size={25} />
     ) : (
@@ -152,23 +152,26 @@ const UploadedTemplatePage = () => {
     );
   }
 
-  // Detectar y formatear fechas
   if (typeof value === "string" && dayjs(value).isValid()) {
     return dateToGMT(value, "YYYY/MM/DD");
   }
 
-  // Si es un objeto especial como los de Mongo: { $numberInt: "3" }
   if (typeof value === "object" && value !== null) {
+    // Si tiene un campo .text, mostramos solo ese
+    if (typeof value.text === "string") {
+      return value.text;
+    }
+
+    // Si es objeto con número Mongo
     const mongoNumeric = value?.$numberInt || value?.$numberDouble;
     if (mongoNumeric !== undefined) return mongoNumeric;
 
-    // Si es un objeto tipo { text: ..., hyperlink: ... } o similar
-    return JSON.stringify(value); // O puedes hacer `.text || ''` si conoces la estructura
+    // Por defecto: mostramos objeto como string
+    return JSON.stringify(value);
   }
 
-  return value ?? ""; // fallback por si es null/undefined
-  };
-
+  return value ?? "";
+};
   const resumeRows = dependencies.map((dependency) => {
     const hasSentData = resumeData?.some(data => data.dependency===dependency.dep_code)
     return (
