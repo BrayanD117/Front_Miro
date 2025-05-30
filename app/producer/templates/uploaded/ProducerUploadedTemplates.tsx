@@ -218,12 +218,10 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
       column.width = 20;
     });
 
-    const filledData = publishedTemplate.loaded_data.find(
-      (data: any) => data.send_by?.email === session?.user?.email
-    );
+const filledData: any = publishedTemplate.loaded_data[0];
 
     if (filledData) {
-      const firstFilled = filledData?.filled_data.find(fd => Array.isArray(fd.values) && fd.values.length > 0);
+      const firstFilled = filledData?.filled_data.find((fd: any) => Array.isArray(fd.values) && fd.values.length > 0);
 const numRows = firstFilled ? firstFilled.values.length : 0;
       for (let i = 0; i < numRows; i++) {
         const rowValues = template.fields.map((field) => {

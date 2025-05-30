@@ -144,28 +144,16 @@ const UploadedTemplatePage = () => {
   }, [resume]);
 
   const renderCellContent = (value: any) => {
-     if (typeof value === "boolean") {
-    return value ? (
-      <IconCheck color="green" size={25} />
-    ) : (
-      <IconX color="red" size={25} />
-    );
-  }
-
-  if (typeof value === "string" && dayjs(value).isValid()) {
-    return dateToGMT(value, "YYYY/MM/DD");
-  }
-
-  if (typeof value === "object" && value !== null) {
-    // Si viene como objeto tipo Mongo ($numberInt, etc.)
-    const mongoNumeric = value?.$numberInt || value?.$numberDouble;
-    if (mongoNumeric !== undefined) return mongoNumeric;
-    
-    // Por defecto: muestra como JSON string (para no reventar)
-    return JSON.stringify(value);
-  }
-
-  return value ?? "";
+    if (typeof value === "boolean") {
+      return value ? (
+        <IconCheck color="green" size={25} />
+      ) : (
+        <IconX color="red" size={25} />
+      );
+    } else if (typeof value === "string" && dayjs(value).isValid()) {
+      return dateToGMT(value, "YYYY/MM/DD");
+    }
+    return value;
   };
 
   const resumeRows = dependencies.map((dependency) => {
