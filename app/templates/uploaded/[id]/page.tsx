@@ -145,15 +145,28 @@ const UploadedTemplatePage = () => {
 
   const renderCellContent = (value: any) => {
     if (typeof value === "boolean") {
-      return value ? (
-        <IconCheck color="green" size={25} />
-      ) : (
-        <IconX color="red" size={25} />
-      );
-    } else if (typeof value === "string" && dayjs(value).isValid()) {
-      return dateToGMT(value, "YYYY/MM/DD");
-    }
-    return value;
+    return value ? (
+      <IconCheck color="green" size={25} />
+    ) : (
+      <IconX color="red" size={25} />
+    );
+  }
+
+  // Detectar y formatear fechas
+  if (typeof value === "string" && dayjs(value).isValid()) {
+    return dateToGMT(value, "YYYY/MM/DD");
+  }
+
+  // Si es un objeto especial como los de Mongo: { $numberInt: "3" }
+  if (typeof value === "object" && value !== null) {
+    const mongoNumeric = value?.$numberInt || value?.$numberDouble;
+    if (mongoNumeric !== undefined) return mongoNumeric;
+
+    // Si es un objeto tipo { text: ..., hyperlink: ... } o similar
+    return JSON.stringify(value); // O puedes hacer `.text || ''` si conoces la estructura
+  }
+
+  return value ?? ""; // fallback por si es null/undefined
   };
 
   const resumeRows = dependencies.map((dependency) => {
