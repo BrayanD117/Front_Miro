@@ -28,6 +28,7 @@ export default function AdminRemindersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newDays, setNewDays] = useState<number | "">(1);
   const [search, setSearch] = useState("");
+  const [sending, setSending] = useState(false);
 
   const fetchReminders = async () => {
     try {
@@ -91,6 +92,31 @@ export default function AdminRemindersPage() {
     }
   };
 
+  const sendRemindersNow = async () => {
+  if (!window.confirm("¿Estás seguro de que quieres enviar los recordatorios ahora?")) return;
+
+  setSending(true);
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reminders/send-reminders`);
+    const enviados = response.data.enviados || 0;
+
+    showNotification({
+      title: "Envío completado",
+      message: `Se enviaron recordatorios a ${enviados} persona(s).`,
+      color: "teal",
+    });
+  } catch (error) {
+    console.error("Error al enviar recordatorios:", error);
+    showNotification({
+      title: "Error",
+      message: "Ocurrió un error al enviar los recordatorios.",
+      color: "red",
+    });
+  } finally {
+    setSending(false);
+  }
+};
+
   useEffect(() => {
     fetchReminders();
   }, []);
@@ -109,6 +135,21 @@ export default function AdminRemindersPage() {
         <Button leftSection={<IconPlus size={18} />} onClick={() => setOpened(true)}>
           Nuevo Recordatorio
         </Button>
+
+        <Button
+          variant="light"
+          color="orange"
+          loading={sending}
+          onClick={sendRemindersNow}
+        >
+          Enviar recordatorio inmediato
+        </Button>
+
+        {sending && (
+          <Text ta="center" c="orange" fw={500} mb="sm">
+            ⏳ Enviando recordatorios... por favor no cierres ni abandones esta pantalla hasta que se complete la operación.
+          </Text>
+)}
 
       </Group>
 
