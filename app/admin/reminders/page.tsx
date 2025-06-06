@@ -93,7 +93,7 @@ export default function AdminRemindersPage() {
   };
 
   const sendRemindersNow = async () => {
-  if (!window.confirm("¿Estás seguro de que quieres enviar los recordatorios ahora?")) return;
+  if (!window.confirm("¿Estás seguro de que quieres enviar los recordatorios ahora??")) return;
 
   setSending(true);
   try {
