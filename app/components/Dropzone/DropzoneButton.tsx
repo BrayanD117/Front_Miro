@@ -54,7 +54,8 @@ export function DropzoneButton({ pubTemId, endDate, onClose, onUploadSuccess }: 
             const rowData: Record<string, any> = {};
             rowValues.slice(1).forEach((value, index) => {
               if (headers[index]) {
-                rowData[headers[index]] = value;
+                    // Convertir cualquier valor a string, incluyendo números o fechas
+    rowData[headers[index]] = (value !== null && value !== undefined) ? String(value) : "";
               }
             });
             data.push(rowData);
@@ -66,6 +67,8 @@ export function DropzoneButton({ pubTemId, endDate, onClose, onUploadSuccess }: 
         if (!session?.user?.email) {
           throw new Error('Usuario no autenticado');
         }
+
+        console.log(data, 'La información a subir');
 
         const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
           email: session.user.email,
