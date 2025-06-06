@@ -218,7 +218,23 @@ const ProducerUploadedTemplatesPage = ({ fetchTemp }: ProducerUploadedTemplatesP
       column.width = 20;
     });
 
-const filledData: any = publishedTemplate.loaded_data[0];
+// Obtener el dep_code del usuario actual desde la API
+const userResp = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users?email=${session?.user?.email}`);
+const depCode = userResp.data.dep_code;
+
+// Buscar en loaded_data el bloque correcto
+const filledData: any = publishedTemplate.loaded_data.find(
+  (entry) => entry.dependency === depCode
+);
+
+if (!filledData) {
+  showNotification({
+    title: "Sin datos cargados",
+    message: "No se encontraron datos cargados para tu dependencia.",
+    color: "yellow",
+  });
+  return;
+}
 
     if (filledData) {
       const firstFilled = filledData?.filled_data.find((fd: any) => Array.isArray(fd.values) && fd.values.length > 0);
