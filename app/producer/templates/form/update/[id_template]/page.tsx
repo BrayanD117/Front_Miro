@@ -420,7 +420,7 @@ const transformData = (data: any[]): Record<string, any>[] => {
   return (
     <Container size="xl">
       <Title ta="center" mb="md">
-        {`Editar Plantillaa: ${publishedTemplateName}`}
+        {`Editar Plantilla: ${publishedTemplateName}`}
       </Title>
       {rows.length === 0 && (
   <Text ta="center" color="red" size="sm" mb="md">
