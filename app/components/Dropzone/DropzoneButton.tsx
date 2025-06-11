@@ -24,96 +24,150 @@ export function DropzoneButton({ pubTemId, endDate, onClose, onUploadSuccess }: 
   const { data: session } = useSession();
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
-  const handleFileDrop = async (files: File[]) => {
-    if(endDate &&   new Date(endDate) < dateNow()) {
-      showNotification({
-        title: 'Error',
-        message: 'La fecha de carga de plantillas ha culminado.',
-        color: 'red',
-      });
-      return;
-    }
-    const file = files[0];
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const buffer = event.target?.result as ArrayBuffer;
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(buffer);
+const handleFileDrop = async (files: File[]) => {
+  if (endDate && new Date(endDate) < dateNow()) {
+    showNotification({
+      title: 'Error',
+      message: 'La fecha de carga de plantillas ha culminado.',
+      color: 'red',
+    });
+    return;
+  }
 
-      const data: Record<string, any>[] = [];
+  const file = files[0];
+  const reader = new FileReader();
 
-      const sheet = workbook.worksheets[0];
-      if (sheet) {
-        let headers: string[] = [];
+  reader.onload = async (event) => {
+    const buffer = event.target?.result as ArrayBuffer;
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
 
-        sheet.eachRow((row, rowNumber) => {
-          const rowValues = row.values as (string | number | boolean | Date | null)[];
-          if (rowNumber === 1) {
-            headers = rowValues.slice(1) as string[];
-          } else {
-            const rowData: Record<string, any> = {};
-            rowValues.slice(1).forEach((value, index) => {
-              if (headers[index]) {
-                    // Convertir cualquier valor a string, incluyendo números o fechas
-    rowData[headers[index]] = (value !== null && value !== undefined) ? String(value) : "";
+    const sheet = workbook.worksheets[0];
+    if (!sheet) return;
+
+    let headers: string[] = [];
+    const data: Record<string, any>[] = [];
+
+    // 🧠 Obtener tipos desde el template en backend
+    const templateResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${pubTemId}`);
+    const fieldTypeMap: Record<string, string> = {};
+    templateResponse.data.template.fields.forEach((field: any) => {
+      fieldTypeMap[field.name] = field.datatype;
+    });
+
+    sheet.eachRow((row, rowNumber) => {
+      const rowValues = row.values as (string | number | boolean | Date | null)[];
+      if (rowNumber === 1) {
+        headers = rowValues.slice(1) as string[];
+      } else {
+        const rowData: Record<string, any> = {};
+        rowValues.slice(1).forEach((value, index) => {
+          const key = headers[index];
+          const tipo = fieldTypeMap[key];
+
+          if (!key || tipo === undefined) return;
+
+          let parsedValue = value;
+
+          switch (tipo) {
+            case "Entero":
+              parsedValue = parseInt(value as string);
+              if (isNaN(parsedValue)) parsedValue = value;
+              break;
+
+            case "Decimal":
+            case "Porcentaje":
+              parsedValue = parseFloat(value as string);
+              if (isNaN(parsedValue)) parsedValue = value;
+              break;
+
+            case "Fecha":
+              const dateValue = new Date(value as string);
+              parsedValue = isNaN(dateValue.getTime()) ? value : dateValue;
+              break;
+
+            case "True/False":
+              parsedValue = String(value).toLowerCase() === "si" || value === true;
+              break;
+
+            case "Texto Corto":
+            case "Texto Largo":
+            case "Link":
+              parsedValue = value?.toString?.() ?? "";
+              break;
+
+            case "Fecha Inicial / Fecha Final":
+              try {
+                parsedValue = JSON.parse(value as string);
+                if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
+              } catch {
+                parsedValue = value;
               }
-            });
-            data.push(rowData);
+              break;
+
+            default:
+              parsedValue = value;
           }
+
+          rowData[key] = parsedValue;
         });
+
+        data.push(rowData);
+      }
+    });
+
+    try {
+      if (!session?.user?.email) {
+        throw new Error("Usuario no autenticado");
       }
 
-      try {
-        if (!session?.user?.email) {
-          throw new Error('Usuario no autenticado');
-        }
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
+        email: session.user.email,
+        pubTem_id: pubTemId,
+        data,
+      });
 
-        console.log(data, 'La información a subir');
+      const recordsLoaded = response.data.recordsLoaded;
 
-        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
-          email: session.user.email,
-          pubTem_id: pubTemId,
-          data: data,
-        });
+      setShowSuccessAnimation(true);
+      showNotification({
+        title: "Carga exitosa",
+        message: `Se han cargado ${recordsLoaded} registros correctamente.`,
+        color: "teal",
+      });
 
-        const recordsLoaded = response.data.recordsLoaded;
+      setTimeout(() => {
+        setShowSuccessAnimation(false);
+        onClose();
+      }, 3000);
+    } catch (error) {
+      console.error("Error enviando los datos al servidor:", error);
 
-        setShowSuccessAnimation(true);
-        showNotification({
-          title: 'Carga exitosa',
-          message: `Se han cargado ${recordsLoaded} registros correctamente.`,
-          color: 'teal',
-        });
+      if (axios.isAxiosError(error)) {
+        console.error("Detalles del error:", error.response?.data);
 
-        setTimeout(() => {
-          setShowSuccessAnimation(false);
-          onUploadSuccess();
-          onClose();
-        }, 3000);
-      } catch (error) {
-        console.error('Error enviando los datos al servidor:', error);
-
-        if (axios.isAxiosError(error)) {
-          console.error('Detalles del error:', error.response?.data);
-
-          if (error.response?.data.details) {
-            const errorDetails = Array.isArray(error.response.data.details) ? error.response.data.details : [];
-            localStorage.setItem('errorDetails', JSON.stringify(errorDetails));
-            if(typeof window !== 'undefined')
-              window.open('/logs', '_blank');
-          } else {
-            showNotification({
-              title: 'Error',
-              message: 'Hubo un error al procesar los datos. Verifica la plantilla y vuelve a intentarlo.',
-              color: 'red',
-            });
-          }
+        if (error.response?.data.details) {
+          const errorDetails = Array.isArray(error.response.data.details)
+            ? error.response.data.details
+            : [];
+          localStorage.setItem("errorDetails", JSON.stringify(errorDetails));
+          if (typeof window !== "undefined") window.open("/logs", "_blank");
+        } else {
+          showNotification({
+            title: "Error",
+            message: "Hubo un error al procesar los datos. Verifica la plantilla y vuelve a intentarlo.",
+            color: "red",
+          });
         }
       }
-    };
+    }
+  };
 
-    reader.readAsArrayBuffer(file);
+  reader.readAsArrayBuffer(file);
 };
+
+
+
 
   return (
     <div className={classes.wrapper}>

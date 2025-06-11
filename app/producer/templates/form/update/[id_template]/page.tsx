@@ -165,26 +165,32 @@ const ProducerTemplateUpdatePage = ({
     }
   };
 
-  const transformData = (data: any[]): Record<string, any>[] => {
-    const rowCount = data[0]?.values?.length || 0;
-    const transformedRows: Record<string, any>[] = Array.from({ length: rowCount }, () => ({}));
-    
-    data.forEach((fieldData) => {
-      const isMultiple = template?.fields.find(f => f.name === fieldData.field_name)?.multiple;
+const transformData = (data: any[]): Record<string, any>[] => {
+  const rowCount = data[0]?.values?.length || 0;
+  const transformedRows: Record<string, any>[] = Array.from({ length: rowCount }, () => ({}));
 
-      fieldData.values.forEach((value: any, index: number) => {
-        if (isMultiple) {
-          transformedRows[index][fieldData.field_name] = Array.isArray(value) 
-          ? value.map(v => v.toString())
-          : value?.toString().split(",");
+  data.forEach((fieldData) => {
+    const isMultiple = template?.fields.find(f => f.name === fieldData.field_name)?.multiple;
+
+    fieldData.values.forEach((value: any, index: number) => {
+      if (isMultiple) {
+        if (Array.isArray(value)) {
+          transformedRows[index][fieldData.field_name] = value.map(v => v.toString());
+        } else if (typeof value === "number") {
+          transformedRows[index][fieldData.field_name] = [value.toString()];
+        } else if (typeof value === "string") {
+          transformedRows[index][fieldData.field_name] = value.split(",").map(v => v.trim());
         } else {
-          transformedRows[index][fieldData.field_name] = value;
+          transformedRows[index][fieldData.field_name] = [];
         }
-      });
+      } else {
+        transformedRows[index][fieldData.field_name] = value;
+      }
     });
-  
-    return transformedRows;
-  };
+  });
+
+  return transformedRows;
+};
 
   const validateFields = () => {
     const newErrors: Record<string, string[]> = {};
@@ -414,7 +420,7 @@ const ProducerTemplateUpdatePage = ({
   return (
     <Container size="xl">
       <Title ta="center" mb="md">
-        {`Editar Plantilla: ${publishedTemplateName}`}
+        {`Editar Plantillaa: ${publishedTemplateName}`}
       </Title>
       {rows.length === 0 && (
   <Text ta="center" color="red" size="sm" mb="md">

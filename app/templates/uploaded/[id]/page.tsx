@@ -143,6 +143,14 @@ const UploadedTemplatePage = () => {
     window.history.pushState(null, "", `?${params.toString()}`);
   }, [resume]);
 
+const isValidDateString = (value: string) => {
+  return (
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) || // ISO completo
+    /^\d{4}-\d{2}-\d{2}$/.test(value) ||                          // YYYY-MM-DD
+    /^\d{4}\/\d{2}\/\d{2}$/.test(value)                           // YYYY/MM/DD
+  );
+};
+
 const renderCellContent = (value: any) => {
   if (typeof value === "boolean") {
     return value ? (
@@ -152,7 +160,12 @@ const renderCellContent = (value: any) => {
     );
   }
 
-  if (typeof value === "string" && dayjs(value).isValid()) {
+  if (
+    typeof value === "string" &&
+    isValidDateString(value) &&
+    isNaN(Number(value)) &&
+    dayjs(value).isValid()
+  ) {
     return dateToGMT(value, "YYYY/MM/DD");
   }
 
