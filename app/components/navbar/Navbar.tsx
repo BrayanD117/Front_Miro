@@ -73,6 +73,16 @@ const home = [{ link: "/dashboard", label: "Inicio" }];
 
 export default function Navbar() {
   const { data: session } = useSession();
+type ImpersonatedUser = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role?: string;
+  isImpersonating?: boolean;
+};
+
+const user = session?.user as ImpersonatedUser;
+
   const [opened, { toggle }] = useDisclosure(false);
   const [modalOpened, setModalOpened] = useState(false);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
@@ -221,9 +231,9 @@ export default function Navbar() {
             <>
               <Group gap={8} visibleFrom="xs">
               
-                {session?.user?.isImpersonating ? (
+{user?.isImpersonating ? (
   <Badge color="red" size="lg" m={20} variant="light">
-    Estás impersonando al usuario: {session.user.name}
+    Estás impersonando al usuario: {user.name}
   </Badge>
 ) : null}
 
