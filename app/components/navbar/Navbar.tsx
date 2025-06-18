@@ -207,6 +207,9 @@ export default function Navbar() {
       </Link>
     ));
 
+  console.log(session?.user);
+
+
   return (
     <>
       <header className={classes.header}>
@@ -218,13 +221,11 @@ export default function Navbar() {
             <>
               <Group gap={8} visibleFrom="xs">
               
-                {!session?.user?.image ? (
-                  <>
-                 <Badge color="red" size="lg" m={20} variant="light">
-                  Estás impersonando al usuario: {session.user.name} 
-                  </Badge>
-                  </>
-                ) : null}
+                {session?.user?.isImpersonating ? (
+  <Badge color="red" size="lg" m={20} variant="light">
+    Estás impersonando al usuario: {session.user.name}
+  </Badge>
+) : null}
 
                 <Badge m={20} variant="light">
                   {userRole}

@@ -20,21 +20,21 @@ const options: NextAuthOptions = {
         userName: { label: "User Name", type: "text" },
         isImpersonating: {label: "Indicator of impersonating an user", type: "text"}
       },
+     
       async authorize(credentials) {
+  if (!credentials?.id || !credentials?.userEmail || !credentials?.userName) {
+    throw new Error("Missing required fields");
+  }
 
-        if (!credentials?.id || !credentials?.userEmail || !credentials?.userName) {
-          throw new Error("Missing required fields");
-        }
+  return {
+    id: credentials.id,
+    name: credentials.userName,
+    email: credentials.userEmail,
+    isImpersonating: credentials.isImpersonating === "true",
+  };
+}
 
-        const user = {
-          id: credentials.id, 
-          name:credentials.userName, 
-          email:credentials.userEmail, 
-          isImpersonating: credentials.isImpersonating
-        };
 
-        return user
-      },
     }),
   ],
   pages: {
@@ -69,25 +69,35 @@ const options: NextAuthOptions = {
         ? "/dev/dashboard"
         : "/dashboard";
     },
-    async session({ session }) {
+
+ async jwt({ token, user }) {
+    if (user) {
+      token.isImpersonating = (user as any).isImpersonating === 'true' || (user as any).isImpersonating === true;
+    }
+    return token;
+  },
+
+    async session({ session, token }) {
+    if (session.user) {
+      session.user.isImpersonating = token.isImpersonating ?? false;
+
       try {
-        if (session.user?.email) {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/users`,
-            {
-              params: { email: session.user.email },
-            }
-          );
-          const user = response.data;
-          if (user) {
-            session.user.role = user.activeRole;
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/users`,
+          {
+            params: { email: session.user.email },
           }
+        );
+        const user = response.data;
+        if (user) {
+          session.user.role = user.activeRole;
         }
       } catch (error) {
         console.error("Error fetching user roles:", error);
       }
-      return session;
-    },
+    }
+    return session;
+  },
   },
 };
 

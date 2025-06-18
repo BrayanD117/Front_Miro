@@ -174,7 +174,6 @@ const PublishedTemplatesPage = () => {
       );
 
       const data = response.data.data;
-      console.log("Data: ", data);
       const { template } = publishedTemplate;
 
       // Campos de tipo fecha para formatear correctamente
