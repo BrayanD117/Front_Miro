@@ -309,8 +309,8 @@ const ProducerTemplatesPage = () => {
           case 'Entero':
             cell.dataValidation = {
               type: 'whole',
-              operator: 'between',
-              formulae: [1, 9999999999999999999999999999999],
+              operator: 'greaterThanOrEqual',
+              formulae: [0],
               showErrorMessage: true,
               errorTitle: 'Valor no válido',
               error: 'Por favor, introduce un número entero.'
