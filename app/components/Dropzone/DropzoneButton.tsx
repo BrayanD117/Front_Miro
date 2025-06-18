@@ -131,7 +131,7 @@ const handleFileDrop = async (files: File[]) => {
 
       setShowSuccessAnimation(true);
       showNotification({
-        title: "Carga exitosa",
+        title: "Carga exitosa.",
         message: `Se han cargado ${recordsLoaded} registros correctamente.`,
         color: "teal",
       });
