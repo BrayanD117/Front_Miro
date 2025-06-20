@@ -2,7 +2,7 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import { Container, Table, Button, Pagination, Center, TextInput, Group, Modal, Select, Tooltip, Text, Checkbox } from "@mantine/core";
-import axios from "axios";
+import axios,{ AxiosError } from "axios";
 import { showNotification } from "@mantine/notifications";
 import { IconEdit, IconTrash, IconDownload, IconUser, IconArrowRight, IconCirclePlus, IconArrowsTransferDown, IconArrowBigUpFilled, IconArrowBigDownFilled, IconCopy } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
@@ -146,12 +146,12 @@ const AdminTemplatesPage = () => {
       });
       fetchTemplates(page, search);
     } catch (error) {
-      console.error("Error eliminando plantilla:", error);
-      showNotification({
-        title: "Error",
-        message: "Hubo un error al eliminar la plantilla",
-        color: "red",
-      });
+      if (axios.isAxiosError(error)) {
+    const mensaje = error.response?.data?.mensaje || "Hubo un error al eliminar la plantilla";
+    showNotification({ title: "Error borrando plantilla", message: mensaje, color: "red" });
+  } else {
+    showNotification({ title: "Error borrando plantilla", message: "Error inesperado", color: "red" });
+  }
     }
   };
 
