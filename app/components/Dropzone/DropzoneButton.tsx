@@ -55,66 +55,76 @@ const handleFileDrop = async (files: File[]) => {
       fieldTypeMap[field.name] = field.datatype;
     });
 
-    sheet.eachRow((row, rowNumber) => {
-      const rowValues = row.values as (string | number | boolean | Date | null)[];
-      if (rowNumber === 1) {
-        headers = rowValues.slice(1) as string[];
+sheet.eachRow((row, rowNumber) => {
+ if (rowNumber === 1) {
+  headers = [];
+  row.eachCell({ includeEmpty: true }, (cell) => {
+    headers.push(cell.text?.toString?.() ?? cell.value?.toString?.() ?? '');
+  });
+} else {
+    const rowData: Record<string, any> = {};
+
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      if (colNumber === 0) return; // Saltar primera columna (ExcelJS indexa desde 1)
+
+      const key = headers[colNumber - 1];
+      const tipo = fieldTypeMap[key];
+      if (!key || tipo === undefined) return;
+
+      let parsedValue: any = cell.value;
+
+      // 🔍 Detectar si tiene hipervínculo
+      if (tipo === "Link" && cell.hyperlink) {
+        parsedValue = cell.hyperlink;
       } else {
-        const rowData: Record<string, any> = {};
-        rowValues.slice(1).forEach((value, index) => {
-          const key = headers[index];
-          const tipo = fieldTypeMap[key];
+        // Tipos normales como antes
+        switch (tipo) {
+          case "Entero":
+            parsedValue = parseInt(cell.value as string);
+            if (isNaN(parsedValue)) parsedValue = cell.value;
+            break;
 
-          if (!key || tipo === undefined) return;
+          case "Decimal":
+          case "Porcentaje":
+            parsedValue = parseFloat(cell.value as string);
+            if (isNaN(parsedValue)) parsedValue = cell.value;
+            break;
 
-          let parsedValue = value;
+          case "Fecha":
+            const dateValue = new Date(cell.value as string);
+            parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
+            break;
 
-          switch (tipo) {
-            case "Entero":
-              parsedValue = parseInt(value as string);
-              if (isNaN(parsedValue)) parsedValue = value;
-              break;
+          case "True/False":
+            parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
+            break;
 
-            case "Decimal":
-            case "Porcentaje":
-              parsedValue = parseFloat(value as string);
-              if (isNaN(parsedValue)) parsedValue = value;
-              break;
+          case "Texto Corto":
+          case "Texto Largo":
+            parsedValue = cell.value?.toString?.() ?? "";
+            break;
 
-            case "Fecha":
-              const dateValue = new Date(value as string);
-              parsedValue = isNaN(dateValue.getTime()) ? value : dateValue;
-              break;
+          case "Fecha Inicial / Fecha Final":
+            try {
+              parsedValue = JSON.parse(cell.value as string);
+              if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
+            } catch {
+              parsedValue = cell.value;
+            }
+            break;
 
-            case "True/False":
-              parsedValue = String(value).toLowerCase() === "si" || value === true;
-              break;
-
-            case "Texto Corto":
-            case "Texto Largo":
-            case "Link":
-              parsedValue = value?.toString?.() ?? "";
-              break;
-
-            case "Fecha Inicial / Fecha Final":
-              try {
-                parsedValue = JSON.parse(value as string);
-                if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
-              } catch {
-                parsedValue = value;
-              }
-              break;
-
-            default:
-              parsedValue = value;
-          }
-
-          rowData[key] = parsedValue;
-        });
-
-        data.push(rowData);
+          default:
+            parsedValue = cell.value;
+        }
       }
+
+      rowData[key] = parsedValue;
     });
+
+    data.push(rowData);
+  }
+});
+
 
     try {
       if (!session?.user?.email) {

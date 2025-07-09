@@ -93,6 +93,36 @@ const ResponsibleReportsPage = () => {
   const [pendingReportsCount, setPendingReportsCount] = useState<number>(0);
   const [nextDeadline, setNextDeadline] = useState<string | null>(null);
 
+const [validPeriod, setValidPeriod] = useState<{ [key: string]: boolean }>({});
+const [loadingPeriodIds, setLoadingPeriodIds] = useState<Set<string>>(new Set());
+
+const validatePeriodDates = async (periodId: string) => {
+  if (loadingPeriodIds.has(periodId) || validPeriod[periodId] !== undefined) return;
+
+  setLoadingPeriodIds(prev => new Set(prev.add(periodId)));
+
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periods/byId/${periodId}`);
+    const { responsible_start_date, responsible_end_date } = response.data;
+    const today = new Date();
+    const isValid = today >= new Date(responsible_start_date) && today <= new Date(responsible_end_date);
+    setValidPeriod(prev => ({ ...prev, [periodId]: isValid }));
+  } catch (error) {
+    console.error('Error validating period', error);
+  } finally {
+    setLoadingPeriodIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(periodId);
+      return newSet;
+    });
+  }
+};
+
+useEffect(() => {
+  publishedReports.forEach(report => validatePeriodDates(report.period._id));
+}, [publishedReports]);
+
+
 
   const fetchReports = async (page: Number, search: String) => {
     try {
@@ -172,18 +202,42 @@ const ResponsibleReportsPage = () => {
         </Center>
       </Table.Td>
       <Table.Td>
-        <Center>
-          <Button
-            onClick={() => {
+  <Center>
+    <Tooltip
+      label={
+        validPeriod[pReport.period._id] === false
+          ? `Este informe estará disponible a partir del ${dayjs(pReport.period.responsible_start_date).format("DD/MM/YYYY")}`
+          : "Ver informe"
+      }
+      position="top"
+      withArrow
+      color={validPeriod[pReport.period._id] === false ? "red" : "blue"}
+    >
+      <span>
+        <Button
+          onClick={() => {
+            if (validPeriod[pReport.period._id]) {
               router.push(`reports/${pReport._id}`);
-            }}
-            variant="outline"
-            color="blue"
-          >
-            <IconReportAnalytics size={18} />
-          </Button>
-        </Center>
-      </Table.Td>
+            } else {
+              alert(
+                "No puedes acceder a este informe aún. Solo está disponible entre " +
+                  dayjs(pReport.period.responsible_start_date).format("DD/MM/YYYY") +
+                  " y " +
+                  dayjs(pReport.period.responsible_end_date).format("DD/MM/YYYY")
+              );
+            }
+          }}
+          variant="outline"
+          color={validPeriod[pReport.period._id] ? "blue" : "gray"}
+          disabled={validPeriod[pReport.period._id] === false}
+        >
+          <IconReportAnalytics size={18} />
+        </Button>
+      </span>
+    </Tooltip>
+  </Center>
+</Table.Td>
+
     </Table.Tr>
   ))
 

@@ -74,6 +74,7 @@ const UpdateTemplatePage = () => {
         try {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/templates/${id}`);
           if (response.data) {
+            
             setName(response.data.name);
             setFileName(response.data.file_name);
             setFileDescription(response.data.file_description);

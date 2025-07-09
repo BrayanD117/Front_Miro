@@ -54,44 +54,76 @@ const handleFileDrop = async (files: File[]) => {
     if (sheet) {
       let headers: string[] = [];
 
-      sheet.eachRow((row, rowNumber) => {
-        const rowValues = row.values as (string | number | boolean | Date | null)[];
-        if (rowNumber === 1) {
-          headers = rowValues.slice(1) as string[];
-        } else {
-          const rowData: Record<string, any> = {};
-          rowValues.slice(1).forEach((value, index) => {
-            const header = headers[index];
-            const type = fieldTypes[header];
+sheet.eachRow((row, rowNumber) => {
+  if (rowNumber === 1) {
+    headers = [];
+    row.eachCell({ includeEmpty: true }, (cell) => {
+      headers.push(cell.text?.toString?.() ?? cell.value?.toString?.() ?? '');
+    });
+  } else {
+    const rowData: Record<string, any> = {};
 
-            if (header) {
-              // 🧠 Normalizar el tipo de dato
-              if (type === "Texto Corto" || type === "Texto Largo") {
-                rowData[header] = value != null ? String(value) : "";
-              } else if (type === "Entero") {
-                const num = Number(value);
-                rowData[header] = Number.isInteger(num) ? num : value;
-              } else if (type === "Decimal" || type === "Porcentaje") {
-                const num = Number(value);
-                rowData[header] = isNaN(num) ? value : num;
-              } else if (type === "True/False") {
-                if (typeof value === "boolean") {
-                  rowData[header] = value;
-                } else if (typeof value === "string") {
-                  rowData[header] = value.toLowerCase() === "true";
-                } else {
-                  rowData[header] = false;
-                }
-              } else if (type === "Fecha") {
-                rowData[header] = typeof value === "string" || value instanceof Date ? value : "";
-              } else {
-                rowData[header] = value ?? "";
-              }
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      if (colNumber === 0) return;
+
+      const key = headers[colNumber - 1];
+      const tipo = fieldTypes[key];
+      if (!key || tipo === undefined) return;
+
+      let parsedValue: any = cell.value;
+
+      // 🧠 Detectar hipervínculo si es tipo "Link"
+      if (tipo === "Link" && cell.hyperlink) {
+        parsedValue = cell.hyperlink;
+      } else {
+        // Procesar tipos
+        switch (tipo) {
+          case "Entero":
+            parsedValue = parseInt(cell.value as string);
+            if (isNaN(parsedValue)) parsedValue = cell.value;
+            break;
+
+          case "Decimal":
+          case "Porcentaje":
+            parsedValue = parseFloat(cell.value as string);
+            if (isNaN(parsedValue)) parsedValue = cell.value;
+            break;
+
+          case "Fecha":
+            const dateValue = new Date(cell.value as string);
+            parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
+            break;
+
+          case "True/False":
+            parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
+            break;
+
+          case "Texto Corto":
+          case "Texto Largo":
+            parsedValue = cell.value?.toString?.() ?? "";
+            break;
+
+          case "Fecha Inicial / Fecha Final":
+            try {
+              parsedValue = JSON.parse(cell.value as string);
+              if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
+            } catch {
+              parsedValue = cell.value;
             }
-          });
-          data.push(rowData);
+            break;
+
+          default:
+            parsedValue = cell.value;
         }
-      });
+      }
+
+      rowData[key] = parsedValue;
+    });
+
+    data.push(rowData);
+  }
+});
+
     }
 
     try {

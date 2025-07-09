@@ -12,7 +12,8 @@ import {
   Text,
   TextInput,
   Title,
-  Pagination
+  Pagination,
+  Tooltip
 } from "@mantine/core";
 import DateConfig, { dateToGMT } from "@/app/components/DateConfig";
 import { IconBulb, IconReportAnalytics } from "@tabler/icons-react";
@@ -29,6 +30,8 @@ interface Report {
 interface Period {
   _id: string;
   name: string;
+    producer_report_start_date?: string | Date;
+  producer_report_end_date?: string | Date;
 }
 
 interface User {
@@ -81,6 +84,32 @@ const ProducerReportsPage = () => {
   const [pendingReportsCount, setPendingReportsCount] = useState<number>(0);
   const [nextDeadline, setNextDeadline] = useState<string | null>(null);
 
+  const [validProducerPeriod, setValidProducerPeriod] = useState<{ [key: string]: boolean }>({});
+  const [loadingProducerPeriodIds, setLoadingProducerPeriodIds] = useState<Set<string>>(new Set());
+
+  const validateProducerPeriodDates = async (periodId: string) => {
+  if (loadingProducerPeriodIds.has(periodId) || validProducerPeriod[periodId] !== undefined) return;
+
+  setLoadingProducerPeriodIds(prev => new Set(prev.add(periodId)));
+
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periods/byId/${periodId}`);
+    const { producer_report_start_date, producer_report_end_date } = response.data;
+    const today = new Date();
+    const isValid = today >= new Date(producer_report_start_date) && today <= new Date(producer_report_end_date);
+    setValidProducerPeriod(prev => ({ ...prev, [periodId]: isValid }));
+  } catch (error) {
+    console.error("Error validating producer period", error);
+  } finally {
+    setLoadingProducerPeriodIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(periodId);
+      return newSet;
+    });
+  }
+};
+
+
   useEffect(() => {
     if (session?.user?.email) {
       const delayDebounceFn = setTimeout(() => {
@@ -89,6 +118,12 @@ const ProducerReportsPage = () => {
       return () => clearTimeout(delayDebounceFn);
     }
   }, [search, session?.user?.email, selectedPeriodId, pagePending, pageCompleted]);
+
+useEffect(() => {
+  publishedReports.forEach(report => {
+    validateProducerPeriodDates(report.period._id);
+  });
+}, [publishedReports]);
 
   const fetchReports = async () => {
     try {
@@ -158,9 +193,33 @@ const pendingReports = publishedReports.filter((pRep) => {
         </Table.Td>
         <Table.Td>
           <Center>
-            <Button onClick={() => router.push(`reports/${pRep._id}`)} variant="outline" color="blue">
-              <IconReportAnalytics size={18} />
-            </Button>
+<Tooltip
+  label={`Disponible a partir del ${dayjs(pRep.period.producer_report_start_date).format("DD/MM/YYYY")} `}
+  withArrow
+  disabled={validProducerPeriod[pRep.period._id]}
+  color={validProducerPeriod[pRep.period._id] === false ? "red" : "blue"}
+>
+  <div>
+    <Button
+      onClick={() => {
+        if (validProducerPeriod[pRep.period._id]) {
+          router.push(`reports/${pRep._id}`);
+        } else {
+          alert(
+            `No puedes acceder a este informe aún. Solo está disponible entre ` +
+            `${dayjs(pRep.period.producer_report_start_date).format("DD/MM/YYYY")} y ` +
+            `${dayjs(pRep.period.producer_report_end_date).format("DD/MM/YYYY")}`
+          );
+        }
+      }}
+      variant="outline"
+      color={validProducerPeriod[pRep.period._id] ? "blue" : "gray"}
+      disabled={validProducerPeriod[pRep.period._id] === false}
+    >
+      <IconReportAnalytics size={18} />
+    </Button>
+  </div>
+</Tooltip>
           </Center>
         </Table.Td>
       </Table.Tr>

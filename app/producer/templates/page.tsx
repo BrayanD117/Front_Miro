@@ -513,7 +513,7 @@ const ProducerTemplatesPage = () => {
   };
 
   const rows = sortedTemplates.map((publishedTemplate) => {
-    console.log("Published Template:", publishedTemplate); // Agregar el log aquí para inspeccionar los datos
+    //console.log("Published Template:", publishedTemplate); // Agregar el log aquí para inspeccionar los datos
     const uploadDisable = handleDisableUpload(publishedTemplate);
     return (
       <Table.Tr key={publishedTemplate._id}>
