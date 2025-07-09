@@ -304,6 +304,11 @@ const ProducerTemplatesPage = () => {
       for (let i = 2; i <= maxRows; i++) {
         const row = worksheet.getRow(i);
         const cell = row.getCell(colNumber);
+
+        // 💡 Forzar formato de texto si el tipo es Texto Corto o Texto Largo
+  if (field.datatype === "Texto Corto" || field.datatype === "Texto Largo") {
+    cell.numFmt = "@";
+  }
     
         switch (field.datatype) {
           case 'Entero':
