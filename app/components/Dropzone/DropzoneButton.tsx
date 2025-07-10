@@ -64,62 +64,69 @@ sheet.eachRow((row, rowNumber) => {
 } else {
     const rowData: Record<string, any> = {};
 
-    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-      if (colNumber === 0) return; // Saltar primera columna (ExcelJS indexa desde 1)
+row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+  if (colNumber === 0) return;
 
-      const key = headers[colNumber - 1];
-      const tipo = fieldTypeMap[key];
-      if (!key || tipo === undefined) return;
+  const key = headers[colNumber - 1];
+  const tipo = fieldTypeMap[key];
+const multiple = templateResponse.data.template.fields.find((f: { name: string; multiple?: boolean }) => f.name === key)?.multiple;
 
-      let parsedValue: any = cell.value;
+  if (!key || tipo === undefined) return;
 
-      // 🔍 Detectar si tiene hipervínculo
-      if (tipo === "Link" && cell.hyperlink) {
-        parsedValue = cell.hyperlink;
-      } else {
-        // Tipos normales como antes
-        switch (tipo) {
-          case "Entero":
-            parsedValue = parseInt(cell.value as string);
-            if (isNaN(parsedValue)) parsedValue = cell.value;
-            break;
+  let parsedValue: any = cell.value;
 
-          case "Decimal":
-          case "Porcentaje":
-            parsedValue = parseFloat(cell.value as string);
-            if (isNaN(parsedValue)) parsedValue = cell.value;
-            break;
+  // 🔍 Detectar si tiene hipervínculo
+  if (tipo === "Link" && cell.hyperlink) {
+    parsedValue = cell.hyperlink;
+  } else if (multiple) {
+    // 🧠 Si es múltiple, trata el valor como string, incluso si el tipo de dato es numérico
+    const raw = String(cell.value ?? "").trim();
+    parsedValue = raw.split(",").map(v => v.trim()).filter(Boolean);
+  } else {
+    switch (tipo) {
+      case "Entero":
+        parsedValue = parseInt(cell.value as string);
+        if (isNaN(parsedValue)) parsedValue = cell.value;
+        break;
 
-          case "Fecha":
-            const dateValue = new Date(cell.value as string);
-            parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
-            break;
+      case "Decimal":
+      case "Porcentaje":
+        parsedValue = parseFloat(cell.value as string);
+        if (isNaN(parsedValue)) parsedValue = cell.value;
+        break;
 
-          case "True/False":
-            parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
-            break;
+      case "Fecha":
+        const dateValue = new Date(cell.value as string);
+        parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
+        break;
 
-          case "Texto Corto":
-          case "Texto Largo":
-            parsedValue = cell.value?.toString?.() ?? "";
-            break;
+      case "True/False":
+        parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
+        break;
 
-          case "Fecha Inicial / Fecha Final":
-            try {
-              parsedValue = JSON.parse(cell.value as string);
-              if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
-            } catch {
-              parsedValue = cell.value;
-            }
-            break;
+      case "Texto Corto":
+      case "Texto Largo":
+        parsedValue = cell.value?.toString?.() ?? "";
+        break;
 
-          default:
-            parsedValue = cell.value;
+      case "Fecha Inicial / Fecha Final":
+        try {
+          parsedValue = JSON.parse(cell.value as string);
+          if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
+        } catch {
+          parsedValue = cell.value;
         }
-      }
+        break;
 
-      rowData[key] = parsedValue;
-    });
+      default:
+        parsedValue = cell.value;
+    }
+  }
+
+  rowData[key] = parsedValue;
+});
+
+
 
     data.push(rowData);
   }

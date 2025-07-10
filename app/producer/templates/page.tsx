@@ -63,6 +63,7 @@ interface Field {
   required: boolean;
   validate_with?: string;
   comment?: string;
+  multiple:boolean;
 }
 
 interface Dimension {
@@ -306,9 +307,14 @@ const ProducerTemplatesPage = () => {
         const cell = row.getCell(colNumber);
 
         // 💡 Forzar formato de texto si el tipo es Texto Corto o Texto Largo
-  if (field.datatype === "Texto Corto" || field.datatype === "Texto Largo") {
-    cell.numFmt = "@";
-  }
+if (field.multiple || field.datatype === "Texto Corto" || field.datatype === "Texto Largo") {
+  cell.numFmt = "@";
+}
+
+  // ⛔️ Omitir validaciones si es campo múltiple
+if (field.multiple) {
+  continue; // skip validations
+}
     
         switch (field.datatype) {
           case 'Entero':
