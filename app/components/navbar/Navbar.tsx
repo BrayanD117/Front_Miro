@@ -217,7 +217,6 @@ const user = session?.user as ImpersonatedUser;
       </Link>
     ));
 
-  console.log(session?.user);
 
 
   return (

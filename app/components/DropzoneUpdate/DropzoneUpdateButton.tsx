@@ -36,6 +36,7 @@ const handleFileDrop = async (files: File[]) => {
 
   const file = files[0];
   const reader = new FileReader();
+
   reader.onload = async (event) => {
     const buffer = event.target?.result as ArrayBuffer;
     const workbook = new ExcelJS.Workbook();
@@ -43,87 +44,92 @@ const handleFileDrop = async (files: File[]) => {
 
     const data: Record<string, any>[] = [];
 
-    // 🧠 Obtener tipos de campo desde el backend
     const templateMeta = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${pubTemId}`);
+    
     const fieldTypes: Record<string, string> = {};
+    const fieldMultiples: Record<string, boolean> = {};
+
     templateMeta.data.template.fields.forEach((f: any) => {
       fieldTypes[f.name] = f.datatype;
+      fieldMultiples[f.name] = !!f.multiple;
     });
 
     const sheet = workbook.worksheets[0];
     if (sheet) {
       let headers: string[] = [];
 
-sheet.eachRow((row, rowNumber) => {
-  if (rowNumber === 1) {
-    headers = [];
-    row.eachCell({ includeEmpty: true }, (cell) => {
-      headers.push(cell.text?.toString?.() ?? cell.value?.toString?.() ?? '');
-    });
-  } else {
-    const rowData: Record<string, any> = {};
+      sheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) {
+          headers = [];
+          row.eachCell({ includeEmpty: true }, (cell) => {
+            headers.push(cell.text?.toString?.() ?? cell.value?.toString?.() ?? '');
+          });
+        } else {
+          const rowData: Record<string, any> = {};
 
-    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-      if (colNumber === 0) return;
+          row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+            if (colNumber === 0) return;
 
-      const key = headers[colNumber - 1];
-      const tipo = fieldTypes[key];
-      if (!key || tipo === undefined) return;
+            const key = headers[colNumber - 1];
+            const tipo = fieldTypes[key];
+            const multiple = fieldMultiples[key];
 
-      let parsedValue: any = cell.value;
+            if (!key || tipo === undefined) return;
 
-      // 🧠 Detectar hipervínculo si es tipo "Link"
-      if (tipo === "Link" && cell.hyperlink) {
-        parsedValue = cell.hyperlink;
-      } else {
-        // Procesar tipos
-        switch (tipo) {
-          case "Entero":
-            parsedValue = parseInt(cell.value as string);
-            if (isNaN(parsedValue)) parsedValue = cell.value;
-            break;
+            let parsedValue: any = cell.value;
 
-          case "Decimal":
-          case "Porcentaje":
-            parsedValue = parseFloat(cell.value as string);
-            if (isNaN(parsedValue)) parsedValue = cell.value;
-            break;
+            if (tipo === "Link" && cell.hyperlink) {
+              parsedValue = cell.hyperlink;
+            } else if (multiple) {
+              const raw = String(cell.value ?? "").trim();
+              parsedValue = raw.split(",").map(v => v.trim()).filter(Boolean);
+            } else {
+              switch (tipo) {
+                case "Entero":
+                  parsedValue = parseInt(cell.value as string);
+                  if (isNaN(parsedValue)) parsedValue = cell.value;
+                  break;
 
-          case "Fecha":
-            const dateValue = new Date(cell.value as string);
-            parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
-            break;
+                case "Decimal":
+                case "Porcentaje":
+                  parsedValue = parseFloat(cell.value as string);
+                  if (isNaN(parsedValue)) parsedValue = cell.value;
+                  break;
 
-          case "True/False":
-            parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
-            break;
+                case "Fecha":
+                  const dateValue = new Date(cell.value as string);
+                  parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
+                  break;
 
-          case "Texto Corto":
-          case "Texto Largo":
-            parsedValue = cell.value?.toString?.() ?? "";
-            break;
+                case "True/False":
+                  parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
+                  break;
 
-          case "Fecha Inicial / Fecha Final":
-            try {
-              parsedValue = JSON.parse(cell.value as string);
-              if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
-            } catch {
-              parsedValue = cell.value;
+                case "Texto Corto":
+                case "Texto Largo":
+                  parsedValue = cell.value?.toString?.() ?? "";
+                  break;
+
+                case "Fecha Inicial / Fecha Final":
+                  try {
+                    parsedValue = JSON.parse(cell.value as string);
+                    if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
+                  } catch {
+                    parsedValue = cell.value;
+                  }
+                  break;
+
+                default:
+                  parsedValue = cell.value;
+              }
             }
-            break;
 
-          default:
-            parsedValue = cell.value;
+            rowData[key] = parsedValue;
+          });
+
+          data.push(rowData);
         }
-      }
-
-      rowData[key] = parsedValue;
-    });
-
-    data.push(rowData);
-  }
-});
-
+      });
     }
 
     try {
@@ -159,6 +165,7 @@ sheet.eachRow((row, rowNumber) => {
 
   reader.readAsArrayBuffer(file);
 };
+
 
 
   return (

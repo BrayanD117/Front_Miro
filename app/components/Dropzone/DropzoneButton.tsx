@@ -18,6 +18,9 @@ interface DropzoneButtonProps {
   onUploadSuccess: () => void;
 }
 
+
+
+
 export function DropzoneButton({ pubTemId, endDate, onClose, onUploadSuccess }: DropzoneButtonProps) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
