@@ -250,7 +250,7 @@ const AdminPubReportsPage = () => {
   const handleDeletePubReport = async (reportId: string) => {
     try {
       const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/pReports/delete/${reportId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/${reportId}`,
         {
           params: {
             email: session?.user?.email,

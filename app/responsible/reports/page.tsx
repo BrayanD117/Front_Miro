@@ -104,7 +104,7 @@ const ResponsibleReportsPage = () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periods/byId/${periodId}`);
       const { responsible_start_date, responsible_end_date } = response.data;
       const today = new Date();
-      const isValid = today >= new Date(responsible_start_date) && today <= new Date(responsible_end_date);
+      const isValid = today <= new Date(responsible_end_date);
       setValidPeriod(prev => ({ ...prev, [periodId]: isValid }));
     } catch (error) {
       console.error("Error validating period", error);
@@ -179,11 +179,7 @@ const ResponsibleReportsPage = () => {
         <Table.Td>
           <Center>
             <Tooltip
-              label={
-                validPeriod[pRep.period._id] === false
-                  ? `Disponible a partir del ${dayjs(pRep.period.responsible_start_date).format("DD/MM/YYYY")}`
-                  : "Ver informe"
-              }
+label={validPeriod[pRep.period._id] === false ? "Plazo terminado para acceder a este informe" : "Ver informe"}
               withArrow
               color={validPeriod[pRep.period._id] === false ? "red" : "blue"}
             >

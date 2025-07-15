@@ -196,7 +196,7 @@ const completedReports = publishedReports.filter(
         <Table.Td>
           <Center>
 <Tooltip
-  label={`Plazo terminado para acceder a este informe`}
+  label={validProducerPeriod[pRep.period._id] === false ? "Plazo terminado para acceder a este informe" : "Ver informe"}
   withArrow
   disabled={validProducerPeriod[pRep.period._id]}
   color={validProducerPeriod[pRep.period._id] === false ? "red" : "blue"}

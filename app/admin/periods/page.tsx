@@ -18,6 +18,8 @@ interface Period {
   end_date: string;
   producer_start_date: string;
   producer_end_date: string;
+  producer_report_start_date: string;
+  producer_report_end_date: string;
   responsible_start_date: string;
   responsible_end_date: string;
   is_active: boolean;
@@ -33,6 +35,8 @@ const AdminPeriodsPage = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [productorStartDate, setProductorStartDate] = useState<Date | null>(null);
   const [productorEndDate, setProductorEndDate] = useState<Date | null>(null);
+  const [producerReportStartDate, setProducerReportStartDate] = useState<Date | null>(null);
+  const [producerReportEndDate, setProducerReportEndDate] = useState<Date | null>(null);
   const [responsibleStartDate, setResponsibleStartDate] = useState<Date | null>(null);
   const [responsibleEndDate, setResponsibleEndDate] = useState<Date | null>(null);
   const [isActive, setIsActive] = useState(true);
@@ -75,6 +79,8 @@ const AdminPeriodsPage = () => {
     setEndDate(new Date(period.end_date));
     setProductorStartDate(new Date(period.producer_start_date));
     setProductorEndDate(new Date(period.producer_end_date));
+    setProducerReportStartDate(new Date(period.producer_report_start_date));
+    setProducerReportEndDate(new Date(period.producer_report_end_date));
     setResponsibleStartDate(new Date(period.responsible_start_date));
     setResponsibleEndDate(new Date(period.responsible_end_date));
     setIsActive(period.is_active);
@@ -82,7 +88,7 @@ const AdminPeriodsPage = () => {
   };
 
   const handleSave = async () => {
-    if (!name || name.length > 6  || !startDate || !endDate || !productorStartDate || !productorEndDate || !responsibleStartDate || !responsibleEndDate) {
+    if (!name || name.length > 6  || !startDate || !endDate || !productorStartDate || !productorEndDate ||!producerReportStartDate || !producerReportEndDate || !responsibleStartDate || !responsibleEndDate)  {
       showNotification({
         title: "Error",
         message: "Todos los campos son requeridos",
@@ -98,6 +104,8 @@ const AdminPeriodsPage = () => {
         end_date: endDate.toISOString(),
         producer_start_date: productorStartDate.toISOString(),
         producer_end_date: productorEndDate.toISOString(),
+        producer_report_start_date: producerReportStartDate.toISOString(),
+  producer_report_end_date: producerReportEndDate.toISOString(),
         responsible_start_date: responsibleStartDate.toISOString(),
         responsible_end_date: responsibleEndDate.toISOString(),
         is_active: true,
@@ -157,6 +165,8 @@ const AdminPeriodsPage = () => {
     setEndDate(null);
     setProductorStartDate(null);
     setProductorEndDate(null);
+    setProducerReportStartDate(null);
+setProducerReportEndDate(null);
     setResponsibleStartDate(null);
     setResponsibleEndDate(null);
     setIsActive(false);
@@ -170,6 +180,8 @@ const AdminPeriodsPage = () => {
       <Table.Td><Center>{dateToGMT(period.end_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{dateToGMT(period.producer_start_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{dateToGMT(period.producer_end_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.producer_report_start_date, "DD MMM, YYYY")}</Center></Table.Td>
+      <Table.Td><Center>{dateToGMT(period.producer_report_end_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{dateToGMT(period.responsible_start_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{dateToGMT(period.responsible_end_date, "DD MMM, YYYY")}</Center></Table.Td>
       <Table.Td><Center>{period.is_active ? "Activo" : "Inactivo"}</Center></Table.Td>
@@ -240,6 +252,8 @@ const AdminPeriodsPage = () => {
             <Table.Th><Center>Fin Periodo</Center></Table.Th>
             <Table.Th><Center>Inicio Productor</Center></Table.Th>
             <Table.Th><Center>Fin Productor</Center></Table.Th>
+            <Table.Th><Center>Inicio Informes Productor</Center></Table.Th>
+            <Table.Th><Center>Fin Informes Productor</Center></Table.Th>
             <Table.Th><Center>Inicio Responsable</Center></Table.Th>
             <Table.Th><Center>Fin Responsable</Center></Table.Th>
             <Table.Th><Center>Estado</Center></Table.Th>
@@ -293,7 +307,7 @@ const AdminPeriodsPage = () => {
             onChange={setEndDate}
           />
         </Stack>
-        <Stack mb="md">
+         <Stack mb="md">
           <DateInput
             label="Inicio de Productor"
             locale="es"
@@ -309,6 +323,24 @@ const AdminPeriodsPage = () => {
             placeholder="Selecciona una fecha"
             value={productorEndDate}
             onChange={setProductorEndDate}
+          />
+        </Stack>
+        <Stack mb="md">
+          <DateInput
+            label="Inicio de Informes Productor"
+            locale="es"
+            placeholder="Selecciona una fecha"
+            value={producerReportStartDate}
+            onChange={setProducerReportStartDate}
+          />
+        </Stack>
+        <Stack mb="md">
+          <DateInput
+            label="Fin de Informes Productor"
+            locale="es"
+            placeholder="Selecciona una fecha"
+            value={producerReportEndDate}
+            onChange={setProducerReportEndDate}
           />
         </Stack>
         <Stack mb="md">

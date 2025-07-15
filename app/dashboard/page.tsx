@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Badge, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme} from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2,IconMail   } from "@tabler/icons-react";
+import { IconHexagon3d, IconChartHistogram, IconChartBarPopular, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2,IconMail   } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 import { useColorScheme } from "@mantine/hooks";
@@ -409,6 +409,41 @@ useEffect(() => {
               </Button>
             </Card>
           </Grid.Col>,
+
+
+<Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-gestion-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+               <Center style={{ position: "relative" }}>
+                <IconChartBarPopular size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Configurar Informes de Gestión</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Crea, edita y asigna los informes de gestión.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports')}>
+                Ir a Configuración de Informes de gestión
+              </Button>
+            </Card>
+          </Grid.Col>,
+          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-gestion-uploaded-reports">
+            <Card shadow="sm" padding="lg" radius="md" withBorder>
+              <Center>
+                <IconReportSearch size={80}/>
+              </Center>
+              <Group mt="md" mb="xs">
+                <Text ta={"center"} w={500}>Administrar Informes de Gestión</Text>
+              </Group>
+              <Text ta={"center"} size="sm" color="dimmed">
+                Adminsitra el proceso de cargue de los informes de gestión.
+              </Text>
+              <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push('/admin/reports/uploaded')}>
+                Ir a administración de Informes 
+              </Button>
+            </Card>
+          </Grid.Col>,
+
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} key="admin-periods">
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Center><IconCalendarMonth size={80}/></Center>
