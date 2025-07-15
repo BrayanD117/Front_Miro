@@ -133,8 +133,6 @@ const ResponsibleReportPage = () => {
 if (response.data.report.dimensions.length === 1) {
   setSelectedDimension(response.data.report.dimensions[0]._id);
 
-  console.log("Entraaaa");
-
 }
 
           if(response.data.report.dimensions.length > 1) {
