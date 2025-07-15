@@ -25,6 +25,7 @@ import "dayjs/locale/es";
 interface Report {
   _id: string;
   name: string;
+    description: string;
 }
 
 interface Period {
@@ -96,7 +97,7 @@ const ProducerReportsPage = () => {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periods/byId/${periodId}`);
     const { producer_report_start_date, producer_report_end_date } = response.data;
     const today = new Date();
-    const isValid = today >= new Date(producer_report_start_date) && today <= new Date(producer_report_end_date);
+    const isValid = today <= new Date(producer_report_end_date);
     setValidProducerPeriod(prev => ({ ...prev, [periodId]: isValid }));
   } catch (error) {
     console.error("Error validating producer period", error);
@@ -125,60 +126,61 @@ useEffect(() => {
   });
 }, [publishedReports]);
 
-  const fetchReports = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
-        {
-          params: {
-            search: search,
-            email: session?.user?.email,
-            periodId: selectedPeriodId,
-          },
-        }
-      );
-      if (response.data) {
-        const reports = response.data.publishedReports;
-        setPublishedReports(reports);
-        setPendingReportsCount(response.data.totalPending || 0);
-     // Se obtiene el total de reportes publicados
-            const totalReports = response.data.publishedReports.length;
-
-            // Se filtran los reportes pendientes
-            const pendingReportsData = response.data.publishedReports.filter(
-                (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
-            );
-
-            // Se establece el número de reportes pendientes
-            setPendingReportsCount(pendingReportsData.length);
-            setNextDeadline(
-                pendingReportsData.length > 0 ? dayjs(pendingReportsData[0].deadline).format("DD/MM/YYYY") : null
-            );
+const fetchReports = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/producer`,
+      {
+        params: {
+          search: search,
+          email: session?.user?.email,
+          periodId: selectedPeriodId,
+        },
       }
-    } catch (error) {
-      console.error(error);
+    );
+
+    if (response.data) {
+
+      console.log(response.data)
+
+      const pending = response.data.pendingReports;
+      const completed = response.data.completedReports;
+
+      setPublishedReports([...pending, ...completed]);
+      setPendingReportsCount(pending.length);
+      setNextDeadline(
+        pending.length > 0
+          ? dayjs(pending[0].deadline).format("DD/MM/YYYY")
+          : null
+      );
     }
-  };
+  } catch (error) {
+    console.error("Error fetching producer reports:", error);
+    setPublishedReports([]);
+    setPendingReportsCount(0);
+    setNextDeadline(null);
+  }
+};
 
-  // Filtrar reportes pendientes (estado "Pendiente" o sin reportes llenados)
-const pendingReports = publishedReports.filter((pRep) => {
-  const firstReport = pRep.filled_reports[0];
-  return !firstReport || firstReport.status === "Pendiente";
-});
 
+const pendingReports = publishedReports.filter(
+  (pRep) =>
+    !pRep.filled_reports.length || pRep.filled_reports[0].status === "Pendiente"
+);
 
-  const completedReports = publishedReports.filter((pRep) => {
-    const firstReport = pRep.filled_reports[0];
-    return firstReport && firstReport.status !== "Pendiente";
-  }).slice((pageCompleted - 1) * 5, pageCompleted * 5);
+const completedReports = publishedReports.filter(
+  (pRep) =>
+    pRep.filled_reports.length && pRep.filled_reports[0].status !== "Pendiente"
+);
 
 
   const renderReportRows = (reports: PublishedReport[]) =>
     reports.map((pRep) => (
       <Table.Tr key={pRep._id}>
         <Table.Td>{pRep.period?.name}</Table.Td>
-        <Table.Td>{dateToGMT(pRep.deadline)}</Table.Td>
+        <Table.Td>{dateToGMT(pRep.deadline)}</Table.Td> 
         <Table.Td>{pRep.report.name}</Table.Td>
+        <Table.Td>{pRep.report.description}</Table.Td>
         <Table.Td>
           <Center>
             <Badge color={StatusColor[pRep.filled_reports[0]?.status] ?? "orange"} variant={"light"}>
@@ -194,7 +196,7 @@ const pendingReports = publishedReports.filter((pRep) => {
         <Table.Td>
           <Center>
 <Tooltip
-  label={`Disponible a partir del ${dayjs(pRep.period.producer_report_start_date).format("DD/MM/YYYY")} `}
+  label={`Plazo terminado para acceder a este informe`}
   withArrow
   disabled={validProducerPeriod[pRep.period._id]}
   color={validProducerPeriod[pRep.period._id] === false ? "red" : "blue"}
@@ -258,6 +260,7 @@ const pendingReports = publishedReports.filter((pRep) => {
             <Table.Th>Periodo</Table.Th>
             <Table.Th>Fecha Límite</Table.Th>
             <Table.Th>Nombre de Informe</Table.Th>
+            <Table.Th>Descripción</Table.Th>
             <Table.Th>
               <Center>Estado</Center>
             </Table.Th>

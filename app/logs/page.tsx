@@ -18,14 +18,31 @@ interface ColumnError {
 const ErrorLogsPage = () => {
   const [columnErrors, setColumnErrors] = useState<ColumnError[]>([]);
 
+  const renderValue = (val: any) => {
+  if (val === null || val === undefined || val === '') return "Sin valor";
+  if (typeof val === 'object') return JSON.stringify(val);
+  return String(val);
+};
+
   useEffect(() => {
+  try {
     const errors = localStorage.getItem('errorDetails');
     if (errors) {
       const parsedErrors = JSON.parse(errors);
-      setColumnErrors(Array.isArray(parsedErrors) ? parsedErrors : []);
-      localStorage.removeItem('errorDetails');
+      if (Array.isArray(parsedErrors)) {
+        setColumnErrors(parsedErrors);
+      } else {
+        console.warn("Estructura inesperada en errorDetails:", parsedErrors);
+        setColumnErrors([]);
+      }
     }
-  }, []);
+  } catch (error) {
+    console.error("Error al parsear errorDetails:", error);
+    setColumnErrors([]);
+  } finally {
+    localStorage.removeItem('errorDetails');
+  }
+}, []);
 
 return (
   <Container size="xl">
@@ -53,7 +70,7 @@ return (
                 <Table.Td>{columnError.column}</Table.Td>
                 <Table.Td>{detail.register}</Table.Td>
                 <Table.Td>{detail.message}</Table.Td>
-                <Table.Td>{detail.value}</Table.Td>
+                <Table.Td>{renderValue(detail.value)}</Table.Td>
               </Table.Tr>
             ))
           )

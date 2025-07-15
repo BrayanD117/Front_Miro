@@ -156,9 +156,17 @@ const handleFileDrop = async (files: File[]) => {
     } catch (error) {
       console.error('Error enviando los datos al servidor:', error);
       if (axios.isAxiosError(error)) {
-        const details = error.response?.data.details ?? [];
-        localStorage.setItem('errorDetails', JSON.stringify(details));
-        if (typeof window !== 'undefined') window.open('/logs', '_blank');
+        const details = error.response?.data.details;
+        if (Array.isArray(details)) {
+          localStorage.setItem("errorDetails", JSON.stringify(details));
+          if (typeof window !== "undefined") window.open("/logs", "_blank");
+        } else {
+          showNotification({
+            title: "Error de validación",
+            message: "No se pudieron procesar los errores.",
+            color: "red",
+          });
+        }
       }
     }
   };

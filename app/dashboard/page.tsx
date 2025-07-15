@@ -63,13 +63,13 @@ const { id } = params ?? {};
                 );
             }
 
-            // Se obtiene el total de reportes publicados
-            const totalReports = reportsResponse.data.publishedReports.length;
+                        console.log(reportsResponse.data, 'Producer reports ');
+
+            // // Se obtiene el total de reportes publicados
+            // const totalReports = reportsResponse.data.publishedReports.length;
 
             // Se filtran los reportes pendientes
-            const pendingReportsData = reportsResponse.data.publishedReports.filter(
-                (rep: any) => !rep.filled_reports[0] || rep.filled_reports[0].status === "Pendiente"
-            );
+            const pendingReportsData = reportsResponse.data.pendingReports 
 
             // Se establece el número de reportes pendientes
             setPendingReports(pendingReportsData.length);
@@ -259,6 +259,7 @@ useEffect(() => {
               Tienes <strong>{pendingReports}</strong> reportes pendientes.{" "}
               {nextReportDeadline && `Fecha de vencimiento más próxima: ${nextReportDeadline}.`}
               <br />
+              <br />
             </>
           )}
           {pendingTemplates > 0 && userRole !== "Responsable" && (
@@ -271,10 +272,6 @@ useEffect(() => {
       </Center>
     );
   };
-  
-  
-
-  
   
   const handleRoleSelect = async (role: string) => {
     if (!session?.user?.email) return;

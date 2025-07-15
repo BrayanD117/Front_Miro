@@ -161,21 +161,19 @@ const multiple = templateResponse.data.template.fields.find((f: { name: string; 
         onClose();
       }, 3000);
     } catch (error) {
-      console.error("Error enviando los datos al servidor:", error);
+      console.error("Error enviando los datos al servidor cargar:", error);
 
       if (axios.isAxiosError(error)) {
         console.error("Detalles del error:", error.response?.data);
 
-        if (error.response?.data.details) {
-          const errorDetails = Array.isArray(error.response.data.details)
-            ? error.response.data.details
-            : [];
-          localStorage.setItem("errorDetails", JSON.stringify(errorDetails));
+        const details = error.response?.data.details;
+        if (Array.isArray(details)) {
+          localStorage.setItem("errorDetails", JSON.stringify(details));
           if (typeof window !== "undefined") window.open("/logs", "_blank");
         } else {
           showNotification({
-            title: "Error",
-            message: "Hubo un error al procesar los datos. Verifica la plantilla y vuelve a intentarlo.",
+            title: "Error de validación",
+            message: "No se pudieron procesar los errores. Contacta con soporte.",
             color: "red",
           });
         }
