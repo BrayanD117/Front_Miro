@@ -549,7 +549,7 @@ useEffect(() => {
       <Text ta={"center"} w={500}>Recordatorios por correo</Text>
     </Group>
     <Text ta={"center"} size="sm" color="dimmed">
-      Ajusta cuándo se deben enviar recordatorios por email para plantillas pendientes.
+      Ajusta cuándo se deben enviar recordatorios por email para plantillas e informes pendientes.
     </Text>
     <Button
       variant="light"

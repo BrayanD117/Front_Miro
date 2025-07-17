@@ -92,8 +92,38 @@ export default function AdminRemindersPage() {
     }
   };
 
+  const sendReminders = async (tipo: "plantilla" | "informe") => {
+  const confirmMsg = tipo === "informe"
+    ? "¿Estás seguro de que quieres enviar los recordatorios de informes de productor ahora?"
+    : "¿Estás seguro de que quieres enviar los recordatorios de plantillas de productor ahora?";
+
+  if (!window.confirm(confirmMsg)) return;
+
+  setSending(true);
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reminders/send-now?type=${tipo}`);
+    const enviados = response.data.sent || 0;
+
+    showNotification({
+      title: "Envío completado",
+      message: `Se enviaron recordatorios a ${enviados} persona(s). También se ha enviado correo de confirmación a miro@unibague.edu.co`,
+      color: "teal"
+    });
+  } catch (error) {
+    console.error("Error al enviar recordatorios:", error);
+    showNotification({
+      title: "Error",
+      message: "Ocurrió un error al enviar los recordatorios.",
+      color: "red",
+    });
+  } finally {
+    setSending(false);
+  }
+};
+
+
   const sendRemindersNow = async () => {
-  if (!window.confirm("¿Estás seguro de que quieres enviar los recordatorios ahora??")) return;
+  if (!window.confirm("¿Estás seguro de que quieres enviar los recordatorios de plantillas de productor ahora??")) return;
 
   setSending(true);
   try {
@@ -104,6 +134,30 @@ export default function AdminRemindersPage() {
       title: "Envío completado",
       message: `Se enviaron recordatorios a ${enviados} persona(s).`,
       color: "teal",
+    });
+  } catch (error) {
+    console.error("Error al enviar recordatorios:", error);
+    showNotification({
+      title: "Error",
+      message: "Ocurrió un error al enviar los recordatorios.",
+      color: "red",
+    });
+  } finally {
+    setSending(false);
+  }
+};
+
+  const sendPublishedProducerReportsReminder = async () => {
+  if (!window.confirm("¿Estás seguro de que quieres enviar los recordatorios de informes de productor ahora??")) return;
+
+  setSending(true);
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reminders/send-publishedProducerReports-reminders`);
+    const enviados = response.data || 0;
+    showNotification({
+      title: "Envío completado",
+      message: `Se enviaron recordatorios a ${enviados} persona(s). También se ha enviado correo de confirmación a miro@unibague.edu.co`,
+      color: "teal"
     });
   } catch (error) {
     console.error("Error al enviar recordatorios:", error);
@@ -131,27 +185,36 @@ export default function AdminRemindersPage() {
         Define recordatorios que se enviarán por correo antes del vencimiento de las plantillas.
       </Text>
 
-      <Group justify="space-between" mb="md">
+      <Group justify="space-between" align="center" mb="md">
         <Button leftSection={<IconPlus size={18} />} onClick={() => setOpened(true)}>
           Nuevo Recordatorio
         </Button>
 
-        <Button
-          variant="light"
-          color="orange"
-          loading={sending}
-          onClick={sendRemindersNow}
-        >
-          Enviar recordatorio inmediato
-        </Button>
+        <Group gap="sm">
+          <Button
+            variant="light"
+            color="orange"
+            loading={sending}
+            onClick={() => sendReminders("plantilla")}
+          >
+            Enviar recordatorio plantillas productor
+          </Button>
 
-        {sending && (
-          <Text ta="center" c="orange" fw={500} mb="sm">
-            ⏳ Enviando recordatorios... por favor no cierres ni abandones esta pantalla hasta que se complete la operación.
-          </Text>
-)}
-
+          <Button
+            variant="light"
+            color="violet"
+            loading={sending}
+            onClick={() => sendReminders("informe")}
+          >
+            Enviar recordatorio informes productor
+          </Button>
+        </Group>
       </Group>
+      {sending && (
+        <Text ta="center" c="orange" fw={500} mb="sm">
+          ⏳ Enviando recordatorios... por favor no cierres ni abandones esta pantalla hasta que se complete la operación.
+        </Text>
+      )}
 
       <ScrollArea>
         <Table striped withTableBorder highlightOnHover>

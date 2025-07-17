@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { showNotification } from "@mantine/notifications"
-import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconDownload, IconEye, IconTable, IconTableFilled, IconTableRow, IconArrowBigUpFilled, IconArrowBigDownFilled, IconArrowsTransferDown, IconTrash, IconArrowRight } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -428,9 +428,12 @@ const dateFields = new Set(
         onChange={(event) => setSearch(event.currentTarget.value)}
         mb="md"
       />
-      <Group>
+      <Group justify="space-between">
         {
           userRole === "Administrador" && ( 
+
+            <>
+
             <Button
               onClick={() =>
                 router.push("/admin/templates/")
@@ -440,6 +443,18 @@ const dateFields = new Set(
             >
               Ir a Configuración de Plantillas
             </Button>
+
+            <Button
+              onClick={() =>
+                router.push("/templates/published/update")
+              }
+              variant="outline"
+              leftSection={<IconArrowRight size={16} />}
+            >
+              Cambiar fechas de entrega plantillas
+            </Button>
+
+            </>
           )
         }
       </Group>
