@@ -83,10 +83,11 @@ const handleFileDrop = async (files: File[]) => {
               parsedValue = `ERROR: ${cell.value.error}`;
             }
             // 🔍 Detectar si tiene hipervínculo
-            else if (tipo === "Link" && cell.hyperlink) {
-              parsedValue = typeof cell.hyperlink === 'object' ? 
-                (cell.hyperlink.hyperlink || cell.hyperlink.text || JSON.stringify(cell.hyperlink)) : 
-                String(cell.hyperlink);
+            else if (tipo === "Link" && (cell as any).hyperlink) {
+              const hyperlink = (cell as any).hyperlink;
+              parsedValue = typeof hyperlink === 'object' ? 
+                (hyperlink.hyperlink || hyperlink.text || JSON.stringify(hyperlink)) : 
+                String(hyperlink);
             } else if (multiple) {
               // 🧠 Si es múltiple, trata el valor como string, incluso si el tipo de dato es numérico
               let rawValue = cell.value;
