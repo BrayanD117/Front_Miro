@@ -330,7 +330,7 @@ setProducerReportEndDate(null);
                 if (responsibleEndDate && (responsibleEndDate < startDate || responsibleEndDate > date)) setResponsibleEndDate(null);
               }
             }}
-            minDate={startDate}
+            minDate={startDate || undefined}
           />
         </Stack>
          <Stack mb="md">
@@ -340,8 +340,8 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={productorStartDate}
             onChange={setProductorStartDate}
-            minDate={startDate}
-            maxDate={endDate}
+            minDate={startDate || undefined}
+            maxDate={endDate || undefined}
             disabled={!startDate || !endDate}
           />
         </Stack>
@@ -352,8 +352,8 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={productorEndDate}
             onChange={setProductorEndDate}
-            minDate={startDate}
-            maxDate={endDate}
+            minDate={startDate || undefined}
+            maxDate={endDate || undefined}
             disabled={!startDate || !endDate}
           />
         </Stack>
@@ -364,8 +364,8 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={producerReportStartDate}
             onChange={setProducerReportStartDate}
-            minDate={startDate}
-            maxDate={endDate}
+            minDate={startDate || undefined}
+            maxDate={endDate || undefined}
             disabled={!startDate || !endDate}
           />
         </Stack>
@@ -376,8 +376,8 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={producerReportEndDate}
             onChange={setProducerReportEndDate}
-            minDate={startDate}
-            maxDate={endDate}
+            minDate={startDate || undefined}
+            maxDate={endDate || undefined}
             disabled={!startDate || !endDate}
           />
         </Stack>
@@ -388,8 +388,8 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={responsibleStartDate}
             onChange={setResponsibleStartDate}
-            minDate={startDate}
-            maxDate={endDate}
+            minDate={startDate || undefined}
+            maxDate={endDate || undefined}
             disabled={!startDate || !endDate}
           />
         </Stack>
@@ -400,8 +400,8 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={responsibleEndDate}
             onChange={setResponsibleEndDate}
-            minDate={startDate}
-            maxDate={endDate}
+            minDate={startDate || undefined}
+            maxDate={endDate || undefined}
             disabled={!startDate || !endDate}
           />
         </Stack>
