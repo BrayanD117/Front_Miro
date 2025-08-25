@@ -77,64 +77,123 @@ const multiple = templateResponse.data.template.fields.find((f: { name: string; 
   if (!key || tipo === undefined) return;
 
   let parsedValue: any = cell.value;
-
+  
+  // 🚨 Manejar errores de Excel específicamente
+  if (typeof cell.value === 'object' && cell.value !== null && 'error' in cell.value) {
+    parsedValue = `ERROR: ${cell.value.error}`;
+  }
   // 🔍 Detectar si tiene hipervínculo
-  if (tipo === "Link" && cell.hyperlink) {
-    parsedValue = cell.hyperlink;
+  else if (tipo === "Link" && cell.hyperlink) {
+    parsedValue = typeof cell.hyperlink === 'object' ? 
+      (cell.hyperlink.hyperlink || cell.hyperlink.text || JSON.stringify(cell.hyperlink)) : 
+      String(cell.hyperlink);
   } else if (multiple) {
     // 🧠 Si es múltiple, trata el valor como string, incluso si el tipo de dato es numérico
-    const raw = String(cell.value ?? "").trim();
+    let rawValue = cell.value;
+    if (typeof rawValue === 'object' && rawValue !== null) {
+      rawValue = JSON.stringify(rawValue);
+    }
+    const raw = String(rawValue ?? "").trim();
     parsedValue = raw.split(",").map(v => v.trim()).filter(Boolean);
   } else {
     switch (tipo) {
       case "Entero":
-        parsedValue = parseInt(cell.value as string);
-        if (isNaN(parsedValue)) parsedValue = cell.value;
+        if (typeof cell.value === 'object' && cell.value !== null) {
+          parsedValue = String(cell.value);
+        } else {
+          parsedValue = parseInt(String(cell.value));
+          if (isNaN(parsedValue)) parsedValue = String(cell.value);
+        }
         break;
 
       case "Decimal":
       case "Porcentaje":
-        parsedValue = parseFloat(cell.value as string);
-        if (isNaN(parsedValue)) parsedValue = cell.value;
+        if (typeof cell.value === 'object' && cell.value !== null) {
+          parsedValue = String(cell.value);
+        } else {
+          parsedValue = parseFloat(String(cell.value));
+          if (isNaN(parsedValue)) parsedValue = String(cell.value);
+        }
         break;
 
       case "Fecha":
-        const dateValue = new Date(cell.value as string);
-        parsedValue = isNaN(dateValue.getTime()) ? cell.value : dateValue;
+        if (typeof cell.value === 'object' && cell.value !== null) {
+          parsedValue = String(cell.value);
+        } else {
+          const dateValue = new Date(String(cell.value));
+          parsedValue = isNaN(dateValue.getTime()) ? String(cell.value) : dateValue.toISOString();
+        }
         break;
 
       case "True/False":
-        parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
+        if (typeof cell.value === 'object' && cell.value !== null) {
+          parsedValue = String(cell.value);
+        } else {
+          parsedValue = String(cell.value).toLowerCase() === "si" || cell.value === true;
+        }
         break;
 
       case "Texto Corto":
       case "Texto Largo":
-        parsedValue = cell.value?.toString?.() ?? "";
+        parsedValue = typeof cell.value === 'object' && cell.value !== null ? 
+          JSON.stringify(cell.value) : String(cell.value ?? "");
         break;
 
       case "Fecha Inicial / Fecha Final":
-        try {
-          parsedValue = JSON.parse(cell.value as string);
-          if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
-        } catch {
-          parsedValue = cell.value;
+        if (typeof cell.value === 'object' && cell.value !== null) {
+          parsedValue = JSON.stringify(cell.value);
+        } else {
+          try {
+            parsedValue = JSON.parse(String(cell.value));
+            if (!Array.isArray(parsedValue) || parsedValue.length !== 2) throw new Error();
+          } catch {
+            parsedValue = String(cell.value);
+          }
         }
         break;
 
       default:
-        parsedValue = cell.value;
+        // Asegurar que no se envíen objetos complejos
+        parsedValue = typeof cell.value === 'object' && cell.value !== null ? 
+          JSON.stringify(cell.value) : cell.value;
     }
   }
 
   rowData[key] = parsedValue;
 });
 
+    // Sanitizar datos antes de agregar
+    const sanitizedRowData = Object.fromEntries(
+      Object.entries(rowData).map(([key, value]) => [
+        key,
+        typeof value === 'object' && value !== null && !Array.isArray(value) ?
+          JSON.stringify(value) : value
+      ])
+    );
 
-
-    data.push(rowData);
+    data.push(sanitizedRowData);
   }
 });
 
+
+    // Sanitización final agresiva
+    const finalSanitizedData = data.map(row => {
+      const sanitizedRow: Record<string, any> = {};
+      for (const [key, value] of Object.entries(row)) {
+        if (value === null || value === undefined) {
+          sanitizedRow[key] = null;
+        } else if (Array.isArray(value)) {
+          sanitizedRow[key] = value.map(v => 
+            typeof v === 'object' && v !== null ? String(v) : v
+          );
+        } else if (typeof value === 'object') {
+          sanitizedRow[key] = String(value);
+        } else {
+          sanitizedRow[key] = value;
+        }
+      }
+      return sanitizedRow;
+    });
 
     try {
       if (!session?.user?.email) {
@@ -144,7 +203,7 @@ const multiple = templateResponse.data.template.fields.find((f: { name: string; 
       const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/producer/load`, {
         email: session.user.email,
         pubTem_id: pubTemId,
-        data,
+        data: finalSanitizedData,
       });
 
       const recordsLoaded = response.data.recordsLoaded;

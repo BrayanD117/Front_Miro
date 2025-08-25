@@ -32,7 +32,10 @@ import {
 import { useRouter } from "next/navigation";
 import { showNotification } from "@mantine/notifications";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { usePeriod } from "@/app/context/PeriodContext";
+
+dayjs.extend(utc);
 
 
 interface Report {
@@ -52,6 +55,8 @@ interface Period {
   name: string;
   responsible_start_date: Date;
   responsible_end_date: Date;
+  producer_report_start_date: Date;
+  producer_report_end_date: Date;
 }
 
 interface FilledReport {
@@ -78,6 +83,7 @@ const AdminPubReportsPage = () => {
   const [openedDeadlineModal, setOpenedDeadlineModal] = useState(false);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [newDeadline, setNewDeadline] = useState<Date | null>(null);
+  const [currentPeriod, setCurrentPeriod] = useState<Period | null>(null);
   const router = useRouter();
   const theme = useMantineTheme();
 
@@ -98,6 +104,10 @@ const AdminPubReportsPage = () => {
       if (response.data) {
         setPubReports(response.data.publishedReports);
         setTotalPages(response.data.totalPages);
+        // Obtener el período actual de los informes publicados
+        if (response.data.publishedReports.length > 0) {
+          setCurrentPeriod(response.data.publishedReports[0].period);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -122,6 +132,21 @@ const AdminPubReportsPage = () => {
 
   const updateDeadlines = async () => {
     if (!newDeadline || selectedReports.length === 0) return;
+    
+    // Validar que la fecha esté dentro del rango permitido
+    if (currentPeriod?.producer_report_start_date && currentPeriod?.producer_report_end_date) {
+      const startDate = new Date(currentPeriod.producer_report_start_date);
+      const endDate = new Date(currentPeriod.producer_report_end_date);
+      if (newDeadline < startDate || newDeadline > endDate) {
+        showNotification({
+          title: "Error",
+          message: "La fecha debe estar dentro del rango del período",
+          color: "red",
+        });
+        return;
+      }
+    }
+    
     setLoading(true);
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pProducerReports/update-deadlines`, {
@@ -253,17 +278,36 @@ const AdminPubReportsPage = () => {
 
       <Modal
         opened={openedDeadlineModal}
-        onClose={() => setOpenedDeadlineModal(false)}
+        onClose={() => {
+          setOpenedDeadlineModal(false);
+          setNewDeadline(null);
+        }}
         title="Actualizar fecha de entrega"
         centered
       >
         <Stack>
+          {currentPeriod && currentPeriod.producer_report_start_date && currentPeriod.producer_report_end_date && (
+            <Text size="sm" c="dimmed" mb="xs">
+              Rango permitido (Según fechas Inicio de Informes Productor - Fin de Informes Productor ): {new Date(currentPeriod.producer_report_start_date).toLocaleDateString('es-ES')} - {new Date(currentPeriod.producer_report_end_date).toLocaleDateString('es-ES')}
+            </Text>
+          )}
           <DateInput
             label="Nueva fecha límite"
             value={newDeadline}
             onChange={setNewDeadline}
+            minDate={currentPeriod?.producer_report_start_date ? new Date(currentPeriod.producer_report_start_date) : undefined}
+            maxDate={currentPeriod?.producer_report_end_date ? new Date(currentPeriod.producer_report_end_date) : undefined}
+            locale="es"
+            placeholder="Selecciona una fecha dentro del rango permitido"
           />
-          <Button loading={loading} onClick={updateDeadlines}>
+          <Button 
+            loading={loading} 
+            onClick={updateDeadlines}
+            disabled={!newDeadline || (currentPeriod?.producer_report_start_date && currentPeriod?.producer_report_end_date && (
+              new Date(newDeadline) < new Date(currentPeriod.producer_report_start_date) ||
+              new Date(newDeadline) > new Date(currentPeriod.producer_report_end_date)
+            ))}
+          >
             Actualizar
           </Button>
         </Stack>

@@ -289,13 +289,27 @@ setProducerReportEndDate(null);
           onChange={(event) => setName(event.currentTarget.value.slice(0, 6))}
           mb="md"
         />
+        <Text size="sm" c="dimmed" mb="md">
+          Las fechas de inicio y fin del período limitarán todas las demás fechas. Configure primero estas fechas principales.
+        </Text>
         <Stack mb="md">
           <DateInput
             label="Fecha de Inicio del Periodo"
             locale="es"
             placeholder="Selecciona una fecha"
             value={startDate}
-            onChange={setStartDate}
+            onChange={(date) => {
+              setStartDate(date);
+              // Limpiar fechas que estén fuera del nuevo rango
+              if (date && endDate) {
+                if (productorStartDate && (productorStartDate < date || productorStartDate > endDate)) setProductorStartDate(null);
+                if (productorEndDate && (productorEndDate < date || productorEndDate > endDate)) setProductorEndDate(null);
+                if (producerReportStartDate && (producerReportStartDate < date || producerReportStartDate > endDate)) setProducerReportStartDate(null);
+                if (producerReportEndDate && (producerReportEndDate < date || producerReportEndDate > endDate)) setProducerReportEndDate(null);
+                if (responsibleStartDate && (responsibleStartDate < date || responsibleStartDate > endDate)) setResponsibleStartDate(null);
+                if (responsibleEndDate && (responsibleEndDate < date || responsibleEndDate > endDate)) setResponsibleEndDate(null);
+              }
+            }}
           />
         </Stack>
         <Stack mb="md">
@@ -304,7 +318,19 @@ setProducerReportEndDate(null);
             locale="es"
             placeholder="Selecciona una fecha"
             value={endDate}
-            onChange={setEndDate}
+            onChange={(date) => {
+              setEndDate(date);
+              // Limpiar fechas que estén fuera del nuevo rango
+              if (date && startDate) {
+                if (productorStartDate && (productorStartDate < startDate || productorStartDate > date)) setProductorStartDate(null);
+                if (productorEndDate && (productorEndDate < startDate || productorEndDate > date)) setProductorEndDate(null);
+                if (producerReportStartDate && (producerReportStartDate < startDate || producerReportStartDate > date)) setProducerReportStartDate(null);
+                if (producerReportEndDate && (producerReportEndDate < startDate || producerReportEndDate > date)) setProducerReportEndDate(null);
+                if (responsibleStartDate && (responsibleStartDate < startDate || responsibleStartDate > date)) setResponsibleStartDate(null);
+                if (responsibleEndDate && (responsibleEndDate < startDate || responsibleEndDate > date)) setResponsibleEndDate(null);
+              }
+            }}
+            minDate={startDate}
           />
         </Stack>
          <Stack mb="md">
@@ -314,6 +340,9 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={productorStartDate}
             onChange={setProductorStartDate}
+            minDate={startDate}
+            maxDate={endDate}
+            disabled={!startDate || !endDate}
           />
         </Stack>
         <Stack mb="md">
@@ -323,6 +352,9 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={productorEndDate}
             onChange={setProductorEndDate}
+            minDate={startDate}
+            maxDate={endDate}
+            disabled={!startDate || !endDate}
           />
         </Stack>
         <Stack mb="md">
@@ -332,6 +364,9 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={producerReportStartDate}
             onChange={setProducerReportStartDate}
+            minDate={startDate}
+            maxDate={endDate}
+            disabled={!startDate || !endDate}
           />
         </Stack>
         <Stack mb="md">
@@ -341,6 +376,9 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={producerReportEndDate}
             onChange={setProducerReportEndDate}
+            minDate={startDate}
+            maxDate={endDate}
+            disabled={!startDate || !endDate}
           />
         </Stack>
         <Stack mb="md">
@@ -350,6 +388,9 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={responsibleStartDate}
             onChange={setResponsibleStartDate}
+            minDate={startDate}
+            maxDate={endDate}
+            disabled={!startDate || !endDate}
           />
         </Stack>
         <Stack mb="md">
@@ -359,6 +400,9 @@ setProducerReportEndDate(null);
             placeholder="Selecciona una fecha"
             value={responsibleEndDate}
             onChange={setResponsibleEndDate}
+            minDate={startDate}
+            maxDate={endDate}
+            disabled={!startDate || !endDate}
           />
         </Stack>
         <Group mt="md">
