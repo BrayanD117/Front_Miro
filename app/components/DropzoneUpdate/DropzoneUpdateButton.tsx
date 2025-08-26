@@ -43,6 +43,7 @@ const handleFileDrop = async (files: File[]) => {
     await workbook.xlsx.load(buffer);
 
     const data: Record<string, any>[] = [];
+    let hasInvalidColumns = false;
 
     const templateMeta = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${pubTemId}`);
     
@@ -64,6 +65,26 @@ const handleFileDrop = async (files: File[]) => {
           row.eachCell({ includeEmpty: true }, (cell) => {
             headers.push(cell.text?.toString?.() ?? cell.value?.toString?.() ?? '');
           });
+          
+          // 🚨 Validar columnas antes de procesar datos
+          const expectedColumns = Object.keys(fieldTypes);
+          const invalidColumns = headers.filter(header => header && !expectedColumns.includes(header));
+          
+          if (invalidColumns.length > 0) {
+            const errorDetails = invalidColumns.map(col => ({
+              column: col,
+              errors: [{
+                register: 1,
+                message: `Columna '${col}' no existe en la plantilla. Columnas válidas: ${expectedColumns.join(', ')}`,
+                value: col
+              }]
+            }));
+            
+            localStorage.setItem("errorDetails", JSON.stringify(errorDetails));
+            if (typeof window !== "undefined") window.open("/logs", "_blank");
+            hasInvalidColumns = true;
+            return;
+          }
         } else {
           const rowData: Record<string, any> = {};
 
@@ -175,6 +196,11 @@ const handleFileDrop = async (files: File[]) => {
           data.push(sanitizedRowData);
         }
       });
+    }
+
+    // Si hay columnas inválidas, no continuar con el procesamiento
+    if (hasInvalidColumns) {
+      return;
     }
 
     // Sanitización final agresiva

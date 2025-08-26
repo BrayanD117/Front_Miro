@@ -50,6 +50,7 @@ const handleFileDrop = async (files: File[]) => {
 
     let headers: string[] = [];
     const data: Record<string, any>[] = [];
+    let hasInvalidColumns = false;
 
     // 🧠 Obtener tipos desde el template en backend
     const templateResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pTemplates/template/${pubTemId}`);
@@ -64,6 +65,26 @@ sheet.eachRow((row, rowNumber) => {
   row.eachCell({ includeEmpty: true }, (cell) => {
     headers.push(cell.text?.toString?.() ?? cell.value?.toString?.() ?? '');
   });
+  
+  // 🚨 Validar columnas antes de procesar datos
+  const expectedColumns = Object.keys(fieldTypeMap);
+  const invalidColumns = headers.filter(header => header && !expectedColumns.includes(header));
+  
+  if (invalidColumns.length > 0) {
+    const errorDetails = invalidColumns.map(col => ({
+      column: col,
+      errors: [{
+        register: 1,
+        message: `Columna '${col}' no existe en la plantilla. Por favor corregir con el nombre correcto`,
+        value: col
+      }]
+    }));
+    
+    localStorage.setItem("errorDetails", JSON.stringify(errorDetails));
+    if (typeof window !== "undefined") window.open("/logs", "_blank");
+    hasInvalidColumns = true;
+    return;
+  }
 } else {
     const rowData: Record<string, any> = {};
 
@@ -176,6 +197,10 @@ const multiple = templateResponse.data.template.fields.find((f: { name: string; 
   }
 });
 
+    // Si hay columnas inválidas, no continuar con el procesamiento
+    if (hasInvalidColumns) {
+      return;
+    }
 
     // Sanitización final agresiva
     const finalSanitizedData = data.map(row => {
