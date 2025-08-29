@@ -597,7 +597,7 @@ const AdminUsersPage = () => {
         <Tabs.Panel value="users">
           <Group className={styles.customGroup} mb="md">
             <TextInput
-              placeholder="Buscar en toda la tabla"
+              placeholder="Buscar en toda  la tabla"
               value={search}
               onChange={(event) => setSearch(event.currentTarget.value)}
               className={styles.searchInput}
