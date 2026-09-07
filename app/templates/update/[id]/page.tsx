@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Container, TextInput, NumberInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center, MultiSelect, Textarea, rem, Tooltip, Tabs, Text, Box, Divider, Badge, ActionIcon, Modal, Stack } from "@mantine/core";
+import { Container, TextInput, Button, Group, Switch, Table, Checkbox, Select, Loader, Center, MultiSelect, Textarea, rem, Tooltip, Tabs, Text, Box, Divider, Badge, ActionIcon, Modal, Stack } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import "dayjs/locale/es";
 import axios from "axios";
@@ -43,12 +43,6 @@ interface Field {
   multiple: boolean;
   validate_with?: string;
   comment?: string;
-  content_type?: "" | "alphabetic" | "numeric" | "alphanumeric";
-  max_length?: number;
-  min_value?: number;
-  max_value?: number;
-  integer_only?: boolean;
-  percentage_group?: string;
   locked?: boolean;
   dropdown_options?: string[];
   header_row?: number;
@@ -219,7 +213,6 @@ const UpdateTemplatePage = () => {
     required: true,
     validate_with: "",
     comment: "",
-    content_type: "",
     multiple: false,
     locked: false,
   });
@@ -231,12 +224,6 @@ const UpdateTemplatePage = () => {
     required_override: field.required_override ?? false,
     validate_with: validateWithToText(field.validate_with),
     comment: field.comment || "",
-    content_type: field.content_type || "",
-    max_length: field.max_length,
-    min_value: field.min_value,
-    max_value: field.max_value,
-    integer_only: field.integer_only ?? false,
-    percentage_group: field.percentage_group || "",
     multiple: field.multiple ?? false,
     locked: field.locked ?? defaultLocked,
     dropdown_options: Array.isArray(field.dropdown_options) ? field.dropdown_options : [],
@@ -1881,9 +1868,6 @@ if (response.data.warning) {
                   <Table.Th>Arrastrar</Table.Th>
                   <Table.Th>Nombre Campo</Table.Th>
                   <Table.Th>Tipo de Campo</Table.Th>
-                  <Table.Th>Contenido</Table.Th>
-                  <Table.Th>Máx. caracteres</Table.Th>
-                  <Table.Th>Reglas numéricas</Table.Th>
                   <Table.Th>¿Obligatorio?</Table.Th>
                   <Table.Th>Validar con Base de Datos</Table.Th>
                   <Table.Th w={rem(70)}>Múltiple Respuesta</Table.Th>
@@ -1925,38 +1909,6 @@ if (response.data.warning) {
                             onChange={(value) => handleDisplayedFieldChange(actualIndex, "datatype", value || "")}
                             readOnly={!!field.validate_with}
                           />
-                        </Table.Td>
-                        <Table.Td w={rem(170)}>
-                          <Select
-                            placeholder="Sin restricción"
-                            data={[
-                              { value: "alphabetic", label: "Alfabético" },
-                              { value: "numeric", label: "Numérico" },
-                              { value: "alphanumeric", label: "Alfanumérico" },
-                            ]}
-                            value={field.content_type || null}
-                            onChange={(value) => handleDisplayedFieldChange(actualIndex, "content_type", value || "")}
-                            clearable
-                          />
-                        </Table.Td>
-                        <Table.Td w={rem(130)}>
-                          <NumberInput
-                            placeholder="Sin límite"
-                            min={1}
-                            allowDecimal={false}
-                            value={field.max_length}
-                            onChange={(value) => handleDisplayedFieldChange(actualIndex, "max_length", value || undefined)}
-                          />
-                        </Table.Td>
-                        <Table.Td w={rem(210)}>
-                          <Group gap="xs" wrap="nowrap">
-                            <NumberInput aria-label="Valor mínimo" placeholder="Mín." value={field.min_value} onChange={(value) => handleDisplayedFieldChange(actualIndex, "min_value", value === "" ? undefined : Number(value))} />
-                            <NumberInput aria-label="Valor máximo" placeholder="Máx." value={field.max_value} onChange={(value) => handleDisplayedFieldChange(actualIndex, "max_value", value === "" ? undefined : Number(value))} />
-                          </Group>
-                          <Checkbox mt="xs" label="Solo enteros" checked={field.integer_only || false} onChange={(event) => handleDisplayedFieldChange(actualIndex, "integer_only", event.currentTarget.checked)} />
-                          {field.datatype === "Porcentaje" && (
-                            <TextInput mt="xs" placeholder="Grupo de suma (opcional)" value={field.percentage_group || ""} onChange={(event) => handleDisplayedFieldChange(actualIndex, "percentage_group", event.currentTarget.value)} />
-                          )}
                         </Table.Td>
                         <Table.Td>
                           <Center>
@@ -2041,38 +1993,6 @@ if (response.data.warning) {
                       value={newField.datatype || null}
                       onChange={(v) => setNewField({ ...newField, datatype: v || "" })}
                     />
-                  </Table.Td>
-                  <Table.Td w={rem(170)}>
-                    <Select
-                      placeholder="Sin restricción"
-                      data={[
-                        { value: "alphabetic", label: "Alfabético" },
-                        { value: "numeric", label: "Numérico" },
-                        { value: "alphanumeric", label: "Alfanumérico" },
-                      ]}
-                      value={newField.content_type || null}
-                      onChange={(value) => setNewField({ ...newField, content_type: (value || "") as Field["content_type"] })}
-                      clearable
-                    />
-                  </Table.Td>
-                  <Table.Td w={rem(130)}>
-                    <NumberInput
-                      placeholder="Sin límite"
-                      min={1}
-                      allowDecimal={false}
-                      value={newField.max_length}
-                      onChange={(value) => setNewField({ ...newField, max_length: Number(value) || undefined })}
-                    />
-                  </Table.Td>
-                  <Table.Td w={rem(210)}>
-                    <Group gap="xs" wrap="nowrap">
-                      <NumberInput aria-label="Valor mínimo" placeholder="Mín." value={newField.min_value} onChange={(value) => setNewField({ ...newField, min_value: value === "" ? undefined : Number(value) })} />
-                      <NumberInput aria-label="Valor máximo" placeholder="Máx." value={newField.max_value} onChange={(value) => setNewField({ ...newField, max_value: value === "" ? undefined : Number(value) })} />
-                    </Group>
-                    <Checkbox mt="xs" label="Solo enteros" checked={newField.integer_only || false} onChange={(event) => setNewField({ ...newField, integer_only: event.currentTarget.checked })} />
-                    {newField.datatype === "Porcentaje" && (
-                      <TextInput mt="xs" placeholder="Grupo de suma (opcional)" value={newField.percentage_group || ""} onChange={(event) => setNewField({ ...newField, percentage_group: event.currentTarget.value })} />
-                    )}
                   </Table.Td>
                   <Table.Td>
                     <Center>
