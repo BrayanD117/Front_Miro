@@ -46,6 +46,8 @@ export type Program = {
   activo_universidad?: boolean;
   /** Elegibilidad interna para acreditación / estadísticas. */
   es_acreditable?: boolean;
+  /** Notas internas visibles en la hoja de vida del programa. */
+  observaciones?: string;
   // Clasificaciones
   cine_f?: CineF | null;
   nbc?: Nbc | null;
@@ -237,6 +239,8 @@ export type BarRow = {
   nombre: string;
   /** Código de facultad para filtrar programas al hacer clic en un segmento */
   dep_code: string;
+  /** Identificador del programa cuando la gráfica se desglosa por programa */
+  program_code?: string;
   fase_0: number; fase_1: number; fase_2: number;
   fase_3: number; fase_4: number; fase_5: number; fase_6: number;
   /** Procesos en fase 7 (no renovación / plan de contingencia permanente); se dibuja al final de la barra */

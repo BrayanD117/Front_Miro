@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Modal, Button, Badge, Select, Container, Grid, Card, Text, Group, Title, Center, Indicator, useMantineColorScheme, Paper, Stack, ThemeIcon } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import axios from "axios";
-import { IconHexagon3d, IconChartHistogram, IconChartBarPopular, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconMessageCircle, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2, IconMail, IconFilter, IconRobot, IconTarget, IconCalendarStats, IconShield, IconUsersGroup, IconDatabase } from "@tabler/icons-react";
+import { IconHexagon3d, IconChartHistogram, IconChartBarPopular, IconBuilding, IconFileAnalytics, IconCalendarMonth, IconZoomCheck, IconUserHexagon, IconReport, IconFileUpload, IconUserStar, IconChecklist, IconClipboardData, IconReportSearch, IconFilesOff, IconCheckbox, IconHomeCog, IconClipboard, IconHierarchy2, IconMail, IconFilter, IconRobot, IconTarget, IconCalendarStats, IconShield, IconUsersGroup, IconDatabase } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useRole } from "../context/RoleContext";
 import { useColorScheme } from "@mantine/hooks";
@@ -962,29 +962,6 @@ const DashboardPage = () => {
               </Text>
               <Button variant="light" fullWidth mt="md" radius="md" onClick={() => router.push(processesMenRoutes.home)}>
                 Ir a gestión de procesos MEN
-              </Button>
-            </Card>
-          </Grid.Col>
-        )}
-
-        {canSee("dateReviewComunicaciones", ["Administrador"]) && (
-          <Grid.Col span={{ base: 12, md: 6, lg: 5 }}>
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Center><IconMessageCircle size={80} stroke={1.2} /></Center>
-              <Group mt="md" mb="xs">
-                <Text ta={"center"} w={500}>Comunicaciones MEN</Text>
-              </Group>
-              <Text ta={"center"} size="sm" color="dimmed">
-                Gestión ante el MEN.
-              </Text>
-              <Button
-                variant="light"
-                fullWidth
-                mt="md"
-                radius="md"
-                onClick={() => router.push(processesMenRoutes.comunicaciones)}
-              >
-                Ir a comunicaciones MEN
               </Button>
             </Card>
           </Grid.Col>

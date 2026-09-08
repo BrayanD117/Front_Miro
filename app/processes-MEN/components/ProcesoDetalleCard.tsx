@@ -3406,7 +3406,7 @@ const ProcesoDetalleCard = ({
                         <Text size="xs" c="dimmed" fw={600} ta="center" fs="italic">Inexistente</Text>
                       ) : isEditing && !esSoloLectura ? (
                         <DateInput value={dateVal} onChange={(val) => saveDate(col.key, val)}
-                          valueFormat="YYYY-MM-DD" size="xs" autoFocus onBlur={() => setEditingDateKey(null)}
+                          valueFormat="DD/MM/YYYY" size="xs" autoFocus onBlur={() => setEditingDateKey(null)}
                           style={{ width: 130 }} clearable disabled={savingDate}
                           onKeyDown={(e) => e.preventDefault()}
                           styles={{ input: { caretColor: "transparent", cursor: "pointer" } }}
@@ -3421,7 +3421,7 @@ const ProcesoDetalleCard = ({
                           title={esSoloLectura ? (esRegistroCalificadoDeOficio ? "RC de oficio: la resolución y la vigencia se registran al cerrar el proceso (fecha, código y PDF)." : (col.key === "fecha_vencimiento" ? "Calculada a partir de la resolución" : "Fecha calculada automáticamente")) : (esProcesoPm ? "Clic para editar esta fecha del plan" : "Clic para editar fecha")}
                           onClick={() => { if (!esSoloLectura) setEditingDateKey(col.key); }}
                         >
-                          {fecha ? (esProcesoPm ? formatFechaDDMMYY(fecha) : fecha) : <span style={{ color: "#adb5bd" }}>Sin fecha</span>}
+                          {fecha ? formatFechaDDMMYY(fecha) : <span style={{ color: "#adb5bd" }}>Sin fecha</span>}
                         </Text>
                       )}
                       {!( !esProcesoPm && col.key === "fecha_vencimiento" && (proceso.subtipo === "Nuevo" || proceso.subtipo === "Primera vez")) && (
@@ -3526,7 +3526,7 @@ const ProcesoDetalleCard = ({
                           <Stack gap={4} align="center">
                             {isEditing ? (
                               <DateInput value={dateVal} onChange={(val) => savePmDate(col.key, val)}
-                                valueFormat="YYYY-MM-DD" size="xs" autoFocus onBlur={() => setEditingPmDateKey(null)}
+                                valueFormat="DD/MM/YYYY" size="xs" autoFocus onBlur={() => setEditingPmDateKey(null)}
                                 style={{ width: 130 }} clearable disabled={savingPmDate}
                                 onKeyDown={(e) => e.preventDefault()}
                                 styles={{ input: { caretColor: "transparent", cursor: "pointer" } }}

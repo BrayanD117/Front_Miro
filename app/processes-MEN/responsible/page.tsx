@@ -184,8 +184,12 @@ function ProcesoCard({ proc, fases }: { proc: Process; fases: Phase[] }) {
               style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             >
               {LABEL_PROCESO[proc.tipo_proceso]}
-              {proc.subtipo ? ` — ${proc.subtipo}` : ""}
             </Text>
+            {proc.subtipo && (
+              <Badge size="xs" variant="outline" color="gray">
+                {proc.subtipo}
+              </Badge>
+            )}
           </Group>
           <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
             <Text size="xs" c="dimmed">{pct}% completado</Text>
@@ -478,15 +482,15 @@ export default function ProcessesMenResponsiblePage() {
               <ThemeIcon size={30} radius="md" color="blue" variant="light">
                 <IconClipboardList size={17} />
               </ThemeIcon>
-              <Text size="sm" fw={700}>Procesos MEN</Text>
+              <Text size="sm" fw={700}>Panel MEN</Text>
             </Group>
             <Divider />
-            <Text size="xs" c="dimmed" fw={700} tt="uppercase">Procesos MEN</Text>
+            <Text size="xs" c="dimmed" fw={700} tt="uppercase">Procesos</Text>
             {[
-              { value: "estadisticas", label: "Estadísticas", icon: <IconClipboardList size={16} /> },
-              { value: "alertas", label: "Alertas", icon: <IconAlertCircle size={16} /> },
-              { value: "historial", label: "Historial", icon: <IconCircleCheck size={16} /> },
-              { value: "informacion", label: "Información", icon: <IconCircle size={16} /> },
+              { value: "estadisticas", label: "Estadísticas generales", icon: <IconClipboardList size={16} /> },
+              { value: "alertas", label: "Alertas de procesos", icon: <IconAlertCircle size={16} /> },
+              { value: "historial", label: "Historial de procesos", icon: <IconCircleCheck size={16} /> },
+              { value: "informacion", label: "Información del programa", icon: <IconCircle size={16} /> },
             ].map((tab) => (
               <NavLink
                 key={tab.value}

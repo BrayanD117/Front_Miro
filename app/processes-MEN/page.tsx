@@ -23,7 +23,7 @@ import {
   IconMessageCircle,
 } from "@tabler/icons-react";
 
-import type { Dependency, Program, Process, Phase, ProcessHistoryRecord, ProcessReminderRecord, ProcesoRow, BarRow, PQR } from "./types";
+import type { Dependency, Program, Process, Phase, ProcessHistoryRecord, ProcessReminderRecord, BarRow, PQR } from "./types";
 import {
   LABEL_PROCESO,
   ROW_BG_PROCESO,
@@ -74,7 +74,6 @@ const DropzoneCustomComponent = dynamic(
   () => import("@/app/components/DropzoneCustomDrop/DropzoneCustomDrop"),
   { ssr: false },
 );
-import ProcesoTable from "./components/ProcesoTable";
 import ProcesoDetalleCard from "./components/ProcesoDetalleCard";
 import AgregarProcesoModal, { type AgregarProcesoPrefill } from "./components/AgregarProcesoModal";
 import PQRAgregarForm from "./components/PQRAgregarForm";
@@ -102,7 +101,7 @@ function esSubtipoReformaProceso(subtipo: string | null | undefined): boolean {
 
 /* ── Helper: renderiza la fecha subida de un doc ── */
 const fmtFecha = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) : null;
+  iso ? formatFechaDDMMYY(iso) : null;
 
 /* ── Lista de documentos con fecha de subida ── */
 const DocList = ({ docs }: { docs: Array<{ name: string; view_link: string; subido_en?: string | null }> }) => (
@@ -316,8 +315,6 @@ const ProcessesMenPage = () => {
   /** Tras navegar desde ficha programa con gestionar=1&focusProcess=… */
   const [pendingProcesoScrollId, setPendingProcesoScrollId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [tablePhases, setTablePhases] = useState<Phase[]>([]);
-  const [loadingTablePhases, setLoadingTablePhases] = useState(false);
 
   const [facultades, setFacultades]   = useState<Dependency[]>([]);
   const [programas, setProgramas]     = useState<Program[]>([]);
@@ -859,6 +856,51 @@ const ProcessesMenPage = () => {
     return Object.values(grupos);
   }, [facultades, programasDelModulo, programasFiltradosCompleto, procesosDelModulo]);
 
+  const barRegistroPorPrograma = useMemo(() => {
+    return programasFiltradosCompleto.map((p) => {
+      const proc = getProceso(p, "RC");
+      const n = Number(proc?.fase_actual) || 0;
+      const row: BarRow = {
+        nombre: p.nombre,
+        dep_code: p.dep_code_facultad,
+        program_code: programCodeKey(p),
+        fase_0: 0, fase_1: 0, fase_2: 0, fase_3: 0, fase_4: 0, fase_5: 0, fase_6: 0,
+        fase_contingencia: 0, fase_pm: 0,
+      };
+      if (proc) {
+        if (n >= 7) row.fase_contingencia = 1;
+        else {
+          const faseKey = `fase_${Math.min(Math.max(n, 0), 6)}` as "fase_0" | "fase_1" | "fase_2" | "fase_3" | "fase_4" | "fase_5" | "fase_6";
+          row[faseKey] = 1;
+        }
+      }
+      return row;
+    });
+  }, [programasFiltradosCompleto, procesosDelModulo]);
+
+  const barAcreditacionPorPrograma = useMemo(() => {
+    return programasFiltradosCompleto.map((p) => {
+      const proc = getProceso(p, "AV");
+      const pmProc = getProceso(p, "PM");
+      const n = Number(proc?.fase_actual) || 0;
+      const row: BarRow = {
+        nombre: p.nombre,
+        dep_code: p.dep_code_facultad,
+        program_code: programCodeKey(p),
+        fase_0: 0, fase_1: 0, fase_2: 0, fase_3: 0, fase_4: 0, fase_5: 0, fase_6: 0,
+        fase_contingencia: 0, fase_pm: pmProc ? 1 : 0,
+      };
+      if (proc) {
+        if (n >= 7) row.fase_contingencia = 1;
+        else {
+          const faseKey = `fase_${Math.min(Math.max(n, 0), 6)}` as "fase_0" | "fase_1" | "fase_2" | "fase_3" | "fase_4" | "fase_5" | "fase_6";
+          row[faseKey] = 1;
+        }
+      }
+      return row;
+    });
+  }, [programasFiltradosCompleto, procesosDelModulo]);
+
   const remindersFiltradosTipo = useMemo(() => {
     return reminders.filter((r) => {
       if (remTipoProceso === "Registro calificado") return r.tipo_proceso === "RC";
@@ -986,75 +1028,6 @@ const ProcessesMenPage = () => {
     [historialRecords],
   );
 
-  const procesoRows: ProcesoRow[] = useMemo(() => {
-    return programasFiltradosCompleto.map((p) => {
-      const procRC = getProceso(p, "RC");
-      const procAV = getProceso(p, "AV");
-      const faseRC = tablePhases.find((f) => mismoId(f.proceso_id, procRC?._id) && f.numero === procRC?.fase_actual);
-      const faseAV = tablePhases.find((f) => mismoId(f.proceso_id, procAV?._id) && f.numero === procAV?.fase_actual);
-      const allPMs = procesosDelModulo.filter((pr) => pr.program_code === programCodeKey(p) && pr.tipo_proceso === "PM" && pr.parent_process_id != null);
-      const pmProc = allPMs[0] ?? null;
-      const parentTipo = pmProc?.parent_tipo_proceso ?? null;
-      return {
-        programa: p,
-        registro: procRC ? procRC.fase_actual : null,
-        acreditacion: procAV ? procAV.fase_actual : null,
-        pmFase: pmProc ? pmProc.fase_actual : null,
-        pmLigadoA: parentTipo,
-        pmSubtipo: pmProc?.subtipo ?? null,
-        actividadRc: primeraActividadEnFase(faseRC),
-        actividadAv: primeraActividadEnFase(faseAV),
-      };
-    });
-  }, [programasFiltradosCompleto, procesosDelModulo, tablePhases]);
-
-  useEffect(() => {
-    if (!puedeGestionarProcesosMen || activeSection !== "main") return;
-    if (programa !== "Todos" || facultad === "Todos") {
-      setTablePhases([]);
-      return;
-    }
-    const fac = facultades.find((f) => f.name === facultad);
-    if (!fac) {
-      setTablePhases([]);
-      return;
-    }
-    const progsInFac = programasFiltradosCompleto.filter((p) => p.dep_code_facultad === fac.dep_code);
-    /** Solo fase actual por proceso (misma info que usa la tabla); reduce peso de la respuesta. */
-    const pairStrs = progsInFac.flatMap((p) => {
-      const row: string[] = [];
-      const rc = procesoRcActivoDePrograma(procesosDelModulo, programCodeKey(p));
-      const av = procesosDelModulo.find((x) => x.program_code === programCodeKey(p) && x.tipo_proceso === "AV");
-      if (rc) row.push(`${rc._id}:${Number(rc.fase_actual) || 0}`);
-      if (av) row.push(`${av._id}:${Number(av.fase_actual) || 0}`);
-      return row;
-    });
-    if (pairStrs.length === 0) {
-      setTablePhases([]);
-      return;
-    }
-    setLoadingTablePhases(true);
-    const CHUNK = 80;
-    const chunks: string[][] = [];
-    for (let i = 0; i < pairStrs.length; i += CHUNK) {
-      chunks.push(pairStrs.slice(i, i + CHUNK));
-    }
-    Promise.all(
-      chunks.map((batch) =>
-        axios
-          .get(`${process.env.NEXT_PUBLIC_API_URL}/phases`, {
-            params: { proceso_fase_actual: batch.join("|") },
-          })
-          .then((r) => (Array.isArray(r.data) ? r.data : []) as Phase[])
-          .catch(() => [] as Phase[])
-      )
-    )
-      .then((results) => setTablePhases(results.flat()))
-      .finally(() => setLoadingTablePhases(false));
-  }, [puedeGestionarProcesosMen, activeSection, programa, facultad, procesosDelModulo, facultades, programasFiltradosCompleto]);
-
-  const tituloTabla = `Fase de procesos de programas de ${facultad}`;
-
   const handleProcesoCreado = async () => {
     const [resProg, resProc] = await Promise.all([
       axios.get(`${process.env.NEXT_PUBLIC_API_URL}/programs`),
@@ -1131,8 +1104,12 @@ const ProcessesMenPage = () => {
     ? (sidebarCollapsed ? 56 : 208)
     : (sidebarCollapsed ? 48 : 200);
 
+  const programaDeRecordatorio = (r: ProcessReminderRecord) =>
+    findProgramByCode(programas, r.program_code)
+    ?? programas.find((p) => p.nombre.trim().toLocaleLowerCase("es") === r.nombre_programa.trim().toLocaleLowerCase("es"));
+
   const abrirAgregarDesdeRecordatorio = (r: ProcessReminderRecord) => {
-    const prog = findProgramByCode(programas, r.program_code);
+    const prog = programaDeRecordatorio(r);
     if (!prog) return;
     const tipo = r.tipo_proceso;
     /* Alerta puede traer nulls en snapshot; respaldo a programa si aún tiene resolución vigente. */
@@ -1264,11 +1241,12 @@ const ProcessesMenPage = () => {
                       <Text size="xs" fw={700} c="green" tt="uppercase">Panel MEN</Text>
                     </Group>
                     <Divider />
-                    <Text size="xs" c="dimmed" fw={600} px={8} pt={8}>PROCESOS</Text>
                     <NavLink label="Estadísticas generales" leftSection={<IconChartBar size={16} />} color="green"
                       active={activeSection === "main"}
                       onClick={() => { setActiveSection("main"); setPrograma("Todos"); setNivelAcademico("Todos"); }}
                       style={{ borderRadius: 8 }} />
+                    <Divider mt={8} />
+                    <Text size="xs" c="dimmed" fw={600} px={8} pt={8}>PROCESOS</Text>
                     <NavLink label="Alertas de procesos" leftSection={<IconBellRinging size={16} />} color="blue"
                       active={activeSection === "alertas"} onClick={() => setActiveSection("alertas")}
                       style={{ borderRadius: 8 }} />
@@ -1554,11 +1532,23 @@ const ProcessesMenPage = () => {
       <div style={{ marginLeft: `${sidebarW + 1}px`, flex: 1, minWidth: 0, overflow: "auto", padding: "24px", paddingTop: "30px", minHeight: "calc(100vh - 56px)" }}>
         <Group justify="space-between" align="center" mb="xl" wrap="wrap" gap="md">
           <Group gap={10}>
-            <Tooltip label="Volver al panel de gestión de procesos" withArrow>
+            <Tooltip
+              label={processesMenModulo === "comunicaciones" ? "Volver a estadísticas generales" : "Volver al panel de gestión de procesos"}
+              withArrow
+            >
               <ActionIcon
                 variant="subtle"
-                onClick={() => router.push("/dashboard?gestionProcesos=1")}
-                aria-label="Volver al panel de gestión de procesos"
+                onClick={() => {
+                  if (processesMenModulo === "comunicaciones") {
+                    setActiveSection("main");
+                    setPrograma("Todos");
+                    setNivelAcademico("Todos");
+                    irAModuloMen("procesos");
+                    return;
+                  }
+                  router.push("/dashboard?gestionProcesos=1");
+                }}
+                aria-label={processesMenModulo === "comunicaciones" ? "Volver a estadísticas generales" : "Volver al panel de gestión de procesos"}
               >
                 <IconArrowLeft size={18} />
               </ActionIcon>
@@ -2071,14 +2061,27 @@ const ProcessesMenPage = () => {
             )}
 
             {/* Vista por facultad */}
-            {activeSection !== "informacion" && programa === "Todos" && facultad !== "Todos" && (loadingProgramas || loadingTablePhases ? (
-              <Loader size="sm" mx="auto" display="block" my="lg" />
-            ) : (
-              <ProcesoTable title={tituloTabla} rows={procesoRows} tipoProceso={tipoProceso} programaFiltro={programa} />
-            ))}
+            {activeSection === "main" && (programa !== "Todos" || facultad !== "Todos") && (
+              <>
+                <BarTable
+                  title="Estado de fases por programa — Registro calificado"
+                  data={barRegistroPorPrograma}
+                  tipoProceso="RC"
+                  programas={programasFiltradosCompleto}
+                  procesos={procesos}
+                />
+                <BarTable
+                  title="Estado de fases por programa — Acreditación voluntaria"
+                  data={barAcreditacionPorPrograma}
+                  tipoProceso="AV"
+                  programas={programasFiltradosCompleto}
+                  procesos={procesos}
+                />
+              </>
+            )}
 
             {/* Vista general: barras */}
-            {activeSection === "main" && facultad === "Todos" && <>
+            {activeSection === "main" && facultad === "Todos" && programa === "Todos" && <>
               {(tipoProceso === "Todos" || tipoProceso === "Registro calificado") && (
                 <BarTable
                   title="Estado general de fases — Registro calificado"
@@ -2097,7 +2100,7 @@ const ProcessesMenPage = () => {
                   procesos={procesos}
                 />
               )}
-              <VencimientosPorAnoCharts programasBase={programasFiltradosCompleto} />
+              <VencimientosPorAnoCharts programasBase={programasFiltradosCompleto} procesos={procesos} />
             </>}
             </>
             )}
@@ -2221,6 +2224,7 @@ const ProcessesMenPage = () => {
                             <col style={{ width: "7.5%" }} />
                             <col style={{ width: "7.5%" }} />
                             <col style={{ width: "7.5%" }} />
+                            <col style={{ width: "7.5%" }} />
                             <col style={{ width: "8%" }} />
                             <col style={{ width: "14%" }} />
                           </colgroup>
@@ -2233,13 +2237,14 @@ const ProcessesMenPage = () => {
                                   "Acto admin.",
                                   "Venc.",
                                   "Inicio",
+                                  "Lectura Vicer.",
                                   "Digit.",
                                   "Rad.",
                                   "Documento acto admin.",
                                   "Acciones",
                                 ] as const
                               ).map((h) => {
-                                const isFechaCol = h === "Venc." || h === "Inicio" || h === "Digit." || h === "Rad.";
+                                const isFechaCol = h === "Venc." || h === "Inicio" || h === "Lectura Vicer." || h === "Digit." || h === "Rad.";
                                 const isDocCol = h === "Documento acto admin.";
                                 return (
                                   <th
@@ -2298,6 +2303,7 @@ const ProcessesMenPage = () => {
                                     </td>
                                     <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(proc.fecha_vencimiento)}</td>
                                     <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(proc.fecha_inicio)}</td>
+                                    <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(proc.fecha_documento_par)}</td>
                                     <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(proc.fecha_digitacion_saces)}</td>
                                     <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(proc.fecha_radicado_men)}</td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, verticalAlign: "middle", textAlign: "center" }}>{celdaGuionCentrado}</td>
@@ -2316,7 +2322,7 @@ const ProcessesMenPage = () => {
                             })}
 
                             {remindersOrdenados.map((r) => {
-                              const prog = findProgramByCode(programas, r.program_code);
+                              const prog = programaDeRecordatorio(r);
                               const rowBg = ROW_BG_PROCESO[r.tipo_proceso] ?? "#fafbff";
                               const badgeTipoColor = r.tipo_proceso === "RC" ? "blue" : r.tipo_proceso === "AV" ? "violet" : r.tipo_proceso === "PM" ? "grape" : "teal";
                               const mantineSemaAlerta = nivelSemaforoAlerta(r);
@@ -2350,6 +2356,7 @@ const ProcessesMenPage = () => {
                                   </td>
                                   <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(r.fecha_vencimiento)}</td>
                                   <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(r.fecha_inicio)}</td>
+                                  <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(r.fecha_documento_par)}</td>
                                   <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(r.fecha_digitacion_saces)}</td>
                                   <td style={tdFechaTablaAlertas}>{formatFechaDDMMYY(r.fecha_radicado_men)}</td>
                                   <td style={{ padding: "8px 10px", fontSize: 13, verticalAlign: "middle", textAlign: "center", minWidth: 0 }}>
@@ -2417,7 +2424,7 @@ const ProcessesMenPage = () => {
                             })}
                             {filasProcesosActivosRcAv.length === 0 && remindersOrdenados.length === 0 && (
                               <tr>
-                                <td colSpan={9} style={{ padding: 12, textAlign: "center", color: "#868e96", fontSize: 13 }}>
+                                <td colSpan={10} style={{ padding: 12, textAlign: "center", color: "#868e96", fontSize: 13 }}>
                                   No hay procesos ni alertas con estos filtros.
                                 </td>
                               </tr>

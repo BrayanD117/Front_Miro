@@ -11,6 +11,7 @@ import axios from "axios";
 import DropzoneCustomComponent from "@/app/components/DropzoneCustomDrop/DropzoneCustomDrop";
 import type { PQR, Program, ProcessDocument } from "../types";
 import { dateParserEspanol } from "../utils/parseFlexibleDate";
+import { formatFechaDDMMYY } from "../utils/formatFechaCorta";
 
 export type PQRActivosViewProps = {
   pqrs: PQR[];
@@ -168,7 +169,7 @@ export default function PQRActivosView({ pqrs, programas, onUpdate, onCerrar }: 
       }}
         title="Clic para editar fecha"
         onClick={() => abrirFecha(pqr, field as string, label)}>
-        {value || "Sin fecha"}
+        {value ? formatFechaDDMMYY(value) : "Sin fecha"}
       </Text>
     );
   };

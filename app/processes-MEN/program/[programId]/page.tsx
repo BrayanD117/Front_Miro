@@ -30,6 +30,7 @@ import { filterFacultadesMen, parseDependenciesAllResponse } from "../../utils/f
 import { processesMenRoutes } from "../../config/routes";
 import { ClasificacionCineNbcSection } from "../../components/ClasificacionCineNbcSection";
 import { FichaCampoLectura } from "../../components/FichaCampoLectura";
+import HistoricoProgramaModal from "../../components/HistoricoProgramaModal";
 import { useUnsavedChanges } from "@/app/context/UnsavedChangesContext";
 
 function primeraActividadEnFase(fase: Phase | undefined): string | null {
@@ -65,6 +66,10 @@ export default function ProgramaProcessesMenPage() {
   const [fasesProg, setFasesProg] = useState<Phase[]>([]);
   const [loadingFasesProg, setLoadingFasesProg] = useState(false);
   const [historialRc, setHistorialRc] = useState<ProcessHistoryRecord[]>([]);
+  const [historicoOpen, setHistoricoOpen] = useState(false);
+  const [observaciones, setObservaciones] = useState("");
+  const [savingObservaciones, setSavingObservaciones] = useState(false);
+  const [observacionesMsg, setObservacionesMsg] = useState<string | null>(null);
   const { setHasChanges, confirmNavigation } = useUnsavedChanges();
 
   useEffect(() => {
@@ -101,6 +106,7 @@ export default function ProgramaProcessesMenPage() {
 
         const programaData = progRes.data;
         setPrograma(programaData);
+        setObservaciones(programaData.observaciones ?? "");
         setLoading(false);
 
         const code = programCodeKey(programaData);
@@ -263,11 +269,7 @@ export default function ProgramaProcessesMenPage() {
     const rc = code ? procesoRcActivoDePrograma(procesosDelPrograma, code) : undefined;
     const av = procesosDelPrograma.find((p) => p.tipo_proceso === "AV");
     if (!rc) {
-      out.push({
-        key: "RC-empty",
-        proc: null,
-        rotuloTipo: LABEL_PROCESO["RC"],
-      });
+      out.push({ key: "RC-empty", proc: null, rotuloTipo: LABEL_PROCESO["RC"] });
     } else {
       const subLbl = rc.subtipo ? etiquetaSubtipoCompacta(rc.subtipo) : "";
       out.push({
@@ -308,10 +310,7 @@ export default function ProgramaProcessesMenPage() {
     const codProg = codProgRaw || null;
     const sniesRaw = String(editForm.codigo_snies ?? "").trim();
     try {
-      const payload = {
-        dep_code_programa: codProg,
-        codigo_snies: sniesRaw || null,
-      };
+      const payload = { dep_code_programa: codProg, codigo_snies: sniesRaw || null };
       const res = await axios.put(`${base}/programs/${programa._id}`, payload);
       setPrograma(res.data);
       setEditando(false);
@@ -354,6 +353,25 @@ export default function ProgramaProcessesMenPage() {
       setToggleError(msg);
     } finally {
       setSavingToggleKey(null);
+    }
+  };
+
+  const guardarObservaciones = async () => {
+    if (!programa) return;
+    setSavingObservaciones(true);
+    setObservacionesMsg(null);
+    try {
+      const res = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/programs/${programa._id}`, {
+        observaciones,
+      });
+      setPrograma(res.data);
+      setObservaciones(res.data.observaciones ?? observaciones);
+      setObservacionesMsg("Observaciones guardadas.");
+    } catch (e) {
+      console.error(e);
+      setObservacionesMsg("No se pudieron guardar las observaciones.");
+    } finally {
+      setSavingObservaciones(false);
     }
   };
 
@@ -552,8 +570,10 @@ export default function ProgramaProcessesMenPage() {
         </Stack>
       )}
 
+      <Stack gap="md" style={{ order: 2 }}>
       <Divider />
-      <Text fw={700} size="sm" mb={4}>Resoluciones vigentes</Text>
+      <Text fw={700} size="sm" mb={4}>Histórico</Text>
+      <Text fw={600} size="sm" mb={4}>Resoluciones vigentes</Text>
       <Text size="xs" c="dimmed" mb="sm">
         Datos del último cierre registrado sobre el programa. Si aún no hay historial cerrado en el sistema,
         pueden mostrarse valores “planos” (SNIES/resoluciones) que existan sobre el mismo registro.
@@ -562,6 +582,7 @@ export default function ProgramaProcessesMenPage() {
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" mb="lg">
         {(["RC", "AV"] as const).map((t) => {
           const ult = t === "RC" ? programa.ultimo_rc : programa.ultimo_av;
+          const proceso = procesosDelPrograma.find((p) => p.tipo_proceso === t);
           const codigo =
             ult?.codigo_resolucion
             ?? (t === "RC" ? programa.codigo_resolucion_rc : programa.codigo_resolucion_av);
@@ -622,6 +643,10 @@ export default function ProgramaProcessesMenPage() {
                   )}
                 </Group>
               </Group>
+              <Stack gap={2} mb="xs">
+                <Text size="xs"><strong>Proceso:</strong> {LABEL_PROCESO[t]}</Text>
+                <Text size="xs"><strong>Subtipo:</strong> {proceso?.subtipo?.trim() || "—"}</Text>
+              </Stack>
               {rcTransitoria && (
                 <Text size="xs" c="dimmed" mb="xs" style={{ lineHeight: 1.45 }}>
                   {vigenciaPorFecha
@@ -659,6 +684,20 @@ export default function ProgramaProcessesMenPage() {
         })}
       </SimpleGrid>
 
+      <Text size="xs" c="dimmed" mt="xs" mb={4}>
+        Consulta los procesos anteriores del programa y carga o reemplaza la resolución asociada a cada cierre.
+      </Text>
+      <Button
+        variant="light"
+        size="xs"
+        mb="sm"
+        onClick={() => setHistoricoOpen(true)}
+      >
+        Ver histórico de procesos
+      </Button>
+      </Stack>
+
+      <Stack gap="md" style={{ order: 1 }}>
       <Divider />
       <Group justify="space-between" mb="xs" wrap="wrap" align="center">
         <div>
@@ -757,6 +796,33 @@ export default function ProgramaProcessesMenPage() {
           );
         })}
       </Stack>
+      </Stack>
+
+      <Stack gap="sm" style={{ order: 3 }}>
+        <Divider />
+        <Text fw={700} size="sm">Observaciones</Text>
+        <Textarea
+          label="Notas de la hoja de vida"
+          placeholder="Añade observaciones relevantes sobre este programa..."
+          minRows={4}
+          autosize
+          value={observaciones}
+          onChange={(event) => {
+            setObservaciones(event.currentTarget.value);
+            setObservacionesMsg(null);
+          }}
+        />
+        <Group justify="space-between" align="center">
+          {observacionesMsg && (
+            <Text size="xs" c={observacionesMsg.startsWith("No") ? "red" : "green"}>
+              {observacionesMsg}
+            </Text>
+          )}
+          <Button size="xs" loading={savingObservaciones} onClick={() => void guardarObservaciones()}>
+            Guardar observaciones
+          </Button>
+        </Group>
+      </Stack>
 
       <Modal opened={gestionarInfoOpen} onClose={() => setGestionarInfoOpen(false)} title="Sin procesos para gestionar" centered>
         <Text size="sm">
@@ -764,6 +830,13 @@ export default function ProgramaProcessesMenPage() {
         </Text>
         <Button mt="md" onClick={() => setGestionarInfoOpen(false)}>Entendido</Button>
       </Modal>
+
+      <HistoricoProgramaModal
+        opened={historicoOpen}
+        onClose={() => setHistoricoOpen(false)}
+        programa={programa}
+        programCode={programCodeKey(programa)}
+      />
     </Stack>
   );
 }
