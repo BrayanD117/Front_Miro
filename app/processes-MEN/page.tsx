@@ -2100,8 +2100,10 @@ const ProcessesMenPage = () => {
                   procesos={procesos}
                 />
               )}
-              <VencimientosPorAnoCharts programasBase={programasFiltradosCompleto} procesos={procesos} />
             </>}
+            {activeSection === "main" && (
+              <VencimientosPorAnoCharts programasBase={programasFiltradosCompleto} procesos={procesos} />
+            )}
             </>
             )}
 
